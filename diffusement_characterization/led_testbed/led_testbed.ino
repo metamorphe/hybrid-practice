@@ -11,19 +11,65 @@ APA102<dataPin, clockPin> ledStrip;
 const uint16_t ledCount = 4;
 rgb_color colors[ledCount];
 
+// Communication functions
+void read_command(void);
+
 // Utility functions
 void write_gradient(void);
 void set_ith(int, uint8_t, uint8_t, uint8_t);
 void set_all_off(void);
 
 void setup() {
+  // Serial overhead
+  Serial.begin(9600);
+  Serial.print(">>> ");
+  
   set_all_off();
-  set_ith(ledCount - 1, 255, 255, 255);
+  set_ith(2, 255, 255, 255);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 //  write_gradient();
+  if (Serial.available() > 0) {
+    read_command();
+    Serial.print("\n>>> ");
+  }
+}
+
+void read_command() {
+  int curr_led = 0;
+  int inc_byte;
+  while (Serial.available() > 0) {
+    delay(10);
+    inc_byte = Serial.read();
+     Serial.print("I received: ");
+     Serial.println(inc_byte, DEC);
+     switch (inc_byte) {
+       case 114:
+         // 'r' == red
+         set_ith(curr_led++, 255, 0, 0);
+         break;
+       case 103:
+         // 'g' == green
+         set_ith(curr_led++, 0, 255, 0);
+         break;
+       case 98:
+         // 'b' == blue
+         set_ith(curr_led++, 0, 0, 255);
+         break;
+       case 119:
+         // 'w' == white
+         set_ith(curr_led++, 255, 255, 255);
+         break;
+       case 107:
+         // 'k' == black
+         set_ith(curr_led++, 0, 0, 0);
+         break;
+       default:
+         break;
+     }
+  }
 }
 
 void write_gradient() {
