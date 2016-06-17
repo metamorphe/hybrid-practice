@@ -1,6 +1,7 @@
 #include <FastGPIO.h>
 #define APA102_USE_FAST_GPIO
 #include <APA102.h>
+#include <SoftwareSerial.h>
 
 // Initialize ledStrip obkect
 const uint8_t dataPin = 11;
@@ -18,14 +19,23 @@ void read_command(void);
 void write_gradient(void);
 void set_ith(int, uint8_t, uint8_t, uint8_t);
 void set_all_off(void);
+void set_lights_initialize(void);
+
+// Add software serial for debugging
+// SoftwareSerial mySerial(5, 6); // RX, TX
 
 void setup() {
   // Serial overhead
+
+  // Spin lock to wait for Serial
+  while (!Serial);
+  
   Serial.begin(9600);
+  Serial.println("I am the hardware serial");
   Serial.print(">>> ");
   
   set_all_off();
-  set_ith(2, 255, 255, 255);
+  set_lights_initialize();
 }
 
 void loop() {
@@ -98,5 +108,13 @@ void set_all_off() {
     colors[i].blue = 0;
   }
   ledStrip.write(colors, ledCount, 31);
+}
+
+void set_lights_initialize() {
+  for (uint16_t i = 0; i < ledCount; i++) {
+    set_ith(i, 255, 255, 255);
+    delay(200);
+    set_ith(i, 0, 0, 0);
+  }
 }
 
