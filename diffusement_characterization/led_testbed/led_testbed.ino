@@ -41,10 +41,33 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 //  write_gradient();
-  if (Serial.available() > 0) {
-    read_command();
-    Serial.print("\n>>> ");
-  }
+//  if (Serial.available() > 0) {
+//    read_command();
+//    Serial.print("\n>>> ");
+//  }
+  char prefix = 0;
+  uint16_t id = 0;
+  uint8_t r, g, b = 0;
+  while (Serial.available() > 0) {
+    prefix = Serial.read();
+    Serial.println(prefix);
+    if(prefix != 'c') break;
+    Serial.println("parsing...");
+    id = Serial.parseInt();
+    r = Serial.parseInt();
+    g = Serial.parseInt();
+    b = Serial.parseInt();
+
+    if(Serial.read() == '\n'){
+//       strip.setPixelColor(id, r, g, b);
+//       strip.show();
+      set_ith(id, r, g, b);
+    }
+    else {
+      set_ith(0, 255, 0, 0);
+      break;
+    }
+  }  
 }
 
 void read_command() {
