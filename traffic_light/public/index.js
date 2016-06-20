@@ -1,8 +1,14 @@
-var test;
+'use strict';
 
 var tSVG = null;
+var ws, tLeds;
+var baseUrl = 'localhost:3000'
 function TrafficLightSVG(svg){
 	this.svg = svg;
+}
+
+function Util() {
+
 }
 
 TrafficLightSVG.prototype = {
@@ -60,41 +66,68 @@ TrafficLightSVG.getName = function(item){
   return item.name.split(":")[1].trim();
 }
 
+Util.hex2rgb = function(hex){
+   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+    ] : null;
+}
+
 // MAIN
 $(document).ready(function() {
   paper.install(window);
   // Setup directly from canvas id:
 	paper.setup('myCanvas');
-	// var path = new Path();
-	// path.strokeColor = 'black';
-	// var start = new Point(100, 100);
-	// path.moveTo(start);
-	// path.lineTo(start.add([ 200, -50 ]));
-	// view.draw();
+	// Import SVG
   project.importSVG('img/traffic_light.svg', function(item) {
     tSVG = new TrafficLightSVG(item);
     console.log("Importing", item.name, item);
 
-    // tLeds is the global that contains the LED elements
+  // tLeds is the global that contains the LED elements
     tLeds = tSVG.match(paper.project, {prefix:['LED']})
   });
+
+	// Open websocket connection
+	ws = new WebSocket("ws://localhost:3015");
+	ws.onopen = function() {
+		console.log("CONNECTED!");
+	};
+	ws.onclose = function() {};
+	ws.onmessage = function(evt) {
+			if(evt.data){
+				try{
+					// console.log(evt.data);
+				}
+				catch(e){
+					console.log("ERROR", e, evt.data);
+				}
+			}
+	}
 
   // Binding 'Send' buttons to respective LEDs on the canvas
   $('#button-t2-l1').on('click', function() {
     var val = $('#picker-t2-l1').val();
+		var valRgb = Util.hex2rgb(val).join(",");
     console.log(val);
     tLeds[0].fillColor = val;
+		ws.send('c,0,' + valRgb + '\n');
   })
 
   $('#button-t2-l2').on('click', function() {
     var val = $('#picker-t2-l2').val();
+		var valRgb = Util.hex2rgb(val).join(",");
     console.log(val);
     tLeds[1].fillColor = val;
+		ws.send('c,1,' + valRgb + '\n');
   })
 
   $('#button-t2-l3').on('click', function() {
     var val = $('#picker-t2-l3').val();
+		var valRgb = Util.hex2rgb(val).join(",");
     console.log(val);
     tLeds[2].fillColor = val;
+		ws.send('c,2,' + valRgb + '\n');
   })
 });
