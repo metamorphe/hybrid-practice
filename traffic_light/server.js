@@ -22,14 +22,14 @@ app.use(methodOverride('X-HTTP-Method-Override')); // override with the X-HTTP-M
 app.use(express.static(__dirname + '/public')); // set the static files location /public/img will be /img for users
 
 // // Arduino serial interface ===============================
-// var serialPort = require('./config/serial.js');
+var serialPort = require('./serial.js');
 
 // routes ==================================================
 require('./routes.js')(app); // pass our application into our routes
 
 // start app ===============================================
 app.listen(port, function() {
-    // serialPort.openSerialPort();
+    serialPort.openSerialPort();
     // console.log('Databaseadressen bruget er: ' + db.url);
     console.log('Webserver kørende på port ' + port + ' ...');
     exports = module.exports = app;
