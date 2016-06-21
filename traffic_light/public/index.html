@@ -12,25 +12,24 @@
     <script type="text/javascript" src="./bootstrap.min.js"></script>
 
     <!-- Underscore -->
-    <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="./bower_components/underscore/underscore-min.js"></script>
 
     <!-- Paper -->
-    <script type="text/javascript" src="bower_components/paper/dist/paper-full.min.js" canvas="myCanvas"></script>
+    <script type="text/javascript" src="./bower_components/paper/dist/paper-full.min.js" canvas="myCanvas"></script>
     <!-- <script type="text/paperscript" src="js/index.js" canvas="myCanvas"></script> -->
 
     <!-- Custom JS -->
     <script type="text/javascript" src="index.js"></script>
-
   </head>
   <body>
     <div class="container">
       <div class="row">
         <div class="col-md-4">
-          <h3>Title</h3>
+          <h3 class="svg-title">SVG</h3>
           <img class="light" src="img/traffic_img.jpg" alt="Sorry">
         </div>
         <div class="col-md-4">
-          <h3>Title</h3>
+          <h3 class="svg-title">SVG</h3>
           <canvas id="myCanvas"></canvas>
         </div>
         <div class="col-md-4">
@@ -41,24 +40,12 @@
         </div>
       </div>
       <div class="col-md-4">
-        <h3>Set Colors</h3>
-        <div class="input-group">
-          <input type="color" class="form-control" value="#E74C3C">
-          <span class="input-group-btn">
-            <button class="btn btn-secondary" type="button">Send</button>
-          </span>
-        </div>
-        <div class="input-group">
-          <input type="color" class="form-control" value="#E74C3C">
-          <span class="input-group-btn">
-            <button class="btn btn-secondary" type="button">Send</button>
-          </span>
-        </div>
-        <div class="input-group">
-          <input type="color" class="form-control" value="#E74C3C">
-          <span class="input-group-btn">
-            <button class="btn btn-secondary" type="button">Send</button>
-          </span>
+        <h3>Component Tree</h3>
+        <input class="svg-upload" type="file"></input>
+        <button class="btn btn-default svg-upload-btn" type="submit">
+          Upload SVG
+        </button>
+        <div class="component-tree">
         </div>
       </div>
       <div class="col-md-4">
