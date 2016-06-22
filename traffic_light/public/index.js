@@ -153,44 +153,57 @@ Util.importSVG = function(svgPath) {
   });
 }
 
-Util.queryElements = function(svgNum, type) {
+Util.queryElements = function(svgNum, prefix) {
   var svg, elements;
-  switch(type) {
-    case 'nonLed':
-      svg = tSvgs[svgNum];
-      elements = svg.tNonLeds;
-      $.each(elements, function(idx, obj) {
-        obj.strokeColor = 'red';
-      });
-      break;
-    case 'intLed':
-      svg = tSvgs[svgNum];
-      elements = svg.tIntLeds;
-      $.each(elements, function(idx, obj) {
-        obj.strokeColor = 'red';
-      });
-      break;
-    case 'plane':
-      svg = tSvgs[svgNum];
-      elements = svg.tPlanes;
-      $.each(elements, function(idx, obj) {
-        obj.strokeColor = 'red';
-      });
-      break;
-    case 'layer':
-      svg = tSvgs[svgNum];
-      elements = svg.tLayers;
-      $.each(elements, function(idx, obj) {
-        obj.strokeColor = 'red';
-      });
-      break;
-    default:
-      console.log('Unrecognized type. Must be "nonLed", \
-                    "intLed", "plane", or "layer".')
-      elements = null;
-      break;
-  }
-  return elements;
+	svg = tSvgs[svgNum];
+	// elements = svg.tNonLeds;
+	elements = svg.match(paper.project, {prefix:[prefix]});
+	return elements;
+}
+
+/**
+ * Given an SVG with SVG_NUM which contains exactly one bus (prefix: 'CP')
+ * containing all the LEDs, ORDER_LEDS returns an array of two arrays, i.e.:
+ * >>> [allLedsSorted, interactiveLedsSorted]
+ * where allLedsSorted contains an ordered list of all leds, interactive
+ * and non-interactive leds, on the bus, which have been assigned a
+ * LID fields based on their ordering. interactiveLedsSorted contains
+ * a list of interactiveLeds only, with CID fields based on their ordering.
+ * Thus, the fields are as follows:
+ * cid: capacitative id (only interactive leds), undefined for nLeds.
+ * lid: light id (all leds)
+ *
+ * Returns: an array containing two arrays, of the form:
+ * >>> [allLedsSorted, interactiveLedsSorted]
+ */
+Util.orderLeds = function(svgNum) {
+	var nLeds = Util.queryElements(svgNum, 'NLED');
+	var iLeds = Util.queryElements(svgNum, 'ILED');
+	var cp = Util.queryElements(svgNum, 'CP')[0];
+	var allLeds = nLeds.concat(iLeds);
+
+	// Note that we cannot guarantee that an LED will lie exactly
+	// on the medial axis of the bus/copper path, so we find the
+	// nearest point on the bus to calculate the bus offset
+	var nearestCpPoint;
+	$.each(allLeds, function(idx, obj) {
+		nearestCpPoint = cp.getNearestPoint(obj.position);
+		obj.lOffset = cp.getOffsetOf(nearestCpPoint);
+	});
+	allLeds = _.sortBy(allLeds, 'lOffset');
+	$.each(allLeds, function (idx, obj) {
+		obj.lid = idx;
+	});
+
+	$.each(iLeds, function(idx, obj) {
+		nearestCpPoint = cp.getNearestPoint(obj.position);
+		obj.cOffset = cp.getOffsetOf(nearestCpPoint);
+	});
+	iLeds = _.sortBy(iLeds, 'cOffset');
+	$.each(iLeds, function (idx, obj) {
+		obj.cid = idx;
+	});
+	return [allLeds, iLeds];
 }
 
 // MAIN
@@ -199,7 +212,7 @@ $(document).ready(function() {
   // Setup directly from canvas id:
 	paper.setup('myCanvas');
 	// // Import SVG
-  Util.importSVG('img/traffic_light.svg');
+  Util.importSVG('img/nine-segment.svg');
 
 	// Open websocket connection
 	ws = new WebSocket("ws://localhost:3015");
@@ -255,7 +268,6 @@ $(document).ready(function() {
 		}
 		$('.color-picker').val(hitResult.item.fillColor.toCSS(true));
 		// $('.color-picker-label').val();
-		console.log(hitResult.item);
 		selectedItem = hitResult.item;
   }
 
