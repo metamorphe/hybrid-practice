@@ -182,13 +182,23 @@ Util.orderLeds = function(svgNum) {
 	var cp = Util.queryElements(svgNum, 'CP')[0];
 	var allLeds = nLeds.concat(iLeds);
 
+	// Determine the 'polarity' of the path, i.e. ensure
+	// that if the start of the path begins near the breakout
+	// (prefix: 'bo'), then we account for it in the offsetting
+	var bo = Util.queryElements(svgNum, 'BO')[0];
+	var bi = Util.queryElements(svgNum, 'BI')[0];
+	var cpStartPoint = cp.segments[0].point;
+	var polarity = cpStartPoint.getDistance(bi.position)
+									< cpStartPoint.getDistance(bo.position)
+									? 1 : -1;
+
 	// Note that we cannot guarantee that an LED will lie exactly
 	// on the medial axis of the bus/copper path, so we find the
 	// nearest point on the bus to calculate the bus offset
 	var nearestCpPoint;
 	$.each(allLeds, function(idx, obj) {
 		nearestCpPoint = cp.getNearestPoint(obj.position);
-		obj.lOffset = cp.getOffsetOf(nearestCpPoint);
+		obj.lOffset = polarity *  cp.getOffsetOf(nearestCpPoint);
 	});
 	allLeds = _.sortBy(allLeds, 'lOffset');
 	$.each(allLeds, function (idx, obj) {
@@ -197,7 +207,7 @@ Util.orderLeds = function(svgNum) {
 
 	$.each(iLeds, function(idx, obj) {
 		nearestCpPoint = cp.getNearestPoint(obj.position);
-		obj.cOffset = cp.getOffsetOf(nearestCpPoint);
+		obj.cOffset = polarity * cp.getOffsetOf(nearestCpPoint);
 	});
 	iLeds = _.sortBy(iLeds, 'cOffset');
 	$.each(iLeds, function (idx, obj) {
