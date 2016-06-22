@@ -6,6 +6,7 @@
 var tSvgs = [];
 
 var ws;
+var selectedItem;
 const baseUrl = 'localhost:3000'
 const componentTreeDom = '.component-tree'
 function TrafficLightSVG(svg){
@@ -68,7 +69,10 @@ TrafficLightSVG.prototype = {
 
 	select: function(match){
 		return this.match(this.svg, match);
-	}
+	},
+  getIthComponent: function(prefix, ith){
+    return this.match(this.svg, {prefix: prefix})[ith];
+  }
 }
 
 TrafficLightSVG.get = function(match){
@@ -195,7 +199,7 @@ $(document).ready(function() {
   // Setup directly from canvas id:
 	paper.setup('myCanvas');
 	// // Import SVG
-  // Util.importSVG('img/traffic_light.svg');
+  Util.importSVG('img/traffic_light.svg');
 
 	// Open websocket connection
 	ws = new WebSocket("ws://localhost:3015");
@@ -226,26 +230,34 @@ $(document).ready(function() {
 
   // Binding 'Send' buttons to respective LEDs on the canvas
   $('#button-t2-l1').on('click', function() {
-    var val = $('#picker-t2-l1').val();
+    var val = $('.color-picker').val();
 		var valRgb = Util.hex2rgb(val).join(",");
     console.log(val);
-    tSvgs[0].tIntLeds[0].fillColor = val;
-		ws.send('c,0,' + valRgb + '\n');
+		//TODO: deal with having multiple LEDs
+		var id = selectedItem.name.slice(5)
+    tSvgs[0].tIntLeds[id].fillColor = val;
+		ws.send('c,' + id + ',' + valRgb + '\n');
   })
 
-  $('#button-t2-l2').on('click', function() {
-    var val = $('#picker-t2-l2').val();
-		var valRgb = Util.hex2rgb(val).join(",");
-    console.log(val);
-    tSvgs[0].tIntLeds[1].fillColor = val;
-		ws.send('c,1,' + valRgb + '\n');
-  })
+  /* Paper overhead */
+  var hitOptions = {
+      segments: true,
+      stroke: true,
+      fill: true,
+      tolerance: 5
+  };
 
-  $('#button-t2-l3').on('click', function() {
-    var val = $('#picker-t2-l3').val();
-		var valRgb = Util.hex2rgb(val).join(",");
-    console.log(val);
-    tSvgs[0].tIntLeds[2].fillColor = val;
-		ws.send('c,2,' + valRgb + '\n');
-  })
+  var colorTool = new Tool();
+  colorTool.onMouseUp = function(event) {
+    var hitResult = project.hitTest(event.point, hitOptions);
+		if (!hitResult) {
+			return;
+		}
+		$('.color-picker').val(hitResult.item.fillColor.toCSS(true));
+		// $('.color-picker-label').val();
+		console.log(hitResult.item);
+		selectedItem = hitResult.item;
+  }
+
+  colorTool.activate();
 });
