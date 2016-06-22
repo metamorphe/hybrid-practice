@@ -133,7 +133,7 @@ Util.importSVG = function(svgPath) {
     tSvgs.push(newTSvg);
 
     // Remove the LAYE: tag by slicing
-    var topName = item.name.slice(5);
+    var topName = item.name.slice(4);
     newTSvg.topName = topName;
     console.log("Importing", topName);
     $('.svg-title').text(topName);
@@ -218,6 +218,8 @@ Util.orderLeds = function(svgNum) {
 
 // MAIN
 $(document).ready(function() {
+	$('#myCanvas').attr('width', $('#myCanvas').parent().width());
+	$('#myCanvas').attr('height', $('#myCanvas').parent().height());
   paper.install(window);
   // Setup directly from canvas id:
 	paper.setup('myCanvas');
@@ -267,19 +269,50 @@ $(document).ready(function() {
       segments: true,
       stroke: true,
       fill: true,
-      tolerance: 5
+      tolerance: 0
   };
 
   var colorTool = new Tool();
-  colorTool.onMouseUp = function(event) {
-    var hitResult = project.hitTest(event.point, hitOptions);
+	colorTool.updateColor = function(event) {
+		var hitResult = project.hitTest(event.point, hitOptions);
 		if (!hitResult) {
 			return;
 		}
-		$('.color-picker').val(hitResult.item.fillColor.toCSS(true));
-		// $('.color-picker-label').val();
-		selectedItem = hitResult.item;
+		var item = hitResult.item;
+		var prefix = TrafficLightSVG.getPrefix(item);
+		if (prefix == 'ILED' || prefix == 'NLED') {
+			hitResult.item.fillColor = $('.color-picker').val();
+			selectedItem = hitResult.item;
+		}
+	}
+	colorTool.onMouseUp = function(event) {
+		colorTool.updateColor(event);
+	}
+  colorTool.onMouseDrag = function(event) {
+		colorTool.updateColor(event);
   }
 
-  colorTool.activate();
+	var panTool = new Tool();
+	panTool.onMouseDrag = function(event) {
+  	_.each(paper.project.layers, function(el, i, arr){
+    	el.position.x += event.delta.x;
+      el.position.y += event.delta.y;
+      paper.view.update();
+    });
+  }
+
+	$('.dcc-btn').on('click', function() {
+		colorTool.activate();
+	});
+	$('.pan-btn').on('click', function() {
+		panTool.activate();
+	});
+
+	$('.plus-zoom-btn').on('click', function() {
+		paper.view.zoom += 0.3;
+	});
+
+	$('.minus-zoom-btn').on('click', function() {
+		paper.view.zoom -= 0.3;
+	});
 });
