@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButton').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+
+				paper.install(window);
+				paper.setup('myCanvas');			
+				nineSegment = new Artwork("img/nine-segment.svg");
+				runScrip
+				t();
+			});
+			function runScript(){
+				// TODO: YOUR CODE HERE
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+			<a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButton{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>
