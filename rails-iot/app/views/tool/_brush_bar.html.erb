@@ -1,0 +1,178 @@
+<script type="text/javascript">
+function BrushBar(container){
+    this.container = container;
+    this.toolbox = {};
+    this.state = true;
+    this.brush = null;
+    this.init();
+    paper.tool = null;
+    
+
+  }
+  BrushBar.prototype = {
+    init: function(){
+      var scope = this;
+      $('#visibility-button').click(function(){
+        scope.hide();
+      });
+      // BRUSH SETUP
+      brushClasses = _.map($('.brush'), function(brush){
+        return $(brush).attr('tool');
+      });
+      _.each(brushClasses, function(brush){
+        // console.log(brush);
+        var toolStr = "new " + brush + "(paper)";
+        var tool = eval(toolStr);
+        scope.toolbox[brush] = tool;        
+      });
+     
+
+      // BRUSH BEHAVIORS
+      $('.brush').hover(function(){
+          BrushBar.setBrush($(this), true);
+        }, function(){
+          if($(this).attr('active') == "active") return;
+          BrushBar.setBrush($(this), false);
+        });
+
+        $('.brush').click(function(){
+          $('.brush').attr('active', '');
+          _.each( $('.brush').not(this) ,function(brush){
+              BrushBar.setBrush($(brush), false);
+          });
+          BrushBar.setBrush($(this), true);
+          // DISABLE OLD BRUSH
+          if(! _.isNull(scope.getCurrentBrush())){
+            var oldbrush = scope.toolbox[scope.getCurrentBrush()];
+            oldbrush.disable();
+          }
+          // ACTIVATE BRUSH
+          scope.brush = $(this).attr('tool');
+          var brush = scope.toolbox[scope.brush];
+          brush.enable();
+          paper.tool = brush.tool;
+
+          $(this).attr('active', 'active');
+        });
+
+    },
+    getCurrentBrush: function(){
+      return this.brush;
+    },
+    show: function(now){
+      var scope = this;
+      if(this.state) return;
+      this.state = true;
+      if(now){this.container.show(); return;}
+      cp.show();
+      this.container.animate({
+        bottom: "0px",
+      }, 500);
+      $('#visibility-button').html('HIDE').unbind('click').click(function(){
+        scope.hide();
+      });
+    }, 
+    hide: function(now){
+      var scope = this;
+      if(!this.state) return;
+      this.state = false;
+      if(now){this.container.hide(); return;}
+      cp.hide();
+      this.container.animate({
+        bottom: "-100px",
+      }, 500);
+      $('#visibility-button').html('SHOW').unbind('click').click(function(){
+        scope.show();
+      });
+    }
+  }
+
+  BrushBar.setBrush = function(jqNode, active){
+     var img = jqNode.attr('src');
+     var brushName = img.split('_');
+     var isActive = active ? "Active.png" : "NonActive.png";
+     brushName[2] = isActive;
+     brushName = brushName.join('_');
+     jqNode.attr('src', brushName);
+  }
+
+ </script>
+
+
+<!-- BRUSH BAR -->
+<div id="brush-bar">
+<div class="task-bar">
+  <button class="pull-left btn btn-xs btn-transparent">
+    <span class="glyphicon glyphicon-backward">
+  </button>
+  <button class="pull-left btn btn-xs btn-transparent">
+    <span class="glyphicon glyphicon-floppy-disk">
+  </button>
+  <button class="pull-left btn btn-xs btn-transparent">
+    <span class="glyphicon glyphicon-forward">
+  </button>
+  <button id="visibility-button" class="pull-right btn btn-xs btn-transparent">
+   HIDE
+  </button>
+  <br class="clearfix"/>
+</div>
+<div class="col-xs-5">
+  <div id="brush-set">
+    <img class="brush" tool="CircuitBrush" src="/brushes/brush_CircuitBrush_NonActive.png">
+    <img class="brush" tool="MagicWandBrush" src="/brushes/brush_MagicWand_NonActive.png">
+    <img class="brush" tool="HeatBrush" src="/brushes/brush_HeatGun_NonActive.png">
+  </div>
+  <!-- SET OF TOOLS HERE -->
+</div>
+<div class="col-xs-5">
+  <h3>Status</h3>
+</div>
+ <div class="col-xs-2">
+    <button id="send-button" class="btn btn-lg btn-danger">
+      SEND
+    </button>
+</div>
+</div>
+
+<style>
+#brush-set{
+      margin-left: 20px;
+    }
+    .brush{
+      height: 115px;
+      margin: 4px 2px;
+    }
+    #brush-bar{
+      padding: 4px 8px;
+      background: blue;
+      position: absolute;
+      bottom: 0;
+      left: 5%;
+      width: 90%;
+      height: 125px;
+      color: #a19e99;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
+
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3b3a38+0,181617+98 */
+      background: #3b3a38; /* Old browsers */
+      background: -moz-linear-gradient(top, #3b3a38 0%, #181617 98%); /* FF3.6-15 */
+      background: -webkit-linear-gradient(top, #3b3a38 0%,#181617 98%); /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(to bottom, #3b3a38 0%,#181617 98%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3b3a38', endColorstr='#181617',GradientType=0 ); /* IE6-9 */
+
+
+      -webkit-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+      -moz-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+      box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+
+    }
+      #brush-bar.task-bar{
+        height: 10px;
+        margin-bottom: 5px;
+      }
+    #send-button{
+      margin: 15% 0;
+    }
+</style>

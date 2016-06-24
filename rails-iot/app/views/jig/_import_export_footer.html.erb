@@ -1,0 +1,29 @@
+<script type="text/javascript">
+$(function(){
+  $('#save-svg').click(function(){
+    JigExporter.export(designer.paper, designer.canvas, JigExporter.SVG);
+   });
+   $('#save-json').click(function(){
+    JigExporter.export(designer.paper, designer.canvas, JigExporter.JSON);
+   });
+  $('#save-png').click(function(){
+    JigExporter.export(designer.paper, designer.canvas, JigExporter.PNG);
+   });
+  $('#print').click(function(){
+    window.location = "/jig/generator";
+   });
+});
+</script>
+<div id="import-export">
+  <div class="btn-group">
+  <%= button_tag :id=> "save-svg", :class => "btn btn-ellustrator btn-sm" do %>
+    <span class="glyphicon glyphicon-floppy-disk"> </span>
+  <% end %>
+  <%= button_tag :id=> "save-json", :class => "btn btn-ellustrator btn-sm" do %>
+    <span class="glyphicon glyphicon-save"> </span>
+  <% end %>
+   <%= button_tag :id=> "save-png", :class => "btn btn-ellustrator btn-sm" do %>
+    <span class="glyphicon glyphicon-camera"> </span> 
+  <% end %>
+</div>
+</div>

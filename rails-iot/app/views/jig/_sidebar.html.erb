@@ -1,0 +1,96 @@
+<style type="text/css">
+input{
+  text-align: left;
+}
+</style>
+<div id="sidebar" class="shadowed col-xs-4">
+    <div id="main-title" class="title shadowed row">
+      <h4 class="col-xs-12 shadowed-text"> Circuit Properties </h4>
+    </div>
+    <!-- <div id="stat-box">
+     
+      <span class="glyphicon glyphicon-print"></span> <span id="print-time"> 4 hr 30 min </span>&nbsp;
+      | &nbsp; <span class="glyphicon glyphicon-time"></span> <span id="make-time"> 30 min </span>&nbsp;
+      | &nbsp; <span class="glyphicon glyphicon-paperclip"></span> <span id="bom-length"> 1.5 m </span>
+      <%= button_tag :id=>"calculate-stats", :class=> "pull-right btn-xs btn btn-danger" do %>
+        <span class="glyphicon glyphicon-repeat">
+      <% end %>
+     
+    </div>
+    <br> -->
+    <div class="input-group">
+      <span class="input-group-addon glyphicon glyphicon-file" id="basic-addon1"></span>
+      <input type="text" placeholder="Enter a filename" id="filename" class="form-control"/>
+    </div>
+
+    <div id="wirepath_controller">
+
+      <label> Trace Material: </label> <br>
+      <select class="materials" data-component-type="trace" class="form-control">
+          <option value="0" data-id="default_trace" data-physical-resistance ="0.5" data-physical-current-unit="ohms" data-physical-current-unit-scale="-3" data-style-strokecolor="#000000" data-style-dashArray = "[]" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > None </option>
+          <option value="1" data-id="copper-tape" data-physical-resistance ="60" data-physical-current-unit="ohms" data-physical-current-unit-scale="-3" data-style-strokecolor="#808285" data-style-dashArray = "[]" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Silver </option>
+          <option value="2" data-id="silver-paint" data-physical-resistance ="0.5" data-physical-current-unit="ohms" data-physical-current-unit-scale="-3" data-style-strokecolor="#F15A29" data-style-dashArray = "[]" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Copper </option>
+          <option value="3" data-id="graphite-paint" data-physical-resistance ="150" data-physical-current-unit="ohms" data-physical-current-unit-scale="-3" data-style-strokecolor="#414042" data-style-dashArray = "[]" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Graphite paint </option>
+          <option value="4" data-id="conductive-thread" data-physical-resistance ="300" data-physical-current-unit="ohms" data-physical-current-unit-scale="-3" data-style-strokecolor="#939598" data-style-dashArray = "[10, 4]" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Conductive thread </option>
+      </select> 
+      <br>
+      <label> Electrical Components: </label> <br>
+      <select class="materials" data-component-type="electrical_components" class="form-control">
+              <option value="0" data-id="led-yellow-through-hole" data-physical-maxcurrent="20" data-physical-turnonvoltage = "2" data-physical-package = "5mm through-hole" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#F9ED32" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Yellow LED </option>
+              <option value="1" data-id="led-red-through-hole" data-physical-maxcurrent="20" data-physical-turnonvoltage = "2" data-physical-package = "5mm through-hole" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#BE1E2D" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Red LED </option>
+              <option value="2" data-id="led-blue-through-hole" data-physical-maxcurrent="30" data-physical-turnonvoltage = "3.4" data-physical-package = "5mm through-hole" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#27AAE1" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Blue LED </option>
+              <option value="3" data-id="led-green-through-hole" data-physical-maxcurrent="20" data-physical-turnonvoltage = "2" data-physical-package = "5mm through-hole" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#39B54A" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Green LED </option>
+
+              <option value="4" data-id="led-yellow-0805-smd" data-physical-maxcurrent="50" data-physical-turnonvoltage = "1.9" data-physical-package = "0805 SMD" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#F9ED32" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Yellow LED </option>
+              <option value="5" data-id="led-red-0805-smd" data-physical-maxcurrent="50" data-physical-turnonvoltage = "2" data-physical-package = "0805 SMD" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#BE1E2D" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Red LED </option>
+              <option value="6" data-id="led-blue-0805-smd" data-physical-maxcurrent="60" data-physical-turnonvoltage = "3.9" data-physical-package = "0805 SMD" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#27AAE1" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Blue LED </option>
+              <option value="7" data-id="led-green-0805-smd" data-physical-maxcurrent="50" data-physical-turnonvoltage = "2" data-physical-package = "0805 SMD" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#39B54A" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Green LED </option>
+
+
+              <option value="8" data-id="led-yellow-circuitsticker" data-physical-maxcurrent="50" data-physical-turnonvoltage = "2" data-physical-package = "Circuit Sticker" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#F9ED32" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Yellow LED </option>
+              <option value="9" data-id="led-red-circuitsticker" data-physical-maxcurrent="50" data-physical-turnonvoltage = "2" data-physical-package = "Circuit Sticker" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#BE1E2D" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Red LED </option>
+              <option value="10" data-id="led-blue-circuitsticker" data-physical-maxcurrent="60" data-physical-turnonvoltage = "2.6" data-physical-package = "Circuit Sticker" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#27AAE1" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Blue LED </option>
+              <option value="11" data-id="led-white-circuitsticker" data-physical-maxcurrent="50" data-physical-turnonvoltage = "2.5" data-physical-package = "Circuit Sticker" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#39B54A" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > White LED </option>
+
+              <option value="12" data-id="battery" data-physical-voltage="5" data-physical-package = "Battery" data-style-color="#F9ED32" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Battery </option>
+
+      </select> 
+      <br>
+      <h2 id="led-state"> LED state: 1 </h2>
+      
+<!--       <div class="row">
+      <label class="col-xs-12"> Termination Points </label>
+      
+      <div class="col-xs-6">
+        <select id="termination-a" class="form-control">
+        <option value="0"> None </option>
+        <option value="1"> Extend </option>
+        <option value="2"> Spiral </option>
+        <option value="3"> Coil Loop </option>
+        <option value="4"> Simple Loop </option>
+       </select>  
+      </div>
+
+      <div class="col-xs-6">
+       <select id="termination-b" class="form-control">
+        <option value="0"> None </option>
+        <option value="1"> Extend </option>
+        <option value="2"> Spiral </option>
+        <option value="3"> Coil Loop </option>
+        <option value="4"> Simple Loop </option>
+       </select>  
+      </div>
+    </div>
+    <label> Weight: </label> 
+       <select id="weight-profile" class="form-control">
+        <option value="0"> None </option>
+        <option value="1"> Uniform </option>
+        <option value="2"> Tapered </option>
+        <option value="3"> Unitapered</option>
+       </select>  
+    </div> -->
+    <%= render :partial => "import_export_footer" %>
+
+
+</div>
+</div>

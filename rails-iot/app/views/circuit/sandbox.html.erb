@@ -1,0 +1,164 @@
+<script type="text/javascript">
+	var tree, circuit_path;
+	var visited_list = [];
+	// MAIN FUNCTION
+	$(function(){
+		tree = makeTree(components);
+		visited_list = [];
+		circuit_path = traverse(0, null, getBattery(components), propagateVoltage, []);
+		$('#circuit-path').html(listToString(circuit_path));
+		
+		// visited_list = [];
+		// ground_path = traverse(getBattery(components), circuit_path[circuit_path.length - 1], backpropagateGround, []);
+		// $('#ground-path').html(listToString(ground_path));		
+		// console.log("ground_path");
+		queue = [];
+		printTree();
+	});
+
+
+	function printTree(){
+		visited_list = [];
+		$('#components').html("");
+		$('#components').append(traverse(0, null, getBattery(components), printComponent, []));
+	}
+
+	function makeTree(components){
+		visited_list = [];
+		return traverseCb(getBattery(components), resolveName, []);
+	}
+
+
+	
+	function traverseCb(root, callback, result){
+		if(_.isUndefined(callback)) callback = function(el){ return el};
+		
+		if(inList(visited_list, root)) return;
+		visited_list.push(root);
+		
+		result.push(callback(root));
+
+		_.each(root.overlaps, function(el){
+			for(var i in el){
+				if(inList(visited_list, el[i])) continue;
+				traverseCb(el[i], callback, result);
+			}
+		});
+		return result;
+	}
+
+	var queue = [];
+	
+
+	function bf_traverse(level, travelled_from, root, callback, result){
+		if(_.isUndefined(callback)) callback = function(prev, el){ return el};
+		
+		if(inList(visited_list, root)) return;
+		visited_list.push(root);
+		root.level = level;
+		console.log(level, root.id)
+		result.push(callback(travelled_from, root, level));
+
+		var children = root.terminal.getChildren(travelled_from);
+
+		queue.push(children);
+		// for(var i = 0; i < children.length; i++){
+		// 	var child = children[i];
+			
+		// }
+		for(var i = 0; i < children.length; i++){
+			traverse(level + 1, root, child, callback, result);
+		}
+		return result;	
+	}	
+
+	function traverse(level, travelled_from, root, callback, result){
+		if(_.isUndefined(callback)) callback = function(prev, el){ return el};
+		
+		if(inList(visited_list, root)) return;
+		visited_list.push(root);
+		root.level = level;
+		console.log(level, root.id)
+		result.push(callback(travelled_from, root, level));
+
+		var children = root.terminal.getChildren(travelled_from);
+		queue.push(listToString(children));
+		// for(var i = 0; i < children.length; i++){
+		// 	var child = children[i];
+		// 	queue.push(child);
+		// }
+		for(var i = 0; i < children.length; i++){
+			var child = children[i];
+			traverse(level + 1, root, child, callback, result);
+		}
+		return result;	
+	}
+	function inList(list, query){
+		return !_.isUndefined(_.find(list, function(el) { return query.uuid == el.uuid}));
+	}
+	function propagateVoltage(travelled_from, root, level){
+		if(_.isNull(travelled_from)) return root;
+		var direction = root.terminal.getDirection(travelled_from);
+		if(direction >= 0)
+			root.physical.voltage = travelled_from.physical.voltage - root.physical.voltage_drop;
+		else
+			root.physical.voltage = travelled_from.physical.voltage - root.physical.reverse_voltage_drop;
+		return root;
+	}
+
+
+
+	function backpropagateGround(travelled_from, root){
+		var direction = root.terminal.getDirection(travelled_from);
+		
+		// console.log("--");
+		// console.log(travelled_from);
+		// console.log(travelled_from.id, root.id, root.powered, direction);
+		if(_.isNull(travelled_from)) return root.id;
+		if(travelled_from.powered) {
+			root.powered = true;
+			return root.id;
+		}
+
+		
+
+		if(direction >= 0)
+			if(root.physical.voltage > 0) root.physical.voltage = 0;
+		if(direction < 0){
+			root.powered = true;
+			console.log(root.id, root.powered);
+		}
+		return root.id;
+	}
+
+// th = new TerminalHandler(2);
+// a = components[0]
+// b = components[1]
+// th.add(a, TerminalHandler.POSITIVE);
+// th.add(b, TerminalHandler.NEGATIVE);
+// th.findTerminal(b)
+
+</script>
+
+
+<div class="col-xs-4">
+	<label> Component List </label>
+	<ul id="components" class="list-group"></ul>
+</div>
+<div class="col-xs-8">
+	<h1>Circuit#sandbox</h1>
+	<p>Find me in app/views/circuit/sandbox.html.erb</p>
+	<label> Circuit Path </label>
+	<div id="circuit-path" class="lead"></div>
+	<label> Ground Path </label>
+	<div id="ground-path" class="lead"></div>
+	<div class="alert alert-success" role="alert"> The circuit is good to go! </div>
+	<div class="alert alert-info" role="alert"> The circuit elements [  ] will not turn on. </div>
+	<div class="alert alert-warning" role="alert"> The circuit elements [  ] will not work. </div>
+	<div class="alert alert-danger" role="alert"> Danger! You have a short. I've highlighted the path for you. </div>
+</div>
+
+  <!--  <option value="12" data-id="battery" data-physical-voltage="5" data-physical-package = "Battery" data-style-color="#F9ED32" 
+   data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Battery </option>
+  <option value="3" data-id="led-green-through-hole" data-physical-maxcurrent="20" data-physical-turnonvoltage = "2" data-physical-package = "5mm through-hole" data-physical-current-unit="amps" data-physical-current-unit-scale = "-3" data-style-color="#39B54A" data-digital-inlet="1" data-digital-outlet="1" data-digital-polarity="2" > Green LED </option>
+ -->

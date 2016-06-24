@@ -1,0 +1,84 @@
+// Place all the styles related to the paperscraps controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+// Place all the styles related to the fluis controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+/*
+* require normalize-rails
+*= require interface
+*= require font
+*= require_self
+*/
+.thumbnail .legend{
+	position: absolute;
+	text-align: right;
+	font-size: 7pt;
+	width: 100%;
+	bottom: 0px;
+	right: 8px;
+	background: white;
+	padding: 4px 4px;
+}
+.thumbnail .remove{
+	position: absolute;
+	right: 0px;
+	top: 4px;
+	background: white;
+	padding: 8px 8px 8px 4px;
+}
+.thumbnail{
+	position: relative;
+	border: black solid 1px;
+	max-height: 200px;
+	overflow: hidden;
+	margin-right: 8px;
+}
+input{
+	text-align: right;
+}
+
+#generator{
+	margin: 0 auto;
+	margin-top: 100px;
+	height: 506px;
+	width: 506px;
+	border: #DDD solid 3px;
+	cursor: pointer;
+}
+#sandbox canvas{
+	cursor: pointer;
+}
+#svg-loader{
+	display: none;
+}
+#dimensions{
+	position: absolute;
+	right: 3.8%;
+	top: 1%;
+}
+#zoom{
+	position: absolute;
+	left: 3.8%;
+	top: 1%;
+}
+table img{
+	width: 100%;
+}
+.break-padding{
+	display: block;
+	margin: 8px auto;
+	border: none;
+	width: 100% !important;
+}
+
+
+.dg {
+
+       font: 400 14px Verdana, Arial, sans-serif;
+       text-shadow: white 0 0 0;
+} 
+
+.dg .c select {
+   color: black !important;	
+}

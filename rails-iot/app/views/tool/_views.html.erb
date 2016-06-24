@@ -1,0 +1,203 @@
+<!-- Views -->
+<script type="text/javascript">
+  function ViewManager(container){
+    this.container = container;
+    this.state = true;
+    this.init();
+    this.view = "GLOBAL";
+  }
+
+  ViewManager.prototype = {
+     init: function(){
+      // this.hide(true);
+      var scope = this;
+      console.log(this);
+     this.update();
+      $('#view-icon').click(function(){
+        if(scope.state) scope.hide();
+        else scope.show();
+      });
+      $('#view-list ul li').click(function(){
+        $('#view-icon').html($(this).children('button').html());
+        $('#view-list ul li').removeClass('active');
+        $(this).addClass('active');
+        $('#view-icon').attr('class', $(this).children('button').attr('class')).removeClass('view').removeClass("btn-sm").addClass('pull-right');
+        scope.view = $(this).children('span').html();
+        scope.update();
+      });
+
+    },
+    getCurrentView: function(){
+      return this.view;
+    },
+    update: function(){
+      var view = this.getCurrentView();
+      _.each(displays, function(display){
+
+        var BO = display.queryPrefix("BO");
+        var BI = display.queryPrefix("BI");
+        var DIF = display.queryPrefix("DIF");
+        var CP = display.queryPrefix("CP");
+        var NLED = display.queryPrefix("NLED");
+
+        _.each(NLED, function(LED){
+          LED.style.strokeWidth = 1;
+          LED.style.strokeColor = "#666";
+        });
+        // LOGIC FOR VIEW SHIFT
+       
+        switch(view){
+          case "GLOBAL":
+            ViewManager.setElementVisibility(BO, true);
+            ViewManager.setElementVisibility(BI, true);
+            ViewManager.setElementVisibility(DIF, true);
+            ViewManager.setElementVisibility(CP, true);
+            ViewManager.setElementVisibility(NLED, true);
+            break;
+          case "INTERACTIVITY":
+              ViewManager.setElementVisibility(BO, false);
+              ViewManager.setElementVisibility(BI, false);
+              ViewManager.setElementVisibility(DIF, true);
+              ViewManager.setElementVisibility(CP, false);
+              ViewManager.setElementVisibility(NLED, false);
+            break;
+          case "SPACER":
+            break;
+          case "DIFFUSER":
+            ViewManager.setElementVisibility(BO, false);
+            ViewManager.setElementVisibility(BI, false);
+            ViewManager.setElementVisibility(DIF, true);
+            ViewManager.setElementVisibility(CP, false);
+            ViewManager.setElementVisibility(NLED, false);
+            break;
+          case "LIGHTS":
+            ViewManager.setElementVisibility(BO, false);
+            ViewManager.setElementVisibility(BI, false);
+            ViewManager.setElementVisibility(DIF, false);
+            ViewManager.setElementVisibility(CP, false);
+            ViewManager.setElementVisibility(NLED, true);
+            break;
+          case "CIRCUIT":
+            ViewManager.setElementVisibility(BO, true);
+            ViewManager.setElementVisibility(BI, true);
+            ViewManager.setElementVisibility(DIF, false);
+            ViewManager.setElementVisibility(CP, true);
+            ViewManager.setElementVisibility(NLED, true);
+            break;
+          default:
+            break;
+        }
+      });
+      paper.view.update();
+    },
+    show: function(now){
+      if(this.state) return;
+      this.state = true;
+      if(now){this.container.show(); return;}
+      $("#view-list").toggle("slide", { direction: "up" }, 300);
+    }, 
+    hide: function(now){
+      if(!this.state) return;
+      this.state = false;
+      if(now){this.container.hide(); return;}
+      $("#view-list").toggle("slide", { direction: "up" }, 300);
+    }
+  }
+  
+  ViewManager.setElementVisibility = function(arr, isVisible){
+    _.each(arr, function(el){
+      el.opacity = isVisible ? 1: 0;
+    });
+  }
+</script>
+<div id="views"> 
+  <button id="view-icon" class="pull-right btn btn-primary">
+    <span class="glyphicon glyphicon-globe"></span>
+  </button>
+  <br class="clearfix"/>
+  <div id="view-list">
+    <ul>
+      <li class="active">
+        <span>GLOBAL</span>
+        <button name="global" class="view btn-sm btn btn-primary">
+         <span class="glyphicon glyphicon-globe"></span>
+        </button>
+      </li>
+      <li>
+        <span>INTERACTIVITY</span>
+        <button name="interactivity" class="view btn-sm btn btn-danger">
+          I
+        </button>
+      </li>
+      <li>
+        <span>SPACER</span>
+        <button name="spacer" class="view btn-sm btn btn-default">
+          S
+        </button>
+      </li>
+      <li>
+        <span>DIFFUSER</span>
+        <button name="diffuser" class="view btn-sm btn btn-warning">
+          D
+        </button>
+      </li>
+      <li>
+        <span>LIGHTS</span>
+          <button name="light" class="view btn btn-sm btn-success">
+            L
+          </button>
+        </li>
+      <li>
+       <span>CIRCUIT</span>
+        <button name="circuit" class="view btn btn-sm btn-info">
+          C
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style type="text/css">
+  #views{
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      padding: 4px 8px;
+      color: #AAA;
+      position: absolute;
+      z-index: 1000;
+      top: 60px;
+      right: 25px;
+      z-index: -1;
+      /*text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);*/
+   }
+    .view{
+      float: right;
+      width: 20px;
+      padding: 1px;
+      height: 20px;
+      margin-left: 5px;
+    }
+    .view:focus{
+      outline: none;
+    }
+    #view-icon{
+      width: 40px;
+    }
+      #view-icon:focus{
+        outline: none;
+      }
+    #view-list{
+      width: 175px;
+      text-align: right;
+      text-decoration: none;
+      
+    }
+      #view-list ul{
+        list-style-type: none;
+      }
+      #view-list ul li{
+        margin: 2px 0;
+      }
+      #view-list ul li.active{
+        color: #888;
+      }
+</style>

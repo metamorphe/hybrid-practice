@@ -1,0 +1,39 @@
+== README
+
+This contains the code to create a tactile 2.5D model from an image texture. \
+Currently, we only support textures on planar surfaces. 
+
+Please feel free to use a different markup language if you do not plan to run
+<tt>rake doc:app</tt>.
+
+== TODO
+
+=== IMG2STL
+
+* _Functionality_ MODIFY SHADER TO DISCARD NONRELEVANT VERTICES
+* _Optimization_ BILINEAR INTERPOLATION OF POINTS
+* _Optimization_ IMAGE CONVERSION TO A POWER OF TWO
+* _Usability_ Reconfigure lights
+
+* NEIL: _Usability_ SWAP OUT TEXTURE FROM LIBRARY
+* NEIL _Functionality_ UPLOAD/SWITCH NEW TEXTURE
+
+
+=== REAL WORLD CLASSIFIER
+* GATHER TEXTURES
+* PRINT TEXTURES
+* CREATE ML ROUTINE FROM COVARIANCE DATA
+
+=== INVESTIGATIONS AND EVALUATION
+* EXPERIMENT WITH UI INTERFACES
+* MAKE A BASE MODEL, ITERATE FROM THAT
+
+== TIMING TESTs
+=== ENGINE
+n = 10201 vertices
+* CPU_INIT_LOAD = 11285 ms
+* CPU_SESSION_STORAGE_RETRIEVE = 11-12ms
+* CPU_UPDATE = 11-14ms
+
+* GPU_INIT_LOAD = 5ms
+* GPU_UPDATE = 0ms
