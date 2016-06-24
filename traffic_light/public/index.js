@@ -5,7 +5,7 @@
  */
 var tSvgs = [];
 
-var ws;
+var ws, test;
 var selectedItem;
 const baseUrl = 'localhost:3000'
 const componentTreeDom = '.component-tree'
@@ -292,6 +292,35 @@ $(document).ready(function() {
 		colorTool.updateColor(event);
   }
 
+	var bindTool = new Tool();
+	var currPath;
+	bindTool.onMouseDown = function(event) {
+		currPath = new Path();
+		currPath.strokeColor = 'black';
+		currPath.strokeWidth = 5;
+		currPath.add(new Point(event.point));
+	}
+	bindTool.onMouseDrag = function(event) {
+		if (currPath.segments.length > 1) {
+			currPath.removeSegment(currPath.segments.length - 1);
+		}
+		currPath.add(new Point(event.point));
+	}
+	bindTool.onMouseUp = function(event) {
+		currPath.removeSegment(currPath.segments.length - 1);
+		currPath.add(new Point(event.point));
+
+		// Make an arrow point with a lil messy bit of linear algebra
+		var arrowPoint = new Point(event.point);
+		var pathVectX = arrowPoint.x - currPath.firstSegment.point.x;
+		var pathVectY = arrowPoint.y - currPath.firstSegment.point.y;
+		var orthogVectX = -pathVectY;
+		var orthogVectY = pathVectX;
+		arrowPoint.x += 0.2 * (-pathVectX + orthogVectX);
+		arrowPoint.y += 0.2 * (-pathVectY + orthogVectY);
+		currPath.add(arrowPoint);
+	}
+
 	var panTool = new Tool();
 	panTool.onMouseDrag = function(event) {
   	_.each(paper.project.layers, function(el, i, arr){
@@ -303,6 +332,9 @@ $(document).ready(function() {
 
 	$('.dcc-btn').on('click', function() {
 		colorTool.activate();
+	});
+	$('.bind-btn').on('click', function() {
+		bindTool.activate();
 	});
 	$('.pan-btn').on('click', function() {
 		panTool.activate();
