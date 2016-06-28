@@ -1,0 +1,225 @@
+<style>
+#collection{
+  position: absolute;
+  background: #F1FCFE;
+  /*height: 100%;*/
+  padding-bottom: 0px;
+  padding-top: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-left: 5px;
+  top: 0px;
+  background: #ddd;
+  /*height: calc(100% - 75px);*/
+  height: 100%;
+
+
+ 
+  
+}
+#collection-panel{
+   overflow-y: scroll;
+   /*height: calc(100% - 61px);*/
+   height: 100%;
+}
+#collection.collapsed {
+  left: -22%;
+}
+#collection.collapsed .responsive-container{
+  display: none;
+}
+  #collection .title{
+    background: #484848;
+    margin-left: -5px;
+    margin-top: -10px;
+    padding: 0 6px;
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-weight: bold;
+    color: #ddddd;
+    font-size: 6.43pt;
+
+  }
+  #collection .title h4{
+    text-align: left;
+    padding: 0;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-weight: bold;
+    color: #dddddd;
+    font-size: 6.43pt;
+  }
+  #collection footer{
+    width: 93%;
+    border-top: 2px solid #DDD;
+    padding-top: 10px;
+    position: absolute;
+    bottom: 0;
+    margin: 10px auto;
+  }
+
+
+.responsive-container {
+    position: relative;
+    /*border-left: 1px solid black;*/
+    /*border-top: 1px solid black;*/
+    height: 100px;
+}
+
+.dummy {
+    padding-top: 100%; /* forces 1:1 aspect ratio */
+}
+
+.img-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    text-align:center; /* Align center inline elements */
+    font: 0/0 a;
+    background: white;
+    margin-top: 5px;
+    margin-right: 5px;
+}
+.img-container:hover{
+	background: #F1F1F1;
+}
+
+.img-container:before {
+    content: ' ';
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+}
+
+.img-container img {
+    vertical-align: middle;
+    display: inline-block;
+    max-height: 70%;
+    max-width: 70%;
+    cursor: pointer;
+}
+.img-container img svg{
+	color: black;
+}
+#collection-type{
+   background: transparent;
+   width: 250px;
+   padding: 3px;
+  
+   line-height: 0.8;
+   border: 0;
+   color: #FFF;
+   border-radius: 0;
+   height: 34px;
+   /*-webkit-appearance: none;*/
+}
+
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+* {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+}
+#toggle-switch{
+  margin-top: 5px;
+  cursor: pointer;
+}
+#collection select{
+  font-size: 10pt;
+}
+</style>
+
+<script type="text/javascript">
+
+
+var files = <%= @files.to_json.html_safe %>;
+var collections; 
+
+$(function(){
+  $('#toggle-switch').click(function(){
+    is_collapsed = $(this).parents('#collection').hasClass("collapsed");
+    if(is_collapsed){
+      $(this).parents('#collection').removeClass("collapsed");
+       $(this).removeClass("glyphicon-arrow-right").addClass("glyphicon-arrow-left");
+
+    } else{
+      $(this).parents('#collection').addClass("collapsed");
+       $(this).removeClass("glyphicon-arrow-left").addClass("glyphicon-arrow-right");
+    }
+  });
+  collections = new Collection(files);
+});
+var testC; 
+function Collection(files){
+  var materials = {};
+  // console.log(files.filenames);
+  this.path = files.path;
+  this.materials = _.groupBy(files.filenames, function(el, i, arr){
+    return el.collection;
+  });
+  this.collections = _.keys(this.materials);
+  this.main_container = $("#collection-panel");
+  this.selectorAdd();
+  this.elementAdd("Floor Plan")
+}
+Collection.prototype = {
+  elementAdd: function(material){
+    var scope = this;
+    // console.log(this.materials[material]);
+    var els = _.map(this.materials[material], function(el, i, arr){
+      var dom = $('<div class="responsive-container col-xs-3 no-select">' +
+            '<div class="dummy"></div>' +
+            '<div class="img-container no-select">' + '</div>' +
+        '</div>');
+      var img = $('<img src="' + (scope.path + el.filename) + '" alt="'+ el.title + '" title="' + el.title + '"/>');
+      img.on('dragstart', function(event){
+        event.originalEvent.dataTransfer.setData("text", $(this).attr('src'));
+      });
+      dom.find('.img-container').append(img);
+      return dom;
+   });
+   $(this.main_container).append(els);
+  },
+  selectorAdd: function(){
+    var scope = this;
+    var container = $('#collection-type').on('change', function(){
+      scope.main_container.html("");
+      scope.elementAdd($(this).val());
+    });
+    container.html('');
+    // console.log(this.collections);
+
+    options = _.map(this.collections, function(el, i, arr){
+       var dom = $('<option></option>').html(el).attr('id', i).attr('value', el.collection);
+       if(el == "Primitives")
+        dom.attr('selected', 'true');
+      return dom;
+    });
+    container.append(options);
+  }
+}
+
+</script>
+
+<div id="collection" class="col-xs-3 no-select">
+	<div class="title text-shadowed">
+		<h4> Collection - <select id="collection-type">
+    </select> <span id="toggle-switch" class="badge glyphicon glyphicon-arrow-right pull-right">  </span></h4> 
+    
+	</div>
+  <div id="collection-panel">
+  </div>
+</div>

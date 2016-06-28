@@ -1,0 +1,86 @@
+<script type="text/javascript">
+var  md;
+$(function(){
+	md = new DeviceList($("#my-devices"), "minus");
+});
+function DeviceList(dom, icon){
+	this.dom = dom;
+	this.icon = icon;
+}
+DeviceList.prototype = {
+	add: function(key, data){
+		var id = guid();
+		var link = DOM.tag("a").addClass("list-group-item").attr('data-key', key)
+		var label = DOM.tag("label").html(data.name);
+		var icon = DOM.tag("span").addClass("pull-right glyphicon glyphicon-" + this.icon);
+		var sparkline = DOM.tag("div").attr('id', id);
+		link.append([label, icon, sparkline]);
+		var scope = this;
+		link.click(function(){
+			var key = $(this).attr("data-key");
+			if(scope.icon == "minus")
+				$(this).remove();
+			else
+				msl.add(key, forecasts[key]);
+		});
+		this.dom.append(link);
+		this.dom.find('.placeholder').remove();
+		// console.log(data.forecast.splice(5))
+		$('#' + id).sparkline(data.forecast, {
+			type: "line", 
+			width: $('.nav-tabs').width() - 30, 
+			height: 30, 
+			lineColor: "#00A8E1"
+		});
+	}
+}
+</script>
+
+<style type="text/css">
+ .next-footer{
+ 	background: rgba(255, 255, 255, 0.8);
+ 	box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+ 	/*border: 1px solid red;*/
+ 	border-radius: 5px;
+ 	padding: 15px 20px;
+ 	text-align: right;
+ 	margin: 10px 25px;
+ }
+ .next-footer .btn{
+ 	margin-left: 10px;
+ }
+ .tabs{
+ 	background: white;
+ 	padding: 10px;
+ 	border-radius: 5px;
+ 	height: 100%;
+ }
+</style>
+
+<p class="lead text-center">
+  Choose the devices you'd like to use. 
+</p>
+
+<div class="col-xs-6 col-xs-offset-3">
+	<div class="well">
+		<h2>Current Streams</h2>
+
+		<div class="tabs">
+			<div id="my-data">
+				<br>
+				<br>
+				<p class="placeholder lead text-center"> Click to scan for more devices. </p>
+			</div>
+			<br class="clearfix">
+		</div>
+	</div>
+</div>
+<br class="clearfix">
+<div class="row">
+<p class="lead next-footer">
+  Finished?
+   <%= link_to "#", :class => "pull-right btn btn btn-danger" do%>
+   NEXT <%= glyph "chevron-right" %>
+  <% end %>
+</p>
+</div>

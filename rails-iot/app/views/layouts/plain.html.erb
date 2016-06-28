@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>2.5D - <%= params[:action].humanize %></title>
+  <!--<script type="text/javascript" src="//use.typekit.net/duw7epu.js"></script>
+	<script>
+		try { Typekit.load(); } catch (e) {}
+	</script>  -->
+  
+  <%= csrf_meta_tags %>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+</head>
+<body>
+	<%= yield %>
+</body>
+</html>

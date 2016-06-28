@@ -1,0 +1,337 @@
+<script type="text/javascript">
+// .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
+// 88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
+// `8bo.   8P      88oobY'    88    88oodD'    88    
+//   `Y8b. 8b      88`8b      88    88~~~      88    
+// db   8D Y8b  d8 88 `88.   .88.   88         88    
+// `8888Y'  `Y88P' 88   YD Y888888P 88         YP   
+ // testing
+  $(function(){
+    june = new JunePlayground($("#sandbox"));
+    var p = june.paper;
+    var t = new BlobSelectTool();
+    paper.tool = t.tool;
+
+    var testing1 = new paper.Path({
+      segments: [
+      [404.5555419921875, 492.6666666666667], 
+      [397.2222086588542, 298],
+      [396.5555419921875, 304],
+      [385.2222086588542, 334.6666666666667],
+      [346.5555419921875, 340],
+      [337.8888753255208, 317.3333333333333],
+      [354.5555419921875, 280],
+      [367.8888753255208, 271.3333333333333],
+      [383.2222086588542, 271.3333333333333],
+      [335.8888753255208, 226],
+      [406.5555419921875, 237.33333333333334],
+      [407.8888753255208, 232],
+      [420.5555419921875, 218],
+      [489.2222086588542, 212.66666666666666],
+      [489.8888753255208, 226],
+      [435.8888753255208, 273.3333333333333],
+      [505.8888753255208, 300.6666666666667],
+      [513.8888753255209, 318.6666666666667],
+      [455.8888753255208, 332],
+      [436.5555419921875, 316.6666666666667],
+      [429.2222086588542, 310.6666666666667],
+      [428.5555419921875, 308],
+      [435.8888753255208, 352],
+      [439.2222086588542, 484.6666666666667]
+      ],
+      strokeColor: 'red',
+      strokeWidth: 10,
+      strokeCap: 'round',
+      selected: false
+    });
+  
+  var testing2 = new paper.Path({
+      segments: [
+      [367.8888753255208, 496], 
+      [367.8888753255208, 412.6666666666667],
+      [363.8888753255208, 381.3333333333333],
+      [306.5555419921875, 338],
+      [321.2222086588542, 280],
+      [321.2222086588542, 277.3333333333333],
+      //
+      [316.5555419921875, 262.6666666666667],
+      [305.8888753255208, 202.66666666666666],
+
+      [374.5555419921875, 202],
+      [513.2222086588541, 192],
+      [563.8888753255209, 216],
+      [573.2222086588541, 274],
+      [553.8888753255209, 384],
+      [526.5555419921875, 454.6666666666667],
+      [509.2222086588542, 479.3333333333333],
+      [491.8888753255208, 508.6666666666667],
+      [481.8888753255208, 518.6666666666666],
+      ],
+      strokeColor: 'black',
+      strokeWidth: 10,
+      strokeCap: 'round',
+      selected: false
+    });
+
+
+  var june; 
+  var blobstyle = {
+    strokeWidth: 10,
+    strokeColor: new paper.Color(0, .659, .882, .3),
+    strokeCap: 'round'
+  };
+
+  var hitOptions = {
+    segments: true,
+    stroke: true,
+    fill: false,
+    tolerance: 5
+  };
+
+
+  function BlobSelectTool(){
+    this.name = "BlobSelectTool";
+    this.tool = new paper.Tool();
+    this.tool.distanceThreshold = .01;
+    this.array = [];
+    this.blob = null;
+    var scope = this;
+    this.toolBool = false;
+    this.hitResult;
+
+    this.tool.onMouseDown = function(event){
+
+      if (event.modifiers.shift) { //if the shift key held, you want to append to the blob on the screen
+        scope.blob = new paper.Path(blobstyle);
+        scope.array.push(scope.blob);
+
+      } else {
+        testing1.selected = false;
+        testing2.selected = false;
+
+        if (scope.blob){ //already a blob on the page, clear it and make a new blob
+          scope.blob.removeOnDown();
+
+          for (i in scope.array){
+            var temp = scope.array[i];
+            temp.remove();
+          };
+          scope.array = [];
+        };
+
+        scope.blob = new paper.Path(blobstyle);
+        scope.array.push(scope.blob);
+
+      };
+    };
+
+    this.tool.onMouseDrag = function(event){
+      scope.blob.add(event.point);
+
+    };
+
+    this.tool.onMouseUp = function(event){
+
+      //make the blue bubble
+      scope.blob.strokeColor = null;
+      var unitedblob = scope.blob; 
+      unitedblob.closePath(true);
+      unitedblob.fillColor = new paper.Color(0, .659, .882, .3);
+      unitedblob.smooth();
+
+      //set tooltip
+      var raster = new paper.Raster('toolOptions');
+      raster.position = new paper.Point(event.point.x + 150, event.point.y + 100);
+      raster.scale(0.5);
+      scope.array.push(raster)
+
+      //find intersections
+      x = unitedblob.getIntersections(testing2);
+      y = unitedblob.getIntersections(testing1);
+
+      if (x.length > 2){ //prevent multiple intersections - hotfix for now
+        x = [x[0], x[x.length-1]]
+      }
+      if (y.length > 2){ //prevent multiple intersections - hotfix for now
+        y = [y[0], y[y.length-1]]
+      }
+
+      //draw line for Testing 2
+      if (x.length > 0){
+        arr2 = [testing2.getOffsetOf(x[0].point), testing2.getOffsetOf(x[1].point)] //store array of length of selected area on testing line
+        var distance = (arr2[1] - arr2[0])/35
+        var holder = arr2[0]
+        var movePath2 = new paper.Path({
+          strokeColor: 'pink',
+          strokeWidth: 5
+        });
+        scope.array.push(movePath2)
+
+        for (i = 0; i < 35; i++) {
+          movePath2.add(testing2.getLocationAt(holder));
+          holder += distance
+        };
+      }
+
+      if (y.length > 0){
+        //draw line for Testing 1
+        arr1 = [testing1.getOffsetOf(y[0].point), testing1.getOffsetOf(y[1].point)] //store array of length of selected area on testing line
+        var distance1 = (arr1[1] - arr1[0])/35
+        var holder1 = arr1[0]
+        var movePath1 = new paper.Path({
+          strokeColor: 'blue',
+          strokeWidth: 5
+        });
+        scope.array.push(movePath1)
+
+        for (i = 0; i < 35; i++) {
+          movePath1.add(testing1.getLocationAt(holder1));
+          holder1 += distance1
+        };
+      }
+    
+
+    }; 
+
+
+  }
+
+  // class methods
+  BlobSelectTool.prototype = {
+    enable: function(){
+
+    }, 
+    disable: function(){
+
+    }
+  }
+
+
+// Everything below is for part 2
+
+    // var circle = p.Path.Circle({
+    //     radius: 70, 
+    //     position: new p.Point(p.view.center),
+    //     fillColor: "pink",
+    //     strokeColor: "black"
+    // });
+
+
+    // var length = circle.length;
+    // var step_size = length/25;
+    // var circle2;
+    // var list = [];
+
+    // circle.onClick = function(event) {
+      
+    //   var dc = document.getElementById('dotColor').value
+    //   var sw = Number(document.getElementById('strokeWidth').value)
+    //   var fc = document.getElementById('fillColor').value
+
+    //   for (var i = 0; i < length; i += step_size) {
+    //     var point = circle.getPointAt(i);
+
+    //     // Create a small circle at the point:
+    //     circle2 = new p.Path.Circle({
+    //       center: point,
+    //       radius: sw,
+    //       fillColor: dc
+    //     });
+
+    //     list.push(circle2);
+
+    //   }
+    //   //get rid of old stroke color
+
+    //   this.strokeColor = null;
+    //   this.fillColor = fc;
+      
+    // }
+
+    // circle.onDoubleClick = function(event) {
+
+    //   circle2.remove();
+
+    //   for (var i = 0; i < list.length; i ++) {
+    //     list[i].remove()
+
+    //   }
+    // }
+
+  p.view.update();
+  });
+
+
+</script>
+
+<!-- 
+.d8888. d888888b db    db db      d88888b 
+88'  YP `~~88~~' `8b  d8' 88      88'     
+`8bo.      88     `8bd8'  88      88ooooo 
+  `Y8b.    88       88    88      88~~~~~ 
+db   8D    88       88    88booo. 88.     
+`8888Y'    YP       YP    Y88888P Y88888P 
+ -->
+
+<style>
+body, html{
+  background: white;
+  height: calc(100% - 150px);
+}
+.container{
+  height: calc(100%);
+}
+#interface-container{
+  height: 100%;
+  border: 1px solid black;
+}
+#sandbox{
+  width: 100%;
+  height: 100%;
+}
+input {
+  margin-right: 20px;
+}
+p{
+  margin-top: 10px;
+}
+
+.invisible {
+    visibility: hidden;
+
+}
+
+
+</style>
+
+<!-- 
+db   db d888888b .88b  d88. db      
+88   88 `~~88~~' 88'YbdP`88 88      
+88ooo88    88    88  88  88 88      
+88~~~88    88    88  88  88 88      
+88   88    88    88  88  88 88booo. 
+YP   YP    YP    YP  YP  YP Y88888P  
+-->
+                                    
+<!-- 
+Dot Color: <input type="text" id="dotColor" name="FirstName" placeholder="Grey">
+Stroke Width: <input type="text" id="strokeWidth" name="LastName" placeholder="3">
+Circle Fill Color: <input type="text" id="fillColor" name="LastName" placeholder="Pink">
+
+<p>Type your input into the boxes and then press on the circle to see it change.</p>
+<p>Double click the circle to delete the stroke.</p> -->
+
+<div id="interface-container" class="row">   
+  <div id="sandbox" class="col-xs-12">
+    <%= render :partial => "stroke_select_ui"%>
+  </div>
+</div>
+
+
+<img src="\bloboptions.jpg"  class="invisible" id="toolOptions" />
+
+
+
+
+
+

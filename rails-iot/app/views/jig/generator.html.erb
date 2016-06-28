@@ -1,0 +1,65 @@
+<script type="text/javascript">
+// .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
+// 88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
+// `8bo.   8P      88oobY'    88    88oodD'    88    
+//   `Y8b. 8b      88`8b      88    88~~~      88    
+// db   8D Y8b  d8 88 `88.   .88.   88         88    
+// `8888Y'  `Y88P' 88   YD Y888888P 88         YP    
+                                                  
+
+  var designer, storage, dim;
+  $(function(){
+    attachHandlers();
+    dim = new DimensionsPreview($("#sandbox"));
+    dim.dom.css({
+      bottom: 0, 
+      top: "auto"
+    });
+    dim.set(0, 0, 0);
+    WirePath.DOM = $("#wirepath_controller");
+    storage = new WebStorage();
+    designer = new HillJig($("#sandbox"), "/leaf.svg");
+    // designer.hold_make();
+    // designer.hilljig_make();
+   
+  });
+  function attachHandlers(){
+  }
+</script>
+
+<!-- 
+.d8888. d888888b db    db db      d88888b 
+88'  YP `~~88~~' `8b  d8' 88      88'     
+`8bo.      88     `8bd8'  88      88ooooo 
+  `Y8b.    88       88    88      88~~~~~ 
+db   8D    88       88    88booo. 88.     
+`8888Y'    YP       YP    Y88888P Y88888P 
+ -->
+
+<style>
+body, html{
+  background: white;
+}
+footer#import-export{
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px;
+}
+</style>
+
+<!-- 
+db   db d888888b .88b  d88. db      
+88   88 `~~88~~' 88'YbdP`88 88      
+88ooo88    88    88  88  88 88      
+88~~~88    88    88  88  88 88      
+88   88    88    88  88  88 88booo. 
+YP   YP    YP    YP  YP  YP Y88888P  
+-->
+                                    
+
+<div id="interface-container" class="row">   
+  <div id="sandbox" class="col-xs-12">
+  </div>
+  <%= render :partial => "import_export_footer" %>
+</div>
