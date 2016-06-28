@@ -1,0 +1,55 @@
+<%= javascript_include_tag 'metamorphehalf/DimensionsPreview', 'data-turbolinks-track' => true %>
+<%= javascript_include_tag 'proxies/jigpeg', 'data-turbolinks-track' => true %>
+
+<script type="text/javascript">
+var env;
+var dim;
+var lambertMaterial = new THREE.MeshPhongMaterial({
+						        specular: '#a9fcff',
+						        color: '#00abb1',
+						        ambient: new THREE.Color( 0xffffff ),
+						        // dark
+						        specular: new THREE.Color( 0x111111 ),
+						        emissive: new THREE.Color( 0x000000 ),
+						        side: THREE.DoubleSide,
+						        shininess: 30
+						      });
+var controller;
+$(function(){
+	
+	env = new WebEnv($("#ThreeJS"));
+	var originMesh = new THREE.Mesh(new THREE.SphereGeometry(1), lambertMaterial);
+	env.scene.add(originMesh);
+
+	
+
+	var gui = new dat.GUI();
+	controller = new JigController(env, gui);
+	dim = new DimensionsPreview(env.container);
+});
+
+$(window).resize(function(){
+	THREEx.WindowResize(env.renderer, env.camera);
+});
+
+
+function addStats(container){
+	// STATS
+	var stats = new Stats();
+	stats.domElement.style.position = 'relative';
+	stats.domElement.style.top = '-55px';
+	stats.domElement.style.left = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+	return stats;
+}
+</script>
+
+<style type="text/css">
+	#texture-render{
+		display: none;
+	}
+</style>
+<div class="threejs_container">
+<div id="ThreeJS" ></div>
+</div>

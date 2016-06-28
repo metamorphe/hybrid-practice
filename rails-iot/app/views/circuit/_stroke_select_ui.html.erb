@@ -1,0 +1,153 @@
+<style>
+	#stroke-select-ui select optgroup{
+		font-weight: bold !important;
+		font-size: 40pt !important;
+	}
+	
+	#stroke-select-ui{
+	  position: absolute;
+	  top: 66px;
+	  /*left: 10px;*/
+	  right: 5px;
+	  width: 300px;
+	  height: 190px;
+	  padding-top: 5px;
+	}
+	#stroke-select-ui input{
+		margin: 8px 0px;
+	}
+	.no-sides{
+		padding-right: 0px;
+		padding-left: 0px;
+	}
+	#stroke-select-ui #switcher{
+		width: 90%;
+		margin: auto 5%;
+	}
+	.big{
+		font-size: 90px;
+	}
+	#stroke-select-ui label{
+		display: inline-block;
+	}
+	#range-headers{
+		height: 14pt;
+		top: 14px;
+	}
+	#range-headers .left{
+		position: relative;
+		float: left;
+		
+	}
+	#range-headers .right{
+		position: relative;
+		float: right;
+		
+	}
+	#stroke-select-ui .main-btn-group{
+		width: 98%;
+		margin: 3px 1%;
+	}
+	#stroke-select-ui .line-select{
+		font-size: 18px;
+		padding: 0px 0px;
+		text-align: center;
+	}
+	.white-break{
+		color: white;
+		padding-bottom: 16px;
+		border-bottom: 1px dashed #BBB;
+	}
+	button, li{
+		font-family: "Helvetica", sans-serif;
+	}
+
+	.custom-select{
+		width: 100%;
+	}
+	.line-selector{
+		font-weight: bold;
+		/*margin-right: 4px;*/	
+	}
+	.line{
+		display: inline-block;
+		transform:scale(3,2); /* W3C */
+		color: red;
+		text-shadow: 0px 1.1px #FF0000;
+
+	}
+	.caret{
+		position: relative;
+		right: -20px;
+
+	}
+	.btn-dialog{
+		width: 49.2%;
+	}
+
+</style>
+
+<div id="stroke-select-ui" class="toolbox shadowed">
+	<!-- <label class="text-shadowed"> STROKE MAGNET </label> -->
+	<div class="main-btn-group btn-group white-break">
+			<!-- Single button -->
+		<div id="range-headers" class="col-xs-12 no-sides">
+			<label class="left">ANCHOR TRACE</label>
+			<label class="right">MOVING TRACE</label>
+		</div>
+		<div class="col-xs-4 no-sides">
+		  <button type="button" class="line-selector custom-select btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="line">&#8212;</span><span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		    <li><a class="line-selector"> 
+		    	<span class="line">&#8212;</span>
+		    	</a>
+		    </li>
+		    <li><a class="line-selector"> 
+		    	<span class="line">&#8212;</span>
+		    	</a>
+		    </li>
+		    <li><a class="line-selector"> 
+		    	<span class="line">&#8212;</span>
+		    	</a>
+		    </li>
+		  </ul>
+		</div>
+		<div class="col-xs-4 no-sides">
+			<button id="switcher"class="btn btn-primary">&#8644;</button>
+		</div>
+		<div class="col-xs-4 no-sides">
+		  <button type="button" class="line-selector custom-select btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="line">&#8212;</span><span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		    <li><a class="line-selector"> 
+		    	<span class="line">&#8212;</span>
+		    	</a>
+		    </li>
+		    <li><a class="line-selector"> 
+		    	<span class="line">&#8212;</span>
+		    	</a>
+		    </li>
+		    <li><a class="line-selector"> 
+		    	<span class="line">&#8212;</span>
+		    	</a>
+		    </li>
+		  </ul>
+		</div>
+	</div>
+	<br class="white-break">
+	<div class="main-btn-group btn-group">
+		
+		<input id="magnet-strength" type="range" min="-1" max="1" value="0" step="0.01"></input>
+		<div id="range-headers" class="col-xs-12 no-sides">
+			<label class="left">FURTHER</label>
+			<label class="right">CLOSER</label>
+		</div>
+	</div>
+	<div class="main-btn-group">
+		<button class="btn btn-danger btn-dialog"> CANCEL </button>
+		<button class="btn btn-default btn-dialog"> DONE </button>
+	</div>
+</div>

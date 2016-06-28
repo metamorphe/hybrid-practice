@@ -1,0 +1,198 @@
+
+<script type="text/javascript">
+// .d8888.  .o88b. d8888b. d888888b d8888b. d888888b 
+// 88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~' 
+// `8bo.   8P      88oobY'    88    88oodD'    88    
+//   `Y8b. 8b      88`8b      88    88~~~      88    
+// db   8D Y8b  d8 88 `88.   .88.   88         88    
+// `8888Y'  `Y88P' 88   YD Y888888P 88         YP    
+                                                  
+  var design = <%= @design %>;
+  var designer, zoom, materials, storage, alerter, guide, debug;
+  $(function(){
+    attachHandlers();
+    // dim = new DimensionsPreview($("#sandbox"));
+    // dim.dom.css({
+    //   bottom: 0, 
+    //   right: 0, 
+    //   left: "auto", 
+    //   top: "auto"
+    // });
+    // dim.set(0, 0, 0);
+
+    storage = new WebStorage();
+    designer = new CircuitDesigner($("#sandbox"));
+    
+    
+    zoom = new Zoom(designer.paper.view.zoom, designer.paper);
+    // materials = new Materials($(".materials"));
+    // guide = new FabricationGuide($("#fab-guide"));
+    // debug = new DebugGuide($("#debug-guide"));
+
+    StatsController.DOM = $('#stat-box');
+    stats = new StatsController(designer);
+    
+    resp = $.getJSON(design.json.url, function(resp){
+       designer.loadJSON(resp);
+    });
+
+    api = new API(designer.nodes);
+    alerter = new Alerter($('#alerter'));
+    dropLogic();
+  });
+  getActiveTool = function(){ return paper.tool.toolholder; }
+  function dropLogic(){
+    // DROP LOGIC
+    $('#sandbox canvas').on("drop", function(event){
+      event.preventDefault();  
+      event.stopPropagation();
+      var filename = event.originalEvent.dataTransfer.getData("text");
+      var position = paper.view.viewToProject(new paper.Point(event.originalEvent.x, event.originalEvent.y));
+      console.log(event.originalEvent.dataTransfer.getData("text"));
+      var filetype = filename.split('.');
+      filetype = filetype[filetype.length - 1];
+
+      console.log("Dropped!", filename , position, event, filetype);
+      if(filetype == "svg")
+        designer.addSVG(filename, position);
+      else if(filetype == "json")
+        designer.addJSON(filename, position);
+    }).on("dragover", function(event) {
+      event.preventDefault();  
+      event.stopPropagation();
+      $(this).addClass('dragging');
+    }).on("dragleave", function(event) {
+      event.preventDefault();  
+      event.stopPropagation();
+      $(this).removeClass('dragging');
+    });
+
+    $('img').on('dragstart', function(event){
+      event.originalEvent.dataTransfer.setData("text", $(this).attr('src'));
+    });
+  }
+  function attachHandlers(){
+    WirePath.DOM = $("#wirepath_controller");
+     $("#bring-to-front").click(function(){
+        var stroke = getActiveTool().selectedStroke;
+        if(! _.isNull(stroke)){
+          stroke.parent.bringToFront();
+          paper.view.update();
+        } 
+      });
+
+     $("#send-to-back").click(function(){
+        var stroke = getActiveTool().selectedStroke;
+        if(! _.isNull(stroke)){
+          stroke.parent.sendToBack();
+          paper.view.update();
+        } 
+      });
+      $("#fluke-calc").click(function(){
+        Fluke.calculateCircuitState();
+      });
+
+    $("#zoom-in").click(function(){zoom.in();});
+    $("#zoom-out").click(function(){zoom.out();});
+    $("#scale").click(function(){
+      if($(this).hasClass('active')){
+        $(this).removeClass('active');
+        zoom.hide_scale();
+      } else{
+        $(this).addClass('active');
+        zoom.show_scale();
+      }
+    });
+      
+    
+    var sb = new SidebarController();
+
+    $('.download').click(function(){
+    	if($(this).attr("name") == "svg")
+	      $(this).attr('href', 'data:text/svg,' + designer.export(TextureGenerator.SVG) ).attr('download', 'mytexture.svg');
+	    else if($(this).attr("name") == "png")
+		    $(this).attr('href', designer.export(TextureGenerator.PNG) ).attr('download', 'mytexture.png');
+    });
+  }
+
+  function SidebarController(){
+
+    $(".materials").change(function(){
+      var matIdx = parseInt($(this).val());
+      var componentType = $(this).data("component-type");
+      var material = materials.at(componentType, matIdx);
+      
+      if(designer.activePath){
+        designer.nodes.at(designer.activePath).material = material;
+
+        designer.nodes.at(designer.activePath).update();
+        designer.nodes.at(designer.activePath).updateDOM();
+        designer.paper.view.update();
+      }
+    });
+
+    $('#ghost').click(function(){
+      designer.art_layer.ghost_mode = !designer.art_layer.ghost_mode; 
+      designer.art_layer.update();
+    });
+    $('#lock').click(function(){
+      designer.art_layer.lock_mode = !designer.art_layer.lock_mode; 
+      designer.art_layer.update();
+    });
+     $('#save-progress').click(function(){
+      designer.save();
+     });
+     $('#undo').click(function(){
+      designer.undo();
+     });
+     $('#redo').click(function(){
+      designer.redo();
+     });
+     $('#revert').click(function(){
+      designer.revert();
+     });
+     $('#fast-forward').click(function(){
+      designer.fast_forward();
+     });
+     $('#clear-history').click(function(){
+      designer.clear_history();
+     });
+  }
+
+
+</script>
+
+
+<!-- 
+db   db d888888b .88b  d88. db      
+88   88 `~~88~~' 88'YbdP`88 88      
+88ooo88    88    88  88  88 88      
+88~~~88    88    88  88  88 88      
+88   88    88    88  88  88 88booo. 
+YP   YP    YP    YP  YP  YP Y88888P  
+-->
+<div id="interface-container" class="row">   
+
+ 
+  <%= render :partial => "toolbox" %>
+  <div id="alert-container" class="col-xs-3 pull-right">
+    <div id="alerter" class="alert alert-danger alert-dismissible fade in" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4>Oh snap! That's no bueno!</h4>
+        <p id='message'>Change this and that and try again. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum.</p>
+        <p>
+          <button id="action" type="button" class="btn btn-xs btn-danger" data-dismiss="alert">Take this action</button>
+          <button id="auto" type="button" class="btn btn-xs btn-default">Do this for me always.</button>
+        </p>
+        <p>
+          <button id="silence" type="button" class="btn btn-xs btn-default">Don't tell me again</button>
+        </p>
+      </div>
+  </div>
+  <% render :partial => "debug" %>
+  <% render :partial => "fab_guide" %>
+  <div id="sandbox" class="col-xs-12">
+    <!-- <canvas id="sandboxy" resize></canvas> -->
+  </div>
+  <% render :partial => "sidebar" %>
+<%= render 'collection'%>

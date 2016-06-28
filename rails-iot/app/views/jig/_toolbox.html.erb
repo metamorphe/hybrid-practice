@@ -1,0 +1,98 @@
+<style>
+.toolbox .btn-group{
+  margin-right: 5px;
+}
+</style> 
+<div id="mode-toolbox" class="toolbox shadowed">
+   <label class="text-shadowed"> MODE </label>
+  <div class="btn-group" role="group" aria-label="pen-tools">
+       <%= button_tag :id => "animation-tool", :class => "btn btn-primary" do %>
+        <span class="glyphicon glyphicon glyphicon-time"></span>
+        <% end %>
+         <%= button_tag :id => "iot-tool", :class => "active btn btn-primary" do %>
+         <%= glyph "globe" %>
+        <% end %>
+      </div>     
+</div>
+
+<div id="canvas-toolbox" class="toolbox shadowed">
+   <label class="text-shadowed"> CANVAS </label>
+    <!-- SELECTION TOOLS -->
+      <div class="btn-group" role="group" aria-label="pen-tools">
+      <%= button_tag :id => "transform-tool", :class => "btn btn-ellustrator" do %>
+        <span class="icon-primary-cursor"></span>
+      <% end %>
+     
+      <%= button_tag :id => "pan-tool", :class => "btn btn-ellustrator" do %>
+        <span class="glyphicon glyphicon-hand-up"></span>
+      <% end %>
+      <%= button_tag :id => "canvas-pan-tool", :class => "btn btn-ellustrator" do %>
+        <span class="icon-pan"></span>
+      <% end %>   
+    </div>
+   <!-- ZOOM TOOLS -->
+      <div class="btn-group" role="group" id="zoom-ui" aria-label="zoom-tools">
+       
+      
+        <%= button_tag :id=>"zoom-out", :class=>"btn btn-md btn-ellustrator" do %>
+          <span class="glyphicon glyphicon-zoom-out"></span>
+        <% end %>
+
+          <%= button_tag :id=>"scale", :class=>"btn btn-md btn-ellustrator" do %>
+          <span class="glyphicon glyphicon-tree-conifer"></span>
+        <% end %>
+        
+        <%= button_tag :id=>"zoom-in", :class=>"btn btn-md btn-ellustrator" do %>
+            <span class="glyphicon glyphicon-zoom-in"></span>
+        <% end %>
+      
+      </div>
+      <div class="btn-group pull-right" role="group">
+        <%= button_tag :id=>"clear-history", :class=>"btn btn-md btn-ellustrator" do %>
+          <span class="glyphicon glyphicon-ban-circle"></span>
+        <% end %>
+      </div>
+      <!-- END ZOOM TOOLS -->
+
+</div>
+
+<div id="tesla-toolbox" class="toolbox shadowed">
+     <label> TESLA LAYER </label>
+    
+    <!-- PATH TOOLS -->
+      <div class="btn-group" role="group" aria-label="pen-tools">
+        <%= button_tag :id => "tesla-tool", :class => "btn btn-ellustrator" do %>
+        <%= glyph "record" %>
+        <% end %>
+        
+    </div>
+      <div class="btn-group" role="group" aria-label="pen-tools">
+       <%= button_tag :id => "anchor-tool", :class => "btn btn-ellustrator" do %>
+        <span class="icon-pen-tool"></span>
+        <% end %>
+        <%= button_tag :class => "btn btn-ellustrator" do %>
+        <span class="icon-pen-add-tool"></span>
+        <% end %>
+        <%= button_tag :class => "btn btn-ellustrator" do %>
+        <span class="icon-pen-remove-tool"></span>
+        <% end %>
+      </div>
+      <% button_tag :class => "btn btn-ellustrator" do %>
+        <span class="icon-noun_68342_cc"></span>
+      <% end %>
+      <% button_tag :class => "btn btn-ellustrator" do %>
+        <span class="icon-bezier-select"></span>
+      <% end %>
+      <% button_tag :class => "btn btn-ellustrator" do %>
+        <span class="icon-anchor-select"></span>
+      <% end %>
+
+
+       
+
+  </div>   
+
+  <div id="export-toolbox" class="toolbox shadowed">
+     <label> EXPORT </label>
+     <%= render :partial => "import_export_footer" %> 
+  </div>   

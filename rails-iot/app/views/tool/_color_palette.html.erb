@@ -1,0 +1,128 @@
+<!-- color_palette.html -->
+<script type="text/javascript">
+  function ColorPalette(container){
+    this.container = container;
+    this.state = true;
+    this.history = [null];
+    this.idx = 0;
+    this.init();
+  }
+  ColorPalette.prototype = {
+    init: function(){
+      // this.hide(true);
+      var scope = this;
+      _.each($('.color-swatch'), function(swatch){
+        $(swatch).css('background', $(swatch).attr('name'));
+        $(swatch).click(function(){
+          var clickedColor = $(swatch).attr('name');
+          if(scope.getCurrentColor() != clickedColor){
+            $(".color-swatch").not(this)
+              .removeClass('color-swatch-active');
+            $(this).addClass('color-swatch-active');
+            scope.history.push(clickedColor);
+            scope.idx++;
+          }
+        });
+      });
+    },
+    getCurrentColor: function(){
+      var color = this.history[this.idx];
+      if(_.isNull(color)) color = "#000000";
+      return color;
+    },
+    getLastColor: function(){
+      lastIdx = this.idx - 1 > 0 ? this.idx - 1: 0;
+      return this.history[lastIdx];
+    }, 
+    show: function(now){
+      if(this.state) return;
+      this.state = true;
+      if(now){this.container.show(); return;}
+      this.container.toggle("slide", { direction: "left" }, 500);
+    }, 
+    hide: function(now){
+      if(!this.state) return;
+      this.state = false;
+      if(now){this.container.hide(); return;}
+      this.container.toggle("slide", { direction: "left" }, 500);
+    }
+  }
+
+</script>
+
+<div id="sidebar-left">
+  <div id="color-palette">
+    <span class="color-swatch" name="#fe6e4b"></span>
+    <span class="color-swatch" name="#292824"></span>
+    <span class="color-swatch" name="#b7b3aa"></span>
+    <span class="color-swatch" name="#eeb84b"></span>
+    <span class="color-swatch" name="#6ebda7"></span>
+    <span class="color-swatch" name="#64acc2"></span>
+  </div>
+  <!--  COLOR PALETTE CODE HERE -->
+   <!-- <h3>Set Colors</h3>
+  <div class="input-group input-group-md">
+    <span class="input-group-addon color-picker-label" id="sizing-addon1">1</span>
+    <input type="color" class="form-control color-picker" value="#E74C3C">
+    <span class="input-group-btn">
+      <button id="button-t2-l1" class="btn btn-secondary" type="button">Send</button>
+    </span>
+  </div> -->
+</div>
+
+<style>
+#sidebar-left{
+    /* PALETTE */
+   
+    position: absolute;
+    top: 65px;
+    left: 0;
+    width: 80px;
+    height: 70%;
+
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#181617+0,3b3a38+100 */
+    background: #181617; /* Old browsers */
+    background: -moz-linear-gradient(left, #181617 0%, #3b3a38 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #181617 0%,#3b3a38 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #181617 0%,#3b3a38 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#181617', endColorstr='#3b3a38',GradientType=1 ); /* IE6-9 */
+
+    -webkit-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+    -moz-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+    box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+  }
+
+  #color-palette{
+    background: #111;
+    /*background: #191718;*/
+    padding: 3px;
+    margin: 5px;
+    width: 85%;
+    height: 70%;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+      -webkit-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+    -moz-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+    box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+
+  }
+  
+  .color-swatch{
+    float: left;
+    width: 45px;
+    height: 45px;
+    margin: 4px 2px 4px 8px;
+    border: #111 0.5px solid;
+    border-radius: 90px;
+
+    -webkit-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+    -moz-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+    box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
+  }
+  .color-swatch-active{
+    border: 2px solid #FDFDFD;
+  }
+</style>

@@ -1,0 +1,168 @@
+   <script type="text/javascript">
+      var zb, cp, bb, vm, displays = [];
+      
+      $(function(){
+        paperSetup();
+        var nineSegment = new Artwork("/artwork/nine-segment.svg", function(artwork){
+           artwork.svg.position.y -= 100;
+           vm = new ViewManager($('#views'));
+        });
+        displays.push(nineSegment);
+        zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
+        cp = new ColorPalette($('#sidebar-left'));
+        bb = new BrushBar($('#brush-bar'));
+       
+        $("#shade").fadeOut("slow");
+      });
+      
+      function paperSetup(){
+      
+        $('#myCanvas').attr('height', $(window).height());
+        $('#myCanvas').attr('width', $(window).width());
+        paper.install(window);
+        paper.setup('myCanvas');
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"><b id='logo'>ELD </b></a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#" data-toggle="modal" data-target="#new">New</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#" data-toggle="modal" data-target="#open">Open..</a></li>
+            <li><a href="#" data-toggle="modal" data-target="#insert">Insert Display...</a></li>
+            <li><a href="#" data-toggle="modal" data-target="#upload">Upload SVG</a></li>
+              <li role="separator" class="divider"></li>
+            <li><a href="#">Export...</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#" data-toggle="modal" data-target="#about">About ELD</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- USER DROPDOWN -->
+      <ul class="nav navbar-nav navbar-right">
+        <% if user_signed_in? %>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            <span class="badgify glyphicon glyphicon-user"></span>
+            <strong><%= current_user.email %></strong> <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li><%= link_to "Upload a model".html_safe, "", :class => 'navbar-link' %> </li>
+               <li class="divider"></li>
+              <li><%= link_to "Your collection".html_safe, :class => 'navbar-link' %> </li>
+              <li><%= link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link' %> </li>
+              <li class="divider"></li>
+              <li><%= link_to 'Sign out', destroy_user_session_path, :method => :delete, :class => 'navbar-link'  %></li>
+            </ul>
+        </li>
+
+        <% else %>
+          <li><% link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> </li>
+          <li><%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %></li>
+        <% end %>
+
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+        <canvas id="myCanvas"></canvas>
+       
+         
+        <div id="sidebar-right" class="col-xs-4">
+          <h3> MODE </h3>
+          <div class="btn-group">
+            <button id="live" class="mode btn btn-default">
+              LIVE
+            </button>
+          </div>
+        </div>
+
+
+      <%= render :partial => "modals"%>
+      <%= render :partial => "views"%>
+      <%= render :partial => "color_palette"%>
+      <%= render :partial => "brush_bar"%>
+      <%= render :partial => "zoom_bar"%>
+  </body>
+
+  <style>
+
+   	body, html{
+   		width: 100%;
+   		height: 100%;
+   		overflow: hidden;
+      background: #f5f4f0;
+   	}
+    .input-group {
+      padding-bottom: 10px;
+    }
+    .badgify{
+      background: white;
+      border: solid 1px #999;
+      border-radius: 10px;
+      padding: 4px;
+    }
+    #myCanvas {
+      position: absolute;
+      /*display: none;*/
+      z-index: -100;
+      cursor: pointer;
+    }
+    #sidebar-right{
+      display: none;
+      background: red;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+
+    }
+
+    .btn-transparent{
+      background: none;
+      border: none;
+    }
+   
+    .btn-transparent:visited{
+      color: #f5f4f0;
+      outline: none;
+    }
+    .btn-transparent:hover{
+      color: #f5f4f0;
+      outline: none;
+    }
+    .btn-transparent:active{
+      color: #f5f4f0;
+      outline: none;
+    }
+   
+    .btn-transparent:focus{
+      color: #f5f4f0;
+      outline: none;
+    }
+
+    .clearfix{
+      clear: both;
+    }
+  </style>
+
+

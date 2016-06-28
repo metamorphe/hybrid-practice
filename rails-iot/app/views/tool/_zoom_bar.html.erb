@@ -1,0 +1,85 @@
+<div id="zoom-bar"> 
+  <button id="zoom-in" class="btn btn-xs btn-info">
+    <span class="glyphicon glyphicon-plus"></span>
+  </button>
+ <br>
+  <button id="zoom-out" class="btn btn-xs btn-info">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
+   <br>
+  <button id="dm" class="brush btn btn-xs btn-default" tool="DirectManipulationTool">
+    <span class="glyphicon glyphicon-hand-up"></span>
+  </button>
+    <br>
+  <button id="pan" class="brush btn btn-xs btn-default" tool="PanTool">
+    <span class="glyphicon glyphicon-fullscreen"></span>
+  </button>
+
+ 
+  
+</div>
+<script type="text/javascript">
+
+// zoom.js
+
+ZoomBar.STEP = 0.1;
+ZoomBar.MAX = 10;
+ZoomBar.MIN = 0.1;
+
+function ZoomBar(container, starting_level, paper){
+	this.in_dom = container.children('#zoom-in');
+	this.out_dom = container.children('#zoom-out');
+	this.level = starting_level;
+	
+	this.init();
+}
+
+ZoomBar.prototype = {
+	init: function(){
+		var scope = this;
+		this.checkbounds();
+		$(this.in_dom).click(function(){ scope.in();})
+		$(this.out_dom).click(function(){ scope.out();})
+	},
+	checkbounds: function(){
+		if(this.level > ZoomBar.MAX) this.level = ZoomBar.MAX;
+		if(this.level < ZoomBar.MIN) this.level = ZoomBar.MIN;
+	},
+	in: function(){
+		this.level += ZoomBar.STEP;
+		this.checkbounds();
+		this.update();
+	},
+	out: function(){
+		this.level -= ZoomBar.STEP;
+		this.checkbounds();
+		this.update();
+	}, 
+	update: function(){
+		paper.view.zoom = this.level;
+		paper.view.update();
+	}
+}
+</script>
+<style type="text/css">
+#zoom-in, #zoom-out{
+	/*height: 10px;*/
+	margin-bottom: 5px;
+}
+#pan.brush{
+	height: inherit;
+}
+#dm.brush{
+	height: inherit;
+}
+ #zoom-bar{
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      padding: 4px 8px;
+      color: #AAA;
+      position: absolute;
+      z-index: 1000;
+      top: 65px;
+      left: 100px;
+       z-index: -1;
+   }
+</style>

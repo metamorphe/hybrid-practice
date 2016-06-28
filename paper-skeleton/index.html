@@ -23,7 +23,9 @@
 	
 
 				paper.install(window);
-				paper.setup('myCanvas');			
+				paper.setup('myCanvas');
+
+
 				nineSegment = new Artwork("img/nine-segment.svg");
 				runScript();
 			});
@@ -34,7 +36,7 @@
 	</head>
 	<body>
 		<div class="container">
-			<canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+			<canvas id="myCanvas"></canvas>
 			<a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
 		</div>
 	</body>
@@ -45,6 +47,11 @@
 		position: absolute;
 		top: 20px;
 		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
 	}
 	body, html{
 		margin: 0;
