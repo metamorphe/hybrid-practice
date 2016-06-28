@@ -5,6 +5,29 @@
 //    Breakin --> obj.query({prefix:['BI']});
 //    Breakin --> obj.queryPrefix("BI");
 
+function CanvasUtil() {
+}
+
+CanvasUtil.prototype = {}
+
+CanvasUtil.query = function(container, selector){
+	// Prefix extension
+	if("prefix" in selector){
+		var prefixes = selector["prefix"];
+
+		selector["name"] = function(item){
+			var p = Artwork.getPrefixItem(item);
+			return prefixes.indexOf(p) != -1;
+		}
+		delete selector["prefix"];
+	}
+	return container.getItems(selector);
+}
+
+CanvasUtil.queryPrefix = function(selector) {
+	return CanvasUtil.query(paper.project, {prefix: [selector]});
+}
+
 function Artwork(svgPath, loadFN){
 	this.svgPath = svgPath;
 	this.svg = null;
@@ -29,22 +52,14 @@ Artwork.prototype = {
 	 		scope.svg.position = paper.view.center;
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
-				scope.orderLeds();
+				var ledLists = scope.orderLeds();
+				scope.allLeds = ledLists[0];
+				scope.iLeds = ledLists[1];
 		    loadFN(scope);
 		});
 	},
 	query: function(selector){
-		// Prefix extension
-		if("prefix" in selector){
-			var prefixes = selector["prefix"];
-
-			selector["name"] = function(item){
-				var p = Artwork.getPrefixItem(item);
-				return prefixes.indexOf(p) != -1;
-			}
-			delete selector["prefix"];
-		}
-		return this.svg.getItems(selector);
+		return CanvasUtil.query(this.svg, selector);
 	},
 	queryPrefix: function(selector){
 		return this.query({prefix: [selector]});
