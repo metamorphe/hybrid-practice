@@ -37,9 +37,11 @@ function BrushBar(container){
 
         $('.brush').click(function(){
           $('.brush').attr('active', '');
-          _.each( $('.brush').not(this) ,function(brush){
+          
+          _.each( $('img.brush').not(this) ,function(brush){
               BrushBar.setBrush($(brush), false);
           });
+
           BrushBar.setBrush($(this), true);
           // DISABLE OLD BRUSH
           if(! _.isNull(scope.getCurrentBrush())){
@@ -47,6 +49,7 @@ function BrushBar(container){
             oldbrush.disable();
           }
           // ACTIVATE BRUSH
+          console.log("Enabling", scope.brush);
           scope.brush = $(this).attr('tool');
           var brush = scope.toolbox[scope.brush];
           brush.enable();
@@ -89,6 +92,7 @@ function BrushBar(container){
 
   BrushBar.setBrush = function(jqNode, active){
      var img = jqNode.attr('src');
+     if(_.isUndefined(img)) return;
      var brushName = img.split('_');
      var isActive = active ? "Active.png" : "NonActive.png";
      brushName[2] = isActive;

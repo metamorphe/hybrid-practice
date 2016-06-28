@@ -9,3 +9,5 @@
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush
+//= require eld/brushes/PanTool
+//= require eld/brushes/DirectManipulationTool

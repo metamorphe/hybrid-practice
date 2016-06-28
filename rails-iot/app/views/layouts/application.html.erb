@@ -85,29 +85,24 @@
 	       <!-- Sign in -->
 	   <ul class="nav navbar-nav navbar-right">
 			<% if user_signed_in? %>
-			<!-- MENU ACCOUNT ITEM  -->
-  			<li class="dropdown">
-	            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		        <li class="dropdown">
+		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+		            <span class="badgify glyphicon glyphicon-user"></span>
+		            <strong><%= current_user.email %></strong> <span class="caret"></span></a>
+		          <ul class="dropdown-menu" role="menu">
+		              <li><%= link_to "Upload a model".html_safe, "", :class => 'navbar-link' %> </li>
+		               <li class="divider"></li>
+		              <li><%= link_to "Your collection".html_safe, :class => 'navbar-link' %> </li>
+		              <li><%= link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link' %> </li>
+		              <li class="divider"></li>
+		              <li><%= link_to 'Sign out', destroy_user_session_path, :method => :delete, :class => 'navbar-link'  %></li>
+		            </ul>
+		        </li>
 
-			  <%= glyph "user", :title => "settings" %>
-	          <strong><%= current_user.email %></strong>
-	          <span class="caret"></span></a>
-
-	          <ul class="dropdown-menu" role="menu">
-	            <li><%= link_to "Upload a model".html_safe, "", :class => 'navbar-link' %> </li>
-	             <li class="divider"></li>
-	            <li><%= link_to "Your collection".html_safe, :class => 'navbar-link' %> </li>
-	            <li><%= link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link' %> </li>
-	            <li class="divider"></li>
-	            <li><%= link_to 'Sign out', destroy_user_session_path, :method => :delete, :class => 'navbar-link'  %></li>
-	          </ul>
-			</li>
-			<!-- END MENU ACCOUNT ITEM -->
-
-			<% else %>
-			  <li><% link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> </li>
-			  <li><%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %></li>
-			<% end %>
+        <% else %>
+          <li><% link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> </li>
+          <li><%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %></li>
+        <% end %>
 	      
 		  </ul>
 		<!-- end sign in -->

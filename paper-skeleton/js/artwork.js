@@ -4,10 +4,10 @@
 //    Breakout --> obj.query({prefix:['BO']});
 //    Breakin --> obj.query({prefix:['BI']});
 
-function Artwork(svgPath){
+function Artwork(svgPath, loadFN){
 	this.svgPath = svgPath;
 	this.svg = null;
-	this.import(this.svgPath);
+	this.import(loadFN);
 }
 
 Artwork.prototype = {
@@ -16,7 +16,7 @@ Artwork.prototype = {
 			return el.name;
 		});
 	},
-	import:  function() {
+	import:  function(loadFN) {
 			var scope = this;
 			console.log("Importing", this.svgPath, paper)
 		 	paper.project.importSVG(this.svgPath, function(item) {
@@ -24,6 +24,7 @@ Artwork.prototype = {
 	 		scope.svg.position = paper.view.center;
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
+		    loadFN(scope);
 		});
 	},
 	query: function(selector){
