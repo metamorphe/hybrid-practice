@@ -6,6 +6,16 @@
   <button id="zoom-out" class="btn btn-xs btn-info">
     <span class="glyphicon glyphicon-minus"></span>
   </button>
+   <br>
+  <button id="dm" class="brush btn btn-xs btn-default" tool="DirectManipulationTool">
+    <span class="glyphicon glyphicon-hand-up"></span>
+  </button>
+    <br>
+  <button id="pan" class="brush btn btn-xs btn-default" tool="PanTool">
+    <span class="glyphicon glyphicon-fullscreen"></span>
+  </button>
+
+ 
   
 </div>
 <script type="text/javascript">
@@ -52,9 +62,15 @@ ZoomBar.prototype = {
 }
 </script>
 <style type="text/css">
-#zoom-in{
+#zoom-in, #zoom-out{
 	/*height: 10px;*/
 	margin-bottom: 5px;
+}
+#pan.brush{
+	height: inherit;
+}
+#dm.brush{
+	height: inherit;
 }
  #zoom-bar{
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;

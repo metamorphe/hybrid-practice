@@ -2,22 +2,44 @@
 <script type="text/javascript">
   var files = <%= @files.to_json.html_safe %>;
   $(function(){
-    var els = _.map(files.filenames, function(el, i, arr){
-      var dom = $('<div class="responsive-container col-xs-3 no-select">' +
-            '<div class="dummy"></div>' +
-            '<div class="img-container no-select">' + '</div>' +
-        '</div>');
-      var img = $('<img src="' + (files.path + el.filename) + '" alt="'+ el.title + '" title="' + el.title + '"/>');
-      var name = $('<p></p>').addClass('').html(el.title);
-      var br = $('<br>').addClass('clearfix');
-      img.on('dragstart', function(event){
-        event.originalEvent.dataTransfer.setData("text", $(this).attr('src'));
+      loadFiles();
+      $('#insert-button').click(function(){
+        var selection = _.map($('.responsive-container.selected'), function(el, i, arr){
+          return $(el).find('img').attr('src');
+        });
+        // LOAD DISPLAYS
+          _.each(selection, function(file){
+            var display = new Artwork(file, function(artwork){
+             artwork.svg.position.y -= 100;
+          });
+          displays.push(display);
+        });
       });
-      dom.find('.img-container').append([img]);
-      dom.append([name]);
-      $('#gallery').append(dom);
-  })
-});
+  });
+
+
+  function loadFiles(){
+    var els = _.map(files.filenames, function(el, i, arr){
+    var dom = $('<div class="responsive-container col-xs-3 no-select">' +
+          '<div class="dummy"></div>' +
+          '<div class="img-container no-select">' + '</div>' +
+      '</div>');
+    var img = $('<img src="' + (files.path + el.filename) + '" alt="'+ el.title + '" title="' + el.title + '"/>');
+    var name = $('<p></p>').addClass('').html(el.title);
+    var br = $('<br>').addClass('clearfix');
+    // img.on('dragstart', function(event){
+    //   event.originalEvent.dataTransfer.setData("text", $(this).attr('src'));
+    // });
+    dom.click(function(){
+      dom.toggleClass('selected');
+    }); 
+    dom.find('.img-container').append([img]);
+    dom.append([name]);
+    $('#gallery').append(dom);
+  });
+  }
+
+
 </script>
 <div class="modal fade" id="insert" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
@@ -43,6 +65,9 @@
 </div>
 
 <style>
+.selected{
+  border: 1px solid #CCC;
+}
 .responsive-container {
     position: relative;
     /*border-left: 1px solid black;*/
@@ -69,13 +94,13 @@
 }
 .responsive-container p{
   position: absolute;
-  top: -10px;
+  top: 0px;
   z-index: 100;
   text-align: center;
   width: 100%;
   margin: 0;
   left: 0;
-  background: rgba(255, 255, 255, 0.5);
+  /*background: rgba(255, 255, 255, 0.5);*/
 }
 .img-container:hover{
   background: #F1F1F1;

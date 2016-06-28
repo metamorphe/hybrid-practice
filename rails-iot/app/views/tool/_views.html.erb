@@ -9,10 +9,10 @@
 
   ViewManager.prototype = {
      init: function(){
-      // this.hide(true);
+      this.hide(true);
       var scope = this;
       console.log(this);
-     this.update();
+      this.update();
       $('#view-icon').click(function(){
         if(scope.state) scope.hide();
         else scope.show();
@@ -25,7 +25,7 @@
         scope.view = $(this).children('span').html();
         scope.update();
       });
-
+      $('button[name="circuit"]').click();
     },
     getCurrentView: function(){
       return this.view;
@@ -78,6 +78,7 @@
             ViewManager.setElementVisibility(NLED, true);
             break;
           case "CIRCUIT":
+            circuitMakerScript(display);
             ViewManager.setElementVisibility(BO, true);
             ViewManager.setElementVisibility(BI, true);
             ViewManager.setElementVisibility(DIF, false);
@@ -93,13 +94,13 @@
     show: function(now){
       if(this.state) return;
       this.state = true;
-      if(now){this.container.show(); return;}
+      if(now){$("#view-list").show(); return;}
       $("#view-list").toggle("slide", { direction: "up" }, 300);
     }, 
     hide: function(now){
       if(!this.state) return;
       this.state = false;
-      if(now){this.container.hide(); return;}
+      if(now){$("#view-list").hide(); return;}
       $("#view-list").toggle("slide", { direction: "up" }, 300);
     }
   }
@@ -108,6 +109,149 @@
     _.each(arr, function(el){
       el.opacity = isVisible ? 1: 0;
     });
+  }
+  function circuitMakerScript(display){
+    // GENERATE BASE
+    var CP = display.queryPrefix("CP")[0];
+    var base = CP.clone();
+    base.set({
+      name: "BASE: FR1 Board", 
+      strokeColor: "#fe6e4b",
+      strokeWidth: Ruler.mm2pts(6)
+    });
+    base.sendToBack();
+    // CP.smooth();
+
+    // for(var i = 0; i < CP.segments.length; i += 1){
+    //   if(i + 1 >= CP.segments.length) break;
+    //   var seg0 = CP.segments[i];
+    //   var seg1 = CP.segments[i+1];
+     
+    //   var offset0 = CP.getOffsetOf(seg0.point)_;
+    //   var x0 = CP.getPointAt(offset0);
+    //   var n0 = CP.getNormalAt(offset0);
+    //   n0.length = 10;
+
+
+    //   var offset1 = CP.getOffsetOf(seg1.point);
+    //   var x1 = CP.getPointAt(offset1);
+    //   var n1 = CP.getNormalAt(offset1);
+    //   n1.length = 10;
+
+    //   var line = new paper.Path({
+    //       segments: [x0.add(n0), x1.add(n1) ],
+    //       strokeColor: 'red'
+    //   });
+    //   console.log(offset0, offset1)
+    // }
+    // expandPath(CP, 20);
+    
+    // // GENERATE CONTROL LINES
+    // var PWR = new paper.Path({
+    //   name: "CL: PWR", 
+    //   strokeColor: "#FF0000",
+    //   strokeWidth: Ruler.mm2pts(0.648)
+    // });
+    // var GND = new paper.Path({
+    //   name: "CL: GND", 
+    //   strokeColor: "#000000",
+    //   strokeWidth: Ruler.mm2pts(0.648)
+    // });
+   
+   //  var expandedPath = new paper.Path.Circle({
+   //      fillColor: "green", 
+   //      radius: 10, 
+   //      position: CP.getPointAt(0)
+   //    });
+   //  expandedPath.bringToFront();
+   // var c = new paper.Path.Circle({
+   //    fillColor: "grey", 
+   //    radius: 10, 
+   //    position: CP.getPointAt(10)
+   //  });
+   //  var prev = expandedPath;
+   //  expandedPath = expandedPath.unite(c);
+   //  c.remove();
+   //  // prev.remove();
+   //  expandedPath.remove();
+    // for(var offset = 0; offset < CP.length; offset += 90){
+    // for(var i = 0; i < CP.segments.length; i += 1){
+      // console.log(CP.segments)
+      // var seg = CP.segments[i];
+      // console.log(seg);
+      // c = new paper.Path.Circle({
+      //   fillColor: "purple", 
+      //   radius: 10, 
+      //   position: seg.point
+      // })
+
+      // offset = CP.getOffsetOf(seg.point);
+      // var nPWR = CP.getNormalAt(offset);
+      // var xPWR = CP.getPointAt(offset);
+    
+      // nPWR.length = 10;
+      // c = new paper.Path.Circle({
+      //   fillColor: "purple", 
+      //   radius: 10, 
+      //   position: xPWR
+      // });
+      // prev = expandedPath;
+      // expandedPath = expandedPath.unite(c);
+      // prev.remove();
+      // c.remove();
+      // var nGND = nPWR.clone();
+      // nGND.length = 10;
+
+      // var xGND = CP.getPointAt(offset);
+      // // var pos = n.subtract(x);
+      // // c = new paper.Path.Circle({
+      // //   fillColor: "purple", 
+      // //   radius: 3, 
+      // //   position: n.add(x)
+      // // })
+      // var line = new paper.Path({
+      //     segments: [xPWR, xPWR.add(nPWR)],
+      //     strokeColor: 'red'
+      // });
+      // PWR.addSegment(xPWR.add(nPWR))
+      // GND.addSegment(xGND.subtract(nGND))
+    // }
+    // CP.name = "PWR: PowerLine"
+
+  }
+
+  function expandPath(path, amount){
+    var circles = [];
+    for(var offset = 0; offset < path.length; offset += 12){
+      var x = path.getPointAt(offset);
+      var pos = x.clone();
+      pos.x -= amount/2;
+      pos.y -= amount/2;
+      var n = path.getTangentAt(offset);
+      c = new paper.Path.Rectangle({
+        fillColor: "purple", 
+        // radius: 10, 
+        size: [amount, amount],
+        radius: amount/4,
+        point: pos, 
+        rotation: n.angle
+      });    
+      circles.push(c);
+    }
+    var master = circles[0];
+    master.style.fillColor = "#00A8E1";
+    master.style.strokeColor = "black";
+    master.style.strokeWidth = 3;
+    _.each(circles, function(circle, i){
+      if(i == 0) return;
+      next = master.unite(circle);
+      master.remove();
+      circle.remove();
+      master = next;
+    });
+    master.bringToFront();
+    // master.remove();
+    return master;
   }
 </script>
 <div id="views"> 

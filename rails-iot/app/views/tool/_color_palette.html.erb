@@ -27,7 +27,7 @@
     },
     getCurrentColor: function(){
       var color = this.history[this.idx];
-      if(_.isNull(color)) color = new paper.Color(0);
+      if(_.isNull(color)) color = "#000000";
       return color;
     },
     getLastColor: function(){
