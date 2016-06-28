@@ -25,12 +25,20 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-
-				nineSegment = new Artwork("img/nine-segment.svg");
-				runScript();
+				paper.view.zoom = 2;
+				nineSegment = new Artwork("img/Chord_Wheel.svg", function(display){
+					runScript(display);
+				});
+				
 			});
-			function runScript(){
+			function runScript(display){
 				// TODO: YOUR CODE HERE
+				var n = display.svg.children.length;
+				for(var i = 0; i <n; i++){
+					display.svg.children[i].style.fillColor = new paper.Color(i/n)
+					display.svg.children[i].position.x += 100;
+				}
+				// display.svg.children[1].style.fillColor = new paper.Color(0.2)
 			}
 		</script>
 	</head>
