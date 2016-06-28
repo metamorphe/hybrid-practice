@@ -26,10 +26,12 @@
 				paper.setup('myCanvas');
 
 
-				nineSegment = new Artwork("img/nine-segment.svg");
-				runScript();
+				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+					runScript(display);
+				});
+				
 			});
-			function runScript(){
+			function runScript(display){
 				// TODO: YOUR CODE HERE
 			}
 		</script>
