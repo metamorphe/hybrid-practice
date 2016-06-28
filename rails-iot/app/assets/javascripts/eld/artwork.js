@@ -3,6 +3,7 @@
 //    Interactive LEDS --> obj.query({prefix:['ILED']});
 //    Breakout --> obj.query({prefix:['BO']});
 //    Breakin --> obj.query({prefix:['BI']});
+//    Breakin --> obj.queryPrefix("BI");
 
 function Artwork(svgPath, loadFN){
 	this.svgPath = svgPath;
@@ -11,6 +12,10 @@ function Artwork(svgPath, loadFN){
 }
 
 Artwork.prototype = {
+	/**
+	 * Returns an arrays of strings, where each string is the name
+	 * of a queryable object, prefix included.
+	 */
 	queryable: function(){
 		return _.map(this.query({}), function(el){
 			return el.name;
@@ -24,6 +29,7 @@ Artwork.prototype = {
 	 		scope.svg.position = paper.view.center;
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
+				scope.orderLeds();
 		    loadFN(scope);
 		});
 	},
@@ -42,6 +48,60 @@ Artwork.prototype = {
 	},
 	queryPrefix: function(selector){
 		return this.query({prefix: [selector]});
+	},
+	/**
+	 * Given an SVG with SVG_NUM which contains exactly one bus (prefix: 'CP')
+	 * containing all the LEDs, ORDER_LEDS returns an array of two arrays, i.e.:
+	 * >>> [allLedsSorted, interactiveLedsSorted]
+	 * where allLedsSorted contains an ordered list of all leds, interactive
+	 * and non-interactive leds, on the bus, which have been assigned a
+	 * LID fields based on their ordering. interactiveLedsSorted contains
+	 * a list of interactiveLeds only, with CID fields based on their ordering.
+	 * Thus, the fields are as follows:
+	 * cid: capacitative id (only interactive leds), undefined for nLeds.
+	 * lid: light id (all leds)
+	 *
+	 * Returns: an array containing two arrays, of the form:
+	 * >>> [allLedsSorted, interactiveLedsSorted]
+	 */
+	orderLeds: function() {
+		var nLeds = this.queryPrefix('NLED');
+		var iLeds = this.queryPrefix('ILED');
+		var cp = this.queryPrefix('CP')[0];
+		var allLeds = nLeds.concat(iLeds);
+
+		// Determine the 'polarity' of the path, i.e. ensure
+		// that if the start of the path begins near the breakout
+		// (prefix: 'bo'), then we account for it in the offsetting
+		var bo = this.queryPrefix('BO')[0];
+		var bi = this.queryPrefix('BI')[0];
+		var cpStartPoint = cp.segments[0].point;
+		var polarity = cpStartPoint.getDistance(bi.position)
+										< cpStartPoint.getDistance(bo.position)
+										? 1 : -1;
+
+		// Note that we cannot guarantee that an LED will lie exactly
+		// on the medial axis of the bus/copper path, so we find the
+		// nearest point on the bus to calculate the bus offset
+		var nearestCpPoint;
+		$.each(allLeds, function(idx, obj) {
+			nearestCpPoint = cp.getNearestPoint(obj.position);
+			obj.lOffset = polarity *  cp.getOffsetOf(nearestCpPoint);
+		});
+		allLeds = _.sortBy(allLeds, 'lOffset');
+		$.each(allLeds, function (idx, obj) {
+			obj.lid = idx;
+		});
+
+		$.each(iLeds, function(idx, obj) {
+			nearestCpPoint = cp.getNearestPoint(obj.position);
+			obj.cOffset = polarity * cp.getOffsetOf(nearestCpPoint);
+		});
+		iLeds = _.sortBy(iLeds, 'cOffset');
+		$.each(iLeds, function (idx, obj) {
+			obj.cid = idx;
+		});
+		return [allLeds, iLeds];
 	}
 }
 
