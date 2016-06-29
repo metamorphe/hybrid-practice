@@ -1,6 +1,6 @@
    <script type="text/javascript">
       var zb, cp, bb, vm, displays = [];
-      
+
       $(function(){
         paperSetup();
         var nineSegment = new Artwork("/artwork/nine-segment.svg", function(artwork){
@@ -11,12 +11,13 @@
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         cp = new ColorPalette($('#sidebar-left'));
         bb = new BrushBar($('#brush-bar'));
-       
+        sc = new SocketControl($('#socket-button'));
+
         $("#shade").fadeOut("slow");
       });
-      
+
       function paperSetup(){
-      
+
         $('#myCanvas').attr('height', $(window).height());
         $('#myCanvas').attr('width', $(window).width());
         paper.install(window);
@@ -84,8 +85,8 @@
   </div><!-- /.container-fluid -->
 </nav>
         <canvas id="myCanvas"></canvas>
-       
-         
+
+
         <div id="sidebar-right" class="col-xs-4">
           <h3> MODE </h3>
           <div class="btn-group">
@@ -141,7 +142,7 @@
       background: none;
       border: none;
     }
-   
+
     .btn-transparent:visited{
       color: #f5f4f0;
       outline: none;
@@ -154,7 +155,7 @@
       color: #f5f4f0;
       outline: none;
     }
-   
+
     .btn-transparent:focus{
       color: #f5f4f0;
       outline: none;
@@ -164,5 +165,3 @@
       clear: both;
     }
   </style>
-
-

@@ -2,10 +2,11 @@ Rails.application.routes.draw do
 
   get 'tool/index'
   get 'tool/displays'
+  get 'tool/start_server'
 
   get 'devices/index'
 
-  controller :stream do 
+  controller :stream do
     get "stream/moon", to: "streams#moon", :as => "moon"
     get "stream/tides/:place", to: "streams#tides", :as => "tides"
     get "stream/forecast/:place", to: "streams#forecast", :as => "temperature"
@@ -26,7 +27,7 @@ Rails.application.routes.draw do
     get 'bom', :as => "bom"
     get 'form', :as => "form"
   end
-  
+
   get 'jig/interface/:id' => "jig#interface",  :as => "jig_interface"
   devise_for :users
   resources :user, :only => ["show"]
@@ -42,7 +43,7 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
   # You can have the root of your site routed with "root"
   root 'application#home'
-  
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

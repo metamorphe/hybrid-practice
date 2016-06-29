@@ -6,6 +6,7 @@
 		<script type="text/javascript" src="libs/paper-full.min.js"></script>
 		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
 		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
@@ -14,10 +15,24 @@
 		 	var nineSegment;
 			$(function(){
 				// MAIN FUNCTION
-				$('#downloadButton').click(function(){
+				$('#downloadButtonPNG').click(function(){
 					console.log("clicked");
 					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
 				});
+
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+
 				$('#myCanvas').attr('height', $(window).height());
 				$('#myCanvas').attr('width', $(window).width());
 	
@@ -25,27 +40,41 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-
-				nineSegment = new Artwork("img/nine-segment.svg");
-				runScript();
+				paper.view.zoom = 1;
+				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+					runScript(display);
+				});
+				
 			});
-			function runScript(){
+			function runScript(display){
 				// TODO: YOUR CODE HERE
+				// var n = display.svg.children.length;
+				// for(var i = 0; i <n; i++){
+				// 	display.svg.children[i].style.fillColor = new paper.Color(i/n)
+				// 	display.svg.children[i].position.x += 100;
+				// }
+				// display.svg.children[1].style.fillColor = new paper.Color(0.2)
 			}
 		</script>
 	</head>
 	<body>
 		<div class="container">
 			<canvas id="myCanvas"></canvas>
-			<a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
 		</div>
 	</body>
 </html>
 
 <style> 
-	#downloadButton{
+	#downloadButtonPNG{
 		position: absolute;
 		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
 		left: 20px;
 	}
 	#myCanvas{
