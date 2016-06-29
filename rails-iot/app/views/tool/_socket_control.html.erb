@@ -3,6 +3,7 @@ function SocketControl(container) {
   this.container = container;
   this.ws = null;
   this.isConnected = false;
+  this.onMirrorMode = false;
   this.init();
 }
 
@@ -39,7 +40,10 @@ SocketControl.prototype = {
     this.ws.onmessage = function(evt) {
         if(evt.data){
           try{
-            // console.log(evt.data);
+            console.log(evt.data);
+            if (scope.onMirrorMode) {
+              scope._processDeviceCommand(evt.data);
+            }
           }
           catch(e){
             console.log("ERROR", e, evt.data);
@@ -52,7 +56,28 @@ SocketControl.prototype = {
    */
   sendMessage: function(msgString) {
     this.ws.send(msgString);
-  }
+  },
+  /**
+   * By default, mirror mode is off, meaning that the socket
+   * will not process input from the serial device. If mirror
+   * mode is on, the socket will process sensor inputs from
+   * the device and update the digital representation accordingly
+   */
+  toggleMirrorMode: function() {
+    this.onMirrorMode = !this.onMirrorMode;
+  },
+  /**
+   * Processes a command from the device with syntax:
+   * >>> s,<ID>,<STATE>
+   * where STATE is 0 or 1 for off and on, respecively.
+   * Updates the digital representation accordingly.
+   */
+   _processDeviceCommand: function(commandString) {
+     var tokens = commandString.split(',');
+     var id = tokens[1];
+     var state = tokens[2];
+     //TODO: update labels
+   }
 }
 
 </script>

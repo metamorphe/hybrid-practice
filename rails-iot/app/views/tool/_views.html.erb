@@ -27,9 +27,12 @@
       });
       $('button[name="circuit"]').click();
 
+      // Create labels and hide them immediately after
       $.each(displays, function(idx, obj) {
         ViewManager.generateLabels(obj.allLeds, 'lid', 'CIR');
+        ViewManager.generateLabels(obj.allLeds, 'status', 'STA', false);
       });
+      this.update();
     },
     getCurrentView: function(){
       return this.view;
@@ -46,6 +49,7 @@
 
         // Because we create
         var CIR = CanvasUtil.queryPrefix("CIR");
+        var STA = CanvasUtil.queryPrefix("STA");
 
         _.each(NLED, function(LED){
           LED.style.strokeWidth = 1;
@@ -61,6 +65,7 @@
             ViewManager.setElementVisibility(CP, true);
             ViewManager.setElementVisibility(NLED, true);
             ViewManager.setElementVisibility(CIR, false);
+            ViewManager.setElementVisibility(STA, false);
             break;
           case "INTERACTIVITY":
               ViewManager.setElementVisibility(BO, false);
@@ -68,7 +73,8 @@
               ViewManager.setElementVisibility(DIF, true);
               ViewManager.setElementVisibility(CP, false);
               ViewManager.setElementVisibility(NLED, false);
-            ViewManager.setElementVisibility(CIR, false);
+              ViewManager.setElementVisibility(CIR, false);
+              ViewManager.setElementVisibility(STA, true);
             break;
           case "SPACER":
             break;
@@ -79,6 +85,7 @@
             ViewManager.setElementVisibility(CP, false);
             ViewManager.setElementVisibility(NLED, false);
             ViewManager.setElementVisibility(CIR, false);
+            ViewManager.setElementVisibility(STA, false);
             break;
           case "LIGHTS":
             ViewManager.setElementVisibility(BO, false);
@@ -87,6 +94,7 @@
             ViewManager.setElementVisibility(CP, false);
             ViewManager.setElementVisibility(NLED, true);
             ViewManager.setElementVisibility(CIR, false);
+            ViewManager.setElementVisibility(STA, false);
             break;
           case "CIRCUIT":
             circuitMakerScript(display);
@@ -96,6 +104,7 @@
             ViewManager.setElementVisibility(CP, true);
             ViewManager.setElementVisibility(NLED, true);
             ViewManager.setElementVisibility(CIR, true);
+            ViewManager.setElementVisibility(STA, false);
             break;
           default:
             break;
@@ -133,10 +142,10 @@
    * Note that the ID_NAME must match the property name for each
    * object exactly, otherwise behavior is undefined.
    */
-  ViewManager.generateLabels = function(components, idName, prefix) {
+  ViewManager.generateLabels = function(components, idName, prefix, useOffset=true) {
     var circle, text, x, y, point;
 		var radius = 10;
-		var offset = 15;
+		var offset = useOffset ? 15 : 0;
 		$.each(components, function(idx, obj) {
 			x = obj.position.x;
 			y = obj.position.y;
@@ -154,7 +163,7 @@
 			text.name = prefix + ':text_' + obj[idName];
 			text.set({
 				fillColor: '#292824',
-				content: '' + obj.lid
+				content: '' + obj[idName]
 			});
 			text.position.x -= text.bounds.width / 2;
 			text.position.y += text.bounds.height / 4;
