@@ -30,7 +30,7 @@
       // Create labels and hide them immediately after
       $.each(displays, function(idx, obj) {
         ViewManager.generateLabels(obj.allLeds, 'lid', 'CIR');
-        ViewManager.generateLabels(obj.allLeds, 'status', 'STA');
+        ViewManager.generateLabels(obj.allLeds, 'status', 'STA', false);
       });
       this.update();
     },
@@ -142,10 +142,10 @@
    * Note that the ID_NAME must match the property name for each
    * object exactly, otherwise behavior is undefined.
    */
-  ViewManager.generateLabels = function(components, idName, prefix) {
+  ViewManager.generateLabels = function(components, idName, prefix, useOffset=true) {
     var circle, text, x, y, point;
 		var radius = 10;
-		var offset = 15;
+		var offset = useOffset ? 15 : 0;
 		$.each(components, function(idx, obj) {
 			x = obj.position.x;
 			y = obj.position.y;
