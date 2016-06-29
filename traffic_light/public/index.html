@@ -5,7 +5,9 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Traffic Light</title>
 
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script type="text/javascript" src="./bower_components/jquery/dist/jquery.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./bootstrap.min.css">
@@ -24,21 +26,27 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="col-md-4">
+        <div class="canvas-container col-md-8">
           <h3 class="svg-title">SVG</h3>
-          <img class="light" src="img/traffic_img.jpg" alt="Sorry">
-        </div>
-        <div class="col-md-4">
-          <h3 class="svg-title">SVG</h3>
-          <canvas id="myCanvas"></canvas>
+          <canvas id="myCanvas" style="height:400px;"></canvas>
+          <div class="zoom-btn-group btn-group-vertical">
+            <div class="plus-zoom-btn btn btn-default">+</div>
+            <div class="minus-zoom-btn btn btn-default">-</div>
+          </div>
         </div>
         <div class="col-md-4">
           <h3>Sidebar</h3>
-          <button class="btn btn-default" type="submit">
+          <button class="dcc-btn btn btn-default" type="submit">
             Direct Color Change
           </button>
-          <button class="btn btn-default" type="submit">
+          <button class="bind-btn btn btn-default" type="submit">
             Bind
+          </button>
+          <button class="pan-btn btn btn-default" type="submit">
+            Pan
+          </button>
+          <button class="zoom-btn btn btn-default" type="submit">
+            Zoom
           </button>
         </div>
       </div>
@@ -69,6 +77,13 @@
         <div>
           Cold-pressed authentic street art vinyl, vegan ethical bushwick freegan shabby chic green juice ramps. Master cleanse narwhal paleo mlkshk leggings.
         </div>
+        <br/>
+        <button class="btn btn-default" type="submit">
+          Connect
+        </button>
+        <button class="btn btn-default" type="submit">
+          Export
+        </button>
       </div>
     </div>
   </body>
@@ -78,10 +93,20 @@
       padding-bottom: 10px;
     }
 
-    #myCanvas {
-      width: 200px;
-      height: 400px;
+    .canvas-container {
+      position: relative;
     }
+
+    .zoom-btn-group {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+    }
+
+/*     #myCanvas {
+  width: 200px;
+  height: 400px;
+} */
   </style>
 
 </html>

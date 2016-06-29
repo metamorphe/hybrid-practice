@@ -26,6 +26,10 @@
         scope.update();
       });
       $('button[name="circuit"]').click();
+
+      $.each(displays, function(idx, obj) {
+        ViewManager.generateLabels(obj.allLeds, 'lid', 'CIR');
+      });
     },
     getCurrentView: function(){
       return this.view;
@@ -40,12 +44,15 @@
         var CP = display.queryPrefix("CP");
         var NLED = display.queryPrefix("NLED");
 
+        // Because we create
+        var CIR = CanvasUtil.queryPrefix("CIR");
+
         _.each(NLED, function(LED){
           LED.style.strokeWidth = 1;
           LED.style.strokeColor = "#666";
         });
         // LOGIC FOR VIEW SHIFT
-       
+
         switch(view){
           case "GLOBAL":
             ViewManager.setElementVisibility(BO, true);
@@ -53,6 +60,7 @@
             ViewManager.setElementVisibility(DIF, true);
             ViewManager.setElementVisibility(CP, true);
             ViewManager.setElementVisibility(NLED, true);
+            ViewManager.setElementVisibility(CIR, false);
             break;
           case "INTERACTIVITY":
               ViewManager.setElementVisibility(BO, false);
@@ -60,6 +68,7 @@
               ViewManager.setElementVisibility(DIF, true);
               ViewManager.setElementVisibility(CP, false);
               ViewManager.setElementVisibility(NLED, false);
+            ViewManager.setElementVisibility(CIR, false);
             break;
           case "SPACER":
             break;
@@ -69,6 +78,7 @@
             ViewManager.setElementVisibility(DIF, true);
             ViewManager.setElementVisibility(CP, false);
             ViewManager.setElementVisibility(NLED, false);
+            ViewManager.setElementVisibility(CIR, false);
             break;
           case "LIGHTS":
             ViewManager.setElementVisibility(BO, false);
@@ -76,6 +86,7 @@
             ViewManager.setElementVisibility(DIF, false);
             ViewManager.setElementVisibility(CP, false);
             ViewManager.setElementVisibility(NLED, true);
+            ViewManager.setElementVisibility(CIR, false);
             break;
           case "CIRCUIT":
             circuitMakerScript(display);
@@ -84,6 +95,7 @@
             ViewManager.setElementVisibility(DIF, false);
             ViewManager.setElementVisibility(CP, true);
             ViewManager.setElementVisibility(NLED, true);
+            ViewManager.setElementVisibility(CIR, true);
             break;
           default:
             break;
@@ -96,7 +108,7 @@
       this.state = true;
       if(now){$("#view-list").show(); return;}
       $("#view-list").toggle("slide", { direction: "up" }, 300);
-    }, 
+    },
     hide: function(now){
       if(!this.state) return;
       this.state = false;
@@ -104,18 +116,57 @@
       $("#view-list").toggle("slide", { direction: "up" }, 300);
     }
   }
-  
+
   ViewManager.setElementVisibility = function(arr, isVisible){
     _.each(arr, function(el){
       el.opacity = isVisible ? 1: 0;
     });
   }
+
+  /**
+   * Generates labels for a list of Paper.js objects named
+   * COMPONENTS, and displays them on the canvas. Objects created
+   * have a .name property of PREFIX + ":circle" and PREFIX + ":text",
+   * and the text generated for each label is obtained from the
+   * .ID_NAME property of each object in COMPONENTS.
+   *
+   * Note that the ID_NAME must match the property name for each
+   * object exactly, otherwise behavior is undefined.
+   */
+  ViewManager.generateLabels = function(components, idName, prefix) {
+    var circle, text, x, y, point;
+		var radius = 10;
+		var offset = 15;
+		$.each(components, function(idx, obj) {
+			x = obj.position.x;
+			y = obj.position.y;
+			circle = new Path.Circle(new Point(x + offset, y + offset)
+									, radius);
+			circle.name = prefix + ':circle_' + obj[idName];
+			circle.set({
+				strokeWidth: 1,
+				strokeColor: '#292824',
+				fillColor: 'white',
+				opacity: 1.0,
+			});
+			text = new PointText(new Point(x + offset,
+					y + offset));
+			text.name = prefix + ':text_' + obj[idName];
+			text.set({
+				fillColor: '#292824',
+				content: '' + obj.lid
+			});
+			text.position.x -= text.bounds.width / 2;
+			text.position.y += text.bounds.height / 4;
+		});
+  }
+
   function circuitMakerScript(display){
     // GENERATE BASE
     var CP = display.queryPrefix("CP")[0];
     var base = CP.clone();
     base.set({
-      name: "BASE: FR1 Board", 
+      name: "BASE: FR1 Board",
       strokeColor: "#fe6e4b",
       strokeWidth: Ruler.mm2pts(6)
     });
@@ -123,6 +174,101 @@
 
     // CIRCUIT BACKGROUND
     // expandPath(CP, 20);
+    // for(var i = 0; i < CP.segments.length; i += 1){
+    //   if(i + 1 >= CP.segments.length) break;
+    //   var seg0 = CP.segments[i];
+    //   var seg1 = CP.segments[i+1];
+
+    //   var offset0 = CP.getOffsetOf(seg0.point)_;
+    //   var x0 = CP.getPointAt(offset0);
+    //   var n0 = CP.getNormalAt(offset0);
+    //   n0.length = 10;
+
+
+    //   var offset1 = CP.getOffsetOf(seg1.point);
+    //   var x1 = CP.getPointAt(offset1);
+    //   var n1 = CP.getNormalAt(offset1);
+    //   n1.length = 10;
+
+    //   var line = new paper.Path({
+    //       segments: [x0.add(n0), x1.add(n1) ],
+    //       strokeColor: 'red'
+    //   });
+    //   console.log(offset0, offset1)
+    // }
+    // expandPath(CP, 20);
+
+    // // GENERATE CONTROL LINES
+    // var PWR = new paper.Path({
+    //   name: "CL: PWR",
+    //   strokeColor: "#FF0000",
+    //   strokeWidth: Ruler.mm2pts(0.648)
+    // });
+    // var GND = new paper.Path({
+    //   name: "CL: GND",
+    //   strokeColor: "#000000",
+    //   strokeWidth: Ruler.mm2pts(0.648)
+    // });
+
+   //  var expandedPath = new paper.Path.Circle({
+   //      fillColor: "green",
+   //      radius: 10,
+   //      position: CP.getPointAt(0)
+   //    });
+   //  expandedPath.bringToFront();
+   // var c = new paper.Path.Circle({
+   //    fillColor: "grey",
+   //    radius: 10,
+   //    position: CP.getPointAt(10)
+   //  });
+   //  var prev = expandedPath;
+   //  expandedPath = expandedPath.unite(c);
+   //  c.remove();
+   //  // prev.remove();
+   //  expandedPath.remove();
+    // for(var offset = 0; offset < CP.length; offset += 90){
+    // for(var i = 0; i < CP.segments.length; i += 1){
+      // console.log(CP.segments)
+      // var seg = CP.segments[i];
+      // console.log(seg);
+      // c = new paper.Path.Circle({
+      //   fillColor: "purple",
+      //   radius: 10,
+      //   position: seg.point
+      // })
+
+      // offset = CP.getOffsetOf(seg.point);
+      // var nPWR = CP.getNormalAt(offset);
+      // var xPWR = CP.getPointAt(offset);
+
+      // nPWR.length = 10;
+      // c = new paper.Path.Circle({
+      //   fillColor: "purple",
+      //   radius: 10,
+      //   position: xPWR
+      // });
+      // prev = expandedPath;
+      // expandedPath = expandedPath.unite(c);
+      // prev.remove();
+      // c.remove();
+      // var nGND = nPWR.clone();
+      // nGND.length = 10;
+
+      // var xGND = CP.getPointAt(offset);
+      // // var pos = n.subtract(x);
+      // // c = new paper.Path.Circle({
+      // //   fillColor: "purple",
+      // //   radius: 3,
+      // //   position: n.add(x)
+      // // })
+      // var line = new paper.Path({
+      //     segments: [xPWR, xPWR.add(nPWR)],
+      //     strokeColor: 'red'
+      // });
+      // PWR.addSegment(xPWR.add(nPWR))
+      // GND.addSegment(xGND.subtract(nGND))
+    // }
+    // CP.name = "PWR: PowerLine"
 
   }
 
@@ -135,13 +281,13 @@
       pos.y -= amount/2;
       var n = path.getTangentAt(offset);
       c = new paper.Path.Rectangle({
-        fillColor: "purple", 
-        // radius: 10, 
+        fillColor: "purple",
+        // radius: 10,
         size: [amount, amount],
         radius: amount/4,
-        point: pos, 
+        point: pos,
         rotation: n.angle
-      });    
+      });
       circles.push(c);
     }
     var master = circles[0];
@@ -160,7 +306,7 @@
     return master;
   }
 </script>
-<div id="views"> 
+<div id="views">
   <button id="view-icon" class="pull-right btn btn-primary">
     <span class="glyphicon glyphicon-globe"></span>
   </button>
@@ -239,7 +385,7 @@
       width: 175px;
       text-align: right;
       text-decoration: none;
-      
+
     }
       #view-list ul{
         list-style-type: none;
