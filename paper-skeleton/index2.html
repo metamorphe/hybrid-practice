@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButton').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+
+				paper.install(window);
+				paper.setup('myCanvas');
+
+				nineSegment = new Artwork("img/nine-segment.svg", function(display) {
+					runScript(display);
+				};
+			});
+				
+			function runScript(display){
+				// Declaring a path array, rectangle array, and group array.
+				var pathArray = new Array();
+				var rectArray = new Array();
+				var groupArray = new Array();
+
+				// Declaring a minimumPath and minimumRotation for rotation purposes.
+				var minPath;
+
+				// Accessing the ordered array of LEDs.
+				var ledSeg = nineSegment;
+				var sortedLedSeg = ledSeg.allLeds;
+
+				// Function to add BreakIn Board.
+				function addBreakIn() {
+					// Query the breakIn board.
+					var breakIn = nineSegment.queryPrefix("BI")[0];
+
+					// Instantiate a rectangle based on the board coordinates.
+					var rectangle = new Path.Rectangle(new Point(breakIn.bounds.center.x, breakIn.bounds.center.y), 25);
+					rectangle.strokeColor = "black";
+					rectArray.push(rectangle);
+
+					// Establish two circles to help with routing.
+					var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
+					var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
+					entryPoint.fillColor = "blue";
+					exitPoint.fillColor = "red";
+
+					// Instantiate a pointText to help with labeling.
+					var pointText = new PointText(new Point(rectangle.bounds.topCenter.x, rectangle.bounds.topCenter.y));
+					pointText.justification = "center";
+					pointText.fillColor = "black";
+					pointText.content = "BI";
+					pointText.fontSize = 10;
+
+					// Add the elements to the group for the routing algorithm.
+					var group = new Group([rectangle, entryPoint, exitPoint]);
+					group.rectangle = rectangle;
+					group.inputPoint = entryPoint;
+					group.outputPoint = exitPoint;
+					groupArray.push(group);
+				};
+
+				// Function to add BreakOut Board.
+				function addBreakOut() {
+					// Query the breakOut board.
+					var breakIn = nineSegment.queryPrefix("BO")[0];
+
+					// Instantiate a rectangle based on the board coordinates.
+					var rectangle = new Path.Rectangle(new Point(breakIn.bounds.center.x, breakIn.bounds.center.y), 25);
+					rectangle.strokeColor = "black";
+					rectArray.push(rectangle);
+
+					// Establish two circles to help with routing.
+					var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
+					var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
+					entryPoint.fillColor = "blue";
+					exitPoint.fillColor = "red";
+
+					// Instantiate a pointText to help with labeling.
+					var pointText = new PointText(new Point(rectangle.bounds.topCenter.x, rectangle.bounds.topCenter.y));
+					pointText.justification = "center";
+					pointText.fillColor = "black";
+					pointText.content = "BO";
+					pointText.fontSize = 10;
+
+					// Add the elements to the group for the routing algorithm.
+					var group = new Group([rectangle, entryPoint, exitPoint]);
+					group.rectangle = rectangle;
+					group.inputPoint = entryPoint;
+					group.outputPoint = exitPoint;
+					groupArray.push(group);
+				};
+
+				// Function to set up rectangles for testing (Includes ascii placement).
+				function placeRectangles() {
+					for (i = 0; i < sortedLedSeg.length; i++) {
+						// Access the LED from the array.
+						var currentElement = sortedLedSeg[i];
+
+						// Instantiate a rectangle based on the LED coordinates.
+						var leftX = currentElement.bounds.topLeft.x;
+						var leftY = currentElement.bounds.topLeft.y;
+						var rectangle = new Path.Rectangle(new Point(leftX, leftY), 14);
+						rectangle.strokeColor = "black";
+						rectArray.push(rectangle);
+
+						// Instantiate a pointText with the ASCII character.
+						var pointText = new PointText(new Point(rectangle.bounds.center.x, rectangle.bounds.center.y));
+						pointText.justification = "center";
+						pointText.fillColor = 'black';
+						pointText.content = "-->";
+						pointText.fontSize = 5;
+
+						// Establish two circles to help with routing.
+						var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
+						var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
+						entryPoint.fillColor = "blue";
+						exitPoint.fillColor = "red";
+
+						// Order all the elements into a group and push the group into a group array.
+						var group = new Group([rectangle, pointText, entryPoint, exitPoint]);
+						group.rectangle = rectangle;
+						group.arrow = pointText;
+						group.inputPoint = entryPoint;
+						group.outputPoint = exitPoint;
+						groupArray.push(group);
+					};
+				};
+
+				// Function to obtain cost (Path length) from path.
+				function cost(path, firstGroup) {
+					if (path.intersects(firstGroup)) {
+						return path.length + 1000;
+					} else {
+						return path.length;
+					};
+				};
+
+				// Helper Function to determine optimal routing.
+				function determineOptimalRoute(firstGroup, secondGroup) {
+					var rotationDegree = 0;
+					var minRotation = 0;
+					var minPathCost = Number.MAX_SAFE_INTEGER;
+					while (rotationDegree <= 360) {
+						secondGroup.rotation = rotationDegree;
+						var path = new Path(firstGroup.outputPoint.position, secondGroup.inputPoint.position);
+						if (cost(path, firstGroup) < minPathCost) {
+							minPathCost = cost(path, firstGroup);
+							minRotation = rotationDegree;
+							minPath = path;
+						} else {
+							path.removeSegments();
+						};
+						rotationDegree += 1;
+					};
+					minPath.strokeColor = "yellow";
+					secondGroup.rotation = minRotation;
+				};
+
+				// Helper Function to draw the final route.
+				// function finalRoute() {
+				// 	var finalPath = new Path(groupArray[0].inputPoint.position, groupArray[0].outputPoint.position);
+				// 	finalPath.strokeColor = "yellow";
+				// 	for (var i = 1; i < groupArray.length; i++) {
+				// 		finalPath.addSegments([groupArray[i].inputPoint.position, groupArray[i].outputPoint.position]);
+				// 	}
+				// }
+
+				// Function to route the rectangles together based on overall cost.
+				function route() {
+					for (var i = 1; i < groupArray.length; i++) {
+						firstGroup = groupArray[i - 1];
+						secondGroup = groupArray[i];
+						if (secondGroup.arrow != null) {
+							determineOptimalRoute(firstGroup, secondGroup);
+						}
+					}
+					// finalRoute();
+				};
+
+				// Function that initializes the routing process.
+				function initialization() {
+					addBreakIn();
+					placeRectangles();
+					addBreakOut();
+					route();
+					nineSegment.svg.remove();
+				};
+
+				// Call to the initialization function.
+				initialization();
+			};
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButton" class='btn btn-default'>DOWNLOAD</a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButton{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>
