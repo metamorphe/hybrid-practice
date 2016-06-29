@@ -74,9 +74,10 @@ SocketControl.prototype = {
    */
    _processDeviceCommand: function(commandString) {
      var tokens = commandString.split(',');
-     var id = tokens[1];
+     var id = parseInt(tokens[1]);
      var state = tokens[2];
-     //TODO: update labels
+     var stateText = state == 0 ? '↓' : '↑';
+     ViewManager.updateLabel('STA', id, stateText);
    }
 }
 

@@ -172,6 +172,22 @@
 		});
   }
 
+  ViewManager.updateLabel = function(prefix, lid, newContent) {
+    var selectionHash = {
+      prefix: prefix,
+      lid: lid
+    };
+    console.log(selectionHash);
+    var els = CanvasUtil.query(paper.project, selectionHash);
+    console.log(els);
+    $.each(els, function(idx, obj) {
+      if (obj.className == 'PointText') {
+        obj.content = newContent;
+        obj.status = newContent;
+      }
+    });
+  }
+
   function circuitMakerScript(display){
     // GENERATE BASE
     var CP = display.queryPrefix("CP")[0];
