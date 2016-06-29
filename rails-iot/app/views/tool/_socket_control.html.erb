@@ -1,0 +1,93 @@
+<script type="text/javascript">
+function SocketControl(container) {
+  this.container = container;
+  this.ws = null;
+  this.isConnected = false;
+  this.onMirrorMode = false;
+  this.init();
+}
+
+SocketControl.prototype = {
+  init: function() {
+    //TODO
+    var scope = this;
+    this.container.on('click', function() {
+      if (!scope.isConnected) {
+        scope.connect();
+      } else {
+        scope.sendMessage('hi');
+      }
+    });
+  },
+  connect: function() {
+    // $.get("/tool/start_server", function(json){
+    //   console.log(json.debug)
+    //   });
+    var scope = this;
+    this.ws = new WebSocket("ws://localhost:3015");
+    this.ws.onopen = function() {
+      scope.isConnected = true;
+      scope.container.text('SEND');
+      scope.container.removeClass('btn-danger');
+      scope.container.addClass('btn-success');
+    };
+    this.ws.onclose = function() {
+      scope.isConnected = false;
+      scope.container.text('CONNECT');
+      scope.container.removeClass('btn-success');
+      scope.container.addClass('btn-danger');
+    };
+    this.ws.onmessage = function(evt) {
+        if(evt.data){
+          try{
+            console.log(evt.data);
+            if (scope.onMirrorMode) {
+              scope._processDeviceCommand(evt.data);
+            }
+          }
+          catch(e){
+            console.log("ERROR", e, evt.data);
+          }
+        }
+    }
+  },
+  /**
+   * No ACK-checking, UDP style.
+   */
+  sendMessage: function(msgString) {
+    this.ws.send(msgString);
+  },
+  /**
+   * By default, mirror mode is off, meaning that the socket
+   * will not process input from the serial device. If mirror
+   * mode is on, the socket will process sensor inputs from
+   * the device and update the digital representation accordingly
+   */
+  toggleMirrorMode: function() {
+    this.onMirrorMode = !this.onMirrorMode;
+  },
+  /**
+   * Processes a command from the device with syntax:
+   * >>> s,<ID>,<STATE>
+   * where STATE is 0 or 1 for off and on, respecively.
+   * Updates the digital representation accordingly.
+   */
+   _processDeviceCommand: function(commandString) {
+     var tokens = commandString.split(',');
+     var id = tokens[1];
+     var state = tokens[2];
+     //TODO: update labels
+   }
+}
+
+</script>
+
+<button id="socket-button" class="btn btn-lg btn-danger">
+  CONNECT
+</button>
+
+<style>
+#socket-button {
+  margin: 15% 0;
+}
+</style>
