@@ -12,7 +12,7 @@ CanvasUtil.prototype = {}
 
 CanvasUtil.query = function(container, selector){
 	// Prefix extension
-	if("prefix" in selector){
+	if ("prefix" in selector){
 		var prefixes = selector["prefix"];
 
 		selector["name"] = function(item){
@@ -21,7 +21,12 @@ CanvasUtil.query = function(container, selector){
 		}
 		delete selector["prefix"];
 	}
-	return container.getItems(selector);
+	var elements = container.getItems(selector);
+	if ("lid" in selector) {
+		return _.where(elements, {lid: selector["lid"]})
+	} else {
+		return elements;
+	}
 }
 
 CanvasUtil.queryPrefix = function(selector) {
