@@ -3,7 +3,7 @@ function SocketControl(container) {
   this.container = container;
   this.ws = null;
   this.isConnected = false;
-  this.onMirrorMode = false;
+  this.onMirrorMode = true;
   this.init();
 }
 
@@ -73,11 +73,20 @@ SocketControl.prototype = {
    * Updates the digital representation accordingly.
    */
    _processDeviceCommand: function(commandString) {
+     console.log('Processing: ' + commandString);
      var tokens = commandString.split(',');
+     if (tokens[0] != 's') {
+       return;
+     }
      var id = parseInt(tokens[1]);
      var state = tokens[2];
      var stateText = state == 0 ? '↓' : '↑';
-     ViewManager.updateLabel('STA', id, stateText);
+     var stateFillColor = state == 0 ? '#b7b3aa' : '#ffffff';
+     var contentHash = {
+       content: stateText,
+       fillColor: stateFillColor
+     };
+     ViewManager.updateLabel('STA', id, contentHash);
    }
 }
 
