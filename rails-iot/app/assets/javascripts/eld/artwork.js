@@ -55,6 +55,7 @@ Artwork.prototype = {
 				var ledLists = scope.orderLeds();
 				scope.allLeds = ledLists[0];
 				scope.iLeds = ledLists[1];
+				scope.setLedsOff();
 		    loadFN(scope);
 		});
 	},
@@ -117,6 +118,16 @@ Artwork.prototype = {
 			obj.cid = idx;
 		});
 		return [allLeds, iLeds];
+	},
+	setLedsOff: function() {
+		var leds = this.queryPrefix('NLED');
+		$.each(leds, function (idx, obj) {
+			obj.status = '↓';
+		});
+	},
+	findLedWithId: function(id) {
+		return _.findWhere(this.queryPrefix('NLED'),
+						{lid: id});
 	}
 }
 
