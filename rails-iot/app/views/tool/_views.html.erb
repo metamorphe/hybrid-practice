@@ -152,6 +152,7 @@
 			circle = new Path.Circle(new Point(x + offset, y + offset)
 									, radius);
 			circle.name = prefix + ':circle_' + obj[idName];
+      circle.lid = obj.lid;
 			circle.set({
 				strokeWidth: 1,
 				strokeColor: '#292824',
@@ -161,6 +162,7 @@
 			text = new PointText(new Point(x + offset,
 					y + offset));
 			text.name = prefix + ':text_' + obj[idName];
+      text.lid = obj.lid;
 			text.set({
 				fillColor: '#292824',
 				content: '' + obj[idName]

@@ -28,6 +28,11 @@ CanvasUtil.queryPrefix = function(selector) {
 	return CanvasUtil.query(paper.project, {prefix: [selector]});
 }
 
+CanvasUtil.queryPrefixWithId = function(selector, id) {
+	return _.where(CanvasUtil.queryPrefix(selector),
+					{lid: id});
+}
+
 function Artwork(svgPath, loadFN){
 	this.svgPath = svgPath;
 	this.svg = null;
@@ -106,6 +111,7 @@ Artwork.prototype = {
 											< cpStartPoint.getDistance(bo.position)
 											? 1 : -1;
 		}
+
 
 		// Note that we cannot guarantee that an LED will lie exactly
 		// on the medial axis of the bus/copper path, so we find the
