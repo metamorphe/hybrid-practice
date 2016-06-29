@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="LAYE:traffic_light" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+<svg version="1.1" id="ELD:_Traffic_Light" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" viewBox="0 0 119 336" style="enable-background:new 0 0 119 336;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#FFFFFF;stroke:#000000;stroke-miterlimit:10;}
+	.st0{fill:#00AEEF;stroke:#FFFFFF;stroke-width:4;}
+	.st1{fill:#F1F2F2;}
+	.st2{fill:none;stroke:#FFF200;stroke-width:4;}
+	.st3{fill:#0C00FF;}
 </style>
-<rect id="PLAN:box" x="0.5" y="0.5" class="st0" width="118" height="335"/>
-<circle id="ILED:2" class="st0" cx="58.4" cy="53.6" r="42.1"/>
-<circle id="ILED:1" class="st0" cx="58.4" cy="148" r="42.1"/>
-<circle id="ILED:0" class="st0" cx="58.4" cy="242.9" r="42.1"/>
+<path id="DIF:_2" class="st0" d="M58.4,11.5c16.2,0,30.3,9.2,37.3,22.6c3,5.8,4.8,12.5,4.8,19.5c0,23.3-18.8,42.1-42.1,42.1
+	S16.3,76.9,16.3,53.6S35.1,11.5,58.4,11.5z"/>
+<path id="DIF:_1" class="st0" d="M58.4,105.9c23.3,0,42.1,18.8,42.1,42.1c0,8.4-2.4,16.2-6.7,22.7c-7.5,11.7-20.6,19.4-35.4,19.4
+	c-23.3,0-42.1-18.8-42.1-42.1S35.1,105.9,58.4,105.9z"/>
+<path id="DIF:_0" class="st0" d="M58.4,200.8c23.3,0,42.1,18.8,42.1,42.1c0,5.8-1.2,11.4-3.3,16.4C90.8,274.4,75.8,285,58.4,285
+	c-23.3,0-42.1-18.8-42.1-42.1S35.1,200.8,58.4,200.8z"/>
+<polygon id="NLED:_APA102C-3_1_" class="st1" points="65.5,60.7 51.3,60.7 51.3,46.5 65.5,46.5 65.5,53.5 "/>
+<polygon id="NLED:_APA102C-3_2_" class="st1" points="65.5,159.6 51.3,159.6 51.3,145.4 65.5,145.4 65.5,152.4 "/>
+<polygon id="NLED:_APA102C-3_3_" class="st1" points="65.5,251.5 51.3,251.5 51.3,237.4 65.5,237.4 65.5,244.4 "/>
+<line id="CP:_CircuitPath" class="st2" x1="58.4" y1="0.5" x2="58.4" y2="336"/>
+<polygon id="BI:_Breakin_1_" class="st3" points="40.4,336 44.9,336 47.9,336 56.9,336 59.9,336 68.9,336 80.9,336 80.9,324.9 
+	72.7,324.9 68.9,324.9 59.9,324.9 56.9,324.9 47.9,324.9 44.9,324.9 40.4,324.9 35.9,324.9 35.9,336 "/>
 </svg>
