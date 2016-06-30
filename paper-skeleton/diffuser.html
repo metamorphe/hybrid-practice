@@ -43,7 +43,7 @@
 				var circuit_path = display.queryPrefix('CP');
 
 				//Calling functions
-				calc_diffuser_centroids(diffusers);
+				var diffuser_centroid_lst = calc_centroids(diffusers);
 				var diffuser_group = create_group(diffusers)
 				var boundingBox = create_bounding_box(diffuser_group, .641, 13, 3);
 				color_wires(boundingBox, .128, 1.5);
@@ -52,28 +52,30 @@
 				set_invisible(breakout);
 				set_invisible(breakin);
 				set_invisible(circuit_path);
+
 				set_colors(diffusers, .128);
 				create_corner_circles(boundingBox, 1.55, 2, 'white', 'white', 8, 7);
+			}
 
-
-				function calc_diffuser_centroids(diffusers){
+			/*Calculate the centroids of objects and return a list of centroid coordinates**/
+				function calc_centroids(objects){
 					diffuser_centroid_lst = []
 
 					//Locate each diffuser
-					for (var i = 0; i < diffusers.length; i++) {
-						var diffuser = diffusers[i]
+					_.each(objects, function(diffuser){
 						diffuser.visible = true
 
 						//Locate each point on a diffuser & add them
 						var calc_centroid = new paper.Point(0,0)
-						for (var j = 0; j < diffuser.segments.length; j++) {
-								var seg = diffuser.segments[j]
-								calc_centroid = calc_centroid.add(new paper.Point(seg.point.x, seg.point.y))
-						}
+						_.each(diffuser.segments, function(seg){
+							calc_centroid = calc_centroid.add(new paper.Point(seg.point.x, seg.point.y))
+						});
+
 						//Finish centroid calculation
 						calc_centroid = calc_centroid.divide(diffuser.segments.length)
 						diffuser_centroid_lst.push(calc_centroid)
-					}
+						return diffuser_centroid_lst
+					})
 				}
 
 				function create_group(diffusers) { return new paper.Group(diffusers);}
@@ -86,17 +88,19 @@
 						fillColor: new Color(color_amount),
 						strokeWidth: stroke_width
 						}
+
 					boundingBox.sendToBack() //bringToFront()
 					return boundingBox
 				}
-			
+				
+				/*Color exterior 1mm wide rectangles holding the wires*/
 				function color_wires(boundingBox, color_amount, stroke_width){
-					//Color exterior 1mm wide rectangles holding the wires
 					for (var i = 0; i < diffuser_centroid_lst.length; i++) {
 						var bound_point = boundingBox.getNearestPoint(diffuser_centroid_lst[i])
 						var wire_line = new paper.Path.Line(diffuser_centroid_lst[i], bound_point)
 						wire_line.strokeColor = new paper.Color(color_amount, stroke_width)
-						wire_line.strokeWidth = (Ruler.mm2pts(stroke_width)).toString()
+						// wire_line.strokeWidth = (Ruler.mm2pts(stroke_width)).toString()
+						wire_line.strokeWidth = Ruler.mm2pts(stroke_width)
 					}
 				}
 
@@ -107,7 +111,7 @@
 					}
 				}
 
-				//Loop through diffusers & set colors
+				/*Loop through diffusers & set colors*/
 				function set_colors(object, stroke_color){
 					_.each(object, function(diffuser){
 						diffuser.set({
@@ -118,7 +122,9 @@
 					});
 				}
 
+				/*Create four identical corner circles with appropriate colors.*/
 				function create_corner_circles(boundingBox, radius, stroke_width, fill_color, stroke_color, x_flush,y_flush){
+
 					var cornerCircle1 = paper.Path.Circle({
 						position: new paper.Point(boundingBox.bounds.topLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.topLeft.y + Ruler.mm2pts(y_flush)), 
 						fillColor: fill_color,
@@ -126,30 +132,15 @@
 						strokeWidth: Ruler.mm2pts(stroke_width),
 						radius: Ruler.mm2pts(radius)
 					})
+					cornerCircle2 = cornerCircle1.clone();
+					cornerCircle2.position = new paper.Point(boundingBox.bounds.topRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.topRight.y + Ruler.mm2pts(y_flush));
 
-					var cornerCircle2 = paper.Path.Circle({
-						position: new paper.Point(boundingBox.bounds.topRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.topRight.y + Ruler.mm2pts(y_flush)), 
-						fillColor: fill_color,
-						strokeColor: stroke_color,
-						strokeWidth: Ruler.mm2pts(stroke_width),
-						radius: Ruler.mm2pts(radius)
-					})
-					var cornerCircle3 = paper.Path.Circle({
-						position: new paper.Point(boundingBox.bounds.bottomLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.bottomLeft.y - Ruler.mm2pts(y_flush)), 
-						fillColor: fill_color,
-						strokeColor: stroke_color,
-						strokeWidth: Ruler.mm2pts(stroke_width),
-						radius: Ruler.mm2pts(radius)
-					})
-					var cornerCircle4 = paper.Path.Circle({
-						position: new paper.Point(boundingBox.bounds.bottomRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.bottomRight.y - Ruler.mm2pts(y_flush)), 
-						fillColor: fill_color,
-						strokeColor: stroke_color,
-						strokeWidth: Ruler.mm2pts(stroke_width),
-						radius: Ruler.mm2pts(radius)
-					})
+					cornerCircle3 = cornerCircle1.clone();
+					cornerCircle3.position = new paper.Point(boundingBox.bounds.bottomLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.bottomLeft.y - Ruler.mm2pts(y_flush));
+
+					cornerCircle4 = cornerCircle1.clone();
+					cornerCircle4.position = new paper.Point(boundingBox.bounds.bottomRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.bottomRight.y - Ruler.mm2pts(y_flush));
 				}
-			}
 		</script>
 	</head>
 	<body>
