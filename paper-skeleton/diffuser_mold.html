@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment; var boundingBox;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButton').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+
+				paper.install(window);
+				paper.setup('myCanvas');			
+				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+					runScript(display);
+					// console.log()
+				});
+			});
+			function runScript(display){
+				// TODO: YOUR CODE HERE
+
+				var breakout = display.queryPrefix('BO');
+				var breakin = display.queryPrefix('BI');
+				var circuit_path = display.queryPrefix('CP');
+				var diffusers = display.queryPrefix('DIF');
+				var leds = display.queryPrefix('NLED');
+
+				
+				//Extrating diffusers
+				for(var i = 0; i < diffusers.length; i++){
+					var diffuser = diffusers[i]
+					diffuser.visible = true
+					diffuser.fillColor = 'black'
+				}
+
+				var diff_group = create_group(diffusers);
+
+				boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(13)), 0);
+				boundingBox.style = {
+					fillColor: 'white',
+					strokeColor: 'black'
+				} boundingBox.sendToBack() //bringToFront()
+
+				//Make non-molding objects invisible
+				console.log(leds)
+				for(var i = 0; i < leds.length; i++){
+					var led = leds[i]
+					led.visible = false
+				}
+				console.log(circuit_path)
+				circuit_path[0].visible = false
+				breakin[0].visible = false
+				breakout[0].visible = false
+
+				function create_group(diffusers) { return new paper.Group(diffusers);}
+
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+			<a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButton{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Ryan was here.</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/math.js"></script>
+
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButton').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+
+				paper.install(window);
+				paper.setup('myCanvas');			
+				//img/nine-segment.svg
+				nineSegment = new Artwork("img/traffic_light.svg", function(display){
+					runScript(display);
+				});
+			});
+			function runScript(display){
+				// TODO: YOUR CODE HERE
+
+
+				//Declarations
+				var diffusers = display.queryPrefix('DIF');
+				var leds = display.queryPrefix('NLED');
+				var breakout = display.queryPrefix('BO');
+				var breakin = display.queryPrefix('BI');
+				var circuit_path = display.queryPrefix('CP');
+
+				//Calling functions
+				calc_diffuser_centroids(diffusers);
+				var diffuser_group = create_group(diffusers)
+				var boundingBox = create_bounding_box(diffuser_group, .641, 13, 3);
+				color_wires(boundingBox, .128, 1.5);
+
+				set_invisible(leds);
+				set_invisible(breakout);
+				set_invisible(breakin);
+				set_invisible(circuit_path);
+				set_colors(diffusers, .128);
+				create_corner_circles(boundingBox, 1.55, 2, 'white', 'white', 8, 7);
+
+
+				function calc_diffuser_centroids(diffusers){
+					diffuser_centroid_lst = []
+
+					//Locate each diffuser
+					for (var i = 0; i < diffusers.length; i++) {
+						var diffuser = diffusers[i]
+						diffuser.visible = true
+
+						//Locate each point on a diffuser & add them
+						var calc_centroid = new paper.Point(0,0)
+						for (var j = 0; j < diffuser.segments.length; j++) {
+								var seg = diffuser.segments[j]
+								calc_centroid = calc_centroid.add(new paper.Point(seg.point.x, seg.point.y))
+						}
+						//Finish centroid calculation
+						calc_centroid = calc_centroid.divide(diffuser.segments.length)
+						diffuser_centroid_lst.push(calc_centroid)
+					}
+				}
+
+				function create_group(diffusers) { return new paper.Group(diffusers);}
+
+
+				function create_bounding_box(group, color_amount, bounds, stroke_width){
+					//Create bounding box over entire collection of objects
+					var boundingBox = new paper.Path.Rectangle(group.bounds.expand(Ruler.mm2pts(bounds)), 0);
+					boundingBox.style = {
+						fillColor: new Color(color_amount),
+						strokeWidth: stroke_width
+						}
+					boundingBox.sendToBack() //bringToFront()
+					return boundingBox
+				}
+			
+				function color_wires(boundingBox, color_amount, stroke_width){
+					//Color exterior 1mm wide rectangles holding the wires
+					for (var i = 0; i < diffuser_centroid_lst.length; i++) {
+						var bound_point = boundingBox.getNearestPoint(diffuser_centroid_lst[i])
+						var wire_line = new paper.Path.Line(diffuser_centroid_lst[i], bound_point)
+						wire_line.strokeColor = new paper.Color(color_amount, stroke_width)
+						wire_line.strokeWidth = (Ruler.mm2pts(stroke_width)).toString()
+					}
+				}
+
+				function set_invisible(objects) {
+					for (var i = 0; i < objects.length; i++){
+						var o = objects[i]
+						o.visible = false
+					}
+				}
+
+				//Loop through diffusers & set colors
+				function set_colors(object, stroke_color){
+					_.each(object, function(diffuser){
+						diffuser.set({
+							strokeColor: new paper.Color(stroke_color),
+							strokeWidth: (Ruler.mm2pts(1.5)),
+							fillColor: 'black'
+						})
+					});
+				}
+
+				function create_corner_circles(boundingBox, radius, stroke_width, fill_color, stroke_color, x_flush,y_flush){
+					var cornerCircle1 = paper.Path.Circle({
+						position: new paper.Point(boundingBox.bounds.topLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.topLeft.y + Ruler.mm2pts(y_flush)), 
+						fillColor: fill_color,
+						strokeColor: stroke_color,
+						strokeWidth: Ruler.mm2pts(stroke_width),
+						radius: Ruler.mm2pts(radius)
+					})
+
+					var cornerCircle2 = paper.Path.Circle({
+						position: new paper.Point(boundingBox.bounds.topRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.topRight.y + Ruler.mm2pts(y_flush)), 
+						fillColor: fill_color,
+						strokeColor: stroke_color,
+						strokeWidth: Ruler.mm2pts(stroke_width),
+						radius: Ruler.mm2pts(radius)
+					})
+					var cornerCircle3 = paper.Path.Circle({
+						position: new paper.Point(boundingBox.bounds.bottomLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.bottomLeft.y - Ruler.mm2pts(y_flush)), 
+						fillColor: fill_color,
+						strokeColor: stroke_color,
+						strokeWidth: Ruler.mm2pts(stroke_width),
+						radius: Ruler.mm2pts(radius)
+					})
+					var cornerCircle4 = paper.Path.Circle({
+						position: new paper.Point(boundingBox.bounds.bottomRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.bottomRight.y - Ruler.mm2pts(y_flush)), 
+						fillColor: fill_color,
+						strokeColor: stroke_color,
+						strokeWidth: Ruler.mm2pts(stroke_width),
+						radius: Ruler.mm2pts(radius)
+					})
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+			<a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButton{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: gray;
+	}
+</style>
