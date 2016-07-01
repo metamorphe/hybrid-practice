@@ -78,3 +78,10 @@ function norm(arr){
     return _(arr).map(function(el){ return (el - min) / range; });
 }
 
+function Utility(){}
+Utility.paperSetup = function(dom){
+        dom.attr('height', $(window).height());
+        dom.attr('width', $(window).width());
+        paper.install(window);
+        paper.setup('myCanvas');
+      }

@@ -1,0 +1,33 @@
+<script type="text/javascript">
+  $(function(){
+    var pngButton = new ButtonExporter($('#downloadButtonPNG'), "PNG");
+    var svgButton = new ButtonExporter($('#downloadButtonSVG'), "SVG");
+  });
+</script>
+
+
+<div class="modal fade" id="export" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Export the Design</h4>
+      </div>
+      <div class="modal-body">
+        <label> Export as:<br>
+        <input id="export-filename" type="text" class="form-control" value='mydisplay'/>
+      </div>
+
+      <div class="modal-footer">
+        <div class="btn-group">
+          <a name="" id="downloadButtonPNG" class='btn btn-default'>
+            DOWNLOAD PNG
+          </a>
+          <button name="" id="downloadButtonSVG" class='btn btn-default'>
+            DOWNLOAD SVG 
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
