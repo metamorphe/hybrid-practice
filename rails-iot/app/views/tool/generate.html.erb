@@ -3,32 +3,31 @@
 
       $(function(){
         Utility.paperSetup($('#myCanvas'));
-        displays.push(new Artwork("/artwork/nine-segment.svg", function(artwork){
-          })
-        );
+        // displays.push(new Artwork("/artwork/nine-segment.svg", function(artwork){
+        //   })
+        // );
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         $("#shade").fadeOut("slow");
         pipelineSetup();
       });
 
       function pipelineSetup(){
-        var display = displays[0];
-        var pcb = new ButtonExporter($('#pcb'), "SVG", 
-          function(){
-              pcb_script(display); 
-          });
-        var spacers = new ButtonExporter($('#spacers'), "PNG", 
-          function(){
-              spacers_script(display); 
-          });
-        var mold = new ButtonExporter($('#mold'), "PNG", 
-          function(){
-              mold_script(display); 
-          });
-        var mask = new ButtonExporter($('#mask'), "SVG", 
-          function(){
-              mold_script(display); 
-          });
+        // var display = displays[0];
+         // display.svg.remove();
+
+        // var pcb = new ButtonExporter($('#pcb'), "SVG", 
+        //   function(){
+        //       return pcb_script(display); 
+        //   });
+        // var spacers = new ButtonExporter($('#spacers'), "PNG", 
+        //   function(){
+        //       return spacers_script(display); 
+        //   });
+        var mold = new ButtonExporter($('#mold'), "PNG", mold_script );
+        // var mask = new ButtonExporter($('#mask'), "SVG", 
+        //   function(){
+        //       return mold_script(display); 
+        //   });
       }
 
       function pcb_script(display){
@@ -36,10 +35,49 @@
       }
       function spacers_script(display){
         console.log("Running Spacer Generator");
+
+
+
       }
+
+
+      var MOLD_WALL = 13; // mm
       function mold_script(display){
         console.log("Running Mold Generator");
+        //Declarations
+        var breakout = display.queryPrefix('BO');
+        var breakin = display.queryPrefix('BI');
+        var circuit_path = display.queryPrefix('CP');
+        var diffusers = display.queryPrefix('DIF');
+        var leds = display.queryPrefix('NLED');
+
+        //Extrating diffusers
+        _.each(diffusers, function(diffuser){
+          diffuser.visible = true;
+          diffuser.fillColor = 'black';
+        });
+
+        var diff_group = new paper.Group(diffusers);
+
+        //Creating a bounding box
+        boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL)), 0);
+        boundingBox.style = {
+          fillColor: 'white',
+          strokeColor: 'black'
+        }; 
+        boundingBox.sendToBack();
+
+        //Make non-molding objects invisible
+        var invisible = _.flatten([leds, circuit_path, breakin, breakout]);
+        _.each(invisible, function(el){
+          el.visible = false;
+        });
+
+        paper.view.update();
+        return display;
       }
+
+
       function mask_script(display){
         console.log("Running Mask Generator");
       }

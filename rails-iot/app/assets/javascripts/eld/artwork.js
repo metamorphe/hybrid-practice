@@ -38,10 +38,11 @@ CanvasUtil.queryPrefixWithId = function(selector, id) {
 					{lid: id});
 }
 
-function Artwork(svgPath, loadFN){
+function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;
-	this.import(loadFN);
+	if(_.isUndefined(cloned))
+		this.import(loadFN);
 }
 
 Artwork.prototype = {
@@ -49,6 +50,11 @@ Artwork.prototype = {
 	 * Returns an arrays of strings, where each string is the name
 	 * of a queryable object, prefix included.
 	 */
+	clone: function(){
+		cl = new Artwork(this.svgPath, this.loadFN, true);
+		cl.svg = this.svg.clone();
+		return cl;
+	},
 	queryable: function(){
 		return _.map(this.query({}), function(el){
 			return el.name;

@@ -12,17 +12,20 @@ function ButtonExporter(dom, type, preFN, postFN){
       var scope = this;
       if(this.type == "PNG")
         $(this.dom).click(function(){
-          scope.preFN();
-          var fn = scope.getFilename();
-          ButtonExporter.exportPNG(fn, scope.dom);
-          scope.postFN();
+          display = new Artwork("/artwork/nine-segment.svg", function(artwork){
+            scope.preFN(artwork);
+            var fn = scope.getFilename();
+            ButtonExporter.exportPNG(fn, scope.dom);
+            paper.project.clear();
+            paper.view.update();
+          })
         })
       else if(this.type == "SVG")
         $(this.dom).click(function(){
           scope.preFN();
-          var fn = scope.getFilename();
-          ButtonExporter.exportSVG(fn);
-          scope.postFN();
+          // var fn = scope.getFilename();
+          // ButtonExporter.exportSVG(fn);
+          // scope.postFN();
         })
     }, 
     getFilename:  function(){
