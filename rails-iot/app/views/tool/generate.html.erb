@@ -1,0 +1,175 @@
+   <script type="text/javascript">
+      var zb, cp, bb, vm, displays = [];
+
+      $(function(){
+        Utility.paperSetup($('#myCanvas'));
+        displays.push(new Artwork("/artwork/nine-segment.svg", function(artwork){
+          })
+        );
+        zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
+        $("#shade").fadeOut("slow");
+        pipelineSetup();
+      });
+
+      function pipelineSetup(){
+        var display = displays[0];
+        var pcb = new ButtonExporter($('#pcb'), "SVG", 
+          function(){
+              pcb_script(display); 
+          });
+        var spacers = new ButtonExporter($('#spacers'), "PNG", 
+          function(){
+              spacers_script(display); 
+          });
+        var mold = new ButtonExporter($('#mold'), "PNG", 
+          function(){
+              mold_script(display); 
+          });
+        var mask = new ButtonExporter($('#mask'), "SVG", 
+          function(){
+              mold_script(display); 
+          });
+      }
+
+      function pcb_script(display){
+        console.log("Running PCB Generator");
+      }
+      function spacers_script(display){
+        console.log("Running Spacer Generator");
+      }
+      function mold_script(display){
+        console.log("Running Mold Generator");
+      }
+      function mask_script(display){
+        console.log("Running Mask Generator");
+      }
+      function code_script(display){
+        console.log("Running Mask Generator");
+      }
+      
+
+    
+    </script>
+  </head>
+  <body>
+    
+      <canvas id="myCanvas"></canvas>
+      <div id="pipeline">
+      <ul>
+          <li>
+            <div class='btn-group'>
+              <a id="load" name="load" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#open"><span class='glyphicon glyphicon-file'></a>
+              <a id="upload" name="upload" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#upload"><span class='glyphicon glyphicon-upload'></span></a>
+            </div>
+          </li>
+          <li><a id="pcb" name="pcb" href="#" class="process btn btn-lg btn-info"> Ci </a></li>
+          <li><a id="spacers" name="spacers" href="#" class="process btn btn-lg btn-danger"> Sp </a></li>
+          <li><a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> M </a></li>
+          <li><a id="mask" name="mask" href="#" class="process btn btn-lg btn-primary"> Ma </a></li>
+          <li><a id="code" name="code" href="#" class="process btn btn-lg btn-default"> Co </a></li>
+        </div>
+      </ul>
+    </div>
+      
+      <%= render :partial => "modals"%>
+      <%= render :partial => "zoom_bar"%>
+  </body>
+
+  <style>
+   #zoom-bar{
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      padding: 4px 8px;
+      color: #AAA;
+      position: absolute;
+      z-index: 1000;
+      top: 230px;
+      left: 100px;
+       z-index: -1;
+   }
+
+  #pipeline ul li{
+    display: inline;
+  }
+  .process{
+    width: 100px;
+    height: 100px;
+    line-height: 1.5;
+    font-size: 40pt;
+  }
+  #pipeline{
+      position: absolute;
+      top: 0px;
+      padding: 30px;
+      width: 100%;
+      background: white;
+  }
+    #pipeline ul{
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        margin-left: calc((100% - 700px) / 2.0)
+    }
+   	body, html{
+   		width: 100%;
+   		height: 100%;
+   		overflow: hidden;
+      background: #f5f4f0;
+   	}
+    .input-group {
+      padding-bottom: 10px;
+    }
+    .badgify{
+      background: white;
+      border: solid 1px #999;
+      border-radius: 10px;
+      padding: 4px;
+    }
+    #myCanvas {
+      position: absolute;
+      top: 160px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 160px);
+      border: solid 1px black;
+      /*display: none;*/
+      z-index: -100;
+      cursor: pointer;
+    }
+    #sidebar-right{
+      display: none;
+      background: red;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+
+    }
+
+    .btn-transparent{
+      background: none;
+      border: none;
+    }
+
+    .btn-transparent:visited{
+      color: #f5f4f0;
+      outline: none;
+    }
+    .btn-transparent:hover{
+      color: #f5f4f0;
+      outline: none;
+    }
+    .btn-transparent:active{
+      color: #f5f4f0;
+      outline: none;
+    }
+
+    .btn-transparent:focus{
+      color: #f5f4f0;
+      outline: none;
+    }
+
+    .clearfix{
+      clear: both;
+    }
+  </style>

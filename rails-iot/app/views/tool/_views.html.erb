@@ -30,7 +30,8 @@
       // Create labels and hide them immediately after
       $.each(displays, function(idx, obj) {
         ViewManager.generateLabels(obj.allLeds, 'lid', 'CIR');
-        ViewManager.generateLabels(obj.allLeds, 'status', 'STA', false);
+        ViewManager.generateLabels(obj.allLeds, 'status', 'STA',
+                  useOffset=false, greyed=true);
       });
       this.update();
     },
@@ -142,7 +143,9 @@
    * Note that the ID_NAME must match the property name for each
    * object exactly, otherwise behavior is undefined.
    */
-  ViewManager.generateLabels = function(components, idName, prefix, useOffset=true) {
+  ViewManager.generateLabels = function(components, idName, prefix,
+        useOffset=true, greyed=false) {
+    //FIXME: use hash parameter syntax
     var circle, text, x, y, point;
 		var radius = 10;
 		var offset = useOffset ? 15 : 0;
@@ -152,15 +155,17 @@
 			circle = new Path.Circle(new Point(x + offset, y + offset)
 									, radius);
 			circle.name = prefix + ':circle_' + obj[idName];
+      circle.lid = obj.lid;
 			circle.set({
 				strokeWidth: 1,
 				strokeColor: '#292824',
-				fillColor: 'white',
+				fillColor: greyed ? '#b7b3aa' : '#ffffff',
 				opacity: 1.0,
 			});
 			text = new PointText(new Point(x + offset,
 					y + offset));
 			text.name = prefix + ':text_' + obj[idName];
+      text.lid = obj.lid;
 			text.set({
 				fillColor: '#292824',
 				content: '' + obj[idName]
@@ -168,6 +173,30 @@
 			text.position.x -= text.bounds.width / 2;
 			text.position.y += text.bounds.height / 4;
 		});
+  }
+
+  ViewManager.updateLabel = function(prefix, lid, contentHash) {
+    var selectionHash = {
+      prefix: prefix,
+      lid: lid
+    };
+    console.log(selectionHash);
+    var els = CanvasUtil.query(paper.project, selectionHash);
+    console.log(els);
+    $.each(els, function(idx, obj) {
+      // FIXME: kludge, we only pull out the content
+      // field for setting the point text, and the
+      // entire rest of the hash is used to set
+      // the circle
+      if (obj.className == 'PointText') {
+        obj.status = contentHash['content'];
+        obj.content = contentHash['content'];
+      }
+      if (obj.className == 'Path') {
+        obj.set(contentHash);
+      }
+    });
+    paper.view.update();
   }
 
   function circuitMakerScript(display){

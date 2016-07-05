@@ -12,7 +12,7 @@ CanvasUtil.prototype = {}
 
 CanvasUtil.query = function(container, selector){
 	// Prefix extension
-	if("prefix" in selector){
+	if ("prefix" in selector){
 		var prefixes = selector["prefix"];
 
 		selector["name"] = function(item){
@@ -21,11 +21,21 @@ CanvasUtil.query = function(container, selector){
 		}
 		delete selector["prefix"];
 	}
-	return container.getItems(selector);
+	var elements = container.getItems(selector);
+	if ("lid" in selector) {
+		return _.where(elements, {lid: selector["lid"]})
+	} else {
+		return elements;
+	}
 }
 
 CanvasUtil.queryPrefix = function(selector) {
 	return CanvasUtil.query(paper.project, {prefix: [selector]});
+}
+
+CanvasUtil.queryPrefixWithId = function(selector, id) {
+	return _.where(CanvasUtil.queryPrefix(selector),
+					{lid: id});
 }
 
 function Artwork(svgPath, loadFN){
@@ -89,12 +99,24 @@ Artwork.prototype = {
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
-		var bo = this.queryPrefix('BO')[0];
-		var bi = this.queryPrefix('BI')[0];
-		var cpStartPoint = cp.segments[0].point;
-		var polarity = cpStartPoint.getDistance(bi.position)
-										< cpStartPoint.getDistance(bo.position)
-										? 1 : -1;
+		var bo = this.queryPrefix('BO');
+		var bi = this.queryPrefix('BI');
+
+		if (bi.length == 0) {
+			throw Error('No breakin in artwork');
+		}
+		if (bo.length == 0) {
+			polarity = 1;
+		}
+		else {
+			bo = bo[0];
+			bi = bi[0];
+			var cpStartPoint = cp.segments[0].point;
+			var polarity = cpStartPoint.getDistance(bi.position)
+											< cpStartPoint.getDistance(bo.position)
+											? 1 : -1;
+		}
+
 
 		// Note that we cannot guarantee that an LED will lie exactly
 		// on the medial axis of the bus/copper path, so we find the

@@ -3,6 +3,10 @@ class ToolController < ApplicationController
   	@files = get_displays()
   	render :layout => "full_screen"
   end
+  def generate
+    @files = get_displays()
+    render :layout => "full_screen"
+  end
 
   def displays
     @files = get_displays()

@@ -3,6 +3,8 @@ Rails.application.routes.draw do
   get 'tool/index'
   get 'tool/displays'
   get 'tool/start_server'
+  get 'tool/generate'
+
 
   get 'devices/index'
 
