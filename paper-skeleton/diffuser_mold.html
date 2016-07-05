@@ -32,6 +32,7 @@
 			function runScript(display){
 				// TODO: YOUR CODE HERE
 
+				//Declarations
 				var breakout = display.queryPrefix('BO');
 				var breakin = display.queryPrefix('BI');
 				var circuit_path = display.queryPrefix('CP');
@@ -48,6 +49,7 @@
 
 				var diff_group = create_group(diffusers);
 
+				//Creating a bounding box
 				boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(13)), 0);
 				boundingBox.style = {
 					fillColor: 'white',
