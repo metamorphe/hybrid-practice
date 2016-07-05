@@ -74,8 +74,9 @@ SocketControl.prototype = {
    */
    _processDeviceCommand: function(commandString) {
      console.log('Processing: ' + commandString);
-     var tokens = commandString.split(',');
-     if (tokens[0] != 's') {
+     var tokens = commandString.replace(':', ',')
+                    .split(',');
+     if (tokens[0] != 's' || tokens.length != 3) {
        return;
      }
      var id = parseInt(tokens[1]);
