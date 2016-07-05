@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ryan was here.</title>
+        <script type="text/javascript" src="libs/jquery.min.js"></script>
+        <script type="text/javascript" src="libs/paper-full.min.js"></script>
+        <script type="text/javascript" src="libs/bootstrap.min.js"></script>
+        <script type="text/javascript" src="libs/underscore.js"></script>
+        <script type="text/javascript" src="libs/math.js"></script>
+
+        <script type="text/javascript" src="js/artwork.js"></script>
+        <script type="text/javascript" src="js/ruler.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+        <script type="text/javascript">
+            var gradientTesting;
+            var shapePath;
+            $(function(){
+                // MAIN FUNCTION
+                $('#downloadButton').click(function(){
+                    console.log("clicked");
+                    $(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+                });
+                $('#myCanvas').attr('height', $(window).height());
+                $('#myCanvas').attr('width', $(window).width());
+    
+
+                paper.install(window);
+                paper.setup('myCanvas');            
+                // gradientTesting = new Artwork("img/gradient.svg", function(display){
+                    
+                    /*Flip display*/
+                    // display.svg.scaling.y = -1
+
+
+                    runScript();
+
+            });
+            function runScript(){
+                // TODO: YOUR CODE HERE
+
+            
+                // testingRectangleGradient();
+                testingRadialGradient();
+                makeGradientProfile();
+            }
+
+            //Global Variables
+            var thirty = new paper.Color(0.3); //30% gray
+            var ten = new paper.Color(0.1);
+            var sixtyfive = new paper.Color (0.65); //lighter
+            var hundred = new paper.Color(1.00);
+
+
+            function testingRectangleGradient(){
+                // Define two points which we will be using to construct
+                // the path and to position the gradient color:
+                var topLeft = view.center.subtract(new paper.Point(160,80));
+                var bottomRight = view.center.add(new paper.Point(160,80));
+
+                
+
+                // Create a rectangle shaped path between
+                // the topLeft and bottomRight points:
+                var path = new Path.Rectangle({
+                    topLeft: topLeft,
+                    bottomRight: bottomRight,
+                    // Fill the path with a gradient of three color stops
+                    // that runs between the three points we defined earlier:
+                    fillColor: {
+                        gradient: {
+                            stops: [thirty, ten, sixtyfive, ten, thirty]
+                        },
+                        origin: topLeft,
+                        destination: bottomRight
+                    }
+                });
+                create_bounding_box(path, Ruler.mm2pts(4), 1, 1, 0);
+
+            }
+
+            function testingRadialGradient(){
+                var path = new Path.Circle({
+                center: view.center.add(new paper.Point(-100,0)),
+                    radius: view.bounds.height * 0.1
+                });
+
+                // Fill the path with a radial gradient color with three stops:
+                // yellow from 0% to 5%, mix between red from 5% to 20%,
+                // mix between red and black from 20% to 100%:
+                path.fillColor = {
+                    gradient: {
+                        stops: [[ten, 0.1], [thirty, 0.3], [sixtyfive, 0.85], [hundred, 1]],
+                        radial: true
+                    },
+                    origin: path.position,
+                    destination: path.bounds.rightCenter
+                };
+
+                shapePath = path;
+
+                create_bounding_box(path, 1, 1, 1, 0);
+            }
+
+            function makeGradientProfile() {
+                // The path is 500 across and 200 tall
+                // e.g. white should be y = 0, black is y = 200 (y-axis pointed down)
+                // a stop at the center has x = 0 and a stop halfway to the edge has x = 250
+                var min_x = 100;
+                var max_x = 500;
+                var min_y = 0;
+                var max_y = 200;
+
+                var radius = 2;
+
+                // var pathPoints = [view.center.add(new Point(200, 0)), view.center.add(new Point(700, 200))]
+                var path = new Path()
+
+                // Add the first point at min_x and min_y
+                path.add(view.center.add(new Point(min_x, min_y)));
+
+                // For each stop, we find the x
+                var stops = shapePath.fillColor.gradient.stops;
+                $.each(stops, function(idx, obj) {
+                    // each obj looks has fields COLOR (with field LIGHTNESS) and RAMP_POINT
+                    var x = min_x + max_x * obj.rampPoint;
+                    var y = max_y * obj.color.lightness;
+                    var point = view.center.add(new Point(x, y));
+                    path.add(point);
+                    var circle = new paper.Path.Circle({
+                        position: point,
+                        fillColor: 'pink',
+                        strokeColor: 'black',
+                        radius: Ruler.mm2pts(radius)
+                    })
+                    console.log(x + ', ' + y);
+                });
+
+                // Add the last point
+                path.add(view.center.add(new Point(min_x + max_x, max_y)));
+                path.strokeColor = 'black';
+
+                create_bounding_box(path, Ruler.mm2pts(2), 1, 1, 0);
+
+            }
+
+            function create_bounding_box(group, bounds, color_amount, stroke_width, stroke_color){
+                    //Create bounding box over entire collection of objects
+                    var boundingBox = new paper.Path.Rectangle(group.bounds.expand(Ruler.mm2pts(bounds)), 0);
+                    boundingBox.style = {
+                        fillColor: new Color(color_amount),
+                        strokeWidth: stroke_width,
+                        strokeColor: stroke_color
+                        }
+
+                    boundingBox.sendToBack() //bringToFront()
+                    return boundingBox
+                }
+
+                
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+            <a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+        </div>
+    </body>
+</html>
+
+<style> 
+    #downloadButton{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+    body, html{
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+</style>
