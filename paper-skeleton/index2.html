@@ -40,13 +40,6 @@
 				var minimumInputPath;
 				var minimumOutputPath;
 
-				// Declaring a counter variable for locked leds.
-				var numberOfLedsLocked = 0;
-
-				// Declaring breakIn and breakOut board objects.
-				var breakInBoard;
-				var breakOutBoard;
-
 				// Accessing the ordered array of LEDs.
 				var ledSeg = nineSegment;
 				var sortedLedSeg = ledSeg.allLeds;
@@ -81,14 +74,14 @@
 					contactExitPoint.fillColor = "orange";
 
 					// Add the elements to the group for the routing algorithm.
-					var group = new Group([rectangle, entryPoint, exitPoint]);
+					var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
 					group.rectangle = rectangle;
 					group.inputPoint = entryPoint;
 					group.outputPoint = exitPoint;
 					group.rightNode = groupArray[0];
 					group.contactInput = contactEntryPoint;
 					group.contactOutput = contactExitPoint;
-					breakInBoard = group;
+					groupArray.push(group);
 				};
 
 				// Function to add BreakOut Board.
@@ -121,14 +114,15 @@
 					contactExitPoint.fillColor = "orange";
 
 					// Add the elements to the group for the routing algorithm.
-					var group = new Group([rectangle, entryPoint, exitPoint]);
+					var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
 					group.rectangle = rectangle;
 					group.inputPoint = entryPoint;
 					group.outputPoint = exitPoint;
 					group.leftNode = groupArray[groupArray.length - 1];
+					group.leftNode.rightNode = group;
 					group.contactInput = contactEntryPoint;
 					group.contactOutput = contactExitPoint;
-					breakOutBoard = group;
+					groupArray.push(group);
 				};
 
 				// Function to set up rectangles for testing (Includes ascii placement).
@@ -260,7 +254,7 @@
 						minimumCostNode.locked = true;
 					};
 					
-					for (var h = 0; h < groupArray.length - 1; h++) {
+					for (var h = 0; h < groupArray.length; h++) {
 						var currentNode = groupArray[h];
 						if (currentNode.rightNode) {
 							var outputPath = new Path(currentNode.outputPoint.position, currentNode.rightNode.inputPoint.position);
@@ -269,20 +263,12 @@
 							outputPath.insert(0, currentNode.contactOutput.position);
 						};
 					};
-					var breakInPath = new Path(breakInBoard.outputPoint.position, breakInBoard.rightNode.inputPoint.position);
-					var breakOutPath = new Path(breakOutBoard.inputPoint.position, breakOutBoard.leftNode.outputPoint.position);
-					breakInPath.add(breakInBoard.rightNode.contactInput.position);
-					breakInPath.insert(0, breakInBoard.contactOutput.position);
-					breakOutPath.add(breakOutBoard.leftNode.contactOutput.position);
-					breakOutPath.insert(0, breakOutBoard.contactInput.position);
-					breakInPath.strokeColor = "blue";
-					breakOutPath.strokeColor = "blue";
 				};
 
 				// Function that initializes the routing process.
 				function initialization() {
-					placeRectangles();
 					addBreakIn();
+					placeRectangles();
 					addBreakOut();
 					route();
 					nineSegment.svg.remove();
