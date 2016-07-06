@@ -19,7 +19,6 @@
 					console.log("clicked");
 					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
 				});
-
 				$('#downloadButtonSVG').click(function(){
 					console.log("clicked");
 					console.log("Exporting file as SVG");
@@ -32,14 +31,11 @@
 					});
 					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
 				});
-
 				$('#myCanvas').attr('height', $(window).height());
 				$('#myCanvas').attr('width', $(window).width());
 	
-
 				paper.install(window);
 				paper.setup('myCanvas');
-
 				paper.view.zoom = 1;
 				nineSegment = new Artwork("img/nine-segment.svg", function(display){
 					runScript(display);
