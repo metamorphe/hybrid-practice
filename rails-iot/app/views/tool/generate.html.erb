@@ -67,6 +67,10 @@
         }; 
         boundingBox.sendToBack();
 
+        var result = new paper.Group({
+          children: [boundingBox, diff_group]
+        });
+
         //Make non-molding objects invisible
         var invisible = _.flatten([leds, circuit_path, breakin, breakout]);
         _.each(invisible, function(el){
@@ -74,7 +78,9 @@
         });
 
         paper.view.update();
-        return display;
+
+        // return {display: display, result: result};
+        return result;
       }
 
 
@@ -111,6 +117,8 @@
       
       <%= render :partial => "modals"%>
       <%= render :partial => "zoom_bar"%>
+
+    <!-- <canvas id="bufferCanvas"></canvas> -->
   </body>
 
   <style>
@@ -129,10 +137,10 @@
     display: inline;
   }
   .process{
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     line-height: 1.5;
-    font-size: 40pt;
+    font-size: 30pt;
   }
   #pipeline{
       position: absolute;
