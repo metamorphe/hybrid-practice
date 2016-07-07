@@ -19,10 +19,8 @@
         //   function(){
         //       return pcb_script(display); 
         //   });
-        // var spacers = new ButtonExporter($('#spacers'), "PNG", 
-        //   function(){
-        //       return spacers_script(display); 
-        //   });
+      
+        var spacers = new ButtonExporter($('#spacers'), "PNG", spacers_script );
         var mold = new ButtonExporter($('#mold'), "PNG", mold_script );
         // var mask = new ButtonExporter($('#mask'), "SVG", 
         //   function(){
@@ -36,12 +34,12 @@
       function spacers_script(display){
         console.log("Running Spacer Generator");
 
-
+        return make_diffuser_spacer(display);
 
       }
 
 
-      var MOLD_WALL = 13; // mm
+      var MOLD_WALL = 5; // mm
       function mold_script(display){
         console.log("Running Mold Generator");
         //Declarations
@@ -51,10 +49,15 @@
         var diffusers = display.queryPrefix('DIF');
         var leds = display.queryPrefix('NLED');
 
+        console.log("Found", diffusers.length, "diffusers...")
         //Extrating diffusers
         _.each(diffusers, function(diffuser){
-          diffuser.visible = true;
-          diffuser.fillColor = 'black';
+          diffuser.set({
+            visible: true, 
+            fillColor: "black", 
+            strokeColor: "white", 
+            strokeWidth: Ruler.mm2pts(2)
+          });
         });
 
         var diff_group = new paper.Group(diffusers);
@@ -63,7 +66,7 @@
         boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL)), 0);
         boundingBox.style = {
           fillColor: 'white',
-          strokeColor: 'black'
+          // strokeColor: 'black'
         }; 
         boundingBox.sendToBack();
 
@@ -78,8 +81,6 @@
         });
 
         paper.view.update();
-
-        // return {display: display, result: result};
         return result;
       }
 
@@ -97,21 +98,15 @@
   </head>
   <body>
     
-      <canvas id="myCanvas"></canvas>
-      <div id="pipeline">
+    <canvas id="myCanvas"></canvas>
+    <div id="pipeline">
       <ul>
-          <li>
-            <div class='btn-group'>
-              <a id="load" name="load" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#open"><span class='glyphicon glyphicon-file'></a>
-              <a id="upload" name="upload" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#upload"><span class='glyphicon glyphicon-upload'></span></a>
-            </div>
-          </li>
+          <li><a id="load" name="load" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#open"><span class='glyphicon glyphicon-file'></a></li>
           <li><a id="pcb" name="pcb" href="#" class="process btn btn-lg btn-info"> Ci </a></li>
           <li><a id="spacers" name="spacers" href="#" class="process btn btn-lg btn-danger"> Sp </a></li>
           <li><a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> M </a></li>
           <li><a id="mask" name="mask" href="#" class="process btn btn-lg btn-primary"> Ma </a></li>
           <li><a id="code" name="code" href="#" class="process btn btn-lg btn-default"> Co </a></li>
-        </div>
       </ul>
     </div>
       
