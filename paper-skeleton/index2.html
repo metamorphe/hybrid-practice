@@ -100,7 +100,7 @@
 					is_breakout = _.isNull(node.left) || _.isNull(node.right);
 					
 					breakout_bias = is_breakout ? 10000000: 0;
-					if(node.rotation == 0) breakout_bias = 0;
+					if(node.rotation % 45 == 0 ) breakout_bias = 0;
 
 					return breakout_bias + _.reduce(paths, function(memo, path){
 						return memo + path.length;
@@ -144,11 +144,13 @@
 						result = _.map(nodes, function(node, i){
 							return bestCost(node);
 						});
+
 						difference = _.reduce(nodes, function(memo, node, i){
 							var prev = node.rotation;
 							node.rotation = result[i].theta;
 							return memo + Math.abs(prev - result[i].theta);
 						}, 0);
+
 						paper.view.update();
 						iters++;
 						console.log("OPT STEP", iters, difference);
