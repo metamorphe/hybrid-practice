@@ -14,9 +14,7 @@
         <link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
         <script type="text/javascript">
             // var gradientTesting;
-            // var shapePath;
-
-      
+            var myGraph;
             $(function(){
                 // MAIN FUNCTION
                 $('#downloadButton').click(function(){
@@ -40,7 +38,7 @@
             function runScript(){
                 // TODO: YOUR CODE HERE
 
-                var myGraph = new Graph(new paper.Point(-200,0), [0,500], [0,200]);
+                myGraph = new Graph(new paper.Point(-200,0), [0,500], [0,200]);
 
             }
 

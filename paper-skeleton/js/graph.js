@@ -1,5 +1,5 @@
 function Graph(center_coords, x_range, y_range){
-    
+
 
     this.min_x = x_range[0];
     this.max_x = x_range[1];
@@ -10,6 +10,7 @@ function Graph(center_coords, x_range, y_range){
     this.selectionTool = new paper.Tool();
     this.selectedHandle = null;
     this.selectedSegment = null;
+    this.stops = null;
 
     this.create_bounding_box(this.init(center_coords), 1, 1, 1, 0); //TODO: fix logic; currently this is the boundingBox of object's bird's eye view
 
@@ -54,11 +55,11 @@ Graph.prototype = {
                 scope.selectedItem.selected = false;
                 scope.selectedSegment = null;
             }
-            var hitResult = paper.project.hitTest(event.point, 
-                {handles: true, 
+            var hitResult = paper.project.hitTest(event.point,
+                {handles: true,
                  stroke: true,
                  segments: true,
-                 tolerance: 6, 
+                 tolerance: 6,
                  fill: true});
             console.log(hitResult);
 
@@ -76,6 +77,9 @@ Graph.prototype = {
                 selectedItem.selected = true;
                 if (hitResult.type == 'segment') {
                     scope.selectedSegment = hitResult.segment;
+                    var segIndex = scope.selectedSegment.index;
+                    console.log(scope.selectedSegment.index);
+                    // scope.
                 }
                 else if (hitResult.type == 'stroke') {
                     var hitLoc = hitResult.location;
@@ -89,23 +93,17 @@ Graph.prototype = {
             var yDisplacement = scope.max_y - scope.min_y;
             var upperBound = scope.graphCenter.y + yDisplacement / 2;
             var lowerBound = scope.graphCenter.y - yDisplacement / 2;
-                console.log('yDisplacement', yDisplacement);
-                console.log('upper, lower', upperBound, lowerBound);
-            if (scope.selectedSegment.point.y >= upperBound ||
-                scope.selectedSegment.point.y <= lowerBound) {
-                console.log('OUT OF BOUNDS BREH');
-
-            }
-
-            //Update selected segment
-            if (scope.selectedSegment){
-                if (scope.selectedSegment) {
-                    scope.selectedSegment.point.y += event.delta.y;
-                    // console.log('graphCenter', scope.graphCenter);
-                    // console.log('new y', scope.selectedSegment.point.y);
-                } else if (path) {
-                    path.position += event.delta;
-                }
+            if (scope.selectedSegment.point.y <= lowerBound) {
+                scope.selectedSegment.point.y += 1;
+            } else if (scope.selectedSegment.point.y >= upperBound) {
+                scope.selectedSegment.point.y -= 1;
+            } else {
+              scope.selectedSegment.point.y += event.delta.y;
+              var segIndex = scope.selectedSegment.index;
+              var proportion = (scope.selectedSegment.point.y
+                          - lowerBound) / scope.max_y
+              scope.stops[segIndex].color.lightness = proportion;
+              console.log(scope.stops[segIndex].color.lightness);
             }
           }
     },
@@ -120,7 +118,7 @@ Graph.prototype = {
         path.add(view.center.add(new Point(0, 0)));
 
         // For each stop, we find the x
-        var stops = shapePath.fillColor.gradient.stops;
+        var stops = this.stops;
         stops = _.map(stops, function(stop) {
           return {
             x: stop.rampPoint / 2.0,
@@ -201,9 +199,21 @@ Graph.prototype = {
             destination: path.bounds.rightCenter
         };
 
-        shapePath = path;
+        this.stops = path.fillColor.gradient.stops;
         this.create_bounding_box(path, 1, 1, 1, 0);
         paper.settings.handleSize = 10;
         return path;
     }
+}
+
+/**
+ * Takes a proportion from 0.0 and 1.0 and maps it to the corresponding
+ * greyscale hex color.
+ */
+Graph.proportionToGreyscaleHex = function(proportion) {
+  if (proportion < 0.0 || proportion > 1.0) {
+    return '000000'
+  }
+  var value = (Math.round(proportion * 255)).toString(16);
+  return value + value + value;
 }
