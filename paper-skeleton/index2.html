@@ -11,7 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
-		 	var nineSegment;
+		 	var eld;
 			$(function(){
 				// MAIN FUNCTION
 				$('#downloadButton').click(function(){
@@ -25,257 +25,179 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-				nineSegment = new Artwork("img/nine-segment.svg", function(display) {
+				eld = new Artwork("img/sun_moon.svg", function(display) {
 					runScript(display);
 				});
 			});
 				
 			function runScript(display){
-				// Declaring a path array, rectangle array, and group array.
-				var pathArray = new Array();
-				var rectArray = new Array();
-				var groupArray = new Array();
+				POINT_OFFSET = 10;
 
-				// Declaring two minimumPaths for routing purposes.
-				var minimumInputPath;
-				var minimumOutputPath;
+				function generateNode(element){
+					var text = "-->";
+					text = Artwork.getPrefix(element) == "BO" ? "BO" : text;
+					text = Artwork.getPrefix(element) == "BI" ? "BI" : text;
 
-				// Accessing the ordered array of LEDs.
-				var ledSeg = nineSegment;
-				var sortedLedSeg = ledSeg.allLeds;
+					// Instantiate a rectangle based on the LED coordinates.
+					var rectangle = new Path.Rectangle({
+						rectangle: element.bounds, 
+						strokeColor: "black"
+					});
 
-				// Function to add BreakIn Board.
-				function addBreakIn() {
-					// Query the breakIn board.
-					var breakIn = nineSegment.queryPrefix("BI")[0];
-
-					// Instantiate a rectangle based on the board coordinates.
-					var rectangle = new Path.Rectangle(new Point(breakIn.bounds.center.x, breakIn.bounds.center.y), 25);
-					rectangle.strokeColor = "black";
-					rectArray.push(rectangle);
-
-					// Establish two circles to help with routing.
-					var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
-					var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
-					entryPoint.fillColor = "blue";
-					exitPoint.fillColor = "red";
-
-					// Instantiate a pointText to help with labeling.
-					var pointText = new PointText(new Point(rectangle.bounds.center.x, rectangle.bounds.center.y));
-					pointText.justification = "center";
-					pointText.fillColor = "black";
-					pointText.content = "BI";
-					pointText.fontSize = 10;
-
-					// Establish surface-contact circles for final routing.
-					var contactEntryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x, rectangle.bounds.leftCenter.y), 2);
-					var contactExitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x, rectangle.bounds.rightCenter.y), 2);
-					contactEntryPoint.fillColor = "green";
-					contactExitPoint.fillColor = "orange";
-
-					// Add the elements to the group for the routing algorithm.
-					var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
-					group.rectangle = rectangle;
-					group.inputPoint = entryPoint;
-					group.outputPoint = exitPoint;
-					group.rightNode = groupArray[0];
-					group.contactInput = contactEntryPoint;
-					group.contactOutput = contactExitPoint;
-					groupArray.push(group);
-				};
-
-				// Function to add BreakOut Board.
-				function addBreakOut() {
-					// Query the breakOut board.
-					var breakIn = nineSegment.queryPrefix("BO")[0];
-
-					// Instantiate a rectangle based on the board coordinates.
-					var rectangle = new Path.Rectangle(new Point(breakIn.bounds.center.x, breakIn.bounds.center.y), 25);
-					rectangle.strokeColor = "black";
-					rectArray.push(rectangle);
+					// Instantiate a pointText with the ASCII character.
+					var pointText = new PointText({
+						justification: "center", 
+						fillColor: "black", 
+						content: text, 
+						fontSize: 5,
+						position: rectangle.bounds.center
+					});
 
 					// Establish two circles to help with routing.
-					var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
-					var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
-					entryPoint.fillColor = "blue";
-					exitPoint.fillColor = "red";
-
-					// Instantiate a pointText to help with labeling.
-					var pointText = new PointText(new Point(rectangle.bounds.center.x, rectangle.bounds.center.y));
-					pointText.justification = "center";
-					pointText.fillColor = "black";
-					pointText.content = "BO";
-					pointText.fontSize = 10;
+					var offset = new paper.Point(POINT_OFFSET, 0);
+					
+					var entryPoint = new Path.Circle({
+						position: rectangle.bounds.leftCenter.clone().subtract(offset), 
+						radius: 3, 
+						fillColor: "blue"
+					});
+					var exitPoint = new Path.Circle({
+						position: rectangle.bounds.rightCenter.clone().add(offset), 
+						radius: 3, 
+						fillColor: "blue"
+					});
 
 					// Establish surface-contact circles for final routing.
-					var contactEntryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x, rectangle.bounds.leftCenter.y), 2);
-					var contactExitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x, rectangle.bounds.rightCenter.y), 2);
-					contactEntryPoint.fillColor = "green";
-					contactExitPoint.fillColor = "orange";
+					var contactEntryPoint = new Path.Circle({
+						position: rectangle.bounds.leftCenter.clone(), 
+						radius: 2,
+						fillColor: "green"
+					});
 
-					// Add the elements to the group for the routing algorithm.
-					var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
+					var contactExitPoint = new Path.Circle({
+						position: rectangle.bounds.rightCenter.clone(), 
+						radius: 2,
+						fillColor: "green"
+					});
+
+
+					// Order all the elements into a group and push the group into a group array.
+					var group = new Group([rectangle, pointText, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
+
 					group.rectangle = rectangle;
+					group.arrow = pointText;
 					group.inputPoint = entryPoint;
 					group.outputPoint = exitPoint;
-					group.leftNode = groupArray[groupArray.length - 1];
-					group.leftNode.rightNode = group;
 					group.contactInput = contactEntryPoint;
 					group.contactOutput = contactExitPoint;
-					groupArray.push(group);
-				};
+					group.locked = false;
 
-				// Function to set up rectangles for testing (Includes ascii placement).
-				function placeRectangles() {
-					for (var i = 0; i < sortedLedSeg.length; i++) {
-						// Access the LED from the array.
-						var currentElement = sortedLedSeg[i];
-
-						// Instantiate a rectangle based on the LED coordinates.
-						var leftX = currentElement.bounds.topLeft.x;
-						var leftY = currentElement.bounds.topLeft.y;
-						var rectangle = new Path.Rectangle(new Point(leftX, leftY), 14);
-						rectangle.strokeColor = "black";
-						rectArray.push(rectangle);
-
-						// Instantiate a pointText with the ASCII character.
-						var pointText = new PointText(new Point(rectangle.bounds.center.x, rectangle.bounds.center.y));
-						pointText.justification = "center";
-						pointText.fillColor = 'black';
-						pointText.content = "-->";
-						pointText.fontSize = 5;
-
-						// Establish two circles to help with routing.
-						var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
-						var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
-						entryPoint.fillColor = "blue";
-						exitPoint.fillColor = "red";
-
-						// Establish surface-contact circles for final routing.
-						var contactEntryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x, rectangle.bounds.leftCenter.y), 2);
-						var contactExitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x, rectangle.bounds.rightCenter.y), 2);
-						contactEntryPoint.fillColor = "green";
-						contactExitPoint.fillColor = "orange";
-
-						// Order all the elements into a group and push the group into a group array.
-						var group = new Group([rectangle, pointText, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
-						group.rectangle = rectangle;
-						group.arrow = pointText;
-						group.inputPoint = entryPoint;
-						group.outputPoint = exitPoint;
-						group.contactInput = contactEntryPoint;
-						group.contactOutput = contactExitPoint;
-						group.locked = false;
-						groupArray.push(group);
-					};
-
-					for (var i = 0; i < groupArray.length; i++) {
-						var group = groupArray[i];
-						if (groupArray[i - 1] != null) {
-							group.leftNode = groupArray[i - 1];
-						};
-						if (groupArray[i + 1] != null) {
-							group.rightNode = groupArray[i + 1];
-						};
-					}
-				};
+					return group;
+				}
 
 				// Function to obtain cost (Path length) from node with two neighbors.
-				function cost(inputPath, outputPath, currentNode) {
-					if (inputPath && outputPath) {
-						return inputPath.length + outputPath.length;
-					} else if (inputPath) {
-						return inputPath.length;
-					} else if (outputPath) {
-						return outputPath.length;
+				function cost(node, paths) {
+					is_breakout = _.isNull(node.left) || _.isNull(node.right);
+					
+					breakout_bias = is_breakout ? 10000000: 0;
+					if(node.rotation == 0) breakout_bias = 0;
+
+					return breakout_bias + _.reduce(paths, function(memo, path){
+						return memo + path.length;
+					}, 0);
+				};
+
+				THETA_STEP = 1;
+				// Helper Function to determine optimal routing.
+				function bestCost(node) {
+					var cost_table = [];
+					var original_rotation = node.rotation;
+					for(var theta = 0; theta < 360; theta += THETA_STEP){
+						node.rotation = theta;
+
+						var neighbors = [];
+
+						if(!_.isNull(node.left))
+							neighbors.push([node.left.outputPoint.position, node.inputPoint.position]);
+						if(!_.isNull(node.right))
+							neighbors.push([node.outputPoint.position, node.right.inputPoint.position]);
+
+						neighbors = _.map(neighbors, function(neighbor){
+							return new Path(neighbor[0], neighbor[1])
+						});
+
+						cost_table.push({theta: theta, cost: cost(node, neighbors)})
+						_.each(neighbors, function(neighbor){ neighbor.remove()});
+					}
+					node.rotation = original_rotation;
+					return _.min(cost_table, function(entry){ return entry.cost });
+				}
+
+				// Function to route the rectangles together based on overall cost.
+				function route(nodes) {
+					OPT_MAX_ITERS = 20;
+					EPSILON = 10; 
+					difference = Number.MAX_SAFE_INTEGER;
+					iters = 0;
+
+					while(difference > EPSILON && iters < OPT_MAX_ITERS){
+						result = _.map(nodes, function(node, i){
+							return bestCost(node);
+						});
+						difference = _.reduce(nodes, function(memo, node, i){
+							var prev = node.rotation;
+							node.rotation = result[i].theta;
+							return memo + Math.abs(prev - result[i].theta);
+						}, 0);
+						paper.view.update();
+						iters++;
+						console.log("OPT STEP", iters, difference);
 					}
 				};
 
-				// Helper Function to determine optimal routing.
-				function determineOptimalRoute(currentNode) {
-					var rotationFactor = 0;
-					var minimumNodeCost = Number.MAX_SAFE_INTEGER;
-					if (!currentNode.locked) {
-						while (rotationFactor <= 360) {
-							currentNode.rotation = rotationFactor;
-							if (currentNode.leftNode && currentNode.rightNode) {
-								var inputPath = new Path(currentNode.leftNode.outputPoint.position, currentNode.inputPoint.position);
-								var outputPath = new Path(currentNode.outputPoint.position, currentNode.rightNode.inputPoint.position);
-								var pathCost = cost(inputPath, outputPath, currentNode);
-								if (pathCost < minimumNodeCost) {
-									minimumNodeCost = pathCost;
-									currentNode.minimumNodeCost = pathCost;
-									currentNode.minimumRotation = rotationFactor;
-								};
-								inputPath.removeSegments();
-								outputPath.removeSegments();
-							} else if (currentNode.leftNode) {
-								var inputPath = new Path(currentNode.leftNode.outputPoint.position, currentNode.inputPoint.position);
-								var pathCost = cost(inputPath, null, currentNode);
-								if (pathCost < minimumNodeCost) {
-									minimumNodeCost = pathCost;
-									currentNode.minimumNodeCost = pathCost;
-									currentNode.minimumRotation = rotationFactor;
-								};
-								inputPath.removeSegments();
-							} else if (currentNode.rightNode) {
-								var outputPath = new Path(currentNode.outputPoint.position, currentNode.rightNode.inputPoint.position);
-								var pathCost = cost(null, outputPath, currentNode);
-								if (pathCost < minimumNodeCost) {
-									minimumNodeCost = pathCost;
-									currentNode.minimumNodeCost = pathCost;
-									currentNode.minimumRotation = rotationFactor;
-								};
-								outputPath.removeSegments();
-							};
-							rotationFactor += 1;
-						};
-					};
-				};
+				function connect_the_dots(nodes){
+					_.each(nodes, function(node, i, arr){
+						var neighbors = [];
 
-				// Function to route the rectangles together based on overall cost.
-				function route() {
-					var counter = 0;
-					for (var i = 0; i < groupArray.length; i++) {
-						for (var j = 0; j < groupArray.length; j++) {
-							var currentNode = groupArray[j];
-							determineOptimalRoute(currentNode);
-						};
-						var minimumCostNode;
-						var minimumCost = Number.MAX_SAFE_INTEGER;
-						for (var j = 0; j < groupArray.length; j++) {
-							var currentNode = groupArray[j];
-							if (currentNode.minimumNodeCost < minimumCost && !currentNode.locked) {
-								minimumCostNode = currentNode;
-								minimumCost = currentNode.minimumNodeCost;
-							};
-						};
-						minimumCostNode.rotation = minimumCostNode.minimumRotation;
-						minimumCostNode.locked = true;
-					};
-					
-					for (var h = 0; h < groupArray.length; h++) {
-						var currentNode = groupArray[h];
-						if (currentNode.rightNode) {
-							var outputPath = new Path(currentNode.outputPoint.position, currentNode.rightNode.inputPoint.position);
-							outputPath.add(currentNode.rightNode.contactInput.position);
-							outputPath.strokeColor = "blue";
-							outputPath.insert(0, currentNode.contactOutput.position);
-						};
-					};
-				};
+						if(!_.isNull(node.left))
+							neighbors.push([node.left.contactOutput.position, node.left.outputPoint.position, node.inputPoint.position, node.contactInput.position]);
+						
+						if(!_.isNull(node.right))
+							neighbors.push([node.contactOutput.position, node.outputPoint.position, node.right.inputPoint.position,node.right.contactInput.position]);
+						
+						neighbors = _.map(neighbors, function(neighbor){
+							return new paper.Path({
+								segments: neighbor,
+								strokeColor: "yellow", 
+								strokeWidth: 3
+							})
+						});
+
+					});
+				}
 
 				// Function that initializes the routing process.
-				function initialization() {
-					addBreakIn();
-					placeRectangles();
-					addBreakOut();
-					route();
-					nineSegment.svg.remove();
+				function init() {					
+					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
+					nodes = _.flatten([display.queryPrefix("BI"),  leds,  display.queryPrefix("BO")]);
+					nodes = _.map(nodes, function(node){ return generateNode(node)});
+					
+					// linked list
+					_.each(nodes, function(node, i, arr){
+						node.right = null;
+						node.left = null;
+
+						if(i - 1 >= 0) node.left = arr[i - 1];
+						if(i + 1 < arr.length) node.right = arr[i + 1];
+					});
+					
+					route(nodes);
+					connect_the_dots(nodes);
+					display.svg.remove();
 				};
 
 				// Call to the initialization function.
-				initialization();
+				init();
 			};
 		</script>
 	</head>

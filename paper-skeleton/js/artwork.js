@@ -117,6 +117,11 @@ Artwork.prototype = {
 		return [allLeds, iLeds];
 	}
 }
+Artwork.getPrefix = function(item){
+	if(_.isUndefined(item.name)) return "";
+	if(item.name.split(":").length < 2) return "";
+	return item.name.split(":")[0].trim();
+}
 
 Artwork.getPrefixItem = function(item){
 	if(_.isUndefined(item)) return "";
