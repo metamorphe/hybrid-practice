@@ -158,6 +158,7 @@
 				};
 
 				function connect_the_dots(nodes){
+					
 					_.each(nodes, function(node, i, arr){
 						var neighbors = [];
 
@@ -166,14 +167,24 @@
 						
 						if(!_.isNull(node.right))
 							neighbors.push([node.contactOutput.position, node.outputPoint.position, node.right.inputPoint.position,node.right.contactInput.position]);
-						
+						pts = []
 						neighbors = _.map(neighbors, function(neighbor){
+							// console.log(neighbors)
+							pts.push(neighbor)
 							return new paper.Path({
 								segments: neighbor,
 								strokeColor: "yellow", 
 								strokeWidth: 3
 							})
 						});
+
+						var bgPath = new paper.Path({
+							strokeColor: "green",
+							segments: _.flatten(pts),
+							strokeWidth: Ruler.mm2pts(10)
+						});
+						bgPath.sendToBack();
+						
 
 					});
 				}
