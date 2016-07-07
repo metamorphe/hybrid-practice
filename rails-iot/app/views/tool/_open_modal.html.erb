@@ -7,6 +7,7 @@
         var selection = _.map($('.file-option.selected'), function(el, i, arr){
           return $(el).find('img').attr('src');
         });
+        $("#current-file").html(getActiveArtwork());
       });
   });
 
@@ -61,6 +62,11 @@
 </div>
 
 <style>
+#current-file{
+  padding: 20px;
+  padding-bottom: 0;
+  text-align: center;
+}
 .selected{
   border: 1px solid #CCC;
 }

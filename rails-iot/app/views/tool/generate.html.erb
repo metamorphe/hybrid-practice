@@ -108,6 +108,7 @@
           <li><a id="mask" name="mask" href="#" class="process btn btn-lg btn-primary"> Ma </a></li>
           <li><a id="code" name="code" href="#" class="process btn btn-lg btn-default"> Co </a></li>
       </ul>
+      <p id="current-file" class="lead"> /artwork/traffic_light.svg </p>
     </div>
       
       <%= render :partial => "modals"%>
@@ -143,12 +144,13 @@
       padding: 30px;
       width: 100%;
       background: white;
+      padding-bottom: 0;
   }
     #pipeline ul{
         list-style-type: none;
         margin: 0;
         padding: 0;
-        margin-left: calc((100% - 700px) / 2.0)
+        margin-left: calc((100% - 550px) / 2.0)
     }
    	body, html{
    		width: 100%;
@@ -167,10 +169,10 @@
     }
     #myCanvas {
       position: absolute;
-      top: 160px;
+      top: 180px;
       left: 0;
       width: 100%;
-      height: calc(100% - 160px);
+      height: calc(100% - 180px);
       border: solid 1px black;
       /*display: none;*/
       z-index: -100;

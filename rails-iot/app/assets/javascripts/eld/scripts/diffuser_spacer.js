@@ -48,13 +48,13 @@ function make_diffuser_spacer(display){
 	// ADD WIRE HOLES
 	calc_centroids(diffusers);
 
-	// make_wire_holes(result, diffusers, boundingBox, RIM_HEIGHT, RIM_WIDTH);
+	make_wire_holes(result, diffusers, boundingBox, RIM_HEIGHT, RIM_WIDTH);
 
-	// // REFLECT ACROSS X
-	// result.scaling = new paper.Size(-1, 1);
+	// REFLECT ACROSS X
+	result.scaling = new paper.Size(-1, 1);
 
-	// var invisible = _.flatten([leds, breakout, breakin, circuit_path]);
-	// set_visibility(invisible, false);
+	var invisible = _.flatten([leds, breakout, breakin, circuit_path]);
+	set_visibility(invisible, false);
 
 	return result;
 }
@@ -67,11 +67,12 @@ function make_diffuser_spacer(display){
 function calc_centroids(diffusers){
 	_.each(diffusers, function(diffuser){
 		diffuser.visible = true;
-		
+		// console.log(diffuser);
 		// Centroid calculation
 		calc_centroid = _.reduce(diffuser.segments, function(memo, seg){
 			return memo.add(new paper.Point(seg.point.x, seg.point.y));
 		}, new paper.Point(0, 0));
+
 		diffuser.centroid = calc_centroid.divide(diffuser.segments.length);
 	});
 }
