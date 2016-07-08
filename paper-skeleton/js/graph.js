@@ -5,6 +5,8 @@ function Graph(center_coords, x_range, y_range){
     this.max_x = x_range[1];
     this.min_y = y_range[0];
     this.max_y = y_range[1];
+    this.mid_x = this.max_x / 2;
+    this.mid_y = this.max_y / 2;
 
     this.selectedItem = null;
     this.selectionTool = new paper.Tool();
@@ -81,7 +83,8 @@ Graph.prototype = {
                     console.log(scope.selectedSegment.index);
                     // scope.
                 }
-                else if (hitResult.type == 'stroke') {
+                else if (event.modifiers.shift
+                        && hitResult.type == 'stroke') {
                     var hitLoc = hitResult.location;
                     scope.selectedSegment = selectedItem.insert(hitLoc.index + 1, event.point);
                 }
@@ -100,10 +103,13 @@ Graph.prototype = {
             } else {
               scope.selectedSegment.point.y += event.delta.y;
               var segIndex = scope.selectedSegment.index;
+
+              //FIXME: no way we can get the correct stopNumber
+              //with arithmetic alone we must preassign
+              var stopNumber = -(segIndex % 5) + 4;
               var proportion = (scope.selectedSegment.point.y
                           - lowerBound) / scope.max_y
-              scope.stops[segIndex].color.lightness = proportion;
-              console.log(scope.stops[segIndex].color.lightness);
+              scope.stops[stopNumber].color.lightness = -proportion + 1;
             }
           }
     },
@@ -115,7 +121,7 @@ Graph.prototype = {
         // var pathPoints = [view.center.add(new Point(200, 0)), view.center.add(new Point(700, 200))]
         var scope = this;
         var path = new Path()
-        path.add(view.center.add(new Point(0, 0)));
+        // path.add(view.center.add(new Point(0, 0)));
 
         // For each stop, we find the x
         var stops = this.stops;
@@ -151,12 +157,32 @@ Graph.prototype = {
         });
 
         // Add the last point, then bound on the bottom
-        path.add(view.center.add(new Point(scope.min_x + scope.max_x, 0)));
+        // path.add(view.center.add(new Point(scope.min_x + scope.max_x, 0)));
         path.add(view.center.add(new Point(scope.min_x + scope.max_x, scope.max_y)));
         path.add(view.center.add(new Point(scope.min_x, scope.max_y)))
         path.closed = true;
         path.strokeColor = 'white';
         path.fillColor = 'pink';
+
+        //TODO: Pretty Dashes
+        var midpointDash = new Path();
+
+        midpointDash.add(view.center.add(new Point(scope.mid_x, scope.min_y-Ruler.mm2pts(2))));
+        midpointDash.add(view.center.add(new Point(scope.mid_x, scope.max_y+Ruler.mm2pts(2))));
+        midpointDash.selected = false;
+
+        var group = new paper.Group(midpointDash);
+        group.style = {
+            strokeColor: 'white',
+            dashArray: [4, 12],
+            strokeWidth: 1,
+            strokeCap: 'round'
+        };
+
+        var label = new PointText(view.center.add(new Point(this.mid_x, this.min_y-Ruler.mm2pts(5))));
+        label.justification = 'center';
+        label.fillColor = 'black';
+        label.content = '0.5';
 
         //Create a bounding_box around graph
         this.graphCenter = scope.create_bounding_box(path,1, 1, 1, 0);
@@ -192,7 +218,7 @@ Graph.prototype = {
         // mix between red and black from 20% to 100%:
         path.fillColor = {
             gradient: {
-                stops: [[ten, 0.1], [thirty, 0.3], [sixtyfive, 0.85], [hundred, 1]],
+                stops: [[ten, 0.1], [thirty, 0.3], [ten, 0.5], [sixtyfive, 0.85], [hundred, 1]],
                 radial: true
             },
             origin: path.position,
