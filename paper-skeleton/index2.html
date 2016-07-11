@@ -38,7 +38,7 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-				eld = new Artwork("img/sun_moon.svg", function(display) {
+				eld = new Artwork("img/traffic_light.svg", function(display) {
 					runScript(display);
 				});
 			});
@@ -46,6 +46,13 @@
 			function runScript(display){
 				POINT_OFFSET = 15;
 				POINT_INNER_OFFSET = 1;
+
+				var hitOptions = {
+					segments: true,
+					stroke: true,
+					fill: true,
+					tolerance: 5
+				}
 
 				function generateNodes(nodes, callbackFN){
 					var c = new Artwork("components/APA102C.svg", function(footprint) {
@@ -219,6 +226,43 @@
 					paper.view.update();
 				}
 
+				var t = new paper.Tool();
+				var segment;
+				var path;
+				var movePath;
+				
+				t.onMouseDown = function(event) {
+					segment = path = null;
+					var hitResult = project.hitTest(event.point, hitOptions);
+
+					if (!hitResult) {
+						return;
+					} else {
+						path = hitResult.item;
+						if (hitResult.type == 'segment') {
+							segment = hitResult.segment;
+						};
+					};
+
+					movePath = hitResult.type == 'fill';
+					if (movePath)
+						project.activeLayer.addChild(hitResult.item);
+				};
+
+				t.onMouseMove = function(event) {
+					project.activeLayer.selected = false;
+					if (event.item)
+						event.item.selected = true;
+				};
+
+				t.onMouseDrag = function(event) {
+					if (segment) {
+						segment.point.x += event.delta.x;
+						segment.point.y += event.delta.y;
+						path.smooth();
+					};
+				};
+
 				// Function that initializes the routing process.
 				function init() {					
 					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
@@ -238,7 +282,6 @@
 						connect_the_dots(nodes);
 						cleanup(nodes);
 					});
-					
 				};
 
 				// Call to the initialization function.
