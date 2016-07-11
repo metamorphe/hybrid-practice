@@ -132,8 +132,8 @@
 					var cost_table = [];
 					var original_rotation = node.rotation;
 					for(var theta = 0; theta < 360; theta += THETA_STEP){
+						
 						node.rotation = theta;
-
 						var neighbors = [];
 
 						if(!_.isNull(node.left))
@@ -170,6 +170,8 @@
 							return memo + Math.abs(prev - result[i].theta);
 						}, 0);
 
+
+
 						paper.view.update();
 						iters++;
 						console.log("OPT STEP", iters, difference);
@@ -182,17 +184,11 @@
 					_.each(nodes, function(node, i, arr){
 						var neighbors = [];
 
-						// if(!_.isNull(node.left))
-							// neighbors.push([node.left.contactOutput.position, node.left.outputPoint.position, node.inputPoint.position, node.contactInput.position]);
-						
 						if(!_.isNull(node.right))
 							neighbors.push([node.contactOutput.position, node.outputPoint.position, node.right.inputPoint.position,node.right.contactInput.position]);
 						
 						neighbors = _.map(neighbors, function(neighbor, i, arr){
-							// console.log(neighbors)
 							pts.push(neighbor);
-							// skip = i % 2 == 0 && i != arr.length - 1;
-							// if(skip) return;
 							
 							return new paper.Path({
 								parent: lines,
@@ -202,15 +198,11 @@
 							})
 						});
 					});
-					console.log(_.flatten(pts).length);
 					var bgPath = new paper.Path({
 						strokeColor: "yellow",
 						segments: _.flatten(pts),
 						strokeWidth: Ruler.mm2pts(10)
 					});
-					// bgPath.position.x += 10;
-					// bgPath.selected = true;
-					// console.log("bgp", bgPath);
 					bgPath.sendToBack();
 				}
 
@@ -230,7 +222,6 @@
 				// Function that initializes the routing process.
 				function init() {					
 					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
-					console.log(leds);
 					nodes = _.flatten([display.queryPrefix("BI"),  leds,  display.queryPrefix("BO")]);
 					
 					nodes = generateNodes(nodes, function(nodes){
