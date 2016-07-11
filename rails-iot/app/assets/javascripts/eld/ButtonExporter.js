@@ -7,13 +7,17 @@ function ButtonExporter(dom, type, preFN, postFN){
     this.postFN = postFN;
     this.init();
   }
+  var display;
   ButtonExporter.prototype = {
     init: function(){
       var scope = this;
       if(this.type == "PNG")
         $(this.dom).click(function(){
-          display = new Artwork("/artwork/sun_moon.svg", function(artwork){
+          display = new Artwork(getActiveArtwork(), function(artwork){
             result = scope.preFN(artwork);
+            // result.remove();
+            console.log("FINAL DIMENSIONS", Ruler.pts2mm(result.bounds.width), "mm x", Ruler.pts2mm(result.bounds.height), "mm");
+            result.fitBounds(paper.view.bounds)
                       
             // var fn = scope.getFilename();
             // ButtonExporter.exportPNG(result, fn, scope.dom);
