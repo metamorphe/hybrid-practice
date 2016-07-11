@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ryan was here.</title>
+        <script type="text/javascript" src="libs/jquery.min.js"></script>
+        <script type="text/javascript" src="libs/paper-full.min.js"></script>
+        <script type="text/javascript" src="libs/bootstrap.min.js"></script>
+        <script type="text/javascript" src="libs/underscore.js"></script>
+        <script type="text/javascript" src="libs/math.js"></script>
+
+        <script type="text/javascript" src="js/graph.js"></script>
+        <script type="text/javascript" src="js/artwork.js"></script>
+        <script type="text/javascript" src="js/ruler.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+        <script type="text/javascript">
+            // var gradientTesting;
+            var myGraph;
+            $(function(){
+                // MAIN FUNCTION
+                $('#downloadButton').click(function(){
+                    console.log("clicked");
+                    $(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+                });
+                $('#myCanvas').attr('height', $(window).height());
+                $('#myCanvas').attr('width', $(window).width());
+
+
+                paper.install(window);
+                paper.setup('myCanvas');
+                // gradientTesting = new Artwork("img/gradient.svg", function(display){
+
+                    /*Flip display*/
+                    // display.svg.scaling.y = -1
+
+                    runScript();
+
+            });
+            function runScript(){
+                // TODO: YOUR CODE HERE
+
+                myGraph = new Graph(new paper.Point(-200,0), [0,500], [0,200]);
+
+            }
+
+            //Global Variables
+            var thirty = new paper.Color(0.3); //30% gray
+            var ten = new paper.Color(0.1);
+            var sixtyfive = new paper.Color (0.65); //lighter
+            var hundred = new paper.Color(1.00);
+
+            function initializeSectionTool() {
+              sectionTool.onMouseDown = function(event) {
+                if (selectedItem) {
+                  selectedItem.selected = false;
+                }
+                var hitResult = paper.project.hitTest(event.point);
+                console.log(hitResult);
+                if (hitResult && hitResult.type == 'fill') {
+                  selectedItem = hitResult.item;
+                  selectedItem.selected = true;
+
+                }
+              }
+
+              sectionTool.onMouseDrag = function(event) {
+              }
+            }
+
+            //TODO: Pretty Dashes
+            function createDashes(num_dashes, mid_x, min_y, max_y){
+
+                var group = new paper.Group();
+                var midpointDash = new Path();
+
+                var num_dashes = num_dashes
+                var total_dashes = num_dashes;
+                for (i = 0; i < num_dashes; i++) {
+                    group.addChild
+                    midpointDash.add(view.center.add(new Point(mid_x, min_y-Ruler.mm2pts(2))));
+                    midpointDash.add(view.center.add(new Point(mid_x, max_y+Ruler.mm2pts(2))));
+                    midpointDash.selected = false;
+
+                    //Label each dash
+                    var label = new PointText(view.center.add(new Point(mid_x, min_y-Ruler.mm2pts(5))));
+                    label.justification = 'center';
+                    label.fillColor = 'black';
+                    label.content = i / total_dashes;
+                }
+
+                var group = new paper.Group(midpointDash);
+                group.style = {
+                    strokeColor: 'white',
+                    dashArray: [4, 12],
+                    strokeWidth: 1,
+                    strokeCap: 'round'
+                };
+            }
+
+
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+            <a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+        </div>
+    </body>
+</html>
+
+<style>
+    #downloadButton{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+    body, html{
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+</style>
