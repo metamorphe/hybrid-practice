@@ -13,6 +13,7 @@ function Graph(center_coords, x_range, y_range){
     this.selectedHandle = null;
     this.selectedSegment = null;
     this.stops = null;
+    this.profilePath = null;
 
     this.create_bounding_box(this.init(center_coords), 1, 1, 1, 0); //TODO: fix logic; currently this is the boundingBox of object's bird's eye view
 
@@ -74,14 +75,13 @@ Graph.prototype = {
             }
 
             scope.selectedSegment = null;
-            if (hitResult){
+            if (hitResult && (hitResult.type == 'fill'
+                  || hitResult.type == 'segment')){
                 selectedItem = hitResult.item; //path
                 selectedItem.selected = true;
                 if (hitResult.type == 'segment') {
                     scope.selectedSegment = hitResult.segment;
                     var segIndex = scope.selectedSegment.index;
-                    console.log(scope.selectedSegment.index);
-                    // scope.
                 }
                 else if (event.modifiers.shift
                         && hitResult.type == 'stroke') {
@@ -102,13 +102,11 @@ Graph.prototype = {
                 scope.selectedSegment.point.y -= 1;
             } else {
               scope.selectedSegment.point.y += event.delta.y;
-              var segIndex = scope.selectedSegment.index;
 
-              //FIXME: no way we can get the correct stopNumber
-              //with arithmetic alone we must preassign
-              var stopNumber = -(segIndex % 5) + 4;
+              // Update the corresponding stop's color
               var proportion = (scope.selectedSegment.point.y
                           - lowerBound) / scope.max_y
+              var stopNumber = scope.selectedSegment.stopNumber;
               scope.stops[stopNumber].color.lightness = -proportion + 1;
             }
           }
@@ -125,18 +123,24 @@ Graph.prototype = {
 
         // For each stop, we find the x
         var stops = this.stops;
-        stops = _.map(stops, function(stop) {
-          return {
+        stops = _.map(stops, function(stop, idx) {
+          var obj = {
             x: stop.rampPoint / 2.0,
-            y: stop.color.lightness
+            y: stop.color.lightness,
+            stopNumber: stops.length - 1 - idx
           };
+          obj.linked = obj;
+          return obj;
         });
         // UPDATE THE STOPS
-        stopsR = _.map(stops, function(stop){
-           return {
+        stopsR = _.map(stops, function(stop, idx){
+           var obj = {
              x: (-1 * (stop.x - 0.5)) + 0.5,
-             y: stop.y
-           }
+             y: stop.y,
+             stopNumber: stops.length - 1 - idx,
+           };
+           obj.linked = obj.linked;
+           return obj;
         });
 
         // JOIN THE STOPS
@@ -145,6 +149,8 @@ Graph.prototype = {
           return stop.x;
         });
 
+        path.add(view.center.add(new Point(scope.min_x, scope.max_y)))
+
         // Draw the stops
         $.each(stops, function(idx, obj) {
             // each obj looks has fields COLOR (with field LIGHTNESS) and RAMP_POINT
@@ -152,17 +158,22 @@ Graph.prototype = {
             var y = scope.max_y * obj.y;
             var point = view.center.add(new Point(x, y));
             path.add(point);
+            var lastSegment = path.segments[path.segments.length - 1];
+            lastSegment.linked = obj.linked;
+            lastSegment.stopNumber = obj.stopNumber;
+            obj.mySegment = lastSegment;
+            // lastSegment.stopNumber = _.isUndefined(scope.stopMapping[idx])
+            //       ? null : scope.stopMapping[idx];
             // path.closed = true;
-            console.log(obj.x);
+            console.log(obj);
         });
 
         // Add the last point, then bound on the bottom
         // path.add(view.center.add(new Point(scope.min_x + scope.max_x, 0)));
         path.add(view.center.add(new Point(scope.min_x + scope.max_x, scope.max_y)));
-        path.add(view.center.add(new Point(scope.min_x, scope.max_y)))
         path.closed = true;
-        path.strokeColor = 'white';
-        path.fillColor = 'pink';
+        path.strokeColor = 'black';
+        path.fillColor = '#ecf0f1';
 
         //TODO: Pretty Dashes
         var midpointDash = new Path();
@@ -186,6 +197,7 @@ Graph.prototype = {
 
         //Create a bounding_box around graph
         this.graphCenter = scope.create_bounding_box(path,1, 1, 1, 0);
+        this.profilePath = path;
     },
 
 
@@ -195,7 +207,7 @@ Graph.prototype = {
         console.log('boundingBox Center coord', boundingBox.bounds.center);
         boundingBox.style = {
             // fillColor: new Color(color_amount),
-            fillColor: 'green',
+            fillColor: '#95a5c6',
             strokeWidth: stroke_width,
             strokeColor: stroke_color
         }
