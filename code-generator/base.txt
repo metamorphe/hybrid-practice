@@ -1,0 +1,7 @@
+line one
+line two
+line three
+#DEFINE NUM_OF_LEDS
+line four
+line five
+line six
