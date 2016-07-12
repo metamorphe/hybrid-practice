@@ -13,6 +13,7 @@
 
 		<script type="text/javascript">
 		 	var eld;
+		 	var bgPath;
 			$(function(){
 				// MAIN FUNCTION
 				$('#downloadButton').click(function(){
@@ -47,12 +48,7 @@
 				POINT_OFFSET = 15;
 				POINT_INNER_OFFSET = 1;
 
-				var hitOptions = {
-					segments: true,
-					stroke: true,
-					fill: true,
-					tolerance: 5
-				}
+				
 
 				function generateNodes(nodes, callbackFN){
 					var c = new Artwork("components/APA102C.svg", function(footprint) {
@@ -133,7 +129,7 @@
 					}, 0);
 				};
 
-				THETA_STEP = 1;
+				THETA_STEP = 45;
 				// Helper Function to determine optimal routing.
 				function bestCost(node) {
 					var cost_table = [];
@@ -184,7 +180,6 @@
 						console.log("OPT STEP", iters, difference);
 					}
 				};
-
 				function connect_the_dots(nodes){
 					pts = []
 					var lines = new paper.Group({name: "TRACE: Trace Expansion"});
@@ -205,7 +200,7 @@
 							})
 						});
 					});
-					var bgPath = new paper.Path({
+					bgPath = new paper.Path({
 						strokeColor: "yellow",
 						segments: _.flatten(pts),
 						strokeWidth: Ruler.mm2pts(10)
@@ -226,36 +221,67 @@
 					paper.view.update();
 				}
 
+				
+
+				var hitOptions = {
+					segments: true,
+					stroke: true,
+					fill: true,
+					tolerance: 10
+				}
 				var t = new paper.Tool();
-				var segment;
-				var path;
+				t.selected = [];
+
+				
+
+				function addAnchorPoint(pathReceiver, point){
+					var closestPoint = pathReceiver.getNearestPoint(point);
+					var location = pathReceiver.getLocationOf(closestPoint);
+					var index  = location.curve.segment2.index;
+					console.log(index);
+					return pathReceiver.insert(index, closestPoint);
+				}
 
 				t.onMouseDown = function(event) {
-					segment = path = null;
+
 					var hitResult = project.hitTest(event.point, hitOptions);
+					
+
 					if (!hitResult) {
+						console.log("No hits");
 						return;
 					} else {
-						path = hitResult.item;
-						if (hitResult.type == 'segment') {
-							segment = hitResult.segment;
-						} else {
-							var closestPoint = path.getNearestPoint(event.point);
-							var offset = path.getOffsetOf(closestPoint);
-							path.insert(path.segments.length / 2, closestPoint);
-							segment = path.segments[path.segments.length / 2];
-						};
+						if(hitResult.type == "stroke"){
+							console.log("Adding anchor");
+							var anchor = addAnchorPoint(hitResult.item, event.point);
+							var anchorBG = addAnchorPoint(bgPath, event.point);
+
+							t.selected.push(anchor);
+							t.selected.push(anchorBG);
+							
+						}
+						else if (hitResult.type == 'segment') {
+							anchor = hitResult.segment;
+							var anchorBG = addAnchorPoint(bgPath, event.point);
+							t.selected.push(anchor);
+							t.selected.push(anchorBG);
+						}
 					};
 				};
 
 				t.onMouseDrag = function(event) {
-					if (segment) {
-						segment.point.x += event.delta.x;
-						segment.point.y += event.delta.y;
-						path.smooth();
-					};
+					_.each(t.selected, function(anchor){
+						anchor.selected = true;
+						anchor.point = anchor.point.add(event.delta);
+					});
 				};
 
+				t.onMouseUp = function(event){
+					_.each(t.selected, function(anchor){
+						anchor.selected = false;
+					});
+					t.selected = [];
+				}
 				// Function that initializes the routing process.
 				function init() {					
 					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
