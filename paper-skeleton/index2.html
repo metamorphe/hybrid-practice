@@ -247,26 +247,25 @@
 					var hitResult = project.hitTest(event.point, hitOptions);
 					
 
-					if (!hitResult) {
+					if (!hitResult)
 						console.log("No hits");
 						return;
-					} else {
-						if(hitResult.type == "stroke"){
-							console.log("Adding anchor");
-							var anchor = addAnchorPoint(hitResult.item, event.point);
-							var anchorBG = addAnchorPoint(bgPath, event.point);
+				
+					if(hitResult.type == "stroke"){
+						console.log("Adding anchor");
+						var anchor = addAnchorPoint(hitResult.item, event.point);
+						var anchorBG = addAnchorPoint(bgPath, event.point);
 
-							t.selected.push(anchor);
-							t.selected.push(anchorBG);
-							
-						}
-						else if (hitResult.type == 'segment') {
-							anchor = hitResult.segment;
-							var anchorBG = addAnchorPoint(bgPath, event.point);
-							t.selected.push(anchor);
-							t.selected.push(anchorBG);
-						}
-					};
+						t.selected.push(anchor);
+						t.selected.push(anchorBG);
+						
+					}
+					else if (hitResult.type == 'segment') {
+						anchor = hitResult.segment;
+						var anchorBG = addAnchorPoint(bgPath, event.point);
+						t.selected.push(anchor);
+						t.selected.push(anchorBG);
+					
 				};
 
 				t.onMouseDrag = function(event) {
