@@ -3,32 +3,29 @@
 
       $(function(){
         Utility.paperSetup($('#myCanvas'));
-        displays.push(new Artwork("/artwork/nine-segment.svg", function(artwork){
-          })
-        );
+        // displays.push(new Artwork("/artwork/nine-segment.svg", function(artwork){
+        //   })
+        // );
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         $("#shade").fadeOut("slow");
         pipelineSetup();
       });
 
       function pipelineSetup(){
-        var display = displays[0];
-        var pcb = new ButtonExporter($('#pcb'), "SVG", 
-          function(){
-              pcb_script(display); 
-          });
-        var spacers = new ButtonExporter($('#spacers'), "PNG", 
-          function(){
-              spacers_script(display); 
-          });
-        var mold = new ButtonExporter($('#mold'), "PNG", 
-          function(){
-              mold_script(display); 
-          });
-        var mask = new ButtonExporter($('#mask'), "SVG", 
-          function(){
-              mold_script(display); 
-          });
+        // var display = displays[0];
+         // display.svg.remove();
+
+        // var pcb = new ButtonExporter($('#pcb'), "SVG", 
+        //   function(){
+        //       return pcb_script(display); 
+        //   });
+      
+        var spacers = new ButtonExporter($('#spacers'), "PNG", spacers_script );
+        var mold = new ButtonExporter($('#mold'), "PNG", mold_script );
+        // var mask = new ButtonExporter($('#mask'), "SVG", 
+        //   function(){
+        //       return mold_script(display); 
+        //   });
       }
 
       function pcb_script(display){
@@ -36,10 +33,58 @@
       }
       function spacers_script(display){
         console.log("Running Spacer Generator");
+
+        return make_diffuser_spacer(display);
+
       }
+
+
+      var MOLD_WALL = 5; // mm
       function mold_script(display){
         console.log("Running Mold Generator");
+        //Declarations
+        var breakout = display.queryPrefix('BO');
+        var breakin = display.queryPrefix('BI');
+        var circuit_path = display.queryPrefix('CP');
+        var diffusers = display.queryPrefix('DIF');
+        var leds = display.queryPrefix('NLED');
+
+        console.log("Found", diffusers.length, "diffusers...")
+        //Extrating diffusers
+        _.each(diffusers, function(diffuser){
+          diffuser.set({
+            visible: true, 
+            fillColor: "black", 
+            strokeColor: "white", 
+            strokeWidth: Ruler.mm2pts(2)
+          });
+        });
+
+        var diff_group = new paper.Group(diffusers);
+
+        //Creating a bounding box
+        boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL)), 0);
+        boundingBox.style = {
+          fillColor: 'white',
+          // strokeColor: 'black'
+        }; 
+        boundingBox.sendToBack();
+
+        var result = new paper.Group({
+          children: [boundingBox, diff_group]
+        });
+
+        //Make non-molding objects invisible
+        var invisible = _.flatten([leds, circuit_path, breakin, breakout]);
+        _.each(invisible, function(el){
+          el.visible = false;
+        });
+
+        paper.view.update();
+        return result;
       }
+
+
       function mask_script(display){
         console.log("Running Mask Generator");
       }
@@ -53,26 +98,23 @@
   </head>
   <body>
     
-      <canvas id="myCanvas"></canvas>
-      <div id="pipeline">
+    <canvas id="myCanvas"></canvas>
+    <div id="pipeline">
       <ul>
-          <li>
-            <div class='btn-group'>
-              <a id="load" name="load" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#open"><span class='glyphicon glyphicon-file'></a>
-              <a id="upload" name="upload" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#upload"><span class='glyphicon glyphicon-upload'></span></a>
-            </div>
-          </li>
+          <li><a id="load" name="load" href="#" class="process btn btn-lg btn-primary" data-toggle="modal" data-target="#open"><span class='glyphicon glyphicon-file'></a></li>
           <li><a id="pcb" name="pcb" href="#" class="process btn btn-lg btn-info"> Ci </a></li>
           <li><a id="spacers" name="spacers" href="#" class="process btn btn-lg btn-danger"> Sp </a></li>
           <li><a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> M </a></li>
           <li><a id="mask" name="mask" href="#" class="process btn btn-lg btn-primary"> Ma </a></li>
           <li><a id="code" name="code" href="#" class="process btn btn-lg btn-default"> Co </a></li>
-        </div>
       </ul>
+      <p id="current-file" class="lead"> /artwork/traffic_light.svg </p>
     </div>
       
       <%= render :partial => "modals"%>
       <%= render :partial => "zoom_bar"%>
+
+    <!-- <canvas id="bufferCanvas"></canvas> -->
   </body>
 
   <style>
@@ -91,10 +133,10 @@
     display: inline;
   }
   .process{
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     line-height: 1.5;
-    font-size: 40pt;
+    font-size: 30pt;
   }
   #pipeline{
       position: absolute;
@@ -102,12 +144,13 @@
       padding: 30px;
       width: 100%;
       background: white;
+      padding-bottom: 0;
   }
     #pipeline ul{
         list-style-type: none;
         margin: 0;
         padding: 0;
-        margin-left: calc((100% - 700px) / 2.0)
+        margin-left: calc((100% - 550px) / 2.0)
     }
    	body, html{
    		width: 100%;
@@ -126,10 +169,10 @@
     }
     #myCanvas {
       position: absolute;
-      top: 160px;
+      top: 180px;
       left: 0;
       width: 100%;
-      height: calc(100% - 160px);
+      height: calc(100% - 180px);
       border: solid 1px black;
       /*display: none;*/
       z-index: -100;

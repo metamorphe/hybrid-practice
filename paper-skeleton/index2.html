@@ -6,17 +6,31 @@
 		<script type="text/javascript" src="libs/paper-full.min.js"></script>
 		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
 		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
-		 	var nineSegment;
+		 	var eld;
+		 	var bgPath;
 			$(function(){
 				// MAIN FUNCTION
 				$('#downloadButton').click(function(){
 					console.log("clicked");
 					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
 				});
 				$('#myCanvas').attr('height', $(window).height());
 				$('#myCanvas').attr('width', $(window).width());
@@ -25,196 +39,287 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-				nineSegment = new Artwork("img/nine-segment.svg", function(display) {
+				eld = new Artwork("img/traffic_light.svg", function(display) {
 					runScript(display);
 				});
 			});
 				
 			function runScript(display){
-				// Declaring a path array, rectangle array, and group array.
-				var pathArray = new Array();
-				var rectArray = new Array();
-				var groupArray = new Array();
+				POINT_OFFSET = 15;
+				POINT_INNER_OFFSET = 1;
 
-				// Declaring a minimumPath and minimumRotation for rotation purposes.
-				var minPath;
+				
 
-				// Accessing the ordered array of LEDs.
-				var ledSeg = nineSegment;
-				var sortedLedSeg = ledSeg.allLeds;
+				function generateNodes(nodes, callbackFN){
+					var c = new Artwork("components/APA102C.svg", function(footprint) {
+						
+						square = footprint.queryPrefix("SMD");
+						square[0].remove();
 
-				// Function to add BreakIn Board.
-				function addBreakIn() {
-					// Query the breakIn board.
-					var breakIn = nineSegment.queryPrefix("BI")[0];
+						nodes = _.map(nodes, function(element){ 
+							is_breakout = ["BO", "BI"].indexOf(Artwork.getPrefix(element)) != -1;
+							
+							if(is_breakout){
+								rectangle = new Path.Rectangle({
+									rectangle: element.bounds, 
+									strokeColor: "black", 
+									background: "white"
+								});
+							}
+							else{
+								var fp = footprint.clone();
+								fp.svg.position = element.position;
+								rectangle = fp.svg;
+							}
 
-					// Instantiate a rectangle based on the board coordinates.
-					var rectangle = new Path.Rectangle(new Point(breakIn.bounds.center.x, breakIn.bounds.center.y), 25);
-					rectangle.strokeColor = "black";
-					rectArray.push(rectangle);
 
-					// Establish two circles to help with routing.
-					var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
-					var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
-					entryPoint.fillColor = "blue";
-					exitPoint.fillColor = "red";
+							// Establish two circles to help with routing.
+							var offset = new paper.Point(POINT_OFFSET, 0);
+						
+							var entryPoint = new Path.Circle({
+								position: rectangle.bounds.leftCenter.clone().subtract(offset), 
+								radius: 3, 
+								fillColor: "blue"
+							});
+							var exitPoint = new Path.Circle({
+								position: rectangle.bounds.rightCenter.clone().add(offset), 
+								radius: 3, 
+								fillColor: "blue"
+							});
 
-					// Instantiate a pointText to help with labeling.
-					var pointText = new PointText(new Point(rectangle.bounds.topCenter.x, rectangle.bounds.topCenter.y));
-					pointText.justification = "center";
-					pointText.fillColor = "black";
-					pointText.content = "BI";
-					pointText.fontSize = 10;
+							var in_offset = new paper.Point(POINT_INNER_OFFSET, 0);
+							// Establish surface-contact circles for final routing.
+							var contactEntryPoint = new Path.Circle({
+								position: rectangle.bounds.leftCenter.clone().add(in_offset), 
+								radius: 2,
+								fillColor: "green"
+							});
 
-					// Add the elements to the group for the routing algorithm.
-					var group = new Group([rectangle, entryPoint, exitPoint]);
-					group.rectangle = rectangle;
-					group.inputPoint = entryPoint;
-					group.outputPoint = exitPoint;
-					groupArray.push(group);
+							var contactExitPoint = new Path.Circle({
+								position: rectangle.bounds.rightCenter.clone().subtract(in_offset), 
+								radius: 2,
+								fillColor: "green"
+							});
+
+							var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
+
+							// group.text = pointText;
+							group.rectangle = rectangle;
+							group.inputPoint = entryPoint;
+							group.outputPoint = exitPoint;
+							group.contactInput = contactEntryPoint;
+							group.contactOutput = contactExitPoint;
+							return group;
+						});
+
+						callbackFN(nodes);
+						footprint.remove();
+					}, true);
+				}
+
+				// Function to obtain cost (Path length) from node with two neighbors.
+				function cost(node, paths) {
+					is_breakout = _.isNull(node.left) || _.isNull(node.right);
+					
+					breakout_bias = is_breakout ? 10000000: 0;
+					if(node.rotation % 45 == 0 ) breakout_bias = 0;
+
+					return breakout_bias + _.reduce(paths, function(memo, path){
+						return memo + path.length;
+					}, 0);
 				};
 
-				// Function to add BreakOut Board.
-				function addBreakOut() {
-					// Query the breakOut board.
-					var breakIn = nineSegment.queryPrefix("BO")[0];
-
-					// Instantiate a rectangle based on the board coordinates.
-					var rectangle = new Path.Rectangle(new Point(breakIn.bounds.center.x, breakIn.bounds.center.y), 25);
-					rectangle.strokeColor = "black";
-					rectArray.push(rectangle);
-
-					// Establish two circles to help with routing.
-					var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
-					var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
-					entryPoint.fillColor = "blue";
-					exitPoint.fillColor = "red";
-
-					// Instantiate a pointText to help with labeling.
-					var pointText = new PointText(new Point(rectangle.bounds.topCenter.x, rectangle.bounds.topCenter.y));
-					pointText.justification = "center";
-					pointText.fillColor = "black";
-					pointText.content = "BO";
-					pointText.fontSize = 10;
-
-					// Add the elements to the group for the routing algorithm.
-					var group = new Group([rectangle, entryPoint, exitPoint]);
-					group.rectangle = rectangle;
-					group.inputPoint = entryPoint;
-					group.outputPoint = exitPoint;
-					groupArray.push(group);
-				};
-
-				// Function to set up rectangles for testing (Includes ascii placement).
-				function placeRectangles() {
-					for (i = 0; i < sortedLedSeg.length; i++) {
-						// Access the LED from the array.
-						var currentElement = sortedLedSeg[i];
-
-						// Instantiate a rectangle based on the LED coordinates.
-						var leftX = currentElement.bounds.topLeft.x;
-						var leftY = currentElement.bounds.topLeft.y;
-						var rectangle = new Path.Rectangle(new Point(leftX, leftY), 14);
-						rectangle.strokeColor = "black";
-						rectArray.push(rectangle);
-
-						// Instantiate a pointText with the ASCII character.
-						var pointText = new PointText(new Point(rectangle.bounds.center.x, rectangle.bounds.center.y));
-						pointText.justification = "center";
-						pointText.fillColor = 'black';
-						pointText.content = "-->";
-						pointText.fontSize = 5;
-
-						// Establish two circles to help with routing.
-						var entryPoint = new Path.Circle(new Point(rectangle.bounds.leftCenter.x - 15, rectangle.bounds.leftCenter.y), 2);
-						var exitPoint = new Path.Circle(new Point(rectangle.bounds.rightCenter.x + 15, rectangle.bounds.rightCenter.y), 2);
-						entryPoint.fillColor = "blue";
-						exitPoint.fillColor = "red";
-
-						// Order all the elements into a group and push the group into a group array.
-						var group = new Group([rectangle, pointText, entryPoint, exitPoint]);
-						group.rectangle = rectangle;
-						group.arrow = pointText;
-						group.inputPoint = entryPoint;
-						group.outputPoint = exitPoint;
-						groupArray.push(group);
-					};
-				};
-
-				// Function to obtain cost (Path length) from path.
-				function cost(path, firstGroup) {
-					if (path.intersects(firstGroup)) {
-						return path.length + 1000;
-					} else {
-						return path.length;
-					};
-				};
-
+				THETA_STEP = 1;
 				// Helper Function to determine optimal routing.
-				function determineOptimalRoute(firstGroup, secondGroup) {
-					var rotationDegree = 0;
-					var minRotation = 0;
-					var minPathCost = Number.MAX_SAFE_INTEGER;
-					while (rotationDegree <= 360) {
-						secondGroup.rotation = rotationDegree;
-						var path = new Path(firstGroup.outputPoint.position, secondGroup.inputPoint.position);
-						if (cost(path, firstGroup) < minPathCost) {
-							minPathCost = cost(path, firstGroup);
-							minRotation = rotationDegree;
-							minPath = path;
-						} else {
-							path.removeSegments();
-						};
-						rotationDegree += 1;
-					};
-					minPath.strokeColor = "yellow";
-					secondGroup.rotation = minRotation;
-				};
+				function bestCost(node) {
+					var cost_table = [];
+					var original_rotation = node.rotation;
+					for(var theta = 0; theta < 360; theta += THETA_STEP){
+						
+						node.rotation = theta;
+						var neighbors = [];
 
-				// Helper Function to draw the final route.
-				// function finalRoute() {
-				// 	var finalPath = new Path(groupArray[0].inputPoint.position, groupArray[0].outputPoint.position);
-				// 	finalPath.strokeColor = "yellow";
-				// 	for (var i = 1; i < groupArray.length; i++) {
-				// 		finalPath.addSegments([groupArray[i].inputPoint.position, groupArray[i].outputPoint.position]);
-				// 	}
-				// }
+						if(!_.isNull(node.left))
+							neighbors.push([node.left.outputPoint.position, node.inputPoint.position]);
+						if(!_.isNull(node.right))
+							neighbors.push([node.outputPoint.position, node.right.inputPoint.position]);
+
+						neighbors = _.map(neighbors, function(neighbor){
+							return new Path(neighbor[0], neighbor[1])
+						});
+
+						cost_table.push({theta: theta, cost: cost(node, neighbors)})
+						_.each(neighbors, function(neighbor){ neighbor.remove()});
+					}
+					node.rotation = original_rotation;
+					return _.min(cost_table, function(entry){ return entry.cost });
+				}
 
 				// Function to route the rectangles together based on overall cost.
-				function route() {
-					for (var i = 1; i < groupArray.length; i++) {
-						firstGroup = groupArray[i - 1];
-						secondGroup = groupArray[i];
-						if (secondGroup.arrow != null) {
-							determineOptimalRoute(firstGroup, secondGroup);
-						}
+				function route(nodes) {
+					OPT_MAX_ITERS = 20;
+					EPSILON = 10; 
+					difference = Number.MAX_SAFE_INTEGER;
+					iters = 0;
+
+					while(difference > EPSILON && iters < OPT_MAX_ITERS){
+						result = _.map(nodes, function(node, i){
+							return bestCost(node);
+						});
+
+						difference = _.reduce(nodes, function(memo, node, i){
+							var prev = node.rotation;
+							node.rotation = result[i].theta;
+							return memo + Math.abs(prev - result[i].theta);
+						}, 0);
+
+
+
+						paper.view.update();
+						iters++;
+						console.log("OPT STEP", iters, difference);
 					}
-					// finalRoute();
+				};
+				function connect_the_dots(nodes){
+					pts = []
+					var lines = new paper.Group({name: "TRACE: Trace Expansion"});
+					_.each(nodes, function(node, i, arr){
+						var neighbors = [];
+
+						if(!_.isNull(node.right))
+							neighbors.push([node.contactOutput.position, node.outputPoint.position, node.right.inputPoint.position,node.right.contactInput.position]);
+						
+						neighbors = _.map(neighbors, function(neighbor, i, arr){
+							pts.push(neighbor);
+							
+							return new paper.Path({
+								parent: lines,
+								segments: neighbor,
+								strokeColor: "blue", 
+								strokeWidth: 3
+							})
+						});
+					});
+					bgPath = new paper.Path({
+						strokeColor: "yellow",
+						segments: _.flatten(pts),
+						strokeWidth: Ruler.mm2pts(10)
+					});
+					bgPath.sendToBack();
+				}
+
+				function cleanup(nodes){
+					var ngroup = new paper.Group(nodes);
+					_.each(nodes, function(node){
+						node.inputPoint.remove();
+						node.outputPoint.remove();
+						node.contactInput.remove();
+						node.contactOutput.remove();
+					});
+					
+					display.svg.remove();
+					paper.view.update();
+				}
+				function init() {					
+					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
+					nodes = _.flatten([display.queryPrefix("BI"),  leds,  display.queryPrefix("BO")]);
+					
+					nodes = generateNodes(nodes, function(nodes){
+							// linked list
+						_.each(nodes, function(node, i, arr){
+							node.right = null;
+							node.left = null;
+
+							if(i - 1 >= 0) node.left = arr[i - 1];
+							if(i + 1 < arr.length) node.right = arr[i + 1];
+						});
+						
+						route(nodes);
+						connect_the_dots(nodes);
+						cleanup(nodes);
+					});
+				};
+				init();
+		};	
+
+				var hitOptions = {
+					segments: true,
+					stroke: true,
+					fill: true,
+					tolerance: 10
+				}
+				var t = new paper.Tool();
+				t.selected = [];
+
+				
+
+				function addAnchorPoint(pathReceiver, point){
+					var closestPoint = pathReceiver.getNearestPoint(point);
+					var location = pathReceiver.getLocationOf(closestPoint);
+					var index  = location.curve.segment2.index;
+					console.log(index);
+					return pathReceiver.insert(index, closestPoint);
+				}
+
+				t.onMouseDown = function(event) {
+
+					var hitResult = project.hitTest(event.point, hitOptions);
+					
+					if (!hitResult) {
+						console.log("No hits");
+						return;
+					}
+				
+					if(hitResult.type == "stroke"){
+						console.log("Adding anchor");
+						var anchor = addAnchorPoint(hitResult.item, event.point);
+						var anchorBG = addAnchorPoint(bgPath, event.point);
+
+						t.selected.push(anchor);
+						t.selected.push(anchorBG);
+						
+					}
+					else if (hitResult.type == 'segment') {
+						console.log("hit segment")
+						anchor = hitResult.segment;
+						var anchorBG = addAnchorPoint(bgPath, event.point);
+						t.selected.push(anchor);
+						t.selected.push(anchorBG);
+					}					
 				};
 
-				// Function that initializes the routing process.
-				function initialization() {
-					addBreakIn();
-					placeRectangles();
-					addBreakOut();
-					route();
-					nineSegment.svg.remove();
+				t.onMouseDrag = function(event) {
+					_.each(t.selected, function(anchor){
+						anchor.selected = true;
+						anchor.point = anchor.point.add(event.delta);
+					});
 				};
 
-				// Call to the initialization function.
-				initialization();
-			};
+				t.onMouseUp = function(event){
+					_.each(t.selected, function(anchor){
+						anchor.selected = false;
+					});
+					t.selected = [];
+				}
+
+			
 		</script>
 	</head>
 	<body>
 		<div class="container">
 			<canvas id="myCanvas"></canvas>
 			<a id="downloadButton" class='btn btn-default'>DOWNLOAD</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
 		</div>
 	</body>
 </html>
 
 <style> 
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
 	#downloadButton{
 		position: absolute;
 		top: 20px;

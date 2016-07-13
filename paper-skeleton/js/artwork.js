@@ -5,10 +5,12 @@
 //    Breakin --> obj.query({prefix:['BI']});
 //    Breakin --> obj.queryPrefix("BI");
 
-function Artwork(svgPath, loadFN){
+function Artwork(svgPath, loadFN, isComponent){
 	this.svgPath = svgPath;
 	this.svg = null;
-	this.import(loadFN);
+	this.isComponent = _.isUndefined(isComponent);
+	if(loadFN != "")
+		this.import(loadFN);
 }
 
 Artwork.prototype = {
@@ -16,6 +18,15 @@ Artwork.prototype = {
 	 * Returns an arrays of strings, where each string is the name
 	 * of a queryable object, prefix included.
 	 */
+	remove: function(){
+		this.svg.remove();
+	},
+	clone: function(){
+		art = new Artwork(this.svgPath, "", this.isComponent);
+		art.svg = this.svg.clone();
+		art.svg.self = this;
+		return art;
+	},
 	queryable: function(){
 		return _.map(this.query({}), function(el){
 			return el.name;
@@ -29,9 +40,12 @@ Artwork.prototype = {
 	 		scope.svg.position = paper.view.center;
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
+		    scope.self = scope;
+		    if(scope.isComponent){
 				var ledLists = scope.orderLeds();
 				scope.allLeds = ledLists[0];
 				scope.iLeds = ledLists[1];
+			}
 		    loadFN(scope);
 		});
 	},
@@ -67,6 +81,7 @@ Artwork.prototype = {
 	 * >>> [allLedsSorted, interactiveLedsSorted]
 	 */
 	orderLeds: function() {
+		console.log("Ordering!");
 		var nLeds = this.queryPrefix('NLED');
 		var iLeds = this.queryPrefix('ILED');
 		var cp = this.queryPrefix('CP')[0];
@@ -116,6 +131,11 @@ Artwork.prototype = {
 		});
 		return [allLeds, iLeds];
 	}
+}
+Artwork.getPrefix = function(item){
+	if(_.isUndefined(item.name)) return "";
+	if(item.name.split(":").length < 2) return "";
+	return item.name.split(":")[0].trim();
 }
 
 Artwork.getPrefixItem = function(item){

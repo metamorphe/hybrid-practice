@@ -14,3 +14,4 @@
 //= require eld/brushes/PanTool
 //= require eld/brushes/DirectManipulationTool
 //= require eld/brushes/LinkBrush
+//= require eld/scripts/diffuser_spacer
