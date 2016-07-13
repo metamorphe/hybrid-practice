@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title> Spacer Implementation - Simple </title>
+		<title> Spacer Version 2 </title>
 		<script type="text/javascript" src="libs/jquery.min.js"></script>
 		<script type="text/javascript" src="libs/paper-full.min.js"></script>
 		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
 		<script type="text/javascript" src="libs/underscore.js"></script>
 		<script type="text/javascript" src="libs/saveas.min.js"></script>
+
+		<script type="text/javascript" src="js/convex.js"></script>
+		<script type="text/javascript" src="js/format.js"></script>
+		<script type="text/javascript" src="js/grid.js"></script>
+		<script type="text/javascript" src="js/hull.js"></script>
+		<script type="text/javascript" src="js/intersect.js"></script>
+
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
@@ -38,41 +45,43 @@
 
 				paper.install(window);
 				paper.setup('myCanvas');
+				paper.loadCustomLibraries();
 
-				paper.view.zoom = 1;
-				nineSegment = new Artwork("img/traffic_light.svg", function(display){
+				paper.view.zoom = 3;
+				nineSegment = new Artwork("img/Test.svg", function(display){
 					spacerScript(display);
 				});
 				
 			});
 			function spacerScript(display){
-				var DIF = display.queryPrefix('DIF');
-				var LEDS = display.queryPrefix('NLED');
-				var BI = display.queryPrefix('BI');
-				var BO = display.queryPrefix('BO');
-				var circuit_path = display.queryPrefix('CP');
+				/* Test SVG QUERY
+				 */
+				BI   = display.queryPrefix('BI');
+				BO   = display.queryPrefix('BO');
+				CP   = display.queryPrefix('CP');
+				NLED = display.queryPrefix('NLED');
+				SC   = display.queryPrefix('SC');
+				CR   = display.queryPrefix('CR');
 
-				var elements = _.flatten([DIF, BI, BO]);
+				var elements = _.flatten([BI, BO, CP, NLED, SC, CR]);
 				var backgroundBox = create_background(elements);
 				create_background_holes(backgroundBox);
-				create_LED_holes(LEDS);
-				var breakin_rectangle = create_breakin_hole(BI, backgroundBox);
-				var breakout_rectangle = new paper.Rectangle();
 
-				if (BO.length != 0){
-					breakout_rectangle = create_breakout_hole(BO, backgroundBox);
-				}
+				// var all_objects = [BI, BO, CP, NLED, SC, CR];
+				
+				/* Reflect Object */
+				// flip_on_axis(all_objects, -1, 1)
 
-				// REMOVE UNNEEDED ELEMENTS
-				circuit_path[0].visible = false;
-				// Loops sets the diffusers as invisible
-				for(var index = 0; index < DIF.length; index++){
-					var diffuser = DIF[index]   
-					diffuser.visible = false
-				}
-				var all_objects = [DIF, LEDS, BI, BO, circuit_path, cornerCircle1, cornerCircle2, cornerCircle3, cornerCircle4];
-				flip_on_axis(all_objects, -1, 1)
-
+				/* Compute the Convex Hull */
+				var collection = _.flatten([BI[0], BO[0]]);
+				
+				_.each(collection, function(el){
+					el.calculateOMBB();
+					el.ombb.visible = true;
+					el.ombb.set({
+						fillColor: "yellow"
+					});
+				});
 			}
 
 			// PRIVATE FUNCTIONS
@@ -211,7 +220,72 @@
 					children: objects,
 					scaling: new paper.Size(flip_x, flip_y)
 				});
-			}				
+			}	
+
+			function get_convex_hull(path_object){
+				
+				// /* Points of the Path Object */
+				var sampled_pts = [];
+				for(var index = 0; index < path_object.length; index++) {
+					pt = path_object.getPointAt(index)
+					sampled_pts.push([ pt.x, pt.y])
+				}
+
+				/* Convex Hull Points */
+				var convex_points = hull(sampled_pts, 50);
+				
+				/* Creating Points from [[x1,y1]...[xn,yn]] format */
+				var list_convex_points = _.map(convex_points, function(pt){
+					return new paper.Point(pt[0], pt[1]);
+				});
+
+				var path_of_points = new paper.Path({
+					segments: list_convex_points,
+					strokeColor: "red", 
+					// fillColor: "red", 
+					strokeWidth: 2
+
+				});
+				return path_of_points;
+			}
+
+			function get_OMBB_cost(convex, possible_ombb) {
+				/* compute itersecting area & overall area */
+				var convex_area = convex.area;
+				var intersection_area = possible_ombb.area - convex_area;
+				return intersection_area;
+			}
+
+
+			function get_OMBB(convex_hull){
+				var degrees_of_rotation = _.range(0,360);
+				cost_table = [];
+
+				_.each(degrees_of_rotation, function(angle){
+					convex_hull.rotation = angle;
+					var possible_ombb = new paper.Path.Rectangle(convex_hull.bounds);
+					var cost = get_OMBB_cost(convex_hull, possible_ombb);
+
+					cost_table.push({
+						angle: angle, 
+						cost: cost
+					})
+					possible_ombb.remove();
+				});
+
+				var best_option = _.min(cost_table, function(result){
+					return result.cost;
+				});
+
+				convex_hull.rotation = best_option.angle
+				OMBB = new paper.Path.Rectangle(convex_hull.bounds.clone());
+				
+				OMBB.rotation = -best_option.angle;
+				convex_hull.rotation = 0;
+				OMBB.style = {
+					fillColor: 'yellow'
+				}
+			}		
 
 		</script>
 	</head>

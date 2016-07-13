@@ -23,7 +23,7 @@
 				$('#downloadButtonSVG').click(function(){
 					console.log("clicked");
 					console.log("Exporting file as SVG");
-					zoom = 1;
+					paper.view.zoom = 1;
 					paper.view.update();
 		
 					exp = paper.project.exportSVG({ 
