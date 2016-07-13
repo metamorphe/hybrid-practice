@@ -1,5 +1,10 @@
 function Graph(center_coords, x_range, y_range){
-
+    /*To Debug
+    []fix rendering of moving corrresponding segment
+    []make sure the first/last segment Objects are not clickable along x-axis
+    []don't allow the border to be selected
+    []implement an undo if Cesar says neccessary
+    */
 
     this.min_x = x_range[0];
     this.max_x = x_range[1];
@@ -15,39 +20,56 @@ function Graph(center_coords, x_range, y_range){
     this.stops = null;
     this.profilePath = null;
 
-    this.create_bounding_box(this.init(center_coords), 1, 1, 1, 0); //TODO: fix logic; currently this is the boundingBox of object's bird's eye view
+    //boundingBox of object's bird's eye view
+    this.create_bounding_box(this.init(center_coords), 1, 1, 1, 0);
 
 
     this.graphCenter = null;
     this.makeRadialGradientProfileGraph(); //updates graphCenter
 
     this.initializeSectionTool();
-    // this.generateGridLines(8);
+    this.generateGridLines(3);
 
 
 }
 
 Graph.prototype = {
 
-    //TODO: debug
-    generateGridLines: function(num_lines) {
+    generateGridLines: function(numPartitions) {
+        
+        //Force an even number of partitions
+        if (numPartitions % 2) { numPartitions = numPartitions+1; }
 
-        var midDash = new Path();
-        midDash.add(view.center.add(new Point(this.mid_x, this.min_y-Ruler.mm2pts(2)))); //TODO: coords should be based upon a group containing the white background
-        midDash.add(view.center.add(new Point(this.mid_x, this.max_y+Ruler.mm2pts(2))));
-        midDash.selected = false;
+        var group = new paper.Group();
+        // $.each(numPartitions, function(i) {
+        for (i = 0; i < numPartitions; i++) {
+            //Skip last iteration
+            if (i != numPartitions - 1) {
 
-        var group = new paper.Group(midDash);
+                var frac = (i + 1) / numPartitions;
+                var x_pos = this.min_x + ((this.max_x - this.min_x) * frac);
+
+                var dash = new Path();
+                dash.add(view.center.add(new Point(x_pos , this.min_y-Ruler.mm2pts(2))));
+                dash.add(view.center.add(new Point(x_pos , this.max_y+Ruler.mm2pts(2))));
+                dash.selected = false;
+                dash.selectable = false;
+
+                var label = new PointText(view.center.add(new Point(x_pos, this.min_y-Ruler.mm2pts(5))));
+                label.justification = 'center';
+                label.fillColor = 'black';
+                label.clickable = false;
+                label.content = (i+1) / numPartitions;
+                console.log(i+1, numPartitions);
+                group.addChild(dash, label);
+            }
+        };
         group.style = {
-            strokeColor: 'blue',
+            strokeColor: 'black',
             dashArray: [4, 12],
-            strokeWidth: 3,
+            strokeWidth: 2,
             strokeCap: 'round'
         };
-        var label = new PointText(view.center.add(new Point(this.mid_x, this.min_y-Ruler.mm2pts(5))));
-        label.justification = 'center';
-        label.fillColor = 'black';
-        label.content = 'midpoint';
     },
 
 
@@ -66,7 +88,7 @@ Graph.prototype = {
                  fill: true});
             console.log(hitResult);
 
-
+            /*Remove segment if shift-clicked*/
             if (event.modifiers.shift) {
                 if (hitResult.type == 'segment') {
                     hitResult.segment.remove();
@@ -74,6 +96,7 @@ Graph.prototype = {
                 return;
             }
 
+            /*Clicking a segment or fill space*/
             scope.selectedSegment = null;
             if (hitResult && (hitResult.type == 'fill'
                   || hitResult.type == 'segment')){
@@ -92,18 +115,22 @@ Graph.prototype = {
           }
           this.selectionTool.onMouseDrag = function(event) {
 
-            //Constrain user to given y-bounds
+            /*Constrain user to y-bounds
+            Note: y grows larger towards upperBound*/
             var yDisplacement = scope.max_y - scope.min_y;
             var upperBound = scope.graphCenter.y + yDisplacement / 2;
             var lowerBound = scope.graphCenter.y - yDisplacement / 2;
-            if (scope.selectedSegment.point.y <= lowerBound) {
-                scope.selectedSegment.point.y += 1;
-            } else if (scope.selectedSegment.point.y >= upperBound) {
-                scope.selectedSegment.point.y -= 1;
-            } else {
-              scope.selectedSegment.point.y += event.delta.y;
 
-              // Update the corresponding stop's color
+            if (scope.selectedSegment){
+                if (scope.selectedSegment.point.y <= lowerBound) {
+                    scope.selectedSegment.point.y += 3;
+                } else if (scope.selectedSegment.point.y >= upperBound) {
+                    scope.selectedSegment.point.y -= 3;
+                } else {
+                  scope.selectedSegment.point.y += event.delta.y;
+            }
+
+              /*Update corresponding stop's color*/
               var proportion = (scope.selectedSegment.point.y
                           - lowerBound) / scope.max_y
               var stopNumber = scope.selectedSegment.stopNumber;
@@ -114,7 +141,7 @@ Graph.prototype = {
 
     makeRadialGradientProfileGraph: function() {
         // The path is 500 across and 200 tall
-        // e.g. white should be y = 0, black is y = 200 (y-axis pointed down)
+        // white should be y = 0, black is y = 200 (y-axis pointed down)
         // a stop at the center has x = 0 and a stop halfway to the edge has x = 250
         // var pathPoints = [view.center.add(new Point(200, 0)), view.center.add(new Point(700, 200))]
         var scope = this;
@@ -122,7 +149,7 @@ Graph.prototype = {
         // path.add(view.center.add(new Point(0, 0)));
 
         // For each stop, we find the x
-        var stops = this.stops;
+        var stops = scope.stops;
         stops = _.map(stops, function(stop, idx) {
           var obj = {
             x: stop.rampPoint / 2.0,
@@ -149,6 +176,11 @@ Graph.prototype = {
           return stop.x;
         });
 
+        // //Debugging stops/links
+        // $.each(stops, function() {
+        //     console.log(stops);
+        // });
+
         path.add(view.center.add(new Point(scope.min_x, scope.max_y)))
 
         // Draw the stops
@@ -160,8 +192,12 @@ Graph.prototype = {
             path.add(point);
             var lastSegment = path.segments[path.segments.length - 1];
             lastSegment.linked = obj.linked;
+
+            console.log(lastSegment.linked);
+
             lastSegment.stopNumber = obj.stopNumber;
-            obj.mySegment = lastSegment;
+            // obj.mySegment = lastSegment;
+            
             // lastSegment.stopNumber = _.isUndefined(scope.stopMapping[idx])
             //       ? null : scope.stopMapping[idx];
             // path.closed = true;
@@ -175,29 +211,10 @@ Graph.prototype = {
         path.strokeColor = 'black';
         path.fillColor = '#ecf0f1';
 
-        //TODO: Pretty Dashes
-        var midpointDash = new Path();
-
-        midpointDash.add(view.center.add(new Point(scope.mid_x, scope.min_y-Ruler.mm2pts(2))));
-        midpointDash.add(view.center.add(new Point(scope.mid_x, scope.max_y+Ruler.mm2pts(2))));
-        midpointDash.selected = false;
-
-        var group = new paper.Group(midpointDash);
-        group.style = {
-            strokeColor: 'white',
-            dashArray: [4, 12],
-            strokeWidth: 1,
-            strokeCap: 'round'
-        };
-
-        var label = new PointText(view.center.add(new Point(this.mid_x, this.min_y-Ruler.mm2pts(5))));
-        label.justification = 'center';
-        label.fillColor = 'black';
-        label.content = '0.5';
 
         //Create a bounding_box around graph
-        this.graphCenter = scope.create_bounding_box(path,1, 1, 1, 0);
-        this.profilePath = path;
+        scope.graphCenter = scope.create_bounding_box(path,1, 1, 1, 0);
+        scope.profilePath = path;
     },
 
 
