@@ -73,14 +73,15 @@
 				// flip_on_axis(all_objects, -1, 1)
 
 				/* Compute the Convex Hull */
-				var collection = _.flatten([BI[0], BO[0]]);
+				var collection = _.flatten([BI[0], BO[0], CP[0], NLED[0], SC[0], CR[0]]);
 				
 				_.each(collection, function(el){
 					el.calculateOMBB();
 					el.ombb.visible = true;
 					el.ombb.set({
-						fillColor: "yellow"
+						fillColor: "yellow",
 					});
+					expand_break(el.ombb, backgroundBox);
 				});
 			}
 
@@ -136,81 +137,43 @@
 					});
 				}
 			}
+			
+			/* working progress.... */
+			function expand_break(ombb,backgroundBox){
+				// compute the two nearest points of the rectangle to wall
+				var points = _.map(ombb.segments, function(seg){ return seg.point; });
+				var distance_table = [];
+				
+				//compute ombb for each angle rotation
+				_.each(points, function(pt){
+					var wall_point = backgroundBox.getNearestPoint(pt);
+					var vector = pt.subtract(wall_point);
+					var distance = vector.length;
+					distance_table.push({
+						point: pt,
+						distance: distance,
+						vector: vector
+					});
+				});
+				var distance_table = _.sortBy(distance_table, function(item){
+					return item.distance;
+				});
+				
+				var closest = distance_table[0];
+				var sec_closest = distance_table[1];
 
-
-
-			function create_breakin_hole(breakin, backgroundBox){
-				// Making the breakin and breakout visible and black
-				breakin[0].visible = true;
-				breakin[0].set({
-					fillColor: 'black',
+				var m = new paper.Path.Line({
+					from: sec_closest.point,
+					to: backgroundBox.getNearestPoint(sec_closest.point),
+					strokeColor: "black",
 				})
 
-				var expanded_rec = expand_breaks(breakin[0],backgroundBox);
+				var l = new paper.Path.Line({
+					from: closest.point,
+					to: backgroundBox.getNearestPoint(closest.point),
+					strokeColor: "black",
+				})
 
-
-				// Breakin Rectangle Path
-				console.log(expanded_rec);
-				var BI_rec = new paper.Path.Rectangle(expanded_rec);
-				BI_rec.set({
-					fillColor: 'black',
-				});
-				return BI_rec;
-			}
-			
-			
-			function create_breakout_hole(breakout, backgroundBox){
-				breakout[0].visible = true;
-				// Setting the color of the breakout
-				breakout[0].set({
-				fillColor: 'black',
-				});
-				var expanded_rec = expand_breaks(breakout[0], backgroundBox);
-
-				//Breakout Rectangle Path
-				var BO_rec = new paper.Path.Rectangle(breakout[0].bounds);
-				BO_rec.set({
-					fillColor: 'black'
-				});
-				return BO_rec;
-
-			}
-			function expand_breaks(brio,backgroundBox){
-				var break_center = brio.position;
-				var closest_to_background = backgroundBox.getNearestPoint(break_center);
-				var distance_vector = break_center.subtract(closest_to_background);
-				var distance_to_border = distance_vector.length;
-
-				// Computes the direction of vector
-				var angle_of_vector = distance_vector.angle;
-				/* Possible Angles
-				 * 0, 90, 180, -90,
-				 */
-
-				if (angle_of_vector == 0){
-				 	expand_width = (distance_to_border - brio.bounds.width/2) + WALL_WIDTH;
-				 	return brio.bounds.expand(Ruler.mm2pts(expand_width),0);
-				}
-				else{
-					var l = new paper.Path.Line({
-						from: break_center,
-						to: closest_to_background,
-						strokeColor: "yellow",
-						strokeWidth: 2
-					})
-					// console.log(l.length);
-
-				 	expand_height = (distance_to_border - brio.bounds.height/2) + Ruler.mm2pts(WALL_WIDTH)/2;
-
-
-				 	bb = brio.bounds.expand(0, expand_height);
-				 	// console.log("N", l.length, distance_to_border)
-				 	bb.center.y += expand_height/2;
-				 	// console.log("eh", expand_height, brio.bounds)
-
-				 	// bb = brio.bounds
-				 	return bb;
-				}
 			}
 
 			/*Flip objects on x-axis and/or y-axis based upon arguments--either 1 or -1.*/
@@ -221,71 +184,7 @@
 					scaling: new paper.Size(flip_x, flip_y)
 				});
 			}	
-
-			function get_convex_hull(path_object){
-				
-				// /* Points of the Path Object */
-				var sampled_pts = [];
-				for(var index = 0; index < path_object.length; index++) {
-					pt = path_object.getPointAt(index)
-					sampled_pts.push([ pt.x, pt.y])
-				}
-
-				/* Convex Hull Points */
-				var convex_points = hull(sampled_pts, 50);
-				
-				/* Creating Points from [[x1,y1]...[xn,yn]] format */
-				var list_convex_points = _.map(convex_points, function(pt){
-					return new paper.Point(pt[0], pt[1]);
-				});
-
-				var path_of_points = new paper.Path({
-					segments: list_convex_points,
-					strokeColor: "red", 
-					// fillColor: "red", 
-					strokeWidth: 2
-
-				});
-				return path_of_points;
-			}
-
-			function get_OMBB_cost(convex, possible_ombb) {
-				/* compute itersecting area & overall area */
-				var convex_area = convex.area;
-				var intersection_area = possible_ombb.area - convex_area;
-				return intersection_area;
-			}
-
-
-			function get_OMBB(convex_hull){
-				var degrees_of_rotation = _.range(0,360);
-				cost_table = [];
-
-				_.each(degrees_of_rotation, function(angle){
-					convex_hull.rotation = angle;
-					var possible_ombb = new paper.Path.Rectangle(convex_hull.bounds);
-					var cost = get_OMBB_cost(convex_hull, possible_ombb);
-
-					cost_table.push({
-						angle: angle, 
-						cost: cost
-					})
-					possible_ombb.remove();
-				});
-
-				var best_option = _.min(cost_table, function(result){
-					return result.cost;
-				});
-
-				convex_hull.rotation = best_option.angle
-				OMBB = new paper.Path.Rectangle(convex_hull.bounds.clone());
-				
-				OMBB.rotation = -best_option.angle;
-				convex_hull.rotation = 0;
-				OMBB.style = {
-					fillColor: 'yellow'
-				}
-			}		
+	
 
 		</script>
 	</head>
