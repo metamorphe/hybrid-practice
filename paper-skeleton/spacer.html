@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Spacer Implementation - Simple </title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					paper.view.zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+
+				paper.install(window);
+				paper.setup('myCanvas');
+
+				paper.view.zoom = 1;
+				nineSegment = new Artwork("img/traffic_light.svg", function(display){
+					spacerScript(display);
+				});
+				
+			});
+			function spacerScript(display){
+				var DIF = display.queryPrefix('DIF');
+				var LEDS = display.queryPrefix('NLED');
+				var BI = display.queryPrefix('BI');
+				var BO = display.queryPrefix('BO');
+				var circuit_path = display.queryPrefix('CP');
+
+				var elements = _.flatten([DIF, BI, BO]);
+				var backgroundBox = create_background(elements);
+				create_background_holes(backgroundBox);
+				create_LED_holes(LEDS);
+				var breakin_rectangle = create_breakin_hole(BI, backgroundBox);
+				var breakout_rectangle = new paper.Rectangle();
+
+				if (BO.length != 0){
+					breakout_rectangle = create_breakout_hole(BO, backgroundBox);
+				}
+
+				// REMOVE UNNEEDED ELEMENTS
+				circuit_path[0].visible = false;
+				// Loops sets the diffusers as invisible
+				for(var index = 0; index < DIF.length; index++){
+					var diffuser = DIF[index]   
+					diffuser.visible = false
+				}
+				var all_objects = [DIF, LEDS, BI, BO, circuit_path, cornerCircle1, cornerCircle2, cornerCircle3, cornerCircle4];
+				flip_on_axis(all_objects, -1, 1)
+
+			}
+
+			// PRIVATE FUNCTIONS
+			var WALL_EXPANISION = 13; //mm
+			var WALL_WIDTH = 3; //mm
+			var BASE_HEIGHT = 0.55; // relative 1.7 (base) /3.1 (wall) mm
+			var CHANGE_IN_X_DIR = 8;
+			var CHANGE_IN_Y_DIR = 8;
+
+			/* Function takes in DIF object, and creates a bounding box */
+			function create_background(elements){
+				var elements_group = new paper.Group(elements);
+				var backgroundBox = new paper.Path.Rectangle(elements_group.bounds.expand(Ruler.mm2pts(WALL_EXPANISION)), 0);
+				backgroundBox.style = {
+					fillColor: new paper.Color(BASE_HEIGHT),
+					strokeColor: 'white',
+					strokeWidth: Ruler.mm2pts(WALL_WIDTH)
+				}
+				backgroundBox.sendToBack();
+				return backgroundBox; 
+			}
+
+
+			/* Function takes in bounds box, and creates the bounding holes */
+			function create_background_holes(backgroundBox){
+				// Corner Circles 
+				cornerCircle1 = paper.Path.Circle({
+					position: new paper.Point(backgroundBox.bounds.topLeft.x + Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.topLeft.y + Ruler.mm2pts(CHANGE_IN_Y_DIR)), 
+					fillColor: 'black',
+					strokeColor: 'black',
+					strokeWidth: Ruler.mm2pts(2),
+					radius: Ruler.mm2pts(2.5)
+				});
+
+				cornerCircle2 = cornerCircle1.clone();
+				cornerCircle2.position =  new paper.Point(backgroundBox.bounds.topRight.x - Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.topRight.y + Ruler.mm2pts(CHANGE_IN_Y_DIR));
+
+				cornerCircle3 = cornerCircle1.clone();
+				cornerCircle3.position = new paper.Point(backgroundBox.bounds.bottomLeft.x + Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.bottomLeft.y - Ruler.mm2pts(CHANGE_IN_Y_DIR));
+				
+				cornerCircle4 = cornerCircle1.clone();
+				cornerCircle4.position = new paper.Point(backgroundBox.bounds.bottomRight.x - Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.bottomRight.y - Ruler.mm2pts(CHANGE_IN_Y_DIR));
+
+			}
+			function create_LED_holes(led_lights){
+				for (var index = 0; index < led_lights.length; index++){
+					var led  = led_lights[index]
+					led.set({
+						fillColor: "black",
+						strokeColor: 'black',
+						strokeWidth: Ruler.mm2pts(1)
+					});
+				}
+			}
+
+
+
+			function create_breakin_hole(breakin, backgroundBox){
+				// Making the breakin and breakout visible and black
+				breakin[0].visible = true;
+				breakin[0].set({
+					fillColor: 'black',
+				})
+
+				var expanded_rec = expand_breaks(breakin[0],backgroundBox);
+
+
+				// Breakin Rectangle Path
+				console.log(expanded_rec);
+				var BI_rec = new paper.Path.Rectangle(expanded_rec);
+				BI_rec.set({
+					fillColor: 'black',
+				});
+				return BI_rec;
+			}
+			
+			
+			function create_breakout_hole(breakout, backgroundBox){
+				breakout[0].visible = true;
+				// Setting the color of the breakout
+				breakout[0].set({
+				fillColor: 'black',
+				});
+				var expanded_rec = expand_breaks(breakout[0], backgroundBox);
+
+				//Breakout Rectangle Path
+				var BO_rec = new paper.Path.Rectangle(breakout[0].bounds);
+				BO_rec.set({
+					fillColor: 'black'
+				});
+				return BO_rec;
+
+			}
+			function expand_breaks(brio,backgroundBox){
+				var break_center = brio.position;
+				var closest_to_background = backgroundBox.getNearestPoint(break_center);
+				var distance_vector = break_center.subtract(closest_to_background);
+				var distance_to_border = distance_vector.length;
+
+				// Computes the direction of vector
+				var angle_of_vector = distance_vector.angle;
+				/* Possible Angles
+				 * 0, 90, 180, -90,
+				 */
+
+				if (angle_of_vector == 0){
+				 	expand_width = (distance_to_border - brio.bounds.width/2) + WALL_WIDTH;
+				 	return brio.bounds.expand(Ruler.mm2pts(expand_width),0);
+				}
+				else{
+					var l = new paper.Path.Line({
+						from: break_center,
+						to: closest_to_background,
+						strokeColor: "yellow",
+						strokeWidth: 2
+					})
+					// console.log(l.length);
+
+				 	expand_height = (distance_to_border - brio.bounds.height/2) + Ruler.mm2pts(WALL_WIDTH)/2;
+
+
+				 	bb = brio.bounds.expand(0, expand_height);
+				 	// console.log("N", l.length, distance_to_border)
+				 	bb.center.y += expand_height/2;
+				 	// console.log("eh", expand_height, brio.bounds)
+
+				 	// bb = brio.bounds
+				 	return bb;
+				}
+			}
+
+			/*Flip objects on x-axis and/or y-axis based upon arguments--either 1 or -1.*/
+			function flip_on_axis(objects, flip_x, flip_y){
+				var objects = _.flatten(objects);
+				objects = new paper.Group({
+					children: objects,
+					scaling: new paper.Size(flip_x, flip_y)
+				});
+			}				
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: grey;
+	}
+</style>

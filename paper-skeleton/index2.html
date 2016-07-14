@@ -39,7 +39,7 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-				eld = new Artwork("img/gcard.svg", function(display) {
+				eld = new Artwork("img/traffic_light.svg", function(display) {
 					runScript(display);
 				});
 			});
@@ -251,6 +251,7 @@
 						console.log("No hits");
 						return;
 					} else{
+
 					if(hitResult.type == "stroke"){
 						console.log("Adding anchor");
 						var anchor = addAnchorPoint(hitResult.item, event.point);
@@ -261,13 +262,14 @@
 						
 					}
 					else if (hitResult.type == 'segment') {
+						console.log("hit segment")
 						anchor = hitResult.segment;
 						var anchorBG = addAnchorPoint(bgPath, event.point);
 						t.selected.push(anchor);
 						t.selected.push(anchorBG);
 					}
-				}
-				}
+					}					
+				};
 
 				t.onMouseDrag = function(event) {
 					_.each(t.selected, function(anchor){

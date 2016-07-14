@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Spacer Version 2 </title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+
+		<script type="text/javascript" src="js/convex.js"></script>
+		<script type="text/javascript" src="js/format.js"></script>
+		<script type="text/javascript" src="js/grid.js"></script>
+		<script type="text/javascript" src="js/hull.js"></script>
+		<script type="text/javascript" src="js/intersect.js"></script>
+
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					paper.view.zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.loadCustomLibraries();
+
+				paper.view.zoom = 3;
+				nineSegment = new Artwork("img/Test.svg", function(display){
+					spacerScript(display);
+				});
+				
+			});
+			function spacerScript(display){
+				/* Test SVG QUERY
+				 */
+				BI   = display.queryPrefix('BI');
+				BO   = display.queryPrefix('BO');
+				CP   = display.queryPrefix('CP');
+				NLED = display.queryPrefix('NLED');
+				SC   = display.queryPrefix('SC');
+				CR   = display.queryPrefix('CR');
+
+				var elements = _.flatten([BI, BO, CP, NLED, SC, CR]);
+				var backgroundBox = create_background(elements);
+				create_background_holes(backgroundBox);
+
+				// var all_objects = [BI, BO, CP, NLED, SC, CR];
+				
+				/* Reflect Object */
+				// flip_on_axis(all_objects, -1, 1)
+
+				/* Compute the Convex Hull */
+				var collection = _.flatten([BI[0], BO[0], CP[0], NLED[0], SC[0], CR[0]]);
+				
+				_.each(collection, function(el){
+					el.calculateOMBB();
+					el.ombb.visible = true;
+					el.ombb.set({
+						fillColor: "yellow",
+					});
+					expand_break(el.ombb, backgroundBox);
+				});
+			}
+
+			// PRIVATE FUNCTIONS
+			var WALL_EXPANISION = 13; //mm
+			var WALL_WIDTH = 3; //mm
+			var BASE_HEIGHT = 0.55; // relative 1.7 (base) /3.1 (wall) mm
+			var CHANGE_IN_X_DIR = 8;
+			var CHANGE_IN_Y_DIR = 8;
+
+			/* Function takes in DIF object, and creates a bounding box */
+			function create_background(elements){
+				var elements_group = new paper.Group(elements);
+				var backgroundBox = new paper.Path.Rectangle(elements_group.bounds.expand(Ruler.mm2pts(WALL_EXPANISION)), 0);
+				backgroundBox.style = {
+					fillColor: new paper.Color(BASE_HEIGHT),
+					strokeColor: 'white',
+					strokeWidth: Ruler.mm2pts(WALL_WIDTH)
+				}
+				backgroundBox.sendToBack();
+				return backgroundBox; 
+			}
+
+
+			/* Function takes in bounds box, and creates the bounding holes */
+			function create_background_holes(backgroundBox){
+				// Corner Circles 
+				cornerCircle1 = paper.Path.Circle({
+					position: new paper.Point(backgroundBox.bounds.topLeft.x + Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.topLeft.y + Ruler.mm2pts(CHANGE_IN_Y_DIR)), 
+					fillColor: 'black',
+					strokeColor: 'black',
+					strokeWidth: Ruler.mm2pts(2),
+					radius: Ruler.mm2pts(2.5)
+				});
+
+				cornerCircle2 = cornerCircle1.clone();
+				cornerCircle2.position =  new paper.Point(backgroundBox.bounds.topRight.x - Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.topRight.y + Ruler.mm2pts(CHANGE_IN_Y_DIR));
+
+				cornerCircle3 = cornerCircle1.clone();
+				cornerCircle3.position = new paper.Point(backgroundBox.bounds.bottomLeft.x + Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.bottomLeft.y - Ruler.mm2pts(CHANGE_IN_Y_DIR));
+				
+				cornerCircle4 = cornerCircle1.clone();
+				cornerCircle4.position = new paper.Point(backgroundBox.bounds.bottomRight.x - Ruler.mm2pts(CHANGE_IN_X_DIR), backgroundBox.bounds.bottomRight.y - Ruler.mm2pts(CHANGE_IN_Y_DIR));
+
+			}
+			function create_LED_holes(led_lights){
+				for (var index = 0; index < led_lights.length; index++){
+					var led  = led_lights[index]
+					led.set({
+						fillColor: "black",
+						strokeColor: 'black',
+						strokeWidth: Ruler.mm2pts(1)
+					});
+				}
+			}
+			
+			/* working progress.... */
+			function expand_break(ombb,backgroundBox){
+				// compute the two nearest points of the rectangle to wall
+				var points = _.map(ombb.segments, function(seg){ return seg.point; });
+				var distance_table = [];
+				
+				//compute ombb for each angle rotation
+				_.each(points, function(pt){
+					var wall_point = backgroundBox.getNearestPoint(pt);
+					var vector = pt.subtract(wall_point);
+					var distance = vector.length;
+					distance_table.push({
+						point: pt,
+						distance: distance,
+						vector: vector
+					});
+				});
+				var distance_table = _.sortBy(distance_table, function(item){
+					return item.distance;
+				});
+				
+				var closest = distance_table[0];
+				var sec_closest = distance_table[1];
+
+				var m = new paper.Path.Line({
+					from: sec_closest.point,
+					to: backgroundBox.getNearestPoint(sec_closest.point),
+					strokeColor: "black",
+				})
+
+				var l = new paper.Path.Line({
+					from: closest.point,
+					to: backgroundBox.getNearestPoint(closest.point),
+					strokeColor: "black",
+				})
+
+			}
+
+			/*Flip objects on x-axis and/or y-axis based upon arguments--either 1 or -1.*/
+			function flip_on_axis(objects, flip_x, flip_y){
+				var objects = _.flatten(objects);
+				objects = new paper.Group({
+					children: objects,
+					scaling: new paper.Size(flip_x, flip_y)
+				});
+			}	
+	
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: grey;
+	}
+</style>
