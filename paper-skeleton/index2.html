@@ -23,7 +23,7 @@
 				$('#downloadButtonSVG').click(function(){
 					console.log("clicked");
 					console.log("Exporting file as SVG");
-					zoom = 1;
+					paper.view.zoom = 1;
 					paper.view.update();
 		
 					exp = paper.project.exportSVG({ 
@@ -39,7 +39,7 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-				eld = new Artwork("img/traffic_light.svg", function(display) {
+				eld = new Artwork("img/sun_moon.svg", function(display) {
 					runScript(display);
 				});
 			});
