@@ -19,10 +19,10 @@ function ButtonExporter(dom, type, preFN, postFN){
             console.log("FINAL DIMENSIONS", Ruler.pts2mm(result.bounds.width), "mm x", Ruler.pts2mm(result.bounds.height), "mm");
             result.fitBounds(paper.view.bounds)
                       
-            // var fn = scope.getFilename();
-            // ButtonExporter.exportPNG(result, fn, scope.dom);
-            // paper.project.clear();
-            // paper.view.update();
+            var fn = scope.getFilename();
+            ButtonExporter.exportPNG(result, fn, scope.dom);
+            paper.project.clear();
+            paper.view.update();
           })
         })
       else if(this.type == "SVG")
