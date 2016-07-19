@@ -27,10 +27,12 @@ function ButtonExporter(dom, type, preFN, postFN){
         })
       else if(this.type == "SVG")
         $(this.dom).click(function(){
-          scope.preFN();
-          // var fn = scope.getFilename();
-          // ButtonExporter.exportSVG(fn);
-          // scope.postFN();
+          display = new Artwork(getActiveArtwork(), function(artwork){
+            scope.preFN(artwork);
+            var fn = scope.getFilename();
+            ButtonExporter.exportSVG(fn);
+            scope.postFN();
+          });
         })
     }, 
     getFilename:  function(){
