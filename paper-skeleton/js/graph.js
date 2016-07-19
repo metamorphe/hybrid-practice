@@ -1,92 +1,157 @@
-function Graph(center_coords, x_range, y_range, object_shape){
-    /*To Debug
-    []fix rendering of moving corrresponding segment
-    []make sure the first/last segment Objects are not clickable along x-axis
-    []don't allow the border to be selected
-    []implement an undo if Cesar says neccessary
-    */
+function Graph(options){
+    this.options = options;
+    
+    this.graph = new paper.Group({
+        name: "GRAPH:" + options.name,
+    });
 
-    this.center_coords = center_coords;
-    this.min_x = x_range[0];
-    this.max_x = x_range[1];
-    this.min_y = y_range[0];
-    this.max_y = y_range[1];
-    this.mid_x = this.max_x / 2;
-    this.mid_y = this.max_y / 2;
+    this.init();
 
-    this.selectedItem = null;
-    this.selectionTool = new paper.Tool();
-    this.selectedHandle = null;
-    this.selectedSegment = null;
-    this.stops = null;
-    this.profilePath = null;
+    // this.selectedItem = null;
+    // this.selectionTool = new paper.Tool();
+    // this.selectedHandle = null;
+    // this.selectedSegment = null;
+    // this.stops = null;
+    // this.profilePath = null;
 
-    //Testing Radial Gradient
-    //boundingBox of radial object (bird's eye view)
-    if (object_shape == 'circle') {
-        this.create_bounding_box(this.init(center_coords), 0, 1, 1, 0);
-        this.graphCenter = null;
-        this.makeRadialGradientProfile(); //updates graphCenter
-        this.initializeSectionTool();
+    // //Testing Radial Gradient
+    // //boundingBox of radial object (bird's eye view)
+    // if (object_shape == 'circle') {
+    //     this.create_bounding_box(this.init(center_coords), 0, 1, 1, 0);
+    //     this.graphCenter = null;
+    //     this.makeRadialGradientProfile(); //updates graphCenter
+    //     this.initializeSectionTool();
 
-    } else if (object_shape == 'rectangle') {
-        //Testing Rectangular Gradient
-        var rect = this.create_bounding_box(
-            this.initRectangleObj(), 0, 1, 1, 0);
-        this.makeRectangleGradientProfile(rect);
-        this.initializeSectionTool();
+    // } else if (object_shape == 'rectangle') {
+    //     //Testing Rectangular Gradient
+    //     var rect = this.create_bounding_box(
+    //         this.initRectangleObj(), 0, 1, 1, 0);
+    //     this.makeRectangleGradientProfile(rect);
+    //     this.initializeSectionTool();
 
-        //TODO: update graphCenter
-    }
+    //     //TODO: update graphCenter
+    // }
 
-    this.generateGridLines(10);
+    // this.generateGridLines(10);
 }
 
 Graph.prototype = {
+    init: function(){
+        var scope = this;
 
-    generateGridLines: function(numPartitions) {
-        
-        //Force an even number of partitions
-        if (numPartitions % 2) { numPartitions = numPartitions+1; }
+        var bg = new paper.Path.Rectangle({
+            parent: this.graph,
+            position: this.options.position,
+            width: this.options.size.width, 
+            height: this.options.size.height, 
+            strokeColor: "black", 
+            fillColor: "white", 
+            strokeWidth: 2
+        });
 
-        var gridGroup = new paper.Group();
-        // $.each(numPartitions, function(i) {
-        for (i = 0; i < numPartitions; i++) {
-            //Skip last iteration
-            if (i != numPartitions - 1) {
+                function gridify(rectangle, numP, range, color, weight) {
+                    var nrange = range == "x" ? "y": "x";
+                    var steprange = (scope.options.range[range].max - scope.options.range[range].min);
+                    var step = (scope.options.range[range].max - scope.options.range[range].min) / numP;
+                   
+                    if(range == "x"){
+                        template = new paper.Path.Line({
+                            from: [0, 0], 
+                            to: [0, scope.options.size.height]
+                        })
+                        stepPt = new paper.Point((step/ steprange) * scope.options.size.width, 0);  
+                    }
+                    else{
+                        template = new paper.Path.Line({
+                            from: [0, 0], 
+                            to: [scope.options.size.width, 0]
+                        });
+                        stepPt = new paper.Point(0, (step/ steprange) * scope.options.size.height);
+                    }
+                   
+                    // GRIDLINE STYLING
+                    template.set({
+                            strokeColor: color,
+                            strokeWidth: weight,
+                            ignoreClick: true
+                    });
 
-                var frac = (i + 1) / numPartitions;
-                var x_pos = this.min_x + ((this.max_x - this.min_x) * frac);
-
-                var dash = new Path();
-                dash.add(view.center.add(new Point(x_pos , this.min_y-Ruler.mm2pts(2))));
-                dash.add(view.center.add(new Point(x_pos , this.max_y+Ruler.mm2pts(2))));
-                dash.selected = false;
-
-                var label = new PointText(view.center.add(new Point(x_pos, this.min_y-Ruler.mm2pts(5))));
-                label.justification = 'center';
-                label.fillColor = 'black';
-
-                //Display partition values with zero as the midpoint
-                var pVal = (i+1) / numPartitions * 2
-                label.content = pVal;
-                if (label.content > 1) { 
-                    label.content = (Math.round((pVal - (pVal - 1) * 2) * 10) / 10).toFixed(1);
-                    // label.content = Number(pVal - (pVal - 1) * 2).toFixed(1);
+                    lines = generate_lines(template, scope.options.range[range], step, stepPt);
+                    
+                    g = new paper.Group({
+                        children: lines, 
+                        parent: scope.graph,
+                        name: range + "GRID: " + range +" grid lines"
+                    });
+                    g.pivot = g.bounds.bottomRight;
+                    g.position = scope.graph.bounds.bottomRight;
+                    return g;
                 }
-                gridGroup.addChild(dash, label);
-            }
-        };
-        gridGroup.style = {
-            strokeColor: 'black',
-            dashArray: [4, 12],
-            strokeWidth: 2,
-            strokeCap: 'round',
-            ignoreClick: true
-        };
+        
+                scope.minorY = gridify(bg, 10, "y", new paper.Color(0.8), 0.5);
+                scope.majorY = gridify(bg,  2, "y", new paper.Color(0.6), 2.0);
+                scope.minorX = gridify(bg, 10, "x", new paper.Color(0.8), 0.5);
+                scope.majorX = gridify(bg,  2, "x", new paper.Color(0.6), 2.0);
+
+                // LABEL STYLE
+                var label_style = { 
+                        fillColor: "black",
+                        fontFamily: 'Courier New',
+                        fontWeight: 'bold',
+                        fontSize: 8
+                    }
+
+                scope.ylabels = _.each(scope.majorY.children, function(line){
+                    var label = new PointText({
+                        parent: scope.graph,
+                        name: "XLABEL: " + line.rposition,
+                        position: line.bounds.expand(30).leftCenter, 
+                        content: line.rposition.toFixed(1), 
+                        justification: "right"
+                    });
+                    label.set(label_style);
+                    label.position.y += label.bounds.height/4;
+                    return label;
+                });
+                scope.xlabels = _.each(scope.majorX.children, function(line){
+                    var label = new PointText({
+                        parent: scope.graph,
+                        name: "YLABEL: " + line.rposition,
+                        position: line.bounds.expand(30).bottomCenter, 
+                        content: line.rposition.toFixed(1), 
+                        justification: "center"
+                    });
+                    label.set(label_style);
+                    return label;
+                });
     },
 
 
+        //Initialize birds-eye view; returns segment path
+    // init: function(center_coords) { //TODO: insert type as an arg?
+    //     var path = new paper.Path.Circle({
+    //         center: view.center.add(this.center_coords),
+    //         radius: view.bounds.height * 0.1,
+    //         strokeColor: 'red'
+    //     });
+
+    //     // Fill the path with a radial gradient color with three stops:
+    //     // yellow from 0% to 5%, mix between red from 5% to 20%,
+    //     // mix between red and black from 20% to 100%:
+    //     path.fillColor = {
+    //         gradient: {
+    //             stops: [[ten, 0.1], [thirty, 0.3], [ten, 0.5], [sixtyfive, 0.85], [hundred, 1]],
+    //             radial: true
+    //         },
+    //         origin: path.position,
+    //         destination: path.bounds.rightCenter
+    //     };
+
+    //     this.stops = path.fillColor.gradient.stops;
+    //     // this.create_bounding_box(path, 1, 1, 1, 0);
+    //     paper.settings.handleSize = 10;
+    //     return path;
+    // },
     initializeSectionTool: function() {
         var scope = this;
         this.selectionTool.onMouseDown = function(event) {
@@ -340,35 +405,49 @@ Graph.prototype = {
 
         boundingBox.sendToBack()
         return boundingBox.bounds.center
-    },
-
-
-    //Initialize birds-eye view; returns segment path
-    init: function(center_coords) { //TODO: insert type as an arg?
-        var path = new paper.Path.Circle({
-            center: view.center.add(this.center_coords),
-            radius: view.bounds.height * 0.1,
-            strokeColor: 'red'
-        });
-
-        // Fill the path with a radial gradient color with three stops:
-        // yellow from 0% to 5%, mix between red from 5% to 20%,
-        // mix between red and black from 20% to 100%:
-        path.fillColor = {
-            gradient: {
-                stops: [[ten, 0.1], [thirty, 0.3], [ten, 0.5], [sixtyfive, 0.85], [hundred, 1]],
-                radial: true
-            },
-            origin: path.position,
-            destination: path.bounds.rightCenter
-        };
-
-        this.stops = path.fillColor.gradient.stops;
-        // this.create_bounding_box(path, 1, 1, 1, 0);
-        paper.settings.handleSize = 10;
-        return path;
     }
 }
+
+
+
+
+
+        // var gridGroup = new paper.Group();
+
+        // for (i = 0; i < numPartitionsX; i++) {
+        //     //Skip last iteration
+        //     if (i != numPartitions - 1) {
+
+        //         var frac = (i + 1) / numPartitions;
+        //         var x_pos = this.min_x + ((this.max_x - this.min_x) * frac);
+
+        //         var dash = new Path();
+        //         dash.add(view.center.add(new Point(x_pos , this.min_y-Ruler.mm2pts(2))));
+        //         dash.add(view.center.add(new Point(x_pos , this.max_y+Ruler.mm2pts(2))));
+        //         dash.selected = false;
+
+        //         var label = new PointText(view.center.add(new Point(x_pos, this.min_y-Ruler.mm2pts(5))));
+        //         label.justification = 'center';
+        //         label.fillColor = 'black';
+
+        //         //Display partition values with zero as the midpoint
+        //         var pVal = (i+1) / numPartitions * 2
+        //         label.content = pVal;
+        //         if (label.content > 1) { 
+        //             label.content = (Math.round((pVal - (pVal - 1) * 2) * 10) / 10).toFixed(1);
+        //             // label.content = Number(pVal - (pVal - 1) * 2).toFixed(1);
+        //         }
+        //         gridGroup.addChild(dash, label);
+        //     }
+        // };
+        // gridGroup.style = {
+        //     strokeColor: 'black',
+        //     dashArray: [4, 12],
+        //     strokeWidth: 2,
+        //     strokeCap: 'round',
+        //     ignoreClick: true
+        // };
+// }
 
 /**
  * Takes a proportion from 0.0 and 1.0 and maps it to the corresponding
@@ -380,4 +459,21 @@ Graph.proportionToGreyscaleHex = function(proportion) {
   }
   var value = (Math.round(proportion * 255)).toString(16);
   return value + value + value;
+}
+
+ function generate_lines(template, range, step, stepPt){
+    loop = range.identity == "x" ? loop = _.range(range.min, range.max, step): _.range(range.max, range.min, -step);
+    step = range.identity == "x" ? step : -step;
+
+    template.rposition = loop[0];
+    var lines = [template];
+    _.each(loop, function(i){
+        console.log(i);
+        nl = template.clone();
+        nl.position = nl.position.add(stepPt);
+        nl.rposition = i + step;
+        lines.push(nl);
+        template = nl;
+    });
+    return lines;
 }

@@ -11,7 +11,7 @@
       function pipelineSetup(){
         var spacers = new ButtonExporter($('#spacers'), "PNG", spacers_script );
         var mold = new ButtonExporter($('#mold'), "PNG", mold_script_tiered );
-        $('#mold').click();
+        var mask = new ButtonExporter($('#mask'), "SVG", mask_script );
       }
 
       function pcb_script(display){
@@ -19,11 +19,31 @@
       }
       function spacers_script(display){
         console.log("Running Spacer Generator");
-
         return make_diffuser_spacer(display);
 
       }
 
+      function mask_script(display){
+        var mask = display.queryPrefix("ART");
+        var breakout = display.queryPrefix('BO');
+        var breakin = display.queryPrefix('BI');
+        var circuit_path = display.queryPrefix('CP');
+        var diffusers = display.queryPrefix('DIF');
+        var leds = display.queryPrefix('NLED');
+
+        _.each(mask, function(m){
+          m.set({
+            visible: true,
+            fillColor: "black",
+            strokeWidth: 0
+          });
+        });
+        //Make non-mask objects invisible
+        var invisible = _.flatten([leds, circuit_path, diffusers, breakin, breakout]);
+        _.each(invisible, function(el){
+          el.visible = false;
+        });
+      }
       var MOLD_WALL = 5; // mm
 
       function mold_script_tiered(display) {
@@ -123,9 +143,7 @@
       }
 
 
-      function mask_script(display){
-        console.log("Running Mask Generator");
-      }
+
       function code_script(display){
         console.log("Running Mask Generator");
       }
