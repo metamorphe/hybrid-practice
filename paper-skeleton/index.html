@@ -43,13 +43,49 @@
 				
 			});
 			function runScript(display){
-				// TODO: YOUR CODE HERE
-				// var n = display.svg.children.length;
-				// for(var i = 0; i <n; i++){
-				// 	display.svg.children[i].style.fillColor = new paper.Color(i/n)
-				// 	display.svg.children[i].position.x += 100;
-				// }
-				// display.svg.children[1].style.fillColor = new paper.Color(0.2)
+				display.remove();
+
+				var testRectangle = new paper.Path.Rectangle({
+					size: new paper.Size(30, 40),
+					point: paper.view.center, 
+					strokeColor: "black", 
+					strokeWidth: 1
+				});
+
+				var corner = testRectangle.segments[0];
+				var gCorner = new paper.Path.Circle({
+					radius: 4, 
+					position: corner.point,
+					fillColor: "red", 
+				});
+
+				var corner2 = testRectangle.segments[1];
+				var gCorner2 = new paper.Path.Circle({
+					radius: 4, 
+					position: corner2.point,
+					fillColor: "green", 
+				});
+
+
+				var vectorToMove = new paper.Point(-50, 0);
+				corner.point = vectorToMove.add(corner.point);
+				corner2.point = vectorToMove.add(corner2.point);
+
+				var gCorner = new paper.Path.Circle({
+					radius: 4, 
+					position: corner.point,
+					fillColor: "green", 
+					strokeColor: "black",
+					strokeWidth: 1
+				});
+				var gCorner2 = new paper.Path.Circle({
+					radius: 4, 
+					position: corner2.point,
+					fillColor: "green", 
+					strokeColor: "black",
+					strokeWidth: 1
+				});
+
 			}
 		</script>
 	</head>
