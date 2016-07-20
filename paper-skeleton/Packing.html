@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Path Positioning Algorithm </title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+
+		<script type="text/javascript" src="js/convex.js"></script>
+		<script type="text/javascript" src="js/format.js"></script>
+		<script type="text/javascript" src="js/grid.js"></script>
+		<script type="text/javascript" src="js/hull.js"></script>
+		<script type="text/javascript" src="js/intersect.js"></script>
+
+
+		<script type="text/javascript" src="js/packer.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+			var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					paper.view.zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.loadCustomLibraries();
+
+				paper.view.zoom = 1;
+				nineSegment = new Artwork("img/sun_moon.svg", function(display){
+					binPackingScript(display);
+				});
+			});
+			function binPackingScript(display){
+				
+				var diffusers = display.queryPrefix('DIF');
+				var LEDS = display.queryPrefix('NLED');
+				var BI = display.queryPrefix('BI');
+				var BO = display.queryPrefix('BO');
+				var CP = display.queryPrefix('CP');
+				var breaks = [BI, BO];
+				
+				// Setting display to invisible
+				CP[0].visible = false;
+				for(var index = 0; index < diffusers.length; index++){
+					var diffuser = diffusers[index]   
+					diffuser.visible = false
+				}
+				for(var index = 0; index < LEDS.length; index++){
+					var LED = LEDS[index]   
+					LED.visible = false
+				}
+				_.each(breaks, function(b){
+					if(b[0]){
+						b[0].visible = false;
+					}
+				});
+
+				var score = bin_pack(diffusers, new paper.Path.Rectangle(500,500,300,300));
+				console.log(score, "SCORE");
+			}
+			// PRIVATE SETTINGS
+			var PACK_AREA = 0; 
+			var PACK_HEIGHT = 1; 
+			var PACK_WIDTH = 2; 
+			var PACK_MAX_DIM = 3;
+
+			function bin_pack(path_list, plate, flavor = PACK_HEIGHT){
+				plate.set({
+					strokeColor: 'white',
+					strokeWidth: '5'
+				});
+				
+				var path_list = _.filter(path_list, function(path){return path.className != "Group"});
+				var ombb_table = [];
+			
+				// Iteration calculates the ombb of each path object in path_list
+				_.each(path_list, function(diff,i,arr){
+					diff.calculateOMBB();
+					diff.ombb.visible = true;
+					diff.ombb.rotation = plate.rotation;
+					
+					// Orient the blocks so that the smallest side is parallel to the top of the plate
+					if (diff.ombb.bounds.width > diff.ombb.bounds.height){
+						diff.ombb.rotation = 90;
+					}
+
+					ombb_table.push({
+						w: diff.ombb.bounds.width,
+						h: diff.ombb.bounds.height,
+						maxDim: Math.max(diff.ombb.bounds.width, diff.ombb.bounds.height),
+						area: diff.ombb.bounds.width * diff.ombb.bounds.height
+					});
+				});
+
+				// sorts by flavor 
+				if (flavor == PACK_AREA){
+					var ombb_table = _.sortBy(ombb_table, function(o){
+						return -1*o.area;
+					});
+				}else if(flavor == PACK_HEIGHT){
+					var ombb_table = _.sortBy(ombb_table, function(o){
+						return -1*o.h;
+					});
+				}else if(flavor == PACK_WIDTH){
+					var ombb_table = _.sortBy(ombb_table, function(o){
+						return -1*o.w;
+					});
+				}else{
+					var ombb_table = _.sortBy(ombb_table, function(o){
+						return -1*o.maxDim;
+					});
+				}
+
+				var packer = new Packer(plate.bounds.width,plate.bounds.height);
+				
+				// Packing algorithm tags each block with 'fit' if it was positioned on the plate
+				packer.fit(ombb_table);
+				var ombbsOnPlate = []
+				for(var n = 0 ; n < ombb_table.length ; n++) {
+					var ombb = ombb_table[n];
+				    if (ombb.fit) {
+				    	// total_area = total_area + ombb.area;
+				     	var displayRec = new paper.Path.Rectangle(ombb.fit.x,ombb.fit.y,ombb.w,ombb.h);
+				     	displayRec.set({
+				     		strokeColor: "blue",
+				     		strokeWidth: 2
+				    	});
+				    	ombbsOnPlate.push(displayRec);
+					}
+				}
+				var group = new paper.Group(ombbsOnPlate);
+				return plate.area - group.bounds.area;
+
+
+			}
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: grey;
+	}
+</style>
