@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<script type="text/javascript" src="js/PointLight.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					paper.view.zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.view.zoom = 1;
+				tir = new Artwork("img/tir.svg", function(display){
+					runScript(display);
+				});
+				
+			});
+			function runScript(display){
+				var pos = display.svg.bounds.bottomCenter;//.add(new paper.Point(0, 3));
+				var ls = new PointLight({
+					position: pos
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>
