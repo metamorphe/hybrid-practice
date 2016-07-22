@@ -8,6 +8,7 @@
 //= require eld/ruler
 //= require eld/artwork
 //= require eld/ButtonExporter
+//= require eld/PointSource
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

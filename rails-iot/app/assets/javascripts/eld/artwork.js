@@ -69,9 +69,11 @@ Artwork.prototype = {
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
 				var ledLists = scope.orderLeds();
-				scope.allLeds = ledLists[0];
-				scope.iLeds = ledLists[1];
-				scope.setLedsOff();
+				if(!_.isNull(ledLists)){
+					scope.allLeds = ledLists[0];
+					scope.iLeds = ledLists[1];
+				}
+				// scope.setLedsOff();
 		    loadFN(scope);
 		});
 	},
@@ -99,21 +101,22 @@ Artwork.prototype = {
 	orderLeds: function() {
 		var nLeds = this.queryPrefix('NLED');
 		var iLeds = this.queryPrefix('ILED');
-		var cp = this.queryPrefix('CP')[0];
-		var allLeds = nLeds.concat(iLeds);
+		var cp = this.queryPrefix('CP');
+		var allLeds = _.flatten([nLeds, iLeds]);
 
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
-		var bo = this.queryPrefix('BO');
-		var bi = this.queryPrefix('BI');
+		
+		if(_.isEmpty(cp)) return null;
 
-		if (bi.length == 0) {
-			throw Error('No breakin in artwork');
-		}
-		if (bo.length == 0) {
-			polarity = 1;
-		}
+
+		var bo = this.queryPrefix('BO')[0];
+		var bi = this.queryPrefix('BI')[0];
+
+
+		if (bi.length == 0) throw Error('No breakin in artwork'); 
+		if (bo.length == 0) polarity = 1;
 		else {
 			bo = bo[0];
 			bi = bi[0];
@@ -147,12 +150,12 @@ Artwork.prototype = {
 		});
 		return [allLeds, iLeds];
 	},
-	setLedsOff: function() {
-		var leds = this.queryPrefix('NLED');
-		$.each(leds, function (idx, obj) {
-			obj.status = '↓';
-		});
-	},
+	// setLedsOff: function() {
+	// 	var leds = this.queryPrefix('NLED');
+	// 	$.each(leds, function (idx, obj) {
+	// 		obj.status = '↓';
+	// 	});
+	// },
 	findLedWithId: function(id) {
 		return _.findWhere(this.queryPrefix('NLED'),
 						{lid: id});
