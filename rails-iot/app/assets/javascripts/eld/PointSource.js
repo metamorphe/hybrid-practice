@@ -61,6 +61,17 @@ PointLight.prototype = {
 		hits = CanvasUtil.getIntersections(image_plane, rays);
 		console.log("HITS:", hits.length);
 		PointLight.visualizeHits(hits);
+		var origin = image_plane.firstSegment.point;
+		data = _.map(hits, function(h){
+			var pt = h.point.subtract(origin);
+			pt = pt.divide(new paper.Point(image_plane.bounds.width, 1));
+			pt = pt.multiply(new paper.Point(30, 1));
+			pt = pt.add(new paper.Point(-15, 0));
+			return pt;
+		});
+
+		// console.log(data)
+		// console.log(image_plane.bounds.leftCenter, group.parentToLocal(image_plane.bounds.leftCenter.clone());
 
 		// MAKE RESULT RECT
 		size = image_plane.bounds.clone();
@@ -76,6 +87,21 @@ PointLight.prototype = {
                     shape: "circle", 
                     size: new Size(25, 25)
                 });
+		pts = _.map(data, function(pt){
+			return myGraph.plotPoint(pt);
+		});
+
+		line_result = new paper.Group({
+			children: pts, 
+			pivot: myGraph.unmapPoint(new paper.Point(0, 0))
+		});
+		theta = _.range(-180, 180, 1);
+		_.each(theta, function(t){
+			lr = line_result.clone();
+			lr.rotation = t;
+		})
+		
+
 	},
 	emit: function(origin, direction, strength, color){
 		var strength = strength * 0.1 + 1;

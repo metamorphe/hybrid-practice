@@ -142,7 +142,8 @@ Graph.prototype = {
     plotPoint: function(pt){
         return new paper.Path.Circle({
             position: this.mapPoint(pt),
-            radius: 2, 
+            radius: 0.01,
+            strokeScaling: false, 
             fillColor: "black"
         });
     }
