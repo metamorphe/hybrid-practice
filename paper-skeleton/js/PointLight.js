@@ -36,11 +36,27 @@ PointLight.prototype = {
 	emmision: function(){
 		var scope = this;
 		// this.remove();
-		rays = _.range(-60, 61, 30);
+		rays = _.range(-60, 61, 10);
+		// rays = _.range(0, 1, 1);
 		rays = _.map(rays, function(theta){
 			return scope.emit(source.position, scope.toLocalSpace(theta), 1, "red");
 		})
-		rays = _.each(rays, function(r){
+		rays = _.map(rays, function(r){
+			return scope.trace(r);
+		})
+		rays = _.map(rays, function(r){
+			// console.log(r);
+			if(_.isNull(r) || _.isUndefined(r)) return;
+			return scope.trace(r);
+		})
+		rays = _.map(rays, function(r){
+			// console.log(r);
+			if(_.isNull(r) || _.isUndefined(r)) return;
+			return scope.trace(r);
+		})
+		rays = _.map(rays, function(r){
+			// console.log(r);
+			if(_.isNull(r) || _.isUndefined(r)) return;
 			return scope.trace(r);
 		})
 		// this.rays = new paper.Group(rays);
@@ -66,60 +82,100 @@ PointLight.prototype = {
 	}, 
 	trace: function(r){
 		hits = PointLight.getIntersections(r, this.options.mediums);
-		console.log("RAY", r.direction.toFixed(0), "HIT", hits.length);
+		// console.log("RAY", r.direction.toFixed(0), "HIT", hits.length);
 		// PointLight.visualizeHits(hits);
 		if(hits.length == 0) return null;
 
 		var interface = hits[0];
 		r.path.lastSegment.point = interface.point;
 
-		PointLight.visualizeNormal(interface.point, interface.normal, interface.tangent, r);
+		ref_normal = PointLight.getReferenceNormal(interface.normal, r);
+		// console.log("REF", ref_normal.angle)
+
+		// PointLight.visualizeNormal(interface.point, ref_normal, interface.tangent, r);
 		
-		material = PointLight.detectMaterial(interface);
+		material = PointLight.detectMaterial(interface, ref_normal);
 
 		if(material.reflect){
-			this.reflect(r, interface, material);
-		} else{
-			this.refract(r, interface, material);
+			return this.reflect(r, interface, material, ref_normal);
+		} else if(material.refract){
+			return this.refract(r, interface, material, ref_normal);
 		}
 	}, 
-	reflect: function(r, interface, material){
-		theta0 = PointLight.getIncidentAngle(interface.normal, r);
-		this.emit(interface.point, interface.normal.angle - theta1, r.strength * material.reflectance, "green")
+	reflect: function(r, interface, material, normal){
+		theta0 = PointLight.getIncidentAngle(normal, r);
+		back_normal = normal.clone().multiply(-1);
+		return this.emit(interface.point, back_normal.angle - theta0, r.strength * material.reflectance, "green");
 	}, 
-	refract: function(r, interface, material){
-		theta0 = PointLight.getIncidentAngle(interface.normal, r);
-		theta_c = PointLight.getCriticalAngle(theta0, 1.00, 1.44);
-		if(theta0 > theta_c){
-			console.log("CRITICAL", theta_c.toFixed(0));
-			return;
+	refract: function(r, interface, material, normal){
+		theta0 = PointLight.getIncidentAngle(normal, r);
+		// console.log(theta0);
+		theta_c = PointLight.getCriticalAngle(theta0, material.n1, material.n2);
+		// console.log(theta0, theta_c, _.isNaN(theta_c));
+		
+		if(!_.isNaN(theta_c) && Math.abs(theta0) > Math.abs(theta_c) ){
+			console.log("CRITICAL", Math.abs(theta0).toFixed(0), theta_c.toFixed(0));
+			return this.reflect(r, interface, material, normal);
 		}
+
+		// NO TOTAL INTERNAL REFLECTION POSSIBLE
 
 		theta1 = PointLight.snell(theta0, material.n1, material.n2);
-		this.emit(interface.point, interface.normal.angle + theta1, r.strength * 0.90, "green")
+		// console.log("T", theta0.toFixed(0), theta1.toFixed(0), material)
+		flip = 1;
+		// if(interface.normal.angle != normal.angle){ 
+		// 	console.log("flipped");
+		// 	flip = -1;
+		// }
+		return this.emit(interface.point, normal.angle + flip * theta1, r.strength * 0.90, "green")
+
+
+		
+
+		
+		// return console.log("SNELL", theta0.toFixed(0), "-->", theta1.toFixed(0));
 	}
 }
-PointLight.detectMaterial = function(interface){
+PointLight.getReferenceNormal = function(normal, r){
+	ray = new paper.Point(-1, 0);
+	ray.angle = r.direction;
+
+	normal_f = normal.clone();
+	normal_b = normal.clone().multiply(-1);
+
+	theta_f = {theta: normal_f.getDirectedAngle(ray), normal: normal_f}
+	theta_b = {theta: normal_b.getDirectedAngle(ray), normal: normal_b}
+	// console.log(theta_f, theta_b)
+	// console.log("B", theta_b.theta.toFixed(0), theta_b.normal.angle.toFixed(0), "F", theta_f.theta.toFixed(0), theta_f.normal.angle.toFixed(0))
+	// if(Math.abs(theta_i) > 90) theta_i = - (180 + theta_i) % 180;
+	return _.min([theta_f, theta_b], function(t){ return Math.abs(t.theta);}).normal;
+}
+PointLight.detectMaterial = function(interface, normal){
 	var material = interface.path;
+
 	if(! _.isUndefined(material.reflectance))
 		return {reflect: true, reflectance: material.reflectance}
+
+
 	// go slightly forward
-	var forward = interface.normal.clone().multiply(1);
+	var forward = normal.clone().multiply(1);
 	var fpt = interface.point.clone().add(forward);
 	var goingIn = material.contains(fpt);
-	// go slightly backward
-	var backward = interface.normal.clone().multiply(-1);
-	var bpt = interface.point.clone().add(forward);
-	var comingOut = material.contains(bpt);
-	if(material)
 
+	// go slightly backward
+	var backward = normal.clone().multiply(-1);
+	var bpt = interface.point.clone().add(backward);
+	var comingOut = material.contains(bpt);
+	// console.log(goingIn);
 	if(goingIn)
 		return {refract: true, n1: 1.00, n2: material.n, refraction: material.refraction, reflectance: 1.0}
 	if(comingOut)
-		return {refract: true, n1: interface.n, n2: 1.00, refraction: material.refraction, reflectance: 1.0}
+		return {refract: true, n1: material.n, n2: 1.00, refraction: material.refraction, reflectance: 1.0}
+	return {reflect: false, refract: false}
 }
 PointLight.getCriticalAngle = function(theta0, n1, n2){
-	return Math.degrees(Math.asin(n2/n1));
+	coeff = n2/n1;
+	return Math.degrees(Math.asin(coeff));
 }
 PointLight.snell = function(theta0, n1, n2){
 	theta0 = Math.radians(theta0);
@@ -129,8 +185,17 @@ PointLight.snell = function(theta0, n1, n2){
 PointLight.getIncidentAngle = function(normal, r){
 	ray = new paper.Point(-1, 0);
 	ray.angle = r.direction;
-	theta_i = normal.getDirectedAngle(ray);
-	return theta_i;
+	return normal.getDirectedAngle(ray)
+
+	// normal_f = normal.clone();
+	// normal_b = normal.clone().multiply(-1);
+
+
+	// theta_f = {theta: normal_f.getDirectedAngle(ray), normal: normal_f}
+	// theta_b = {theta: normal_b.getDirectedAngle(ray), normal: normal_b}
+	// console.log("B", theta_b.theta.toFixed(0), theta_b.normal.angle.toFixed(0), "F", theta_f.theta.toFixed(0), theta_f.normal.angle.toFixed(0))
+	// // if(Math.abs(theta_i) > 90) theta_i = - (180 + theta_i) % 180;
+	// return _.min([theta_f, theta_b], function(t){ return Math.abs(t.theta);})
 }
 
 PointLight.visualizeNormal = function(origin, normal, tangent, r){
