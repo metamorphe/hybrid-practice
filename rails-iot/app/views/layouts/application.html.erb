@@ -64,6 +64,12 @@
 	        <li class="<%= params[:action] == "tool" ? "active" : "" %>">
 	        	<%= link_to "Tool", tool_index_path() %>
 	        </li>
+	        <li class="<%= params[:action] == "lens" ? "active" : "" %>">
+	        	<%= link_to "Lens Designer", tool_lens_path() %>
+	        </li>
+	        <li class="<%= params[:action] == "pipelinee" ? "active" : "" %>">
+	        	<%= link_to "Pipeline", tool_pipeline_path() %>
+	        </li>
 
 	        
 	       <!--  <li class="dropdown">
