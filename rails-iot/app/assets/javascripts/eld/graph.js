@@ -25,7 +25,6 @@ Graph.prototype = {
 
         this.makeGrid(bg);
         this.addLabels();
-        bg.position = paper.view.center;
     },
     makeGrid: function(bg){
         var scope = this;
@@ -81,13 +80,14 @@ Graph.prototype = {
                 fillColor: "black",
                 fontFamily: 'Courier New',
                 fontWeight: 'bold',
-                fontSize: 8
+                fontSize: 8 / paper.view.zoom
+                // strokeScaling: false
             }
 
         scope.ylabels = _.each(scope.majorY.children, function(line){
             var label = new PointText({
                 name: "XLABEL: " + line.rposition,
-                position: line.bounds.expand(30).leftCenter, 
+                position: line.bounds.expand(scope.graph.bounds.width * 0.3).leftCenter, 
                 content: line.rposition.toFixed(1), 
                 justification: "right"
             });
@@ -98,7 +98,7 @@ Graph.prototype = {
         scope.xlabels = _.each(scope.majorX.children, function(line){
             var label = new PointText({
                 name: "YLABEL: " + line.rposition,
-                position: line.bounds.expand(30).bottomCenter, 
+                position: line.bounds.expand(scope.graph.bounds.width * 0.3).bottomCenter, 
                 content: line.rposition.toFixed(1), 
                 justification: "center"
             });

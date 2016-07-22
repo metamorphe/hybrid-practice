@@ -6,10 +6,14 @@
 	.st0{fill:#FFFFFF;stroke:#BA0000;stroke-width:2;stroke-miterlimit:10;}
 	.st1{opacity:0.25;fill:#27AAE1;enable-background:new    ;}
 	.st2{opacity:0.5;fill:#52B1FF;}
+	.st3{fill:none;stroke:#000000;stroke-miterlimit:10;}
+	.st4{fill:none;stroke:#1A8746;stroke-width:2;stroke-miterlimit:10;}
 </style>
 <path id="REF:_Reflective" class="st0" d="M193.6,17.2l0.1,10c0.7,7.2-2.5,16.7-9.2,27.4l-0.2,0.3c-5.8,9.5-15.3,16.2-15.7,16.5
 	l-2.3,1.6L134,73.1l-2.3-1.6c-0.4-0.3-9.9-7.1-15.7-16.5l-0.2-0.3c-6.7-10.7-9.8-20.2-9.2-27.4l0.1-9.9"/>
 <polygon id="LENS:_Diffuser" class="st1" points="192.6,25.8 174.5,25.8 107.5,25.8 107.5,17.3 192.6,17.3 "/>
 <path id="LENS:_Main" class="st2" d="M192.3,27.3l-84.3,0.1c-1,11,7.9,24.7,9.1,26.8c5.7,9.3,15.3,16.1,15.3,16.1l-0.3-14.8
-	c0,0,4.3-4.8,18-5.2c12.4,0.7,17.8,5.1,17.8,5.1l-0.3,14.8c0,0,9.6-6.8,15.3-16.1C184.4,52.1,193.3,38.3,192.3,27.3z"/>
+	c0,0,4.1,4.1,17.9,3.7c12.4,0.7,18-3.8,18-3.8l-0.3,14.8c0,0,9.6-6.8,15.3-16.1C184.4,52.1,193.3,38.3,192.3,27.3z"/>
+<polyline id="IMG:_PicturePlane" class="st3" points="108,16.2 182,16.2 193.1,16.2 "/>
+<line id="BASE:_PCB" class="st4" x1="108" y1="75.7" x2="193.5" y2="75.7"/>
 </svg>

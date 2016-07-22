@@ -23,7 +23,7 @@
           el.n = 1.44;
         });
 
-        var pos = display.svg.bounds.bottomCenter;//.add(new paper.Point(0, 3));
+        var pos = display.svg.bounds.bottomCenter.add(new paper.Point(0, -3));
         var ls = new PointLight({
           position: pos, 
           mediums: _.flatten([lenses,reflectors])

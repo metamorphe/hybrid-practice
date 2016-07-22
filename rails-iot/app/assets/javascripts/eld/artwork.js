@@ -11,7 +11,7 @@ function CanvasUtil() {
 CanvasUtil.prototype = {}
 CanvasUtil.getIntersections = function(el, collection){
 	var hits = _.map(collection, function(c){
-		return c.getIntersections(el.path);
+		return c.getIntersections(el);
 	});
 	hits = _.compact(hits);
 	hits = _.flatten(hits);

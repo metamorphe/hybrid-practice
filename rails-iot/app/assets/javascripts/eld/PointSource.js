@@ -14,6 +14,7 @@ function PointLight (options) {
 	// this.rays = new paper.Group();
 	this.source = this.init();
 	this.emmision();
+	this.visualize();
 
 }
 PointLight.prototype = {
@@ -39,7 +40,7 @@ PointLight.prototype = {
 		rays = _.range(-60, 61, 1);
 		// rays = _.range(0, 1, 1);
 		rays = _.map(rays, function(theta){
-			return scope.emit(source.position, scope.toLocalSpace(theta), 1, "red");
+			return scope.emit(source.position, scope.toLocalSpace(theta), 1, "yellow");
 		})
 
 		while(!_.isEmpty(rays)){
@@ -53,10 +54,28 @@ PointLight.prototype = {
 	visualize: function(){
 		rays = CanvasUtil.queryPrefix("RAY");
 		image_plane = CanvasUtil.queryPrefix("IMG");
-		// if(_.isEmpty(image_plane)) return;
+		console.log("RAYS:", rays.length);
+		if(_.isEmpty(image_plane)) return;
+		image_plane = image_plane[0];
 
-		// hits = CanvasUtil.getIntersections(image_plane[0], rays);
+		hits = CanvasUtil.getIntersections(image_plane, rays);
+		console.log("HITS:", hits.length);
+		PointLight.visualizeHits(hits);
 
+		// MAKE RESULT RECT
+		size = image_plane.bounds.clone();
+		size.height = size.width = size.width / 4.0; 
+		position = paper.view.bounds.rightCenter.clone().subtract(size.width/2.0).subtract(new paper.Point(5, 0));
+
+
+		myGraph = new Graph({
+                    name: "Radial Gradient Graph",
+                    position: position,
+                    // range: {x: {identity: "x", min: 0, max: Ruler.mm2pts(size.width)}, y: {identity: "y", min: 0, max:  Ruler.mm2pts(size.width)}},
+                    range: {x: {identity: "x", min: -15, max: 15}, y: {identity: "y", min: -15, max:  15}},
+                    shape: "circle", 
+                    size: new Size(25, 25)
+                });
 	},
 	emit: function(origin, direction, strength, color){
 		var strength = strength * 0.1 + 1;
@@ -81,14 +100,12 @@ PointLight.prototype = {
 	trace: function(r){
 		hits = PointLight.getIntersections(r, this.options.mediums);
 		// console.log("RAY", r.direction.toFixed(0), "HIT", hits.length);
-		// PointLight.visualizeHits(hits);
 		if(hits.length == 0) return null;
 
 		var interface = hits[0];
 		r.path.lastSegment.point = interface.point;
 
 		ref_normal = PointLight.getReferenceNormal(interface.normal, r);
-		// console.log("REF", ref_normal.angle)
 
 		// PointLight.visualizeNormal(interface.point, ref_normal, interface.tangent, r);
 		
@@ -102,7 +119,7 @@ PointLight.prototype = {
 	reflect: function(r, interface, material, normal){
 		theta0 = PointLight.getIncidentAngle(normal, r);
 		back_normal = normal.clone().multiply(-1);
-		return this.emit(interface.point, back_normal.angle - theta0, r.strength * material.reflectance, "green");
+		return this.emit(interface.point, back_normal.angle - theta0, r.strength * material.reflectance, "yellow");
 	}, 
 	refract: function(r, interface, material, normal){
 		theta0 = PointLight.getIncidentAngle(normal, r);
@@ -124,7 +141,7 @@ PointLight.prototype = {
 		// 	console.log("flipped");
 		// 	flip = -1;
 		// }
-		return this.emit(interface.point, normal.angle + flip * theta1, r.strength * 0.90, "green")
+		return this.emit(interface.point, normal.angle + flip * theta1, r.strength * 0.90, "yellow")
 
 
 		
@@ -240,10 +257,9 @@ PointLight.visualizeNormal = function(origin, normal, tangent, r){
 PointLight.visualizeHits = function(hits){
 	return new paper.Group(
 		_.map(hits, function(h, i){
-			color = i == 0 ? "red" : "yellow";
 			var c = new paper.Path.Circle({
-				radius: 2, 
-				fillColor: color, 
+				radius: 0.1, 
+				fillColor: "orange", 
 				position: h.point
 			})
 			return c;
@@ -252,7 +268,7 @@ PointLight.visualizeHits = function(hits){
 }
 
 PointLight.getIntersections = function(ray, collection){
-	hits = CanvasUtil.getIntersections(ray, collection);
+	hits = CanvasUtil.getIntersections(ray.path, collection);
 	hits = _.reject(hits, function(h){
 		return ray.path.firstSegment.point.getDistance(h.point) < 1;
 	});
