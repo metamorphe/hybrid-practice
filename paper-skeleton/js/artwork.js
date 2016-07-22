@@ -41,11 +41,11 @@ Artwork.prototype = {
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
 		    scope.self = scope;
-		    if(scope.isComponent){
-				var ledLists = scope.orderLeds();
-				scope.allLeds = ledLists[0];
-				scope.iLeds = ledLists[1];
-			}
+		    // if(scope.isComponent){
+				// var ledLists = scope.orderLeds();
+				// scope.allLeds = ledLists[0];
+				// scope.iLeds = ledLists[1];
+			// }
 		    loadFN(scope);
 		});
 	},

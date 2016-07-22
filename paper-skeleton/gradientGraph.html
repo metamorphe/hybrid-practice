@@ -29,9 +29,11 @@
                 paper.setup('myCanvas');
 
                 initializeSectionTool();
+                
                 runScript();
 
             });
+
             function runScript(){
                 console.log("Running script...");
                 myGraph = new Graph({
@@ -149,12 +151,11 @@
                         radial: isRadial
                     }
            }
+
            function randomStop(){
                 return [new paper.Color(Math.random()), Math.random()]
            }
            
-
-
            var selectionTool;
            var hitOptions = {
                                 handles: true,
@@ -163,7 +164,6 @@
                                 tolerance: 6,
                                 fill: true
                             }
-
             function initializeSectionTool() {
                 selectionTool = new paper.Tool();
                 selectionTool.selection = [];
@@ -187,40 +187,11 @@
                         }
                     } 
                     _.each(selectionTool.selection, function(s){ s.selected = true; });
-                    // /*Remove segment if shift-clicked*/
-                    // if (event.modifiers.shift) {
-                    //     if (hitResult.type == 'segment') {
-                    //         hitResult.segment.remove();
-                    //     };
-                    //     return;
-                    // }
 
-                    // /*Clicking a segment or fill space*/
-                    // scope.selectedSegment = null;
-                    // if (hitResult && (hitResult.type == 'fill'
-                    //       || hitResult.type == 'segment')){
-                    //     selectedItem = hitResult.item; //path
-                    //     selectedItem.selected = true;
-                    //     if (hitResult.type == 'segment') {
-                    //         scope.selectedSegment = hitResult.segment;
-                    //         var segIndex = scope.selectedSegment.index;
-                    //     }
-                    //     else if (event.modifiers.shift
-                    //             && hitResult.type == 'stroke') {
-                    //         var hitLoc = hitResult.location;
-                    //         scope.selectedSegment = selectedItem.insert(hitLoc.index + 1, event.point);
-                    //     }
-                    // }
                   }
                   selectionTool.onMouseDrag = function(event) {
                     console.log(selectionTool.selection.length + "selected");
                     _.each(selectionTool.selection, function(segment){
-                        // var prev = segment.path.segments[segment.index - 1].point;
-                        // var next = segment.path.segments[segment.index + 1].point;
-                        // delta = event.delta.clone();
-                        
-
-                        // if(nPt.x < prev.x || nPt.x > next.x) delta = new paper.Point(0, delta.y);
                         var delta = event.delta.clone();
                         if(selectionTool.controlPoint.guid != segment.guid ) delta.x *= -1;
                         var nPt = segment.point.add(delta);
@@ -236,8 +207,6 @@
                             selectedGradient.fillColor.gradient.stops[segment.stopNumber].rampPoint = 1 - pt.x;
                             selectedGradient.fillColor.gradient.stops[segment.stopNumber].color.lightness = pt.y;
                         }
-
-                        // console.log(segment.stopNumber);
                     })
                 }
                   selectionTool.onMouseUp = function(event) {

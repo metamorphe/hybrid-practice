@@ -37,16 +37,29 @@
 	
 				paper.install(window);
 				paper.setup('myCanvas');
-				paper.view.zoom = 1;
+				paper.view.zoom = 4;
 				tir = new Artwork("img/tir.svg", function(display){
 					runScript(display);
 				});
 				
 			});
 			function runScript(display){
+				var reflectors = display.queryPrefix("REF");
+				var lenses = display.queryPrefix("LENS");
+
+				_.each(reflectors, function(el){
+					el.reflectance = 90;
+				});
+
+				_.each(lenses, function(el){
+					el.refraction = 80;
+					el.n = 1.44;
+				});
+
 				var pos = display.svg.bounds.bottomCenter;//.add(new paper.Point(0, 3));
 				var ls = new PointLight({
-					position: pos
+					position: pos, 
+					mediums: _.flatten([lenses,reflectors])
 				});
 			}
 		</script>
