@@ -21,8 +21,8 @@ function ButtonExporter(dom, type, preFN, postFN){
                       
             var fn = scope.getFilename();
             ButtonExporter.exportPNG(result, fn, scope.dom);
-            paper.project.clear();
-            paper.view.update();
+            // paper.project.clear();
+            // paper.view.update();
           })
         })
       else if(this.type == "SVG")
@@ -46,7 +46,6 @@ function ButtonExporter(dom, type, preFN, postFN){
 
   ButtonExporter.exportPNG = function(result, filename, dom){
       console.log("Exporting PNG...", filename);
-
       result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width / 2.0, result.strokeBounds.height / 2.0));
       paper.view.update();
       bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, result.strokeBounds.width * 2, result.strokeBounds.height * 2);

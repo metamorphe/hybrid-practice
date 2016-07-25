@@ -18,7 +18,7 @@ Graph.prototype = {
             width: this.options.size.width, 
             height: this.options.size.height, 
             strokeColor: "black", 
-            fillColor: "white", 
+            fillColor: this.options.fillColor, 
             strokeWidth: 2, 
             strokeScaling: false
         });
@@ -139,13 +139,14 @@ Graph.prototype = {
         mapped = normalized.add(this.graph.bounds.bottomLeft);
         return mapped;
     },
-    plotPoint: function(pt){
-        return new paper.Path.Circle({
+    plotPoint: function(pt, options){
+        pt =  new paper.Path.Circle({
             position: this.mapPoint(pt),
             radius: 0.01,
             strokeScaling: false, 
-            fillColor: "black"
         });
+        pt.set(options);
+        return pt;
     }
 }
 
