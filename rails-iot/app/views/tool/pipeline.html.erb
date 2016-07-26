@@ -11,7 +11,7 @@
       function pipelineSetup(){
         var spacers = new ButtonExporter($('#spacers'), "PNG", p.script.spacers );
         var spacers = new ButtonExporter($('#reflectors'), "PNG", p.script.reflectors );
-        var mold = new ButtonExporter($('#mold'), "PNG", p.script.mold_tiered );
+        // var mold = new ButtonExporter($('#mold'), "PNG", p.script.mold_tiered );
         var mold = new ButtonExporter($('#mold'), "PNG", p.script.mold );
         var mask = new ButtonExporter($('#mask'), "SVG", p.script.mask );
         var mask = new ButtonExporter($('#pcb'), "SVG", p.script.pcb );
@@ -28,7 +28,7 @@
           <li><a id="pcb" name="pcb" href="#" class="process btn btn-lg btn-info"> PCB </a></li>
           <li><a id="reflectors" name="reflector" href="#" class="process btn btn-lg btn-danger"> REFLECTOR </a></li>
           <li><a id="spacers" name="spacers" href="#" class="process btn btn-lg btn-danger"> SPACER </a></li>
-          <li><a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> DIFF </a></li>
+          <li><a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> DIFFUSERS <br> (MOLD)</a></li>
           <li><a id="mask" name="mask" href="#" class="process btn btn-lg btn-primary"> MASK </a></li>
           <li><a id="code" name="code" href="#" class="process btn btn-lg btn-default"> CODE </a></li>
       </ul>

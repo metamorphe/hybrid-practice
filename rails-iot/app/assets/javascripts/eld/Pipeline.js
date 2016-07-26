@@ -241,7 +241,7 @@ Pipeline.script = {
 	mask: function(display){
 		console.log("Running Mask Generator");
 		e = Pipeline.getElements();
-		
+
 		Pipeline.set_visibility(e.art, true);
         var invisible = _.compact(_.flatten([e.leds, e.cp, e.diff, e.dds, e.bi, e.bo]));
         Pipeline.set_visibility(invisible, false);
@@ -268,7 +268,7 @@ Pipeline.script = {
 
         //Creating a bounding box
         boundingBox = new paper.Path.Rectangle({
-        	rectangle: diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL), 0), 
+        	rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL), 0), 
 	        fillColor: 'white', 
 	        parent: result
         });
@@ -276,7 +276,7 @@ Pipeline.script = {
 
 
         //Make non-molding objects invisible
-        var invisible = _.compact(_.flatten([e.dds, e.leds, e.cp, e.bi, e.bo]));
+        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
         _.each(invisible, function(el){
           el.visible = false;
         });
@@ -325,7 +325,7 @@ Pipeline.script = {
 
         return result;
 	},
-	reflector: function(display){
+	reflectors: function(display){
 		console.log("Running Reflector Generator");
 		e = Pipeline.getElements();
 
@@ -353,7 +353,7 @@ Pipeline.script = {
 		boundingBox.sendToBack();
 
 		// WIRE HOLES
-		Pipeline.make_wire_holes(result, e.diff, boundingBox, RIM_HEIGHT, RIM_WIDTH);
+		// Pipeline.make_wire_holes(result, e.diff, boundingBox, RIM_HEIGHT, RIM_WIDTH);
 		
 		// CORNER PEGS
 		pegs = Pipeline.create_corner_pegs({ 
@@ -368,7 +368,7 @@ Pipeline.script = {
 		result.scaling = new paper.Size(-1, 1);
 
 		// INVISIBILITY
-		var invisible = _.compact(_.flatten([e.dds, e.leds, e.bo, e.bi, e.cp]));
+		var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.bo, e.bi, e.cp]));
 		Pipeline.set_visibility(invisible, false);
 
 		return result;
@@ -561,6 +561,7 @@ Pipeline.set_visibility = function(objects, is_visible) {
 function calc_centroids(diffusers){
 	_.each(diffusers, function(diffuser){
 		diffuser.visible = true;
+		if(diffuser.className == "CompoundPath") diffuser = diffuser.children[0];
 		calc_centroid = _.reduce(diffuser.segments, function(memo, seg){
 			return memo.add(new paper.Point(seg.point.x, seg.point.y));
 		}, new paper.Point(0, 0));

@@ -88,7 +88,19 @@ Artwork.prototype = {
 		return CanvasUtil.query(this.svg, selector);
 	},
 	queryPrefix: function(selector){
-		return this.query({prefix: [selector]});
+		var scope = this;
+		items = this.query({prefix: [selector]});
+		items = _.map(items, function(el){
+			return scope.extract(el);
+		});
+		return _.flatten(items); 
+	},
+	extract: function(el){
+		scope = this;
+		if(el.className == "Group")
+			return _.map(el.children, function(e){ return scope.extract(e);});
+		else
+			return el;
 	},
 	/**
 	 * Given an SVG with SVG_NUM which contains exactly one bus (prefix: 'CP')
