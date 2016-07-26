@@ -9,7 +9,14 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
-
+CanvasUtil.getIntersections = function(el, collection){
+	var hits = _.map(collection, function(c){
+		return c.getIntersections(el);
+	});
+	hits = _.compact(hits);
+	hits = _.flatten(hits);
+	return hits;
+}
 CanvasUtil.query = function(container, selector){
 	// Prefix extension
 	if ("prefix" in selector){
@@ -69,9 +76,11 @@ Artwork.prototype = {
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
 				var ledLists = scope.orderLeds();
-				scope.allLeds = ledLists[0];
-				scope.iLeds = ledLists[1];
-				scope.setLedsOff();
+				if(!_.isNull(ledLists)){
+					scope.allLeds = ledLists[0];
+					scope.iLeds = ledLists[1];
+				}
+				// scope.setLedsOff();
 		    loadFN(scope);
 		});
 	},
@@ -79,7 +88,19 @@ Artwork.prototype = {
 		return CanvasUtil.query(this.svg, selector);
 	},
 	queryPrefix: function(selector){
-		return this.query({prefix: [selector]});
+		var scope = this;
+		items = this.query({prefix: [selector]});
+		items = _.map(items, function(el){
+			return scope.extract(el);
+		});
+		return _.flatten(items); 
+	},
+	extract: function(el){
+		scope = this;
+		if(el.className == "Group")
+			return _.map(el.children, function(e){ return scope.extract(e);});
+		else
+			return el;
 	},
 	/**
 	 * Given an SVG with SVG_NUM which contains exactly one bus (prefix: 'CP')
@@ -99,24 +120,24 @@ Artwork.prototype = {
 	orderLeds: function() {
 		var nLeds = this.queryPrefix('NLED');
 		var iLeds = this.queryPrefix('ILED');
-		var cp = this.queryPrefix('CP')[0];
-		var allLeds = nLeds.concat(iLeds);
+		var cp = this.queryPrefix('CP');
+		var allLeds = _.flatten([nLeds, iLeds]);
 
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
-		var bo = this.queryPrefix('BO');
-		var bi = this.queryPrefix('BI');
+		
+		if(_.isEmpty(cp)) return null;
 
-		if (bi.length == 0) {
-			throw Error('No breakin in artwork');
-		}
-		if (bo.length == 0) {
-			polarity = 1;
-		}
+
+		var bo = this.queryPrefix('BO')[0];
+		var bi = this.queryPrefix('BI')[0];
+		cp = cp[0];
+
+		if (bi.length == 0) throw Error('No breakin in artwork'); 
+		if (bo.length == 0) polarity = 1;
 		else {
-			bo = bo[0];
-			bi = bi[0];
+			
 			var cpStartPoint = cp.segments[0].point;
 			var polarity = cpStartPoint.getDistance(bi.position)
 											< cpStartPoint.getDistance(bo.position)
@@ -147,12 +168,12 @@ Artwork.prototype = {
 		});
 		return [allLeds, iLeds];
 	},
-	setLedsOff: function() {
-		var leds = this.queryPrefix('NLED');
-		$.each(leds, function (idx, obj) {
-			obj.status = '↓';
-		});
-	},
+	// setLedsOff: function() {
+	// 	var leds = this.queryPrefix('NLED');
+	// 	$.each(leds, function (idx, obj) {
+	// 		obj.status = '↓';
+	// 	});
+	// },
 	findLedWithId: function(id) {
 		return _.findWhere(this.queryPrefix('NLED'),
 						{lid: id});

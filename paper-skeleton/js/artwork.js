@@ -5,11 +5,50 @@
 //    Breakin --> obj.query({prefix:['BI']});
 //    Breakin --> obj.queryPrefix("BI");
 
-function Artwork(svgPath, loadFN, isComponent){
+function CanvasUtil() {
+}
+
+CanvasUtil.prototype = {}
+CanvasUtil.getIntersections = function(el, collection){
+	var hits = _.map(collection, function(c){
+		return c.getIntersections(el);
+	});
+	hits = _.compact(hits);
+	hits = _.flatten(hits);
+	return hits;
+}
+CanvasUtil.query = function(container, selector){
+	// Prefix extension
+	if ("prefix" in selector){
+		var prefixes = selector["prefix"];
+
+		selector["name"] = function(item){
+			var p = Artwork.getPrefixItem(item);
+			return prefixes.indexOf(p) != -1;
+		}
+		delete selector["prefix"];
+	}
+	var elements = container.getItems(selector);
+	if ("lid" in selector) {
+		return _.where(elements, {lid: selector["lid"]})
+	} else {
+		return elements;
+	}
+}
+
+CanvasUtil.queryPrefix = function(selector) {
+	return CanvasUtil.query(paper.project, {prefix: [selector]});
+}
+
+CanvasUtil.queryPrefixWithId = function(selector, id) {
+	return _.where(CanvasUtil.queryPrefix(selector),
+					{lid: id});
+}
+
+function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;
-	this.isComponent = _.isUndefined(isComponent);
-	if(loadFN != "")
+	if(_.isUndefined(cloned))
 		this.import(loadFN);
 }
 
@@ -18,14 +57,10 @@ Artwork.prototype = {
 	 * Returns an arrays of strings, where each string is the name
 	 * of a queryable object, prefix included.
 	 */
-	remove: function(){
-		this.svg.remove();
-	},
 	clone: function(){
-		art = new Artwork(this.svgPath, "", this.isComponent);
-		art.svg = this.svg.clone();
-		art.svg.self = this;
-		return art;
+		cl = new Artwork(this.svgPath, this.loadFN, true);
+		cl.svg = this.svg.clone();
+		return cl;
 	},
 	queryable: function(){
 		return _.map(this.query({}), function(el){
@@ -40,27 +75,17 @@ Artwork.prototype = {
 	 		scope.svg.position = paper.view.center;
 	 		var name = scope.svg.name;
 		    console.log("Importing", name);
-		    scope.self = scope;
-		    if(scope.isComponent){
 				var ledLists = scope.orderLeds();
-				scope.allLeds = ledLists[0];
-				scope.iLeds = ledLists[1];
-			}
+				if(!_.isNull(ledLists)){
+					scope.allLeds = ledLists[0];
+					scope.iLeds = ledLists[1];
+				}
+				// scope.setLedsOff();
 		    loadFN(scope);
 		});
 	},
 	query: function(selector){
-		// Prefix extension
-		if("prefix" in selector){
-			var prefixes = selector["prefix"];
-
-			selector["name"] = function(item){
-				var p = Artwork.getPrefixItem(item);
-				return prefixes.indexOf(p) != -1;
-			}
-			delete selector["prefix"];
-		}
-		return this.svg.getItems(selector);
+		return CanvasUtil.query(this.svg, selector);
 	},
 	queryPrefix: function(selector){
 		return this.query({prefix: [selector]});
@@ -81,32 +106,32 @@ Artwork.prototype = {
 	 * >>> [allLedsSorted, interactiveLedsSorted]
 	 */
 	orderLeds: function() {
-		console.log("Ordering!");
 		var nLeds = this.queryPrefix('NLED');
 		var iLeds = this.queryPrefix('ILED');
-		var cp = this.queryPrefix('CP')[0];
-		var allLeds = nLeds.concat(iLeds);
+		var cp = this.queryPrefix('CP');
+		var allLeds = _.flatten([nLeds, iLeds]);
 
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
-		var bo = this.queryPrefix('BO');
-		var bi = this.queryPrefix('BI');
+		
+		if(_.isEmpty(cp)) return null;
 
-		if (bi.length == 0) {
-			throw Error('No breakin in artwork');
-		}
-		if (bo.length == 0) {
-			polarity = 1;
-		}
+		var bo = this.queryPrefix('BO')[0];
+		var bi = this.queryPrefix('BI')[0];
+		cp = cp[0];
+
+
+		if (bi.length == 0) throw Error('No breakin in artwork'); 
+		if (bo.length == 0) polarity = 1;
 		else {
-			bo = bo[0];
-			bi = bi[0];
+
 			var cpStartPoint = cp.segments[0].point;
 			var polarity = cpStartPoint.getDistance(bi.position)
 											< cpStartPoint.getDistance(bo.position)
 											? 1 : -1;
 		}
+
 
 		// Note that we cannot guarantee that an LED will lie exactly
 		// on the medial axis of the bus/copper path, so we find the
@@ -130,12 +155,17 @@ Artwork.prototype = {
 			obj.cid = idx;
 		});
 		return [allLeds, iLeds];
+	},
+	// setLedsOff: function() {
+	// 	var leds = this.queryPrefix('NLED');
+	// 	$.each(leds, function (idx, obj) {
+	// 		obj.status = '↓';
+	// 	});
+	// },
+	findLedWithId: function(id) {
+		return _.findWhere(this.queryPrefix('NLED'),
+						{lid: id});
 	}
-}
-Artwork.getPrefix = function(item){
-	if(_.isUndefined(item.name)) return "";
-	if(item.name.split(":").length < 2) return "";
-	return item.name.split(":")[0].trim();
 }
 
 Artwork.getPrefixItem = function(item){

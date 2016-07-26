@@ -1,0 +1,195 @@
+   <script type="text/javascript">
+      var ip;
+      $(function(){
+        Utility.paperSetup($('#myCanvas'));
+        zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
+        $("#shade").fadeOut("slow");
+
+
+        var lens = new ButtonExporter($('#mold'), "PNG", makeLenseMold );
+        var spacers = new ButtonExporter($('#spacer'), "PNG", makeSpacerMold );
+
+        tir = new Artwork("/artwork/working.svg", function(display){
+          runScript(display);
+        });
+      });
+
+     
+      function runScript(display){
+        var reflectors = display.queryPrefix("REF");
+        var lenses = display.queryPrefix("LENS");
+
+        _.each(reflectors, function(el){
+          el.reflectance = 0.90;
+        });
+
+        _.each(lenses, function(el){
+          el.refraction = 0.80;
+          console.log(parseFloat(Artwork.getName(el).split("_")[1]));
+
+          el.n = parseFloat(Artwork.getName(el).split("_")[1]);
+        });
+
+        // var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(-10, -3));
+        var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(0, -3));
+        // var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
+        var leds = [posA]
+        leds = _.map(leds, function(pos){
+              return  new PointLight({
+                  position: pos, 
+                  mediums: _.flatten([lenses,reflectors])
+              });
+        });
+
+        _.each(leds, function(l){
+            // l.emmision();
+            console.log(l.options)
+        });
+
+        ip = new ImagePlane();
+        ip.visualize();
+        
+        // display.svg.bringToFront();
+        // return makeLenseMold(display);
+      }
+
+
+      function makeLenseMold(display){
+        paper.view.zoom = 1;
+        base = display.queryPrefix("BASE");
+        lenses = display.queryPrefix("LENS");
+        lenses = [lenses[0]]
+        images = _.map(lenses, function(ref){
+            return pathToModel(ref);
+        });
+        return images[0];
+      }
+      function makeSpacerMold(display){
+        paper.view.zoom = 1;
+        base = display.queryPrefix("BASE");
+        base = base[0];
+        reflectors = display.queryPrefix("REF");
+
+        images = _.map(reflectors, function(ref){
+            return pathToModel(ref);
+        });
+        return images[0];
+      }
+
+      function pathToModel(path){
+          // path.selected = true;
+          data = _.range(0, path.length, 0.5);
+          padding = 0.95;
+          var size = new paper.Size(path.bounds.width/padding, path.bounds.width/padding);
+
+          data = _.map(data, function(offset){
+            pt = path.getPointAt(offset);
+            return pt;
+          });
+
+          // normalizing
+          min = new paper.Point(_.min(data, function(pt){ return pt.x}).x, _.min(data, function(pt){ return pt.y}).y);
+          max = new paper.Point(_.max(data, function(pt){ return pt.x}).x, _.max(data, function(pt){ return pt.y}).y);
+          max = max.subtract(min);
+
+          data = _.map(data, function(pt){
+            return pt.subtract(min).divide(max);
+          });
+          data = _.filter(data, function(d){
+            // console.log(d.y)
+            d.x *= 2;
+            d.x -= 1;
+            return d.y > 0.10 && d.x > 0;
+          });
+
+
+          min = new paper.Point(_.min(data, function(pt){ return pt.x}).x, _.min(data, function(pt){ return pt.y}).y);
+          max = new paper.Point(_.max(data, function(pt){ return pt.x}).x, _.max(data, function(pt){ return pt.y}).y);
+          console.log(data.length, min.toString(), max.toString())
+         
+          
+          // .each(data, function(da))
+          data = _.sortBy(data, function(d){ return d.x });
+
+          // data = _.reject(data, function(d){ return d.x > 1 });
+
+
+          gradient_stops = _.map(data, function(pt){
+            return [new paper.Color(1-pt.y), pt.x * padding];
+          });
+          gradient_stops.push([new paper.Color(1.0), padding]); // bounding wall of white
+          gradient_stops.push([new paper.Color(1.0), 1.0]); // bounding wall of white
+
+          var img = new paper.Path.Rectangle({
+            position: paper.view.center.clone().add(new paper.Point(0, 70)), 
+            size: size, 
+            strokeColor: "black", 
+            strokeWidth: 0.02
+            // strokeScaling: false
+          });
+
+          img.fillColor = {
+              gradient: {
+                  stops: gradient_stops,
+                  radial: true
+              },
+              destination: img.bounds.leftCenter,
+              origin: img.bounds.center
+          };
+         
+          console.log("SIZE", Ruler.pts2mm(size.width));
+          // p = new paper.Path(data);
+          // p.set({
+          //   strokeColor: "yellow", 
+          //   strokeWidth: 2, 
+          //   position: img.bounds.center
+          // });
+          // console.log("L", p.length);
+          // p.scaling =  new paper.Size(path.bounds.width, path.bounds.height);;//new paper.Size(50, 10);
+          return img;
+      }
+    </script>
+  </head>
+  <body>
+    <a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> Lens </a>
+    <a id="spacer" name="spacer" href="#" class="process btn btn-lg btn-success"> Spacer </a>
+    <canvas id="myCanvas"></canvas>
+    
+      <%= render :partial => "modals"%>
+      <%= render :partial => "zoom_bar"%>
+
+    <!-- <canvas id="bufferCanvas"></canvas> -->
+  </body>
+
+  <style>
+   #zoom-bar{
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      padding: 4px 8px;
+      color: #AAA;
+      position: absolute;
+      z-index: 1000;
+      top: 230px;
+      left: 100px;
+       z-index: -1;
+   }
+    body, html{
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f5f4f0;
+    }
+    #myCanvas {
+      position: absolute;
+      top: 0px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 0px);
+      border: solid 1px black;
+      background: black;
+      /*display: none;*/
+      z-index: -100;
+      cursor: pointer;
+    }
+
+   
+  </style>

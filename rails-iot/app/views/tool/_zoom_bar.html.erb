@@ -40,6 +40,7 @@ ZoomBar.prototype = {
 		this.checkbounds();
 		$(this.in_dom).click(function(){ scope.in();})
 		$(this.out_dom).click(function(){ scope.out();})
+		this.update();
 	},
 	checkbounds: function(){
 		if(this.level > ZoomBar.MAX) this.level = ZoomBar.MAX;

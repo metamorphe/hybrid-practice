@@ -18,6 +18,16 @@
 // require turbolinks
 // require_self
 
+
+Math.radians = function(degrees) {
+  return degrees * Math.PI / 180;
+};
+ 
+// Converts from radians to degrees.
+Math.degrees = function(radians) {
+  return radians * 180 / Math.PI;
+};
+
 if (!Date.now) {
     Date.now = function() { return new Date().getTime(); }
 }
