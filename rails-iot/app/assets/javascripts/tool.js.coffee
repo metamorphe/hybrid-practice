@@ -5,8 +5,8 @@
 //= require underscore
 //= require paper-full.min
 //= require saveas.min
-//= require hull
 //= require format
+//= require hull
 //= require eld/ruler
 //= require eld/artwork
 //= require eld/Pipeline
