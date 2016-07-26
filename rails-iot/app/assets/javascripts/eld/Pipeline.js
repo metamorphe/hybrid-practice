@@ -245,7 +245,8 @@ Pipeline.script = {
 		Pipeline.set_visibility(e.art, true);
         var invisible = _.compact(_.flatten([e.leds, e.cp, e.diff, e.dds, e.bi, e.bo]));
         Pipeline.set_visibility(invisible, false);
-        return result;
+        
+        return new paper.Group(e.art);
 	},
 	mold: function(display){
 		console.log("Running Mold Generator");
@@ -277,11 +278,9 @@ Pipeline.script = {
 
         //Make non-molding objects invisible
         var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
-        _.each(invisible, function(el){
-          el.visible = false;
-        });
+        Pipeline.set_visibility(invisible, false);
 
-        paper.view.update();
+        result.scaling = new paper.Size(-1, 1);
         return result;
 	},
 	mold_tiered: function(display){
@@ -323,6 +322,7 @@ Pipeline.script = {
         var invisible = _.flatten([e.leds, e.cp, e.bi, e.bo]);
        	Pipeline.set_visibility(invisible, false);
 
+       	result.scaling = new paper.Size(-1, 1);
         return result;
 	},
 	reflectors: function(display){
@@ -550,7 +550,6 @@ Pipeline.make_wire_holes = function(parent, diffusers, boundingBox, hole_depth, 
 }
 
 Pipeline.set_visibility = function(objects, is_visible) {
-	console.log(objects, is_visible);
 	_.each(objects, function(object){
 		object.visible = is_visible;
 	});
