@@ -95,10 +95,10 @@
 				});
 				
 				var path_list = _.filter(path_list, function(path){return path.className != "Group"});
-				var ombb_table = [];
+			
 			
 				// Iteration calculates the ombb of each path object in path_list
-				_.each(path_list, function(diff,i,arr){
+				var ombb_table = _.map(path_list, function(diff,i,arr){
 					diff.calculateOMBB();
 					diff.ombb.visible = true;
 					diff.ombb.rotation = plate.rotation;
@@ -108,12 +108,12 @@
 						diff.ombb.rotation = 90;
 					}
 
-					ombb_table.push({
+					return {
 						w: diff.ombb.bounds.width,
 						h: diff.ombb.bounds.height,
 						maxDim: Math.max(diff.ombb.bounds.width, diff.ombb.bounds.height),
 						area: diff.ombb.bounds.width * diff.ombb.bounds.height
-					});
+					};
 				});
 
 				// sorts by flavor 
