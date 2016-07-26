@@ -6,6 +6,8 @@
 //= require paper-full.min
 //= require saveas.min
 //= require format
+//= require convex
+//= require grid
 //= require hull
 //= require eld/ruler
 //= require eld/artwork
