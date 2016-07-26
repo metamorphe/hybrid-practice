@@ -245,7 +245,7 @@ Pipeline.script = {
 		Pipeline.set_visibility(e.art, true);
         var invisible = _.compact(_.flatten([e.leds, e.cp, e.diff, e.dds, e.bi, e.bo]));
         Pipeline.set_visibility(invisible, false);
-        
+
         return new paper.Group(e.art);
 	},
 	mold: function(display){
@@ -373,7 +373,7 @@ Pipeline.script = {
 
 		return result;
 	},
-	spacer: function(display){
+	spacers: function(display){
 		console.log("Running Spacer Generator");
 		e = Pipeline.getElements();
 
@@ -404,7 +404,7 @@ Pipeline.script = {
 
 		// ADD CORNER PEGS
 		var pegs = Pipeline.create_corner_pegs({ 
-			bounds: boundingBox.bounds, 
+			bounds: backgroundBox.bounds, 
 			radius: PEG_RADIUS, 
 			padding: PEG_PADDING, 
 			height: 'black', 
@@ -412,7 +412,7 @@ Pipeline.script = {
 		});
 
 		/* Compute the Convex Hull */
-		var breakio = _.compact(_.flatten([BI[0],BO[0]]));
+		var breakio = _.compact(_.flatten([e.bi, e.bo]));
 
 		expansions = _.map(breakio, function(el){
 				el.calculateOMBB();

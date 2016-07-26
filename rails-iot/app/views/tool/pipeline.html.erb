@@ -5,6 +5,7 @@
         Utility.paperSetup($('#myCanvas'));
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         $("#shade").fadeOut("slow");
+        paper.loadCustomLibraries();
         pipelineSetup();
       });
 
