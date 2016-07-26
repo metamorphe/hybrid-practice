@@ -5,17 +5,19 @@ var PEG_RADIUS = 3.55; //mm
 var PEG_PADDING = 10; //mm
 var WALL_WIDTH = 3; //mm
 
+// REFLECTOR
+var DIFUSSER_BASE_HEIGHT = 0.641;
+var BASE_EXPANSION = 10; //mm
+var RIM_HEIGHT = 0.128; 
+var RIM_WIDTH = 1.5; //mm
+
 // SPACER 
 var WALL_EXPANISION = BASE_EXPANSION + WALL_WIDTH; //mm
 var BASE_HEIGHT = 0.55; // relative 1.7 (base) /3.1 (wall) mm
 var CHANGE_IN_X_DIR = 8; //pts
 var CHANGE_IN_Y_DIR = 8; //pts
 
-// REFLECTOR
-var DIFUSSER_BASE_HEIGHT = 0.641;
-var BASE_EXPANSION = 10; //mm
-var RIM_HEIGHT = 0.128; 
-var RIM_WIDTH = 1.5; //mm
+
 
 // MOLDS
 var MOLD_WALL = 5; // mm
@@ -48,7 +50,8 @@ Pipeline.script = {
 		e = Pipeline.getElements();
 
 		function generateNodes(nodes, callbackFN){
-			var c = new Artwork("components/APA102C.svg", function(footprint) {
+
+			var c = new Artwork("/components/APA102C.svg", function(footprint) {
 				
 				square = footprint.queryPrefix("SMD");
 				square[0].remove();
@@ -109,7 +112,7 @@ Pipeline.script = {
 
 				callbackFN(nodes);
 				footprint.remove();
-			}, true);
+			});
 		}
 
 		// Function to obtain cost (Path length) from node with two neighbors.
@@ -214,29 +217,24 @@ Pipeline.script = {
 		}
 		
 		// Function that initializes the routing process.
-		function init() {					
-			leds = _.sortBy(e.leds, function(led){ return led.lid;});
-			nodes = _.flatten([e.bi,  leds,  e.bo]);
-			
-			nodes = generateNodes(nodes, function(nodes){
-					// linked list
-				_.each(nodes, function(node, i, arr){
-					node.right = null;
-					node.left = null;
+		leds = _.sortBy(e.leds, function(led){ return led.lid;});
+		nodes = _.flatten([e.bi,  leds,  e.bo]);
+		
+		generateNodes(nodes, function(nodes){
+				// linked list
+			_.each(nodes, function(node, i, arr){
+				node.right = null;
+				node.left = null;
 
-					if(i - 1 >= 0) node.left = arr[i - 1];
-					if(i + 1 < arr.length) node.right = arr[i + 1];
-				});
-				
-				route(nodes);
-				connect_the_dots(nodes);
-				cleanup(nodes);
+				if(i - 1 >= 0) node.left = arr[i - 1];
+				if(i + 1 < arr.length) node.right = arr[i + 1];
 			});
-		};
-
-		// Call to the initialization function.
-		init();
-		return result;
+			
+			route(nodes);
+			connect_the_dots(nodes);
+			cleanup(nodes);
+			return nodes;
+		});
 	},
 	mask: function(display){
 		console.log("Running Mask Generator");
@@ -393,46 +391,48 @@ Pipeline.script = {
 
 
 		// BACKGROUND
-		var backgroundBox = new paper.Path.Rectangle({
-			rectangle : result.bounds.expand(Ruler.mm2pts(WALL_EXPANISION), 0), 
-			fillColor: new paper.Color(BASE_HEIGHT),
-			strokeColor: 'white',
-			strokeWidth: Ruler.mm2pts(WALL_WIDTH)
-		});
-		backgroundBox.sendToBack();
-		
 
-		// ADD CORNER PEGS
-		var pegs = Pipeline.create_corner_pegs({ 
-			bounds: backgroundBox.bounds, 
-			radius: PEG_RADIUS, 
-			padding: PEG_PADDING, 
-			height: 'black', 
+		var backgroundBox = new paper.Path.Rectangle({
+			rectangle : result.bounds, 
+			fillColor: new paper.Color(BASE_HEIGHT),
+			// strokeColor: 'white',
+			// strokeWidth: Ruler.mm2pts(WALL_WIDTH), 
 			parent: result
 		});
+		
+		backgroundBox.sendToBack();
+		// // ADD CORNER PEGS
+		// var pegs = Pipeline.create_corner_pegs({ 
+		// 	bounds: backgroundBox.bounds, 
+		// 	radius: PEG_RADIUS, 
+		// 	padding: PEG_PADDING, 
+		// 	height: 'black', 
+		// 	parent: result
+		// });
 
-		/* Compute the Convex Hull */
+		 // Compute the Convex Hull 
 		var breakio = _.compact(_.flatten([e.bi, e.bo]));
 
-		expansions = _.map(breakio, function(el){
-				el.calculateOMBB();
-				el.ombb.visible = true;
-				expansion = Pipeline.extend_to_edge(el.ombb, backgroundBox);
-				expansion.set({
-					fillColor: 'black',
-					strokeColor: 'black',
-					strokeWidth: 2
-				});
-				return [ombb, expansion]
-		});
+		// expansions = _.map(breakio, function(el){
+		// 	console.log(el);
+		// 		el.calculateOMBB();
+		// 		el.ombb.visible = true;
+		// 		expansion = Pipeline.extend_to_edge(el.ombb, backgroundBox);
+		// 		expansion.set({
+		// 			fillColor: 'black',
+		// 			strokeColor: 'black',
+		// 			strokeWidth: 2
+		// 		});
+		// 		return [ombb, expansion]
+		// });
 
 
 
-		var invisible = _.compact(_.flatten([e.dds, e.diff, e.cp]));
+		var invisible = _.compact(_.flatten([e.art, e.dds, e.diff, e.cp]));
 		Pipeline.set_visibility(invisible, false);
 
-		/* Reflect Object */
-		result.scaling = new paper.Size(-1, 1);
+		// /* Reflect Object */
+		// result.scaling = new paper.Size(-1, 1);
 		return result;
 	}
 }

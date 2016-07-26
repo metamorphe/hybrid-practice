@@ -34,7 +34,7 @@ function ButtonExporter(dom, type, preFN, postFN){
           
           display = new Artwork(getActiveArtwork(), function(artwork){
             scope.preFN(artwork);
-            var fn = scope.getFilename();
+            // var fn = scope.getFilename();
             // ButtonExporter.exportSVG(fn);
             // scope.postFN();
           });

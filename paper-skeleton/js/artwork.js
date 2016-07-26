@@ -117,15 +117,17 @@ Artwork.prototype = {
 		
 		if(_.isEmpty(cp)) return null;
 
-		var bo = this.queryPrefix('BO')[0];
-		var bi = this.queryPrefix('BI')[0];
-		cp = cp[0];
+		var bo = this.queryPrefix('BO');
+		var bi = this.queryPrefix('BI');
+		
 
 
-		if (bi.length == 0) throw Error('No breakin in artwork'); 
+		if (bi.length == 0) {console.log('No breakin in artwork');  return;}
 		if (bo.length == 0) polarity = 1;
 		else {
-
+			bo = bo[0];
+			bi = bi[0];
+			cp = cp[0];
 			var cpStartPoint = cp.segments[0].point;
 			var polarity = cpStartPoint.getDistance(bi.position)
 											< cpStartPoint.getDistance(bo.position)

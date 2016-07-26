@@ -48,6 +48,7 @@ CanvasUtil.queryPrefixWithId = function(selector, id) {
 function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;
+	console.log("Importing", this.svgPath)
 	if(_.isUndefined(cloned))
 		this.import(loadFN);
 }
@@ -62,20 +63,21 @@ Artwork.prototype = {
 		cl.svg = this.svg.clone();
 		return cl;
 	},
+	remove: function(){
+		this.svg.remove();
+	},
 	queryable: function(){
 		return _.map(this.query({}), function(el){
 			return el.name;
 		});
 	},
 	import:  function(loadFN) {
-			var scope = this;
-			console.log("Importing", this.svgPath, paper)
-		 	paper.project.importSVG(this.svgPath, function(item) {
+		var scope = this;
+	 	paper.project.importSVG(this.svgPath, function(item) {
+	 		 console.log("Processing", item.name);
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
-	 		var name = scope.svg.name;
-		    console.log("Importing", name);
-				var ledLists = scope.orderLeds();
+	 		var ledLists = scope.orderLeds();
 				if(!_.isNull(ledLists)){
 					scope.allLeds = ledLists[0];
 					scope.iLeds = ledLists[1];
@@ -88,19 +90,7 @@ Artwork.prototype = {
 		return CanvasUtil.query(this.svg, selector);
 	},
 	queryPrefix: function(selector){
-		var scope = this;
-		items = this.query({prefix: [selector]});
-		items = _.map(items, function(el){
-			return scope.extract(el);
-		});
-		return _.flatten(items); 
-	},
-	extract: function(el){
-		scope = this;
-		if(el.className == "Group")
-			return _.map(el.children, function(e){ return scope.extract(e);});
-		else
-			return el;
+		return this.query({prefix: [selector]});
 	},
 	/**
 	 * Given an SVG with SVG_NUM which contains exactly one bus (prefix: 'CP')
@@ -129,15 +119,16 @@ Artwork.prototype = {
 		
 		if(_.isEmpty(cp)) return null;
 
-
-		var bo = this.queryPrefix('BO')[0];
-		var bi = this.queryPrefix('BI')[0];
+		var bo = this.queryPrefix('BO');
+		var bi = this.queryPrefix('BI');
 		cp = cp[0];
 
-		if (bi.length == 0) throw Error('No breakin in artwork'); 
-		if (bo.length == 0) polarity = 1;
+
+		if (bi.length == 0) {console.log('No breakin in artwork');  return;}
+		if (bo.length == 0) {polarity = 1;}
 		else {
-			
+			bo = bo[0];
+			bi = bi[0];
 			var cpStartPoint = cp.segments[0].point;
 			var polarity = cpStartPoint.getDistance(bi.position)
 											< cpStartPoint.getDistance(bo.position)
@@ -179,6 +170,13 @@ Artwork.prototype = {
 						{lid: id});
 	}
 }
+
+Artwork.getPrefix = function(item){
+	if(_.isUndefined(item)) return "";
+	if(item.name.split(":").length < 2) return "";
+	return item.name.split(":")[0].trim();
+}
+
 
 Artwork.getPrefixItem = function(item){
 	if(_.isUndefined(item)) return "";
