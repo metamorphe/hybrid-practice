@@ -167,19 +167,16 @@
 				// compute the two nearest points of the rectangle to wall
 				var OMBB = ombb.clone();
 				var points = _.map(OMBB.segments, function(seg){ return seg.point; });
-				var distance_table = [];
-				
-				// creates distance table 
-				_.each(points, function(pt,i,arr){
+				var distance_table = _.map(points, function(pt,i,arr){
 					var wall_point = backgroundBox.getNearestPoint(pt);
 					var vector = wall_point.subtract(pt);
 					var distance = vector.length;
-					distance_table.push({
+					return{
 						point: pt,
 						distance: distance,
 						vector: vector,      // vector of point to wall
 						idx: i
-					});
+					};
 				});
 
 				// sorts distance table from min distance to max distance 
