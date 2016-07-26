@@ -7,6 +7,7 @@
 //= require saveas.min
 //= require eld/ruler
 //= require eld/artwork
+//= require eld/Pipeline
 //= require eld/graph
 //= require eld/ButtonExporter
 //= require eld/PointSource

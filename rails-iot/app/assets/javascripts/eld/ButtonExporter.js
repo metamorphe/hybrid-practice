@@ -20,7 +20,7 @@ function ButtonExporter(dom, type, preFN, postFN){
             result.fitBounds(paper.view.bounds)
                       
             var fn = scope.getFilename();
-            ButtonExporter.exportPNG(result, fn, scope.dom);
+            // ButtonExporter.exportPNG(result, fn, scope.dom);
             // paper.project.clear();
             // paper.view.update();
           })
@@ -30,8 +30,8 @@ function ButtonExporter(dom, type, preFN, postFN){
           display = new Artwork(getActiveArtwork(), function(artwork){
             scope.preFN(artwork);
             var fn = scope.getFilename();
-            ButtonExporter.exportSVG(fn);
-            scope.postFN();
+            // ButtonExporter.exportSVG(fn);
+            // scope.postFN();
           });
         })
     }, 

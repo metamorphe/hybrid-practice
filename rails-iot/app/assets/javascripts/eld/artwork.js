@@ -120,13 +120,12 @@ Artwork.prototype = {
 
 		var bo = this.queryPrefix('BO')[0];
 		var bi = this.queryPrefix('BI')[0];
-
+		cp = cp[0];
 
 		if (bi.length == 0) throw Error('No breakin in artwork'); 
 		if (bo.length == 0) polarity = 1;
 		else {
-			bo = bo[0];
-			bi = bi[0];
+			
 			var cpStartPoint = cp.segments[0].point;
 			var polarity = cpStartPoint.getDistance(bi.position)
 											< cpStartPoint.getDistance(bo.position)
