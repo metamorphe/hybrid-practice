@@ -6,6 +6,7 @@
 //= require paper-full.min
 //= require saveas.min
 //= require hull
+//= require format
 //= require eld/ruler
 //= require eld/artwork
 //= require eld/Pipeline
