@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Ryan was here.</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/math.js"></script>
+
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButton').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+
+				paper.install(window);
+				paper.setup('myCanvas');			
+				//img/nine-segment.svg
+				nineSegment = new Artwork("img/testNormal.svg", function(display){
+					
+					/*Flip display*/
+					// display.svg.scaling.y = -1
+
+					runScript(display);
+				});
+			});
+			function runScript(display){
+				// TODO: YOUR CODE HERE
+
+
+				//Declarations
+				var diffusers = display.queryPrefix('DIF');
+				var leds = display.queryPrefix('NLED');
+				var breakout = display.queryPrefix('BO');
+				var breakin = display.queryPrefix('BI');
+				var circuit_path = display.queryPrefix('CP');
+				var art = display.queryPrefix('ART');
+				var testShape = display.queryPrefix('TEST');
+
+
+				console.log(testShape);
+				testShape = extractPaths(testShape)[0];
+				console.log(testShape);
+
+				_.each(testShape.segments, function(i, j){
+					console.log(i.toString());
+				});
+
+	
+				var all_objects = [diffusers, leds, breakout, breakin, circuit_path, art];
+				var select_objects = [diffusers, circuit_path];
+
+				var diffuser_centroid_lst = null;
+				// calc_centroids(diffusers);
+				
+				var diffuser_group = create_group(diffusers);
+				// var boundingBox = create_bounding_box(diffuser_group, 1, 13, 1);
+				// color_wires(boundingBox, .128, 1.5);
+
+				set_invisible(leds);
+				set_invisible(breakout);
+				set_invisible(breakin);
+				set_invisible(circuit_path);
+				set_invisible(art);
+
+				set_appearance(diffusers, .128, Ruler.mm2pts(1.5), 'black');
+	
+
+				// extracted = extractPaths(diffusers);
+				// var dummy = null;
+				// var pathToRtn = extracted[0];
+		
+				// _.each(extracted, function(path, i){
+				// 	if (i == 0) {
+				// 		return;
+				// 	}
+				// 	dummy = pathToRtn;
+				// 	pathToRtn = pathToRtn.unite(path);
+				// 	dummy.remove();
+				// });
+				// extracted[0].remove();
+
+				// //Find exterior path and ignore internal paths
+				// var maxChild = _.max(pathToRtn.children, function(x){
+				// 	return x.length;
+				// });
+				
+
+				// var maxChildRef = maxChild;
+				// pathToRtn.removeChildren();
+				// pathToRtn.addChild(maxChildRef);
+				// pathToRtn.sendToBack();
+
+				// pathToRtn = maxChild;
+				// pathToRtn.strokeColor = 'blue';
+				// pathToRtn.strokeWidth = 4;
+				// pathToRtn.sendToBack();
+
+			
+				// pathToRtn.fillColor = 'null';
+				// pathToRtn.visible = true;
+				// pathToRtn.bringToFront();
+
+				// //Coloring the main fill
+				// var c = pathToRtn.clone();
+				// c.strokeWidth = 0;
+				// c.fillColor = "purple";
+				// c.sendToBack();
+				// console.log(pathToRtn);
+				// strokeHelper(pathToRtn, 2.5, 'red');
+
+				console.log(testShape.className);
+
+				// var test = strokeHelper(testShape, 2.5, 'red', 0);
+				// testNormal(testShape, 2.5, 'red');
+				drawStroke(testShape, {
+							width: 40, 
+							color: 'yellow', 
+							strokeDirection: 1
+					});
+
+
+				//Create a stroke over each diffuser
+				// _.each(diffuser_group, function(d, i){
+				// 	console.log('d is:', d.className);
+				// 	var d = extractPaths(d);
+				// 	strokeHelper(d, 2.5,'brown');
+					
+				// });
+				
+
+
+				// create_corner_circles(boundingBox, 1.55, 2, 'white', 'white', 8, 7);
+				// flip_on_axis(all_objects, -1, 1);
+				paper.view.update();
+			}
+
+		
+
+
+			/*Calculate the centroids of objects and return a list of centroid coordinates**/
+				function calc_centroids(objects){
+					console.log("Cal centroids for", objects.length, "diffusers");
+					diffuser_centroid_lst = [];
+
+					//Locate each diffuser
+					_.each(objects, function(diffuser){
+						diffuser.visible = true;
+
+						//Locate each point on a diffuser & add them
+						var calc_centroid = new paper.Point(0,0)
+						
+						_.each(diffuser.segments, function(seg){
+							calc_centroid = calc_centroid.add(new paper.Point(seg.point.x, seg.point.y));
+						});
+
+						//Finish centroid calculation
+						console.log(diffuser.children[0].children.className);
+						calc_centroid = calc_centroid.divide(diffuser.segments.length);
+						diffuser_centroid_lst.push(calc_centroid);
+						return diffuser_centroid_lst;
+					});
+				}
+
+				// /*Unite a group's children into a new path and return new path*/
+				// function uniteGroup(path, group) {
+				// 		var retPath = path;
+				// 		_.each(group.children, function(obj, i) {
+				// 			console.log(obj);
+				// 			console.log(obj.children[0].className);
+						
+				// 			var scrapPath = retPath;
+				// 			console.log("obj", obj);
+				// 			console.log(retPath);
+		 	// 				retPath = retPath.unite(obj);
+
+		 	// 				if (scrapPath) {
+		 	// 					scrapPath.remove();
+		 	// 				} return retPath;
+				// 	});
+				// }
+
+
+				/*Return Pathes  from group*/
+				function extractPaths(group) {
+					//map takes in a collection and a function
+					//_.map(collection, function(el, i, arr) 
+					var data = _.map(group, function(x) {
+						// console.log(x);
+						if (x.className == 'Group') {
+							return extractPaths(x.children);
+						} else {
+							return x;
+						}
+					});
+					data = _.flatten(data);
+
+					return data;
+				}
+
+
+				/*Calculate best fit stroke width via a series of small circles.
+				Three types based on stroke_dir: interior, normal, or exterior*/
+				function strokeHelper(path, stroke_width, stroke_color, stroke_dir){
+					console.log('path type', path.className);
+					var circ;
+					var point = null;
+					var circGroup = new paper.Group();
+					var length = path.length;
+					var offset = .4; //.2;
+					var setRadius = .1;
+					// console.log('path', path.toString());
+					for (i = 0; i < length; i = i + offset) {
+
+						var point = path.getPointAt(i);
+						var norm = path.getNormalAt(i); //TODO: make accurate
+						var tan = path.getTangentAt(i);
+						// visualizeNormal(point, norm, tan);
+
+						// var interiorDisplacement = point.add(norm.multiply(2*setRadius * stroke_dir));
+						if (stroke_dir == 1) {
+							norm = norm.clone().multiply(-1); //exterior
+						}
+
+						circ = new Path.Circle({
+		                    center: point.add(norm.multiply(2*setRadius * stroke_dir)), //TODO: curate
+		                    radius: setRadius,
+		                    fillColor: stroke_color,
+		                    strokeColor: stroke_color
+               			});
+               			circ.selected = false;
+
+
+               			//Delete overlaps
+               			//Exterior path
+               			if (stroke_dir == 1) {
+
+							for (j = 0; j < circ.segments.length; j++) {
+
+								var curr_x = circ.segments[j].point.x;
+								var curr_y = circ.segments[j].point.y;
+								if (path.contains(new paper.Point(curr_x, curr_y))) {
+									// circ.visible = false;
+									// console.log('PATH CONTAINS CIRCLE');
+									// console.log(i, curr_x, curr_y);
+									break;
+								}
+							}
+							// circ.bringToFront();
+							circGroup.addChild(circ);
+						}
+               		}
+
+					// console.log(circGroup.children);
+					// _.each(circGroup.children, function(circ, i) {
+					// 	_.each(circGroup.segments, function(p, j) {
+							
+					// 		console.log(p.className);
+
+					// 		if (circ.contains(p)) {
+					// 				console.log('PATH CONTAINS CIRCLE');
+		   //             				circ.fillColor = 'green';
+		   //             				circ.remove();
+		   //             		}
+					// 	});
+					// });
+
+				}
+
+				function visualizeNormal(origin, normal, tangent){
+					var lineLength = 50;
+					normal = normal.clone();
+					tangent = tangent.clone();
+					normal.length = lineLength;
+					tangent.length = lineLength;
+
+
+					new paper.Path.Line({
+							from: origin, 
+							to: origin.add(normal),
+							strokeColor: "pink", 
+							strokeWidth: 0.5,
+							dashArray: [1, 0.5]
+					});
+
+					normal = normal.clone().multiply(-1);
+					new paper.Path.Line({
+							from: origin, 
+							to: origin.add(normal),
+							strokeColor: "black", 
+							strokeWidth: 0.5
+					});
+
+					new paper.Path.Line({
+							from: origin, 
+							to: origin.add(tangent.clone().multiply(1)),
+							strokeColor: "white",
+							strokeWidth: 1
+					});
+					new paper.Path.Line({
+							from: origin, 
+							to: origin.add(tangent.clone().multiply(-1)),
+							strokeColor: "white", 
+							strokeWidth: 1
+					});
+
+					// var wayward = new paper.Point(0, 1);
+					// wayward.angle = r.direction;
+
+					// new paper.Path.Line({
+					// 		from: origin, 
+					// 		to: origin.add(wayward.multiply(lineLength * 2)),
+					// 		strokeColor: "red", 
+					// 		dashArray: [2,1],
+					// 		strokeWidth: 0.5
+					// });
+				}
+
+				//
+				// Attribute strokeDirection (-1 = interior, 0 = centered, 1 = exterior)
+				function drawStroke(path, options){
+					var options = {
+							width: options.width, 
+							color: options.color, 
+							strokeDirection: options.strokeDirection
+					}
+					if (options.strokeDirection == 1) {
+						//Exterior stroke
+						strokeHelper(path, options.width, options.color, 1);
+					} else if (options.stroke == -1) {
+						//Interior stroke
+						strokeHelper(path, options.width, options.color, -1);
+					} else {
+						//normal stroke
+						strokeHelper(path, options.width, options.color, 0);
+					}
+
+				}
+				/*Create an exterior stroke width via a series of small circles*/
+				function testNormal(path, stroke_width, stroke_color){
+					var circ;
+					var point = null;
+					var circGroup = new paper.Group();
+					
+					var step = 10;
+					var setRadius = 2;
+					// console.log('path', path.toString());
+					for (i = 0; i < path.length; i += step) {
+
+						
+
+							var point = path.getPointAt(i);
+							var norm = path.getNormalAt(i);
+							var tan = path.getTangentAt(i);
+							console.log('i, norm', i, norm);
+							visualizeNormal(point, norm, tan);
+						
+
+
+						circ = new Path.Circle({
+		                    center: point.add(norm.multiply(2)),
+		                    radius: setRadius,
+		                    miterLength: 10,
+		                    fillColor: stroke_color,
+		                    strokeColor: stroke_color
+               			});
+               			circ.selected = false;
+
+               			//Delete overlaps
+						for (j = 0; j < circ.segments.length; j++) {
+
+							var curr_x = circ.segments[j].point.x;
+							var curr_y = circ.segments[j].point.y;
+							if (path.contains(new paper.Point(curr_x, curr_y))) {
+								circ.visible = false;
+								// console.log('PATH CONTAINS CIRCLE');
+								// console.log(i, curr_x, curr_y);
+								break;
+							}
+						}
+						// circ.bringToFront();
+						circGroup.addChild(circ);
+					}
+				}
+
+				/*Flip objects on x-axis and/or y-axis based upon arguments--either 1 or -1.*/
+				function flip_on_axis(objects, flip_x, flip_y){
+					var objects = _.flatten(objects);
+					objects = new paper.Group({
+						children: objects,
+						scaling: new paper.Size(flip_x, flip_y)
+					});
+				}
+
+				function create_group(diffusers) { return new paper.Group(diffusers);}
+
+
+				function create_bounding_box(group, color_amount, bounds, stroke_width){
+					//Create bounding box over entire collection of objects
+					var boundingBox = new paper.Path.Rectangle(group.bounds.expand(Ruler.mm2pts(bounds)), 0);
+					boundingBox.style = {
+						fillColor: new Color(color_amount),
+						strokeWidth: stroke_width
+						}
+
+					boundingBox.sendToBack(); //bringToFront()
+					return boundingBox;
+				}
+				
+				/*Color exterior 1mm wide rectangles holding the wires*/
+				function color_wires(boundingBox, color_amount, stroke_width){
+					for (var i = 0; i < diffuser_centroid_lst.length; i++) {
+						var bound_point = boundingBox.getNearestPoint(diffuser_centroid_lst[i]);
+						var wire_line = new paper.Path.Line(diffuser_centroid_lst[i], bound_point);
+						wire_line.strokeColor = new paper.Color(color_amount, stroke_width);
+						// wire_line.strokeWidth = (Ruler.mm2pts(stroke_width)).toString()
+						wire_line.strokeWidth = Ruler.mm2pts(stroke_width);
+					}
+				}
+
+				function set_invisible(objects) {
+					for (var i = 0; i < objects.length; i++){
+						var o = objects[i];
+						o.visible = false;
+					}
+				}
+
+				/*Loop through diffusers & set colors*/
+				function set_appearance(object, stroke_color, stroke_width, fill_color){
+					_.each(object, function(diffuser){
+						diffuser.set({
+							strokeColor: new paper.Color(stroke_color),
+							strokeWidth: stroke_width,
+							fillColor: fill_color
+						})
+					});
+				}
+
+				/*Create four identical corner circles with appropriate colors.*/
+				function create_corner_circles(boundingBox, radius, stroke_width, fill_color, stroke_color, x_flush,y_flush){
+
+					cornerCircle1 = paper.Path.Circle({
+						position: new paper.Point(boundingBox.bounds.topLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.topLeft.y + Ruler.mm2pts(y_flush)), 
+						fillColor: fill_color,
+						strokeColor: stroke_color,
+						strokeWidth: Ruler.mm2pts(stroke_width),
+						radius: Ruler.mm2pts(radius)
+					})
+					cornerCircle2 = cornerCircle1.clone();
+					cornerCircle2.position = new paper.Point(boundingBox.bounds.topRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.topRight.y + Ruler.mm2pts(y_flush));
+
+					cornerCircle3 = cornerCircle1.clone();
+					cornerCircle3.position = new paper.Point(boundingBox.bounds.bottomLeft.x + Ruler.mm2pts(x_flush), boundingBox.bounds.bottomLeft.y - Ruler.mm2pts(y_flush));
+
+					cornerCircle4 = cornerCircle1.clone();
+					cornerCircle4.position = new paper.Point(boundingBox.bounds.bottomRight.x - Ruler.mm2pts(x_flush), boundingBox.bounds.bottomRight.y - Ruler.mm2pts(y_flush));
+				}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+			<a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButton{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: gray;
+	}
+</style>
