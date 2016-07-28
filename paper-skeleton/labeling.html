@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Labeling Algorithm </title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+
+		<script type="text/javascript" src="js/convex.js"></script>
+		<script type="text/javascript" src="js/format.js"></script>
+		<script type="text/javascript" src="js/grid.js"></script>
+		<script type="text/javascript" src="js/hull.js"></script>
+		<script type="text/javascript" src="js/intersect.js"></script>
+
+
+		<script type="text/javascript" src="js/packer.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+			var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					paper.view.zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.loadCustomLibraries();
+
+				paper.view.zoom = 1;
+				nineSegment = new Artwork("img/traffic_light.svg", function(display){
+					labelingScript(display);
+				});
+			});
+			function labelingScript(display){
+				
+				var diffusers = display.queryPrefix('DIF');
+				var LEDS = display.queryPrefix('NLED');
+				var BI = display.queryPrefix('BI');
+				var BO = display.queryPrefix('BO');
+				var CP = display.queryPrefix('CP');
+				var breaks = [BI, BO];
+				
+				var elements = _.flatten([diffusers, BI, BO, LEDS]);
+				var backgroundBox = create_background(elements);
+				create_LED_holes(LEDS);
+				createLabel(diffusers[0], backgroundBox);
+
+			}
+
+			// PRIVATE FUNCTIONS
+			var WALL_EXPANISION = 13; //mm
+			var WALL_WIDTH = 3; //mm
+			var BASE_HEIGHT = 0.55; // relative 1.7 (base) /3.1 (wall) mm
+			var CHANGE_IN_X_DIR = 8;
+			var CHANGE_IN_Y_DIR = 8;
+
+			/* Function takes in DIF object, and creates a bounding box */
+			function create_background(elements){
+				var elements_group = new paper.Group(elements);
+				var backgroundBox = new paper.Path.Rectangle(elements_group.bounds.expand(Ruler.mm2pts(WALL_EXPANISION)), 0);
+				backgroundBox.style = {
+					fillColor: new paper.Color(BASE_HEIGHT),
+					strokeColor: 'white',
+					strokeWidth: Ruler.mm2pts(WALL_WIDTH)
+				}
+				// backgroundBox.dashArray = [10, 4];
+				backgroundBox.sendToBack();
+				return new paper.Path.Rectangle(backgroundBox.strokeBounds); 
+			}
+			function create_LED_holes(led_lights){
+				for (var index = 0; index < led_lights.length; index++){
+					var led  = led_lights[index]
+					led.set({
+						fillColor: "white",
+						strokeColor: 'white',
+						strokeWidth: Ruler.mm2pts(1)
+					});
+				}
+			}
+			function createLabel(path, backgroundBox){
+				path.calculateOMBB();
+				path.ombb.visible = true;	
+				path.getMagnets(path.ombb);
+				var line = new paper.Path.Line({
+					from: new paper.Point(path.magnets.north.x + 100, path.magnets.north.y - 100), 
+					to: path.magnets.north,
+					strokeColor: 'black', 
+					strokeWidth: 5
+				});
+				var sideLine = new paper.Point(path.magnets.north.)
+			}
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: grey;
+	}
+</style>

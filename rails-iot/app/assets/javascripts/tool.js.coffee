@@ -5,8 +5,13 @@
 //= require underscore
 //= require paper-full.min
 //= require saveas.min
+//= require format
+//= require convex
+//= require grid
+//= require hull
 //= require eld/ruler
 //= require eld/artwork
+//= require eld/Pipeline
 //= require eld/graph
 //= require eld/ButtonExporter
 //= require eld/PointSource

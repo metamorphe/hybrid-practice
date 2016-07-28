@@ -13,6 +13,9 @@ function ButtonExporter(dom, type, preFN, postFN){
       var scope = this;
       if(this.type == "PNG")
         $(this.dom).click(function(){
+          paper.project.clear();
+          paper.view.update();
+
           display = new Artwork(getActiveArtwork(), function(artwork){
             result = scope.preFN(artwork);
             // result.remove();
@@ -20,18 +23,20 @@ function ButtonExporter(dom, type, preFN, postFN){
             result.fitBounds(paper.view.bounds)
                       
             var fn = scope.getFilename();
-            ButtonExporter.exportPNG(result, fn, scope.dom);
-            // paper.project.clear();
-            // paper.view.update();
+            // ButtonExporter.exportPNG(result, fn, scope.dom);
+           
           })
         })
       else if(this.type == "SVG")
         $(this.dom).click(function(){
+          paper.project.clear();
+          paper.view.update();
+          
           display = new Artwork(getActiveArtwork(), function(artwork){
             scope.preFN(artwork);
-            var fn = scope.getFilename();
-            ButtonExporter.exportSVG(fn);
-            scope.postFN();
+            // var fn = scope.getFilename();
+            // ButtonExporter.exportSVG(fn);
+            // scope.postFN();
           });
         })
     }, 

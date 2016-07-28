@@ -14,6 +14,8 @@
 
 		<script type="text/javascript">
 		 	var nineSegment;
+		 	var INTERIOR = -1; var CENTERED = 0; var EXTERIOR = 1;
+
 			$(function(){
 				// MAIN FUNCTION
 				$('#downloadButton').click(function(){
@@ -123,13 +125,11 @@
 				console.log(testShape.className);
 
 				// var test = strokeHelper(testShape, 2.5, 'red', 0);
-				// testNormal(testShape, 2.5, 'red');
 				drawStroke(testShape, {
-							width: 40, 
-							color: 'yellow', 
-							strokeDirection: 1
+							width: 7, 
+							color: 'blue', 
+							alignment: 0
 					});
-
 
 				//Create a stroke over each diffuser
 				// _.each(diffuser_group, function(d, i){
@@ -143,6 +143,8 @@
 
 				// create_corner_circles(boundingBox, 1.55, 2, 'white', 'white', 8, 7);
 				// flip_on_axis(all_objects, -1, 1);
+				paper.view.zoom = 1.75;
+				strokeScaling = false;
 				paper.view.update();
 			}
 
@@ -209,57 +211,57 @@
 					return data;
 				}
 
+				function calcStroke(){
+					
 
-				/*Calculate best fit stroke width via a series of small circles.
-				Three types based on stroke_dir: interior, normal, or exterior*/
-				function strokeHelper(path, stroke_width, stroke_color, stroke_dir){
-					console.log('path type', path.className);
-					var circ;
-					var point = null;
-					var circGroup = new paper.Group();
-					var length = path.length;
-					var offset = .4; //.2;
-					var setRadius = .1;
-					// console.log('path', path.toString());
-					for (i = 0; i < length; i = i + offset) {
+						
 
-						var point = path.getPointAt(i);
-						var norm = path.getNormalAt(i); //TODO: make accurate
-						var tan = path.getTangentAt(i);
-						// visualizeNormal(point, norm, tan);
-
-						// var interiorDisplacement = point.add(norm.multiply(2*setRadius * stroke_dir));
-						if (stroke_dir == 1) {
-							norm = norm.clone().multiply(-1); //exterior
+						//TODO: Detect a straight path if same angle as prev
+						if ((Math.abs(currAngle - prevAngle) == 0)) {
+							lineStartingPoint = true;
 						}
+						lineStartingPoint = false;
 
+						//Making stroke
 						circ = new Path.Circle({
-		                    center: point.add(norm.multiply(2*setRadius * stroke_dir)), //TODO: curate
+		                    center: circle_center,
 		                    radius: setRadius,
 		                    fillColor: stroke_color,
 		                    strokeColor: stroke_color
                			});
                			circ.selected = false;
-
+               			prevAngle = currAngle;
 
                			//Delete overlaps
-               			//Exterior path
-               			if (stroke_dir == 1) {
-
-							for (j = 0; j < circ.segments.length; j++) {
-
-								var curr_x = circ.segments[j].point.x;
-								var curr_y = circ.segments[j].point.y;
-								if (path.contains(new paper.Point(curr_x, curr_y))) {
-									// circ.visible = false;
-									// console.log('PATH CONTAINS CIRCLE');
-									// console.log(i, curr_x, curr_y);
-									break;
-								}
-							}
-							// circ.bringToFront();
-							circGroup.addChild(circ);
+               			var canDelete;
+               			//if exterior or normal
+               			if (stroke_align == 1 || stroke_align == 0) {
+               				canDelete = ((path.contains(new paper.Point(curr_x, curr_y))));
 						}
+
+               			//if internal then make sure path does not contain it
+               			else if (stroke_align == -1) {
+               				canDelete = (!(path.contains(new paper.Point(curr_x, curr_y))));
+               			} 
+
+						for (j = 0; j < circ.segments.length; j++) {
+							var curr_x = circ.segments[j].point.x;
+							var curr_y = circ.segments[j].point.y;
+							//Current point intersects with the path
+							if (canDelete) {
+								circ.scaling.x = .1;
+								circ.scaling.y = .1;
+								// circ.visible = false;
+								// console.log('PATH CONTAINS CIRCLE');
+								// console.log(i, curr_x, curr_y);
+								break;
+							}
+						}
+						// circ.bringToFront();
+						circGroup.addChild(circ);
+
+						
+
                		}
 
 					// console.log(circGroup.children);
@@ -276,6 +278,101 @@
 					// 	});
 					// });
 
+
+				// Returns false if any part of the circle is "IN" the path, 
+				// where "IN" is relative to the stroke_align
+				function isValid(circ, path, stroke_align){
+					pts = _.map(circ.segments, function(seg){ return seg.point });
+					console.log(pts.toString());
+					pts = _.map(pts, function(pt){
+						if (stroke_align == "INTERIOR")
+							return path.contains(pt);
+						else if (stroke_align == "EXTERIOR")
+							return ! path.contains(pt);
+						else if (stroke_align == "CENTERED")
+							return true;
+					});
+					console.log(pts);
+					// console.log(pts.length == _.compact(pts).length);
+					// console.log(pts.length, _.compact(pts).length);
+					// return pts.length == _.compact(pts).length;
+				}
+
+				//Returns true if it detects a corner on the path
+				function onCorner(circle_center, stroke_width, path, prevAngle, currAngle){
+
+					if ((Math.abs(currAngle - prevAngle) >= 30)) {
+							// console.log(Math.abs(currAngle - prevAngle));
+							// console.log(currAngle);
+							// console.log(prevAngle);
+							// console.log('This point is a corner', point);
+							return true;
+						}
+					else return false;
+				}
+
+				/*Calculate best fit stroke width via a series of small circles.
+				Three types based on stroke_align: interior, normal, or exterior*/
+				function strokeHelper(path, stroke_width, stroke_color, stroke_align){
+					console.log('path type', path.className);
+					var circ;
+					var point = null;
+					var circGroup = new paper.Group();
+					var length = path.length;
+					var offset = 20; //.2;
+					var setRadius = stroke_width / 2;
+
+					//TODO: turn straight lines into rectangles; try to use flags
+					var lineStartingPoint = path.getPointAt(0);
+					var lineEndingPoint = null;
+
+					var prevAngle = 0; var currAngle = 0; var circle_center;
+
+
+					var points = _.range(0, length, offset);
+					_.each(points, function(i) {
+
+						var point = path.getPointAt(i);
+						var norm = path.getNormalAt(i);
+						var tan = path.getTangentAt(i);
+
+						//For edge detection
+						currAngle = norm.angle;
+
+						//TODO: Reference normal (fix orientation--should always be outwards)
+						norm.length *= -1;
+						var radiusVector = norm.clone();
+						radiusVector.length = setRadius * stroke_align;
+						// visualizeNormal(point, norm, tan);
+
+						//Calculating circle centerpoints
+						var circle_center = point;
+						if (stroke_align != CENTERED) circle_center = point.add(radiusVector);
+
+						//Instantiating circles
+						circ = new Path.Circle({
+		                    center: circle_center,
+		                    radius: setRadius,
+		                    fillColor: stroke_color,
+		                    strokeColor: stroke_color
+               			});
+
+						//Validity check for circle positions against path shape
+               			var valid = isValid(circ, path, stroke_align);
+               			if (!valid) circ.remove();
+
+						var edgeOnCorner = onCorner(circle_center, stroke_width, path, prevAngle, currAngle);
+						if (edgeOnCorner) {
+							edgeCircle = new Path.Circle({
+		                    center: circle_center,
+		                    radius: stroke_width / 2,
+		                    fillColor: 'orange',
+		                    strokeColor: 'orange',
+		                    selected: false
+               				});
+						}
+					prevAngle = currAngle;
+					});
 				}
 
 				function visualizeNormal(origin, normal, tangent){
@@ -289,7 +386,7 @@
 					new paper.Path.Line({
 							from: origin, 
 							to: origin.add(normal),
-							strokeColor: "pink", 
+							strokeColor: "yellow", 
 							strokeWidth: 0.5,
 							dashArray: [1, 0.5]
 					});
@@ -298,7 +395,7 @@
 					new paper.Path.Line({
 							from: origin, 
 							to: origin.add(normal),
-							strokeColor: "black", 
+							strokeColor: "blue", 
 							strokeWidth: 0.5
 					});
 
@@ -328,71 +425,16 @@
 				}
 
 				//
-				// Attribute strokeDirection (-1 = interior, 0 = centered, 1 = exterior)
-				function drawStroke(path, options){
-					var options = {
-							width: options.width, 
-							color: options.color, 
-							strokeDirection: options.strokeDirection
-					}
-					if (options.strokeDirection == 1) {
-						//Exterior stroke
-						strokeHelper(path, options.width, options.color, 1);
-					} else if (options.stroke == -1) {
-						//Interior stroke
-						strokeHelper(path, options.width, options.color, -1);
-					} else {
-						//normal stroke
-						strokeHelper(path, options.width, options.color, 0);
-					}
-
+				// Attribute alignment (-1 = interior, 0 = centered, 1 = exterior)
+				function drawStroke(path, stroke_options){
+					// var stroke_options = {
+					// 		width: stroke_options.width, 
+					// 		color: stroke_options.color, 
+					// 		alignment: stroke_options.alignment
+					// }
+					strokeHelper(path, stroke_options.width, stroke_options.color, stroke_options.alignment);
 				}
-				/*Create an exterior stroke width via a series of small circles*/
-				function testNormal(path, stroke_width, stroke_color){
-					var circ;
-					var point = null;
-					var circGroup = new paper.Group();
-					
-					var step = 10;
-					var setRadius = 2;
-					// console.log('path', path.toString());
-					for (i = 0; i < path.length; i += step) {
-
-						
-
-							var point = path.getPointAt(i);
-							var norm = path.getNormalAt(i);
-							var tan = path.getTangentAt(i);
-							console.log('i, norm', i, norm);
-							visualizeNormal(point, norm, tan);
-						
-
-
-						circ = new Path.Circle({
-		                    center: point.add(norm.multiply(2)),
-		                    radius: setRadius,
-		                    miterLength: 10,
-		                    fillColor: stroke_color,
-		                    strokeColor: stroke_color
-               			});
-               			circ.selected = false;
-
-               			//Delete overlaps
-						for (j = 0; j < circ.segments.length; j++) {
-
-							var curr_x = circ.segments[j].point.x;
-							var curr_y = circ.segments[j].point.y;
-							if (path.contains(new paper.Point(curr_x, curr_y))) {
-								circ.visible = false;
-								// console.log('PATH CONTAINS CIRCLE');
-								// console.log(i, curr_x, curr_y);
-								break;
-							}
-						}
-						// circ.bringToFront();
-						circGroup.addChild(circ);
-					}
-				}
+			
 
 				/*Flip objects on x-axis and/or y-axis based upon arguments--either 1 or -1.*/
 				function flip_on_axis(objects, flip_x, flip_y){

@@ -48,7 +48,7 @@
 				paper.loadCustomLibraries();
 
 				paper.view.zoom = 1;
-				nineSegment = new Artwork("img/traffic_light.svg", function(display){
+				nineSegment = new Artwork("img/sun_moon.svg", function(display){
 					spacerScript(display);
 				});
 				
@@ -85,6 +85,7 @@
 							strokeWidth: 2
 						});
 						expansions.push(expansion);
+
 					}
 				});
 				
@@ -96,7 +97,8 @@
 					diffuser.visible = false
 				}
 
-				var all_objects = [DIF, LEDS, BI, BO, CP, cornerCircle1, cornerCircle2, cornerCircle3, cornerCircle4];
+				var all_objects = [backgroundBox, DIF, LEDS, BI, BO, CP, cornerCircle1, cornerCircle2, cornerCircle3, cornerCircle4];
+				// flip_on_axis(all_objects, -1, 1)
 				
 				_.each(ombbs, function(o){
 					all_objects.push(o);
@@ -167,19 +169,16 @@
 				// compute the two nearest points of the rectangle to wall
 				var OMBB = ombb.clone();
 				var points = _.map(OMBB.segments, function(seg){ return seg.point; });
-				var distance_table = [];
-				
-				// creates distance table 
-				_.each(points, function(pt,i,arr){
+				var distance_table = _.map(points, function(pt,i,arr){
 					var wall_point = backgroundBox.getNearestPoint(pt);
 					var vector = wall_point.subtract(pt);
 					var distance = vector.length;
-					distance_table.push({
+					return{
 						point: pt,
 						distance: distance,
 						vector: vector,      // vector of point to wall
 						idx: i
-					});
+					};
 				});
 
 				// sorts distance table from min distance to max distance 

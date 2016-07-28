@@ -19,9 +19,9 @@ PointLight.prototype = {
 	},
 	emmision: function(){
 		var scope = this;
-		rays = _.range(-60, 61, 1);
+		rays = _.range(-60, 61, 0.5);
 		rays = _.map(rays, function(theta){
-			console.log(scope.source.position.toString(), theta);
+			// console.log(scope.source.position.toString(), theta);
 			return scope.emit(scope.source.position, scope.toLocalSpace(theta), 1, "yellow");
 		})
 

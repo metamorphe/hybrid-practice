@@ -6,9 +6,10 @@
         $("#shade").fadeOut("slow");
 
 
-        // var spacers = new ButtonExporter($('#mold'), "PNG", runScript );
+        var lens = new ButtonExporter($('#mold'), "PNG", makeLenseMold );
+        var spacers = new ButtonExporter($('#spacer'), "PNG", makeSpacerMold );
 
-        tir = new Artwork("/artwork/tir.svg", function(display){
+        tir = new Artwork("/artwork/working.svg", function(display){
           runScript(display);
         });
       });
@@ -29,9 +30,11 @@
           el.n = parseFloat(Artwork.getName(el).split("_")[1]);
         });
 
-        var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(-10, -3));
-        var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
-        leds = _.map([posA, posB], function(pos){
+        // var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(-10, -3));
+        var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(0, -3));
+        // var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
+        var leds = [posA]
+        leds = _.map(leds, function(pos){
               return  new PointLight({
                   position: pos, 
                   mediums: _.flatten([lenses,reflectors])
@@ -39,7 +42,7 @@
         });
 
         _.each(leds, function(l){
-            l.emmision();
+            // l.emmision();
             console.log(l.options)
         });
 
@@ -50,16 +53,19 @@
         // return makeLenseMold(display);
       }
 
+
       function makeLenseMold(display){
+        paper.view.zoom = 1;
         base = display.queryPrefix("BASE");
         lenses = display.queryPrefix("LENS");
-        lenses = [lenses[1]]
+        lenses = [lenses[0]]
         images = _.map(lenses, function(ref){
             return pathToModel(ref);
         });
         return images[0];
       }
-      function makeSpacer(display){
+      function makeSpacerMold(display){
+        paper.view.zoom = 1;
         base = display.queryPrefix("BASE");
         base = base[0];
         reflectors = display.queryPrefix("REF");
@@ -145,7 +151,8 @@
     </script>
   </head>
   <body>
-    <a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> M </a>
+    <a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> Lens </a>
+    <a id="spacer" name="spacer" href="#" class="process btn btn-lg btn-success"> Spacer </a>
     <canvas id="myCanvas"></canvas>
     
       <%= render :partial => "modals"%>
