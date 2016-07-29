@@ -18,8 +18,10 @@ $(function(){
   $('#png-download').click(function(){
       var result = CanvasUtil.queryPrefix("RESULT")[0];
       console.log("FINAL DIMENSIONS", 
-        Ruler.pts2mm(result.bounds.width).toFixed(2), "mm x", 
-        Ruler.pts2mm(result.bounds.height).toFixed(2), "mm");
+        Ruler.pts2mm(result.strokeBounds.width).toFixed(2), "mm x", 
+        Ruler.pts2mm(result.strokeBounds.height).toFixed(2), "mm x",
+        result.model_height.toFixed(2), "mm"
+      );
       result.fitBounds(paper.view.bounds.expand(-5))
       
       var fn =$("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
@@ -46,10 +48,10 @@ $(function(){
                 <span>DIFFUSER</span> <button name="diffuser" class="view btn-sm btn btn-primary"> D</button>
             </li>
             <li>
-                <span>REFLECTOR</span> <button name="reflector" class="view btn-sm btn btn-danger">R</button>
+                <span>LENS</span> <button name="lens" class="view btn-sm btn btn-default">L</button>
             </li>
             <li>
-                <span>LENS</span> <button name="lens" class="view btn-sm btn btn-default">L</button>
+                <span>REFLECTOR</span> <button name="reflector" class="view btn-sm btn btn-danger">R</button>
             </li>
             <li>
                 <span>SPACER</span> <button name="spacer" class="view btn-sm btn btn-warning">S</button>

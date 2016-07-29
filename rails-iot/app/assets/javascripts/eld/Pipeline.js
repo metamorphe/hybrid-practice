@@ -1,19 +1,39 @@
+// #40-40 X 1in
+var NUT_HEIGHT = 2.46;//mm
+var HEAD_HEIGHT = 2.76;//mm
+var BOLT_HEIGHT = 21.17; //mm
+var THREAD_HEIGHT = BOLT_HEIGHT - NUT_HEIGHT - HEAD_HEIGHT;//mm
+
+var HEAD_RADIUS = 5.58 / 2.0; //mm
+var PEG_RADIUS = 3.0 / 2.0; //mm
+var HEX_RADIUS = 6.31 / 2.0; //mm
+
+var END_GAP = 1.4125;//mm
+
 // NAMESPACE FOR ELD PIPEPLINE
+var DIFUSSER_HEIGHT = END_GAP + HEAD_HEIGHT;//mm
+var REFLECTOR_HEIGHT = 10;//mm
+var SPACER_HEIGHT = 3.1;
+var BASE_HEIGHT = END_GAP + NUT_HEIGHT;
+
+var OVERALL_HEIGHT = DIFUSSER_HEIGHT + REFLECTOR_HEIGHT + SPACER_HEIGHT + BASE_HEIGHT;
+
+// BASE
 
 // SPACER + REFLECTOR
-var PEG_RADIUS = 3.55 / 2.0; //mm
-var PEG_PADDING = 10; //mm
 var WALL_WIDTH = 3; //mm
+var PEG_PADDING = WALL_WIDTH * 1.2;// + (PEG_RADIUS / 2.0); //mm
+
 
 // REFLECTOR
 var DIFUSSER_BASE_HEIGHT = 0.641;
-var BASE_EXPANSION = -3; //mm
+var BASE_EXPANSION = -WALL_WIDTH; //mm
 var RIM_HEIGHT = 0.128;
 var RIM_WIDTH = 1.5; //mm
 
 // SPACER 
-var WALL_EXPANISION = BASE_EXPANSION + WALL_WIDTH; //mm
-var BASE_HEIGHT = 0.55; // relative 1.7 (base) /3.1 (wall) mm
+var WALL_EXPANISION = BASE_EXPANSION; //mm
+var PCB_HEIGHT = 1.7; // relative 1.7 (base) /3.1 (wall) mm
 var CHANGE_IN_X_DIR = 8; //pts
 var CHANGE_IN_Y_DIR = 8; //pts
 var LED_TOLERANCE = 3; //mm
@@ -46,407 +66,125 @@ Pipeline.getElements = function() {
     }
 }
 Pipeline.script = {
-    circuit: function(display, e) {
-        function generateNodes(nodes, callbackFN) {
-
-            var c = new Artwork("/components/APA102C.svg", function(footprint) {
-
-                square = footprint.queryPrefix("SMD");
-                square[0].remove();
-                nodes = _.map(nodes, function(element) {
-                    is_breakout = ["BO", "BI"].indexOf(Artwork.getPrefix(element)) != -1;
-
-                    if (is_breakout) {
-                        rectangle = new Path.Rectangle({
-                            rectangle: element.bounds,
-                            strokeColor: "black",
-                            background: "white"
-                        });
-                    } else {
-                        var fp = footprint.clone();
-                        fp.svg.position = element.position;
-                        rectangle = fp.svg;
-                    }
-
-                    // Establish two circles to help with routing.
-                    var offset = new paper.Point(POINT_OFFSET, 0);
-
-                    var entryPoint = new Path.Circle({
-                        position: rectangle.bounds.leftCenter.clone().subtract(offset),
-                        radius: 3,
-                        fillColor: "blue"
-                    });
-                    var exitPoint = new Path.Circle({
-                        position: rectangle.bounds.rightCenter.clone().add(offset),
-                        radius: 3,
-                        fillColor: "blue"
-                    });
-
-                    var in_offset = new paper.Point(POINT_INNER_OFFSET, 0);
-                    // Establish surface-contact circles for final routing.
-                    var contactEntryPoint = new Path.Circle({
-                        position: rectangle.bounds.leftCenter.clone().add(in_offset),
-                        radius: 2,
-                        fillColor: "green"
-                    });
-
-                    var contactExitPoint = new Path.Circle({
-                        position: rectangle.bounds.rightCenter.clone().subtract(in_offset),
-                        radius: 2,
-                        fillColor: "green"
-                    });
-
-                    var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
-
-                    // group.text = pointText;
-                    group.rectangle = rectangle;
-                    group.inputPoint = entryPoint;
-                    group.outputPoint = exitPoint;
-                    group.contactInput = contactEntryPoint;
-                    group.contactOutput = contactExitPoint;
-                    return group;
-                });
-
-                callbackFN(nodes);
-                footprint.remove();
-            });
-        }
-
-        // Function to obtain cost (Path length) from node with two neighbors.
-        function cost(node, paths) {
-            is_breakout = _.isNull(node.left) || _.isNull(node.right);
-
-            breakout_bias = is_breakout ? 10000000 : 0;
-            // if(node.rotation % 45 == 0 ) breakout_bias = 0;
-
-            return breakout_bias + _.reduce(paths, function(memo, path) {
-                return memo + path.length;
-            }, 0);
-        };
-
-        // Helper Function to determine optimal routing.
-        function bestCost(node) {
-            var cost_table = [];
-            var original_rotation = node.rotation;
-            for (var theta = 0; theta < 360; theta += THETA_STEP) {
-
-                node.rotation = theta;
-                var neighbors = [];
-
-                if (!_.isNull(node.left))
-                    neighbors.push([node.left.outputPoint.position, node.inputPoint.position]);
-                if (!_.isNull(node.right))
-                    neighbors.push([node.outputPoint.position, node.right.inputPoint.position]);
-
-                neighbors = _.map(neighbors, function(neighbor) {
-                    return new Path(neighbor[0], neighbor[1])
-                });
-
-                cost_table.push({ theta: theta, cost: cost(node, neighbors) })
-                _.each(neighbors, function(neighbor) { neighbor.remove() });
-            }
-            node.rotation = original_rotation;
-            return _.min(cost_table, function(entry) {
-                return entry.cost });
-        }
-
-        // Function to route the rectangles together based on overall cost.
-        function route(nodes) {
-            difference = Number.MAX_SAFE_INTEGER;
-            iters = 0;
-
-            while (difference > EPSILON && iters < OPT_MAX_ITERS) {
-                result = _.map(nodes, function(node, i) {
-                    return bestCost(node);
-                });
-
-                difference = _.reduce(nodes, function(memo, node, i) {
-                    var prev = node.rotation;
-                    node.rotation = result[i].theta;
-                    return memo + Math.abs(prev - result[i].theta);
-                }, 0);
-
-
-
-                paper.view.update();
-                iters++;
-                console.log("OPT STEP", iters, difference);
-            }
-        };
-
-        function connect_the_dots(nodes) {
-            pts = []
-            var lines = new paper.Group({ name: "TRACE: Trace Expansion" });
-            _.each(nodes, function(node, i, arr) {
-                var neighbors = [];
-
-                if (!_.isNull(node.right))
-                    neighbors.push([node.contactOutput.position, node.outputPoint.position, node.right.inputPoint.position, node.right.contactInput.position]);
-
-                neighbors = _.map(neighbors, function(neighbor, i, arr) {
-                    pts.push(neighbor);
-
-                    return new paper.Path({
-                        parent: lines,
-                        segments: neighbor,
-                        strokeColor: "blue",
-                        strokeWidth: 3
-                    })
-                });
-            });
-            bgPath = new paper.Path({
-                strokeColor: "yellow",
-                segments: _.flatten(pts),
-                strokeWidth: Ruler.mm2pts(10)
-            });
-            bgPath.sendToBack();
-        }
-
-        function cleanup(nodes) {
-            var ngroup = new paper.Group(nodes);
-            _.each(nodes, function(node) {
-                node.inputPoint.remove();
-                node.outputPoint.remove();
-                node.contactInput.remove();
-                node.contactOutput.remove();
-            });
-
-            var all = _.flatten([e.leds, e.bo, e.bi, e.diff]);
-            var result = new paper.Group(all);
-
-
-            // BACKGROUND
-            var backgroundBox = new paper.Path.Rectangle({
-                rectangle: result.bounds.expand(Ruler.mm2pts(WALL_EXPANISION)),
-                fillColor: new paper.Color(BASE_HEIGHT),
-                strokeColor: 'white',
-                strokeWidth: Ruler.mm2pts(WALL_WIDTH),
-                parent: result
-            });
-
-            backgroundBox.sendToBack();
-
-            display.svg.remove();
-
-            paper.view.update();
-        }
-
-        // Function that initializes the routing process.
-        leds = _.sortBy(e.leds, function(led) {
-            return led.lid; });
-        nodes = _.flatten([e.bi, leds, e.bo]);
-
-        nodes = generateNodes(nodes, function(nodes) {
-            // linked list
-            _.each(nodes, function(node, i, arr) {
-                node.right = null;
-                node.left = null;
-
-                if (i - 1 >= 0) node.left = arr[i - 1];
-                if (i + 1 < arr.length) node.right = arr[i + 1];
-            });
-
-            route(nodes);
-            connect_the_dots(nodes);
-            cleanup(nodes);
-
-        });
-
-        var result = new paper.Group(nodes);
-        result.name = "RESULT: MASK";
-    },
-    mask: function(display, e) {
-        Pipeline.set_visibility(e.art, true);
-        var invisible = _.compact(_.flatten([e.leds, e.cp, e.diff, e.dds, e.bi, e.bo]));
-        Pipeline.set_visibility(invisible, false);
-
-        result = new paper.Group(e.art);
-        result.name = "RESULT: MASK";
-    },
     diffuser: function(display, e) {
-        console.log("Found", e.diff.length, "diffusers...")
-            //Extrating diffusers
         _.each(e.diff, function(diffuser) {
             diffuser.set({
                 visible: true,
                 fillColor: "black",
-                strokeColor: "white",
-                strokeWidth: Ruler.mm2pts(2)
+                strokeWidth: 0
             });
         });
 
         var result = new paper.Group(e.diff);
 
         //Creating a bounding box
-        boundingBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL), 0),
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
             fillColor: 'white',
             parent: result
         });
-        boundingBox.sendToBack();
+        backgroundBox.sendToBack();
 
+       var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.strokeBounds.expand(Ruler.mm2pts(HEAD_RADIUS)), 
+         radius: HEAD_RADIUS, 
+         padding: PEG_PADDING, 
+         height: HEAD_RADIUS/ DIFUSSER_HEIGHT, 
+         parent: result
+        });
+
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.strokeBounds, 
+         radius: PEG_RADIUS, 
+         padding: PEG_PADDING, 
+         height: 'black', 
+         parent: result
+        });
 
         //Make non-molding objects invisible
         var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
         Pipeline.set_visibility(invisible, false);
 
-        result.scaling = new paper.Size(-1, 1);
+        // result.scaling = new paper.Size(-1, 1);
         result.name = "RESULT: DIFFUSER";
-    },
-    mold_tiered: function(display, e) {
-
-
-        console.log("Found", e.diff.length, "diffusers...")
-            //Extrating diffusers
-        _.each(e.diff, function(diffuser) {
-            diffuser.set({
-                visible: true,
-            });
-            diffuser.fillColor.lightness = 1.0 - diffuser.fillColor.lightness;
-        });
-
-        console.log("Found", dds.length, "DDs...")
-        _.each(e.dds, function(dd) {
-            dd.set({
-                visible: true,
-            });
-            dd.fillColor.lightness = 1.0 - dd.fillColor.lightness;
-            dd.bringToFront();
-        });
-        var all = _.compact(_.flatten([dds, diffusers]));
-
-        var result = new paper.Group(all);
-
-        //Creating a bounding box
-        boundingBox = new paper.Path.Rectangle({
-            rectangle: diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL), 0),
-            fillColor: "white",
-            parent: result
-        });
-        boundingBox.sendToBack();
-
-
-        //Make non-molding objects invisible
-        var invisible = _.flatten([e.leds, e.cp, e.bi, e.bo]);
-        Pipeline.set_visibility(invisible, false);
-
-        result.scaling = new paper.Size(-1, 1);
-        result.name = "RESULT: TIER MOLD";
+        result.model_height = DIFUSSER_HEIGHT;
     },
     lens: function(display, e) {
-
-        // MAKE REFLECTORS
         var all = _.flatten([e.diff, e.leds]);
         var result = new paper.Group(all);
+
         boundingBox = new paper.Path.Rectangle({
-            rectangle: result.bounds,
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
             fillColor: "white",
             parent: result
         });
-
-
-        ramps = _.map(e.diff, function(diffuser) {
-            return setMoldGradient(false, diffuser, _.filter(e.leds, function(l) {
-                return diffuser.contains(l.bounds.center); }));
-        });
-        // console.log(ramp);
-        result.addChildren(ramps);
-        _.each(e.leds, function(led) {
-                led.bringToFront();
-            })
-            // ramp.selected = true;
-            // boundingBox.sendToBack();
-            // REFLECT ACROSS X
-            // result.scaling = new paper.Size(-1, 1);
-
-        // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp]));
-        Pipeline.set_visibility(invisible, false);
-        result.name = "RESULT: LENS";
-    },
-    reflector: function(display, e) {
-
-        // MAKE REFLECTORS
-        var all = _.flatten([e.diff, e.leds]);
-        var result = new paper.Group(all);
-        boundingBox = new paper.Path.Rectangle({
-            rectangle: result.bounds,
-            fillColor: "white",
-            parent: result
-        });
-
 
         ramps = _.map(e.diff, function(diffuser) {
             return setMoldGradient(true, diffuser, _.filter(e.leds, function(l) {
                 return diffuser.contains(l.bounds.center); }));
         });
-        // console.log(ramp);
+
         result.addChildren(ramps);
-        _.each(e.leds, function(led) {
-                led.bringToFront();
-            })
-            // ramp.selected = true;
-            // boundingBox.sendToBack();
-            // REFLECT ACROSS X
-            // result.scaling = new paper.Size(-1, 1);
+          
+        // INVISIBILITY
+        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp]));
+        Pipeline.set_visibility(invisible, false);
+        result.name = "RESULT: LENS";
+        result.model_height = REFLECTOR_HEIGHT;
+    },
+    reflector: function(display, e) {
+        var all = _.flatten([e.diff, e.leds]);
+        var result = new paper.Group(all);
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: "white",
+            parent: result
+        });
+
+        ramps = _.map(e.diff, function(diffuser) {
+            return setMoldGradient(false, diffuser, _.filter(e.leds, function(l) {
+                return diffuser.contains(l.bounds.center); }));
+        });
+        result.addChildren(ramps);
+
+        // var pegs = Pipeline.create_corner_pegs({ 
+        //  geometry: "hex",
+        //  bounds: backgroundBox.strokeBounds, 
+        //  radius: HEX_RADIUS, 
+        //  padding: PEG_PADDING, 
+        //  height: 'yellow', 
+        //  parent: result
+        // });
+        var mc = e.mc[0];
+        mc.set({
+            fillColor: "black",
+            pivot: mc.bounds.leftCenter
+        });
+        mc.position = backgroundBox.getNearestPoint(mc.pivot);
+        // mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
+        mc.parent = result;
+
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.strokeBounds, 
+         radius: PEG_RADIUS, 
+         padding: PEG_PADDING, 
+         height: 'black', 
+         parent: result
+        });
+
 
         // INVISIBILITY
         var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: REFLECTOR";
+        result.model_height = REFLECTOR_HEIGHT;
     },
-    cap: function(display, e) {
-
-        // PROCESSING
-        calc_centroids(e.diff);
-
-        // MAKE REFLECTORS
-        _.each(e.diff, function(diffuser) {
-            diffuser.set({
-                strokeColor: new paper.Color(RIM_HEIGHT),
-                strokeWidth: (Ruler.mm2pts(RIM_WIDTH)),
-                fillColor: 'black'
-            });
-        });
-
-        var all = _.flatten([e.diff]);
-        var result = new paper.Group(all);
-
-        // SUPPORT STRUCTURE
-        var boundingBox = new paper.Path.Rectangle({
-            parent: result,
-            rectangle: result.strokeBounds.expand(Ruler.mm2pts(BASE_EXPANSION)),
-            fillColor: new Color(DIFUSSER_BASE_HEIGHT)
-        });
-        boundingBox.sendToBack();
-
-        // WIRE HOLES
-        // Pipeline.make_wire_holes(result, e.diff, boundingBox, RIM_HEIGHT, RIM_WIDTH);
-
-        // CORNER PEGS
-        // pegs = Pipeline.create_corner_pegs({ 
-        // 	bounds: boundingBox.bounds, 
-        // 	radius: Ruler.mm2pts(PEG_RADIUS), 
-        // 	padding: Ruler.mm2pts(PEG_PADDING), 
-        // 	height: 'white', 
-        // 	parent: result
-        // });
-
-        // REFLECT ACROSS X
-        result.scaling = new paper.Size(-1, 1);
-
-        // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.bo, e.bi, e.cp]));
-        Pipeline.set_visibility(invisible, false);
-
-        result.name = "RESULT: CAP";
-    },
+    
     spacer: function(display, e) {
-
-
-        // LED holes with 1mm tolerance
-        // console.log()
         _.each(e.leds, function(led) {
             led.set({
                 fillColor: "black",
@@ -456,67 +194,111 @@ Pipeline.script = {
         });
 
 
-        var all = _.flatten([e.leds, e.bo, e.bi, e.diff, e.mc]);
+        var all = _.flatten([e.leds, e.diff]);
         var result = new paper.Group(all);
 
 
-        // BACKGROUND
+        // // BACKGROUND
         var backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(WALL_EXPANISION)),
-            fillColor: new paper.Color(BASE_HEIGHT),
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL) - Ruler.mm2pts(WALL_WIDTH)),
+            fillColor: new paper.Color(PCB_HEIGHT/SPACER_HEIGHT),
             strokeColor: 'white',
             strokeWidth: Ruler.mm2pts(WALL_WIDTH),
             parent: result
         });
-
         backgroundBox.sendToBack();
+        
+
         var mc = e.mc[0];
-        mc.fillColor = "black";
-        mc.pivot = mc.bounds.leftCenter;
+        mc.set({
+            fillColor: "black",
+            pivot: mc.bounds.leftCenter
+        });
         mc.position = backgroundBox.getNearestPoint(mc.pivot);
         mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
-
+        mc.parent = result;
         // ADD CORNER PEGS
         // var pegs = Pipeline.create_corner_pegs({ 
-        // 	bounds: backgroundBox.strokeBounds, 
-        // 	radius: Ruler.mm2pts(PEG_RADIUS), 
-        // 	padding: Ruler.mm2pts(PEG_PADDING), 
-        // 	height: 'black', 
-        // 	parent: result
+        //  geometry: "hex",
+        //  bounds: backgroundBox.strokeBounds, 
+        //  radius: HEX_RADIUS, 
+        //  padding: PEG_PADDING, 
+        //  height: 'yellow', 
+        //  parent: result
         // });
 
-        // Compute the Convex Hull 
-        var breakio = _.compact(_.flatten([e.bi, e.bo]));
-
-        // expansions = _.map(breakio, function(el){
-        // 	el.calculateOMBB();
-        // 	el.ombb.visible = true;
-
-
-        // 	el.ombb.fillColor = "yellow";
-        // 	// el.ombb.selected = true;
-        // 	expansion =  Pipeline.extend_to_edge(el.ombb, backgroundBox);
-        // 	expansion.set({
-        // 		// parent: result,
-        // 		fillColor: 'black',
-        // 		strokeColor: 'black',
-        // 		strokeWidth: 2
-        // 	});
-        // 	expansion.rotate(-90, el.ombb.bounds.center);
-        // 	el.ombb.visible = false;
-        // 	return expansion;
-        // });
-        // result.addChildren(expansions);
-
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.strokeBounds, 
+         radius: PEG_RADIUS, 
+         padding: PEG_PADDING, 
+         height: 'black', 
+         parent: result
+        });
+        mc.bringToFront();
+     
         var invisible = _.compact(_.flatten([e.art, e.dds, e.diff, e.cp, e.bo, e.bi]));
         Pipeline.set_visibility(invisible, false);
 
         // /* Reflect Object */
         result.scaling = new paper.Size(-1, 1);
         result.name = "RESULT: SPACER";
+        result.model_height = SPACER_HEIGHT;
+    },
+    circuit: function(display, e) {
+        // Function that initializes the routing process.
+        leds = _.sortBy(e.leds, function(led) {
+            return led.lid; });
+        nodes = _.flatten([e.bi, leds, e.bo]);
+
+        nodes = CircuitRouting.generateNodes(nodes, function(nodes) {
+            _.each(nodes, function(node, i, arr) {
+                node.right = null;
+                node.left = null;
+                if (i - 1 >= 0) node.left = arr[i - 1];
+                if (i + 1 < arr.length) node.right = arr[i + 1];
+            });
+            CircuitRouting.route(nodes);
+            CircuitRouting.connect_the_dots(nodes);
+            CircuitRouting.cleanup(nodes, e);
+            paper.view.update();
+        });
     },
     base: function(display, e) {
+       
+        var all = _.flatten([e.leds, e.diff, e.mc]);
+        var result = new paper.Group(all);
+    
+        var backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.strokeBounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: new paper.Color(BASE_HEIGHT),
+            strokeWidth: 0, 
+            parent: result
+        });        
+        // ADD CORNER PEGS
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "hex",
+         bounds: backgroundBox.bounds, 
+         radius: HEX_RADIUS, 
+         padding: PEG_PADDING, 
+         height: END_GAP / BASE_HEIGHT, 
+         parent: result
+        });
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.bounds, 
+         radius: PEG_RADIUS, 
+         padding: PEG_PADDING, 
+         height: 'black', 
+         parent: result
+        });
+        backgroundBox.sendToBack();
 
+
+        var invisible = _.compact(_.flatten([e.art, e.mc, e.leds, e.dds, e.diff, e.cp, e.bo, e.bi]));
+        Pipeline.set_visibility(invisible, false);
+        result.name = "RESULT: BASE";
+        result.model_height = BASE_HEIGHT;
     }
 }
 
@@ -525,105 +307,39 @@ Pipeline.script = {
 Pipeline.create_corner_pegs = function(o) {
     o.radius = Ruler.mm2pts(o.radius);
     o.padding = Ruler.mm2pts(o.padding);
+    if(o.geometry != "hex")
+        o.bounds = o.bounds.expand(-2 * o.radius - Ruler.mm2pts(HEX_RADIUS) - 2 * o.padding);
+    else
+        o.bounds = o.bounds.expand(-2 * o.radius - 2 * o.padding);
+    // - 2 * o.padding 
 
     corners = [o.bounds.topRight, o.bounds.topLeft, o.bounds.bottomLeft, o.bounds.bottomRight]
     corners = _.map(corners, function(corner) {
-        var dir = corner.clone().subtract(paper.view.center);
-        dir.length = o.padding;
+        var dir = o.bounds.center.subtract(corner);
+        dir.length = 0;
 
-        return paper.Path.Circle({
-            parent: o.parent,
-            position: corner.subtract(dir),
-            fillColor: o.height,
-            radius: o.radius
-        });
+        if(o.geometry == "hex"){
+            return new Path.RegularPolygon({
+                parent: o.parent,
+                position: corner.add(dir),
+                center: [50, 50],
+                sides: 6,
+                fillColor: o.height,
+                radius: o.radius
+            });
+        }else{
+            return new paper.Path.Circle({
+                parent: o.parent,
+                position: corner.add(dir),
+                fillColor: o.height,
+                radius: o.radius
+            });
+        }
     });
     return corners;
 }
 
 
-Pipeline.extend_to_edge = function(ombb, backgroundBox) {
-    // compute the two nearest points of the rectangle to wall
-    var OMBB = ombb.clone();
-    var points = _.map(OMBB.segments, function(seg) {
-        return seg.point; });
-
-    // creates distance table 
-    var distance_table = _.map(points, function(pt, i) {
-        var wall_point = backgroundBox.getNearestPoint(pt);
-        var vector = wall_point.subtract(pt);
-        var distance = vector.length;
-        return {
-            point: pt,
-            distance: distance,
-            vector: vector, // vector of point to wall
-            idx: i
-        };
-    });
-
-    // // sorts distance table from min distance to max distance 
-    var distance_table = _.sortBy(distance_table, function(item) {
-        return item.distance;
-    });
-
-    // // since its sorted by min to max, the first two are the closest points
-    var closest = distance_table[0];
-    var sec_closest = distance_table[1];
-
-    // line between closest and second closest points
-    var line = new paper.Path.Line({
-        from: closest.point,
-        to: sec_closest.point,
-        strokeColor: "red",
-        strokeWidth: 2,
-        visible: false
-    });
-
-    // OMBB.width = 400;
-
-    //line perpendicular to line between closest and second closest points
-    var n = line.getNormalAt(line.length / 2);
-    var pt = line.getPointAt(line.length / 2);
-
-    n.length = 1;
-    var p1 = pt.add(n);
-    if (OMBB.contains(p1)) n.length *= -1;
-
-    n.length *= closest.distance + Ruler.mm2pts(WALL_WIDTH) / 2.0 + 100;
-
-
-    var nline = new paper.Path.Line({
-        from: line.getPointAt(line.length / 2),
-        to: line.getPointAt(line.length / 2).add(n),
-        strokeColor: "green",
-        strokeWidth: 2
-    });
-
-    var close = [closest.idx, sec_closest.idx];
-    _.each(OMBB.segments, function(seg, i) {
-        if (close.indexOf(i) > -1) OMBB.segments[i].point = OMBB.segments[i].point.add(n);
-    });
-    OMBB.fillColor = "black";
-    line.remove();
-    nline.remove();
-    return OMBB;
-}
-
-
-
-/* Escape holes for 1mm wide wires from each diffuser */
-Pipeline.make_wire_holes = function(parent, diffusers, boundingBox, hole_depth, stroke_width) {
-    return _.map(diffusers, function(diffuser) {
-        var bound_point = boundingBox.getNearestPoint(diffuser.centroid);
-        var l = new paper.Path.Line({
-            parent: parent,
-            from: diffuser.centroid,
-            to: bound_point,
-            strokeColor: new paper.Color(hole_depth),
-            strokeWidth: Ruler.mm2pts(stroke_width)
-        });
-    });
-}
 
 Pipeline.set_visibility = function(objects, is_visible) {
     _.each(objects, function(object) {
@@ -632,17 +348,6 @@ Pipeline.set_visibility = function(objects, is_visible) {
     paper.view.update();
 }
 
-/*Calculate the centroids of objects and return a list of centroid coordinates**/
-function calc_centroids(diffusers) {
-    _.each(diffusers, function(diffuser) {
-        diffuser.visible = true;
-        if (diffuser.className == "CompoundPath") diffuser = diffuser.children[0];
-        calc_centroid = _.reduce(diffuser.segments, function(memo, seg) {
-            return memo.add(new paper.Point(seg.point.x, seg.point.y));
-        }, new paper.Point(0, 0));
-        diffuser.centroid = calc_centroid.divide(diffuser.segments.length);
-    });
-}
 
 
 
@@ -737,8 +442,6 @@ function setMoldGradient(domed, diff, leds) {
             return led;
         }
     });
-
-    // console.log(dome());
     ramp = rampify(diff, bundts);
     ramp.addChildren(bundts);
     _.each(bundts, function(b) { b.bringToFront(); });
@@ -769,14 +472,11 @@ function interpolation_lines(diffuser, leds) {
 
 function rampify(diffuser, leds) {
     if (!diffuser.length) return;
-    console.log("DIFF", diffuser.length);
 
     var lines = interpolation_lines(diffuser, leds);
     levels = _.range(1, 0, -0.01);
     levels = _.map(levels, function(level) {
-        // console.log("LEVEL", level);
         levelColor = what_gray_value_away_from_led(level);
-        // console.log(level.toFixed(2), levelColor.toFixed(2))
         return make_level(lines, level, new paper.Color(levelColor));
     });
     var ramp = new paper.Group(levels);

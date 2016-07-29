@@ -19,7 +19,11 @@ function ButtonExporter(dom, type, preFN, postFN){
           display = new Artwork(getActiveArtwork(), function(artwork){
             result = scope.preFN(artwork);
             // result.remove();
-            console.log("FINAL DIMENSIONS", Ruler.pts2mm(result.bounds.width), "mm x", Ruler.pts2mm(result.bounds.height), "mm");
+            console.log("FINAL DIMENSIONS", 
+              Ruler.pts2mm(result.bounds.width), "mm x", 
+              Ruler.pts2mm(result.bounds.height), "mm x", 
+              Ruler.pts2mm(result.model_height), "mm"
+            );
             result.fitBounds(paper.view.bounds.expand(-5))
                       
             var fn = scope.getFilename();

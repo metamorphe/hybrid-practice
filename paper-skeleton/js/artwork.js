@@ -48,7 +48,7 @@ CanvasUtil.queryPrefixWithId = function(selector, id) {
 function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;
-	console.log("Importing", this.svgPath)
+	// console.log("Importing", this.svgPath)
 	if(_.isUndefined(cloned))
 		this.import(loadFN);
 }
@@ -74,7 +74,7 @@ Artwork.prototype = {
 	import:  function(loadFN) {
 		var scope = this;
 	 	paper.project.importSVG(this.svgPath, function(item) {
-	 		 console.log("Processing", item.name);
+	 		 // console.log("Processing", item.name);
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
 	 		var ledLists = scope.orderLeds();
