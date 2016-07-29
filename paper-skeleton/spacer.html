@@ -48,7 +48,7 @@
 				paper.loadCustomLibraries();
 
 				paper.view.zoom = 1;
-				nineSegment = new Artwork("img/traffic_light.svg", function(display){
+				nineSegment = new Artwork("img/sun_moon.svg", function(display){
 					spacerScript(display);
 				});
 				
@@ -85,6 +85,7 @@
 							strokeWidth: 2
 						});
 						expansions.push(expansion);
+
 					}
 				});
 				
@@ -96,7 +97,8 @@
 					diffuser.visible = false
 				}
 
-				var all_objects = [DIF, LEDS, BI, BO, CP, cornerCircle1, cornerCircle2, cornerCircle3, cornerCircle4];
+				var all_objects = [backgroundBox, DIF, LEDS, BI, BO, CP, cornerCircle1, cornerCircle2, cornerCircle3, cornerCircle4];
+				// flip_on_axis(all_objects, -1, 1)
 				
 				_.each(ombbs, function(o){
 					all_objects.push(o);
