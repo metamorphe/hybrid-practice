@@ -29,6 +29,15 @@ CanvasUtil.query = function(container, selector){
 		delete selector["prefix"];
 	}
 	var elements = container.getItems(selector);
+	elements = _.map(elements, function(el, i, arr){
+		if(el.className == "Shape"){
+			nel = el.toPath(true);
+			el.remove();
+			return nel;
+		}
+			
+		else return el;
+	});
 	if ("lid" in selector) {
 		return _.where(elements, {lid: selector["lid"]})
 	} else {
