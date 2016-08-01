@@ -6,7 +6,7 @@ var THREAD_HEIGHT = BOLT_HEIGHT - NUT_HEIGHT - HEAD_HEIGHT;//mm
 
 var HEAD_RADIUS = 5.58 * 1.3 / 2.0; //mm
 var PEG_RADIUS = 3.0 * 1.3 / 2.0; //mm
-var HEX_RADIUS = 7.6 * 1.1 / 2.0; //mm
+var HEX_RADIUS = 7.6 / 2.0; //mm
 
 var END_GAP = 1.4125;//mm
 
@@ -66,6 +66,9 @@ Pipeline.getElements = function() {
     }
 }
 Pipeline.script = {
+    raytrace: function(display, e){
+
+    },
     mold: function(display, e) {
         _.each(e.diff, function(diffuser) {
             diffuser.set({
@@ -736,8 +739,6 @@ PipeManager.prototype = {
       scope.view = $(this).children('span').html();
       scope.update();
     });
-    $('button[name="circuit"]').click();
-
     // populate SELECT
     var els = _.map(files.filenames, function(el, i, arr){
       var dom =  $('<option></options>').html(el.title.toUpperCase())
