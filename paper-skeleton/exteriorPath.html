@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Ryan was here.</title>
+		<title>Exterior path.</title>
 		<script type="text/javascript" src="libs/jquery.min.js"></script>
 		<script type="text/javascript" src="libs/paper-full.min.js"></script>
 		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
 		<script type="text/javascript" src="libs/underscore.js"></script>
 		<script type="text/javascript" src="libs/math.js"></script>
 
+
+		<script type="text/javascript" src="js/vector.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
 		 	var nineSegment;
+		 	var edgeCount = 0;
+		 	var coords = [];
 		 	var INTERIOR = -1; var CENTERED = 0; var EXTERIOR = 1;
 
 			$(function(){
@@ -30,8 +34,6 @@
 				paper.setup('myCanvas');			
 				//img/nine-segment.svg
 				nineSegment = new Artwork("img/testNormal.svg", function(display){
-					
-					/*Flip display*/
 					// display.svg.scaling.y = -1
 
 					runScript(display);
@@ -122,14 +124,14 @@
 				// console.log(pathToRtn);
 				// strokeHelper(pathToRtn, 2.5, 'red');
 
-				console.log(testShape.className);
 
 				// var test = strokeHelper(testShape, 2.5, 'red', 0);
 				drawStroke(testShape, {
-							width: 7, 
-							color: 'blue', 
-							alignment: 0
+							width: 4, 
+							color: 'yellow', 
+							alignment: -1
 					});
+
 
 				//Create a stroke over each diffuser
 				// _.each(diffuser_group, function(d, i){
@@ -138,18 +140,11 @@
 				// 	strokeHelper(d, 2.5,'brown');
 					
 				// });
-				
 
-
-				// create_corner_circles(boundingBox, 1.55, 2, 'white', 'white', 8, 7);
-				// flip_on_axis(all_objects, -1, 1);
 				paper.view.zoom = 1.75;
 				strokeScaling = false;
 				paper.view.update();
 			}
-
-		
-
 
 			/*Calculate the centroids of objects and return a list of centroid coordinates**/
 				function calc_centroids(objects){
@@ -175,23 +170,23 @@
 					});
 				}
 
-				// /*Unite a group's children into a new path and return new path*/
-				// function uniteGroup(path, group) {
-				// 		var retPath = path;
-				// 		_.each(group.children, function(obj, i) {
-				// 			console.log(obj);
-				// 			console.log(obj.children[0].className);
+				/*Unite a group's children into a new path and return new path*/
+				function uniteGroup(path, group) {
+						var retPath = path;
+						_.each(group.children, function(obj, i) {
+							console.log(obj);
+							console.log(obj.children[0].className);
 						
-				// 			var scrapPath = retPath;
-				// 			console.log("obj", obj);
-				// 			console.log(retPath);
-		 	// 				retPath = retPath.unite(obj);
+							var scrapPath = retPath;
+							console.log("obj", obj);
+							console.log(retPath);
+		 					retPath = retPath.unite(obj);
 
-		 	// 				if (scrapPath) {
-		 	// 					scrapPath.remove();
-		 	// 				} return retPath;
-				// 	});
-				// }
+		 					if (scrapPath) {
+		 						scrapPath.remove();
+		 					} return retPath;
+					});
+				}
 
 
 				/*Return Pathes  from group*/
@@ -212,25 +207,14 @@
 				}
 
 				function calcStroke(){
-					
-
-						
 
 						//TODO: Detect a straight path if same angle as prev
 						if ((Math.abs(currAngle - prevAngle) == 0)) {
 							lineStartingPoint = true;
 						}
 						lineStartingPoint = false;
+					
 
-						//Making stroke
-						circ = new Path.Circle({
-		                    center: circle_center,
-		                    radius: setRadius,
-		                    fillColor: stroke_color,
-		                    strokeColor: stroke_color
-               			});
-               			circ.selected = false;
-               			prevAngle = currAngle;
 
                			//Delete overlaps
                			var canDelete;
@@ -259,74 +243,127 @@
 						}
 						// circ.bringToFront();
 						circGroup.addChild(circ);
-
-						
-
                		}
-
-					// console.log(circGroup.children);
-					// _.each(circGroup.children, function(circ, i) {
-					// 	_.each(circGroup.segments, function(p, j) {
-							
-					// 		console.log(p.className);
-
-					// 		if (circ.contains(p)) {
-					// 				console.log('PATH CONTAINS CIRCLE');
-		   //             				circ.fillColor = 'green';
-		   //             				circ.remove();
-		   //             		}
-					// 	});
-					// });
 
 
 				// Returns false if any part of the circle is "IN" the path, 
 				// where "IN" is relative to the stroke_align
 				function isValid(circ, path, stroke_align){
 					pts = _.map(circ.segments, function(seg){ return seg.point });
-					console.log(pts.toString());
 					pts = _.map(pts, function(pt){
-						if (stroke_align == "INTERIOR")
+						if (stroke_align == INTERIOR)
 							return path.contains(pt);
-						else if (stroke_align == "EXTERIOR")
+						else if (stroke_align == EXTERIOR)
 							return ! path.contains(pt);
-						else if (stroke_align == "CENTERED")
+						else if (stroke_align == CENTERED)
 							return true;
 					});
-					console.log(pts);
-					// console.log(pts.length == _.compact(pts).length);
-					// console.log(pts.length, _.compact(pts).length);
-					// return pts.length == _.compact(pts).length;
+					return pts.length == _.compact(pts).length;
 				}
 
 				//Returns true if it detects a corner on the path
 				function onCorner(circle_center, stroke_width, path, prevAngle, currAngle){
-
-					if ((Math.abs(currAngle - prevAngle) >= 30)) {
-							// console.log(Math.abs(currAngle - prevAngle));
-							// console.log(currAngle);
-							// console.log(prevAngle);
-							// console.log('This point is a corner', point);
-							return true;
-						}
+					if ((Math.abs(currAngle - prevAngle)) > 30) return true;
 					else return false;
 				}
+
+				function fillSpace(mostRecentValidPoint, circle_center, stroke_color, stroke_width, offset) {
+							//Fill in space between most recent valid point and a corner
+							if (mostRecentValidPoint != null) {
+								var spaceToFill = new Path.Line(mostRecentValidPoint, circle_center);
+								spaceToFill.strokeColor = 'white';
+								spaceToFill.strokeWidth = stroke_width;
+								console.log(spaceToFill);
+								spaceToFill = _.range(0, spaceToFill.length, offset);
+								console.log(spaceToFill);
+							}
+				}
+
+
+
+				//Utilize a path's segments to draw circles indicating corners
+				function drawCorners(path, stroke_width, stroke_align) {
+					var points = _.range(0, path.segments.length);
+
+					_.each(points, function(i) {
+						var c = path.segments[i].point;
+						var offset = path.getOffsetOf(c);
+						var norm = path.getNormalAt(c);
+
+						//Average two adjacent points to get accurate normal
+						var step = 0.001;
+						var preNorm = path.getNormalAt(offset - step);
+						var postNorm = path.getNormalAt(offset + step);
+						var prevAngle = preNorm.angle;
+						var postAngle = postNorm.angle;
+
+						norm.angle = prevAngle + postAngle / 2;
+
+						console.log(prevAngle, postAngle);
+						console.log(prevAngle + postAngle / 2);
+
+
+						// norm.length *= -1;
+						// var radiusVector = norm.clone();
+						// radiusVector.length = stroke_width / 2 * stroke_align;
+						// if (stroke_align != CENTERED) c = point.add(radiusVector);
+
+						//Drawing circle
+						edgeCircle = new Path.Circle({
+		                    center: norm,
+		                    radius: stroke_width / 2 ,
+		                    fillColor: 'black',
+		                    strokeColor: 'black',
+		                    selected: false
+               				});
+					});
+				}
+
+				//Utilize a path's segments to draw circles indicating corners
+				function calculateAllPoints(path) {
+					console.log(path.curves);
+					var allPoints = [];
+					var points = _.range(0, path.segments.length);
+
+					//Saving offsets of each segment point
+					_.each(points, function(i) {
+						var p = path.segments[i].point;
+						var segPoint = path.getOffsetOf(p);
+						console.log('segPoint', segPoint);
+						allPoints.push(segPoint);
+					});
+
+					// 	edgeCircle = new Path.Circle({
+		   //                  center: c,
+		   //                  radius: stroke_width / 2 ,
+		   //                  fillColor: 'white',
+		   //                  strokeColor: 'white',
+		   //                  selected: false
+     //           				});
+					// });
+				}
+
 
 				/*Calculate best fit stroke width via a series of small circles.
 				Three types based on stroke_align: interior, normal, or exterior*/
 				function strokeHelper(path, stroke_width, stroke_color, stroke_align){
-					console.log('path type', path.className);
 					var circ;
 					var point = null;
 					var circGroup = new paper.Group();
 					var length = path.length;
-					var offset = 20; //.2;
+					var offset = .5; //.2;
 					var setRadius = stroke_width / 2;
 
-					//TODO: turn straight lines into rectangles; try to use flags
+
+					//TODO: turn straight lines into rectangles
+					drawCorners(path, stroke_width, stroke_align);
+					calculateAllPoints(path);
+
 					var lineStartingPoint = path.getPointAt(0);
 					var lineEndingPoint = null;
 
-					var prevAngle = 0; var currAngle = 0; var circle_center;
+					var prevAngle = 0; var currAngle = 0; var nextAngle = 0; var circle_center;
+					var mostRecentValidPoint = null;
 
 
 					var points = _.range(0, length, offset);
@@ -338,41 +375,56 @@
 
 						//For edge detection
 						currAngle = norm.angle;
+						
 
-						//TODO: Reference normal (fix orientation--should always be outwards)
+						//TODO: Reference normal--should always be outwards
 						norm.length *= -1;
 						var radiusVector = norm.clone();
 						radiusVector.length = setRadius * stroke_align;
-						// visualizeNormal(point, norm, tan);
 
 						//Calculating circle centerpoints
 						var circle_center = point;
 						if (stroke_align != CENTERED) circle_center = point.add(radiusVector);
 
+						coords.push(norm.angle.toString());
 						//Instantiating circles
 						circ = new Path.Circle({
 		                    center: circle_center,
 		                    radius: setRadius,
 		                    fillColor: stroke_color,
-		                    strokeColor: stroke_color
+		                    strokeColor: stroke_color,
+		                    visible: false
                			});
 
-						//Validity check for circle positions against path shape
-               			var valid = isValid(circ, path, stroke_align);
-               			if (!valid) circ.remove();
+						//TODO: Add circle to outline path object
+               			if (Math.abs(path.getCurvatureAt(i)) < 0.001) {
+               				circ.visible = 'true';
+               			}
 
-						var edgeOnCorner = onCorner(circle_center, stroke_width, path, prevAngle, currAngle);
-						if (edgeOnCorner) {
-							edgeCircle = new Path.Circle({
-		                    center: circle_center,
-		                    radius: stroke_width / 2,
-		                    fillColor: 'orange',
-		                    strokeColor: 'orange',
-		                    selected: false
-               				});
-						}
-					prevAngle = currAngle;
+
+						
+
+      //          			//Locate corner
+						// var cornerEdge = onCorner(circle_center, stroke_width, path, prevAngle, currAngle);
+						// if (cornerEdge) {
+						// 	//draw circle
+						// 	// console.log(i, prevAngle, currAngle);
+						// 	edgeCircle = new Path.Circle({
+		    //                 center: circle_center,
+		    //                 radius: stroke_width / 2 ,
+		    //                 fillColor: 'orange',
+		    //                 strokeColor: 'orange',
+		    //                 selected: false
+      //          				});
+
+      //          				// fillSpace(mostRecentValidPoint, circle_center, stroke_color, stroke_width, offset);
+						// 	edgeCount += 1; console.log('corner found', circle_center);
+						// }
+
+						prevAngle = currAngle;
 					});
+					console.log(coords);
+					console.log(path.className);
 				}
 
 				function visualizeNormal(origin, normal, tangent){
@@ -395,7 +447,7 @@
 					new paper.Path.Line({
 							from: origin, 
 							to: origin.add(normal),
-							strokeColor: "blue", 
+							strokeColor: "purple", 
 							strokeWidth: 0.5
 					});
 
@@ -424,15 +476,16 @@
 					// });
 				}
 
-				//
-				// Attribute alignment (-1 = interior, 0 = centered, 1 = exterior)
 				function drawStroke(path, stroke_options){
-					// var stroke_options = {
-					// 		width: stroke_options.width, 
-					// 		color: stroke_options.color, 
-					// 		alignment: stroke_options.alignment
-					// }
+					// Attribute alignment (-1 = interior, 0 = centered, 1 = exterior)
 					strokeHelper(path, stroke_options.width, stroke_options.color, stroke_options.alignment);
+
+					if (stroke_options.alignment == EXTERIOR) {
+						var shape = new Group({
+						    children: [path],
+						});
+						shape.bringToFront();
+					}
 				}
 			
 
