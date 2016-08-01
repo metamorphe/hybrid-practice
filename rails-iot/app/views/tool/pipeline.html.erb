@@ -10,7 +10,7 @@ $(function(){
   $("#shade").fadeOut();
 
   paper.loadCustomLibraries();
-  var pm = new PipeManager($('body'));
+  pm = new PipeManager($('body'));
   // BIND DOWNLOAD BUTTONS
 
  
@@ -45,6 +45,9 @@ $(function(){
     <div id="view-list">
         <ul>
             <li class="active">
+                <span>MOLD</span> <button name="mold" class="view btn-sm btn btn-info"> M</button>
+            </li>
+            <li>
                 <span>DIFFUSER</span> <button name="diffuser" class="view btn-sm btn btn-primary"> D</button>
             </li>
             <li>

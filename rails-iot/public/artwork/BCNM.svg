@@ -9,7 +9,7 @@
 	.st3{fill:#FFFFFF;stroke:#231F20;stroke-miterlimit:10;}
 	.st4{fill:none;stroke:#FFFF00;stroke-width:3;stroke-miterlimit:10;}
 	.st5{fill:#ED08FF;stroke:#231F20;stroke-miterlimit:10;}
-	.st6{fill:#231F20;}
+	.st6{fill:#00AEEF;}
 </style>
 <linearGradient id="DIF:_Diffuser_3_" gradientUnits="userSpaceOnUse" x1="121.6865" y1="92.3004" x2="173.3193" y2="122.4584" gradientTransform="matrix(1 0 0 -1 0 192.8)">
 	<stop  offset="0" style="stop-color:#BCDD35"/>
@@ -36,6 +36,5 @@
 <polyline id="CP:_CircuitPath" class="st4" points="100.5,164.3 91,158.8 82,153.8 80.9,142.8 78.8,123.4 77.7,112.5 129.7,85.2 
 	125.6,75 118.3,56.9 114.2,46.7 75.7,57 54.1,62.7 "/>
 <rect id="BI:_Breakin" x="97.8" y="159.3" transform="matrix(0.5 -0.866 0.866 0.5 -92.1763 177.042)" class="st5" width="18.8" height="18"/>
-<polygon id="MC:_Microcontroller_and_Power" class="st6" points="22,24.7 -0.3,24.7 -0.3,42.6 13.6,42.6 13.6,56.8 20.3,56.8 
-	20.3,42.6 22.1,42.6 22.1,42.5 61.7,42.5 61.7,2.8 22,2.8 "/>
+<polygon id="MC:_ATTiny" class="st6" points="91.2,2.8 32,2.8 32,18.1 0,18.1 0,52.1 51,52.1 51,38.8 91.2,38.8 "/>
 </svg>

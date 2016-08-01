@@ -4,9 +4,9 @@ var HEAD_HEIGHT = 2.76;//mm
 var BOLT_HEIGHT = 21.17; //mm
 var THREAD_HEIGHT = BOLT_HEIGHT - NUT_HEIGHT - HEAD_HEIGHT;//mm
 
-var HEAD_RADIUS = 5.58 / 2.0; //mm
-var PEG_RADIUS = 3.0 / 2.0; //mm
-var HEX_RADIUS = 6.31 / 2.0; //mm
+var HEAD_RADIUS = 5.58 * 1.3 / 2.0; //mm
+var PEG_RADIUS = 3.0 * 1.3 / 2.0; //mm
+var HEX_RADIUS = 7.6 * 1.1 / 2.0; //mm
 
 var END_GAP = 1.4125;//mm
 
@@ -66,6 +66,33 @@ Pipeline.getElements = function() {
     }
 }
 Pipeline.script = {
+    mold: function(display, e) {
+        _.each(e.diff, function(diffuser) {
+            diffuser.set({
+                visible: true,
+                fillColor: "black",
+                strokeWidth: 0
+            });
+        });
+
+        var result = new paper.Group(e.diff);
+
+        //Creating a bounding box
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: 'white',
+            parent: result
+        });
+        backgroundBox.sendToBack();
+
+        //Make non-molding objects invisible
+        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
+        Pipeline.set_visibility(invisible, false);
+
+        result.scaling = new paper.Size(-1, 1);
+        result.name = "RESULT: DIFFUSER";
+        result.model_height = DIFUSSER_HEIGHT;
+    },
     diffuser: function(display, e) {
         _.each(e.diff, function(diffuser) {
             diffuser.set({
@@ -90,7 +117,7 @@ Pipeline.script = {
          bounds: backgroundBox.strokeBounds.expand(Ruler.mm2pts(HEAD_RADIUS)), 
          radius: HEAD_RADIUS, 
          padding: PEG_PADDING, 
-         height: HEAD_RADIUS/ DIFUSSER_HEIGHT, 
+         height: (DIFUSSER_HEIGHT - HEAD_HEIGHT)/ DIFUSSER_HEIGHT, 
          parent: result
         });
 
@@ -157,15 +184,16 @@ Pipeline.script = {
         //  height: 'yellow', 
         //  parent: result
         // });
-        var mc = e.mc[0];
-        mc.set({
-            fillColor: "black",
-            pivot: mc.bounds.leftCenter
-        });
-        mc.position = backgroundBox.getNearestPoint(mc.pivot);
-        // mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
-        mc.parent = result;
-
+        if(e.mc.length > 0){
+            var mc = e.mc[0];
+            mc.set({
+                fillColor: "black",
+                pivot: mc.bounds.leftCenter
+            });
+            mc.position = backgroundBox.getNearestPoint(mc.pivot);
+            // mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
+            mc.parent = result;
+        }
         var pegs = Pipeline.create_corner_pegs({ 
          geometry: "circle",
          bounds: backgroundBox.strokeBounds, 
@@ -207,16 +235,26 @@ Pipeline.script = {
             parent: result
         });
         backgroundBox.sendToBack();
-        
-
-        var mc = e.mc[0];
-        mc.set({
-            fillColor: "black",
-            pivot: mc.bounds.leftCenter
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.strokeBounds, 
+         radius: PEG_RADIUS, 
+         padding: PEG_PADDING, 
+         height: 'black', 
+         parent: result
         });
-        mc.position = backgroundBox.getNearestPoint(mc.pivot);
-        mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
-        mc.parent = result;
+
+        if(e.mc.length > 0){
+            var mc = e.mc[0];
+            mc.set({
+                fillColor: "black",
+                pivot: mc.bounds.leftCenter
+            });
+            mc.position = backgroundBox.getNearestPoint(mc.pivot);
+            mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
+            mc.parent = result;
+             mc.bringToFront();
+        }
         // ADD CORNER PEGS
         // var pegs = Pipeline.create_corner_pegs({ 
         //  geometry: "hex",
@@ -227,15 +265,8 @@ Pipeline.script = {
         //  parent: result
         // });
 
-        var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "circle",
-         bounds: backgroundBox.strokeBounds, 
-         radius: PEG_RADIUS, 
-         padding: PEG_PADDING, 
-         height: 'black', 
-         parent: result
-        });
-        mc.bringToFront();
+        
+       
      
         var invisible = _.compact(_.flatten([e.art, e.dds, e.diff, e.cp, e.bo, e.bi]));
         Pipeline.set_visibility(invisible, false);
