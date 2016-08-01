@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reflector</title>
+        <script type="text/javascript" src="libs/jquery.min.js"></script>
+        <script type="text/javascript" src="libs/paper-full.min.js"></script>
+        <script type="text/javascript" src="libs/bootstrap.min.js"></script>
+        <script type="text/javascript" src="libs/underscore.js"></script>
+        <script type="text/javascript" src="libs/dat.gui.min.js"></script>
+        <!-- // <script type="text/javascript" src="libs/math.js"></script> -->
+
+        <script type="text/javascript" src="js/graph.js"></script>
+        <script type="text/javascript" src="js/artwork.js"></script>
+        <script type="text/javascript" src="js/ruler.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+        <script type="text/javascript">
+            // var gradientTesting;
+            var myLens, gui, test;
+            $(function(){
+                // MAIN FUNCTION
+                $('#downloadButton').click(function(){
+                    console.log("clicked");
+                    $(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+                });
+                $('#myCanvas').attr('height', $(window).height());
+                $('#myCanvas').attr('width', $(window).width());
+
+
+                paper.install(window);
+                paper.setup('myCanvas');
+
+                myLens = new Lens(Ruler.mm2pts(30), Ruler.mm2pts(15));
+                myLens.init();
+                gui = new dat.GUI();
+                gui.add(myLens, 'lensHeight')
+                  .min(50)
+                  .max(100)
+                  .onChange(function(value) {
+                    myLens.updateHeight();
+                  });
+                gui.add(myLens, 'lensWidthOffset')
+                  .min(20)
+                  .max(60)
+                  .onChange(function(value) {
+                    myLens.updateWidthOffset();
+                  });
+            });
+
+            function Lens(lensHeight, lensWidthOffset) {
+              this.lensPath = new paper.Path();
+              this.lensBasePath = new paper.Path();
+              this.lensHeight = lensHeight;
+              this.lensWidthOffset = lensWidthOffset;
+
+              this.domePathArray = []
+              this.topLeftSegment = null;
+              this.topRightSegment = null;
+              this.midLeftSegment = null;
+              this.midRightSegment = null;
+
+              this.bottomLeftPoint = null;
+              this.bottomRightPoint = null;
+            }
+
+            Lens.prototype = {
+              init: function() {
+                this.generateTestBasePath();
+                this.generateDomePath(-Ruler.mm2pts(15));
+                this.generateDomePath(Ruler.mm2pts(15));
+                this.generateRampPath();
+                // test = this.generateBasePath(this.domePathArray);
+              },
+              /**
+               * Propagates the change in point to the corresponding
+               * segment on THIS.LENS_PATH
+               */
+              updateHeight: function() {
+                this.topLeftSegment.point.y = this.bottomLeftPoint.y
+                  - this.lensHeight;
+                this.topRightSegment.point.y = this.bottomRightPoint.y
+                  - this.lensHeight;
+                this.midLeftSegment.point.y = this.bottomLeftPoint.y
+                  - this.lensHeight / 2;
+                this.midRightSegment.point.y = this.bottomRightPoint.y
+                  - this.lensHeight / 2;
+              },
+              updateWidthOffset: function() {
+                this.topLeftSegment.point.x = this.bottomLeftPoint.x
+                  - this.lensWidthOffset,
+                this.topRightSegment.point.x = this.bottomRightPoint.x
+                  + this.lensWidthOffset;
+                this.midLeftSegment.point.x = this.bottomLeftPoint.x
+                  - this.lensWidthOffset / 2;
+                this.midRightSegment.point.x = this.bottomRightPoint.x
+                  + this.lensWidthOffset / 2;
+              },
+              /**
+               * NOTE: this is for faking an input
+               */
+              generateTestBasePath: function() {
+                var basePath = this.lensBasePath;
+                basePath.add(new Point(0, 0));
+                basePath.add(new Point(200, 0));
+                basePath.set({
+                  position: view.center,
+                  strokeColor: 'black',
+                  strokeWidth: 1
+                });
+                // NOTE: leds are 5mm wide and 0.5mm high
+                var ledWidth = Ruler.mm2pts(5);
+                var ledHeight = Ruler.mm2pts(0.5);
+                this.led0 = new Path.Rectangle(0, 0, ledWidth, ledHeight);
+                this.led0.set({
+                  position: view.center.add(new Point(-40, -ledHeight / 2)),
+                  strokeColor: 'black',
+                  strokeWidth: 1,
+                  fillColor: 'yellow'
+                });
+                this.led1 = new Path.Rectangle(0, 0, ledWidth, ledHeight);
+                this.led1.set({
+                  position: view.center.add(new Point(40, -ledHeight / 2)),
+                  strokeColor: 'black',
+                  strokeWidth: 1,
+                  fillColor: 'yellow'
+                });
+              },
+              /**
+               * Generates a dome for an LED with X coordinate LED_CENTER_X.
+               * Returns a path corresponding to the dome's outlines
+               */
+              generateDomePath: function(ledCenterX) {
+                // NOTE: rectangles are 7mm wide and 4mm high
+                var lineX = Ruler.mm2pts(15);
+                var rectWidth = Ruler.mm2pts(7);
+                var rectHeight = Ruler.mm2pts(4);
+                var led0Rect = new Path.Rectangle(0, 0, rectWidth, rectHeight);
+                led0Rect.set({
+                  // position: view.center.add(new Point(-lineX, -rectHeight / 2)),
+                  position: view.center.add(new Point(ledCenterX, -rectHeight / 2)),
+                  strokeColor: 'black',
+                  strokeWidth: 1,
+                  fillColor: null
+                });
+                // Define a rectangle that circumscribes the ellipse
+                var ellipseRectWidth = Ruler.mm2pts(7);
+                var ellipseRectHeight = Ruler.mm2pts(6);
+                var ellipseRect = new Rectangle(new Point(0, 0),
+                      new Size(ellipseRectWidth, ellipseRectHeight));
+                var led0Ellipse = new Path.Ellipse(ellipseRect);
+                led0Ellipse.set({
+                  // position: view.center.add(new Point(-lineX, -rectHeight)),
+                  position: view.center.add(new Point(ledCenterX, -rectHeight)),
+                  strokeColor: 'black',
+                  strokeWidth: 1,
+                  fillColor: null
+                });
+
+                // Join the ellipse and rectangle
+                var dome = led0Ellipse.unite(led0Rect);
+                dome.fillColor = 'pink';
+                var spline = new paper.Path({
+                  segments: dome.segments,
+                  strokeColor: 'green',
+                  strokeWidth: 1,
+                  fillColor: null
+                });
+                this.domePathArray.push(spline);
+                return spline
+              },
+              /**
+               * Generates a path representing the ramps and top of the lens
+               */
+              generateRampPath: function() {
+                // Set the base start and end _points_ as fields for reference
+                // Note that we use points and not segments because we do not
+                // need to update these segments
+                var basePathStartPoint = this.lensBasePath.segments[0].point;
+                var basePathEndPoint = this.lensBasePath.segments[this.lensBasePath
+                        .segments.length - 1].point;
+                this.bottomLeftPoint = basePathStartPoint;
+                this.bottomRightPoint = basePathEndPoint;
+
+                var topLeftPoint = new Point(basePathStartPoint.x - this.lensWidthOffset,
+                        basePathStartPoint.y - this.lensHeight);
+                var topRightPoint = new Point(basePathEndPoint.x + this.lensWidthOffset,
+                        basePathStartPoint.y - this.lensHeight);
+                var midLeftPoint = new Point(basePathStartPoint.x - this.lensWidthOffset / 2,
+                        basePathStartPoint.y - this.lensHeight / 2);
+                var midRightPoint = new Point(basePathEndPoint.x + this.lensWidthOffset / 2,
+                        basePathStartPoint.y - this.lensHeight / 2);
+                var rampPath = new Path({
+                  segments: [
+                    basePathStartPoint, midLeftPoint, topLeftPoint, topRightPoint,
+                    midRightPoint, basePathEndPoint
+                  ],
+                  strokeColor: 'black',
+                  strokeWidth: 1
+                });
+
+                // Add the top left and top right _segments_ as fields for
+                // updating later, as well as the mid segments
+                this.topLeftSegment = rampPath.segments[2];
+                this.topRightSegment = rampPath.segments[3];
+                this.midLeftSegment = rampPath.segments[1];
+                this.midRightSegment = rampPath.segments[4];
+              },
+              /**
+               *
+               */
+              generateBasePath: function(ledPathArray) {
+                var basePathStartPoint = this.lensBasePath.segments[0].point;
+                var basePathEndPoint = this.lensBasePath.segments[this.lensBasePath
+                        .segments.length - 1].point;
+                var domeStartPoint, domeEndPoint, points;
+                var basePathPointList = [];
+                basePathPointList.push(basePathStartPoint);
+                //FIXME: points are not in order from left to right
+                _.each(ledPathArray, function(el) {
+                  points = _.filter(el.segments, function(segment) {
+                    return segment.point;
+                  });
+                  basePathPointList.push(points);
+                });
+                basePathPointList.push(basePathEndPoint);
+                basePathPointList = _.flatten(basePathPointList);
+                var basePath = new Path({
+                  segments: basePathPointList,
+                  strokeColor: 'orange',
+                  strokeWidth: 1
+                });
+                basePath.selected = true;
+                return basePath;
+              }
+            }
+
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+            <a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+        </div>
+    </body>
+</html>
+
+<style>
+    #myCanvas{
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    #downloadButton{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+    body, html{
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+</style>
