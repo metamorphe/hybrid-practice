@@ -18,6 +18,7 @@
 //= require eld/ButtonExporter
 //= require eld/PointSource
 //= require eld/ImagePlane
+//= require eld/RampGenerator
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush
