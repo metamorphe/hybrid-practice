@@ -6,6 +6,10 @@ function Graph(options){
     });
 
     this.init();
+    // console.log(this.graph, this.xlabels, this.ylabels)
+    this.dom = new paper.Group(this.graph);
+    this.dom.addChildren(this.xlabels)
+    this.dom.addChildren(this.ylabels)
 }
 
 Graph.prototype = {
@@ -84,23 +88,25 @@ Graph.prototype = {
                 // strokeScaling: false
             }
 
-        scope.ylabels = _.each(scope.majorY.children, function(line){
+        scope.ylabels = _.map(scope.majorY.children, function(line){
             var label = new PointText({
                 name: "XLABEL: " + line.rposition,
                 position: line.bounds.expand(scope.graph.bounds.width * 0.3).leftCenter, 
                 content: line.rposition.toFixed(1), 
-                justification: "right"
+                justification: "right", 
+                parent: scope.dom
             });
             label.set(label_style);
             label.position.y += label.bounds.height/4;
             return label;
         });
-        scope.xlabels = _.each(scope.majorX.children, function(line){
+        scope.xlabels = _.map(scope.majorX.children, function(line){
             var label = new PointText({
                 name: "YLABEL: " + line.rposition,
                 position: line.bounds.expand(scope.graph.bounds.width * 0.3).bottomCenter, 
                 content: line.rposition.toFixed(1), 
-                justification: "center"
+                justification: "center",
+                parent: scope.dom
             });
             label.set(label_style);
             return label;

@@ -51,6 +51,33 @@ var EPSILON = 10;
 
 
 
+
+function interpolation_lines2(diffuser, leds) {
+    var pts = _.range(0, diffuser.length, 1)
+    return _.map(pts, function(i) {
+        var pt = diffuser.getPointAt(i);
+        var candidates = _.map(leds, function(led) {
+            return led.position;
+        });
+        // console.log(candidates[0], pt);
+        closest = _.min(candidates, function(c) {
+            return c.getDistance(pt); });
+        // console.log(closest);
+        l = new paper.Path.Line({
+            from: closest,
+            to: pt,
+            strokeColor: "blue",
+            strokeWidth: 2,
+            visible: true
+        });
+        cross = l.getIntersections(diffuser);
+        if(cross.length >= 2){ l.remove(); return null;}
+        return l;
+    });
+
+}
+
+
 function Pipeline(argument) {}
 
 Pipeline.getElements = function() {
@@ -67,6 +94,56 @@ Pipeline.getElements = function() {
 }
 Pipeline.script = {
     raytrace: function(display, e){
+        display.svg.position = display.svg.bounds.bottomLeft;
+         _.each(e.diff, function(diffuser) {
+            diffuser.set({
+                visible: true,
+                fillColor: "white",
+                strokeWidth: 1
+            });
+        });
+
+        var result = new paper.Group(e.diff);
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: 'white',
+            parent: result
+        });
+       
+        _.each(e.leds, function(led) {
+            led.set({
+                visible: true,
+                fillColor: "#00A8E1",
+                strokeWidth: 0, 
+                parent: result
+            });
+        });
+
+       morph = interpolation_lines2(e.diff[0], e.leds);
+       morph = _.compact(morph);        
+
+       backgroundBox.sendToBack();
+       var invisible = _.compact(_.flatten([e.art, e.dds, e.cp, e.bo, e.bi]));
+       Pipeline.set_visibility(invisible, false);
+
+       tracerBox = new paper.Path.Rectangle({
+            rectangle: result.bounds,
+            fillColor: 'black'
+        }); 
+       tracerBox.set({
+            pivot: tracerBox.bounds.leftCenter,
+            position: result.bounds.rightCenter
+       });
+
+       ip = new ImagePlane({
+        position: result.bounds.topRight.clone(), 
+        width: result.bounds.width
+       });
+
+       // this.makeReflectorMedium(0.5, 0.5, 10, 20);
+
+    },
+    makeReflectorMedium: function(){
 
     },
     mold: function(display, e) {
@@ -518,6 +595,7 @@ function rampify(diffuser, leds) {
     return ramp;
 }
 
+
 function what_gray_value_away_from_led(t) {
     // return t; // linear
     c = 1;
@@ -536,59 +614,7 @@ function make_level(lines, level, color) {
     });
 }
 
-function sliceIt(diff, leds, theta) {
-    thetas = _.range(-180, 0, 20);
 
-    ref_pt = leds[0].bounds.center;
-    var n = new paper.Point();
-    n.length = 1000;
-    n.rotation = theta;
-
-    var t = new paper.Point();
-    t.length = -10000;
-    t.rotation = theta;
-
-    result = new paper.Group();
-
-    var l = new paper.Path.Line({
-        segments: [ref_pt.add(n), ref_pt, ref_pt.add(t)],
-        strokeColor: "yellow",
-        strokeWidth: 2,
-        strokeScaling: false,
-        parent: result
-    });
-    ends = l.getIntersections(diff);
-
-    start = _.min(ends, function(e) {
-        return e.offset });
-    end = _.max(ends, function(e) {
-        return e.offset });
-    l.firstSegment.point = start.point;
-    l.lastSegment.point = end.point;
-
-
-    lends = CanvasUtil.getIntersections(l, leds);
-    lends = _.groupBy(lends, function(ixt) {
-        return ixt.path.id;
-    });
-    lends = _.map(lends, function(values, key) {
-            values = _.sortBy(values, function(v) {
-                return v.offset; })
-            vector = values[1].point.subtract(values[0].point);
-
-            midpoint = vector.clone();
-            midpoint.length = vector.length / 2.0;
-
-            return new paper.Path.Rectangle({
-                size: new paper.Size(vector.length, 6),
-                position: values[0].point.add(midpoint),
-                fillColor: "green",
-                rotation: vector.angle
-            });
-        })
-        // lens_profile = getProfile(l, lend);
-    return;
-}
 
 function dome() {
     // NOTE: rectangles are 7mm wide and 4mm high

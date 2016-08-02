@@ -1,3 +1,70 @@
+
+
+function CrossSection(center) {
+    this.theta = 0;
+    this.line_ref = CrossSection.generateLine(center, this.theta);
+    this.lends = [];
+}
+CrossSection.prototype = {
+    updateAngle: function(angle, diff, leds){
+        this.line_ref.rotation = angle;
+        if(this.line) this.line.remove();
+        this.line = this.line_ref.clone().set({visible: true});
+        ends = this.line.getIntersections(diff);
+
+        start = _.min(ends, function(e) {
+            return e.offset });
+        end = _.max(ends, function(e) {
+            return e.offset });
+        this.line.firstSegment.point = start.point;
+        this.line.lastSegment.point = end.point;
+
+        _.each(this.lends, function(r){ r.remove(); });
+        this.lends = CanvasUtil.getIntersections(this.line, leds);
+        this.lends = _.groupBy(this.lends, function(ixt) {
+            return ixt.path.id;
+        });
+        this.lends = _.map(this.lends, function(values, key) {
+                values = _.sortBy(values, function(v) {
+                    return v.offset; })
+                vector = values[1].point.subtract(values[0].point);
+
+                midpoint = vector.clone();
+                midpoint.length = vector.length / 2.0;
+
+                return new paper.Path.Rectangle({
+                    size: new paper.Size(vector.length, 6),
+                    position: values[0].point.add(midpoint),
+                    fillColor: "green",
+                    rotation: vector.angle
+                });
+        });
+    }
+}
+CrossSection.generateLine = function(center, theta){
+    ref_pt = center;
+    var n = new paper.Point();
+    n.length = 1000;
+    n.rotation = theta;
+
+    var t = new paper.Point();
+    t.length = -10000;
+    t.rotation = theta;
+
+    result = new paper.Group();
+
+    return new paper.Path.Line({
+        segments: [center.add(n), center, center.add(t)],
+        pivot: center,
+        strokeColor: "yellow",
+        strokeWidth: 2,
+        strokeScaling: false, 
+        visible: false
+    });
+}
+
+
+
 cap: function(display, e) {
 
         // PROCESSING
