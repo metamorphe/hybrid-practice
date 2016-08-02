@@ -23,8 +23,7 @@ RampGenerator.generateRampPath = function(params, visual=false) {
           rightmostDomePoint.y - params.rampHeight);
   var rampPath = new Path({
     segments: [
-      topRightPoint,
-      bottomRightPoint
+      topRightPoint, bottomRightPoint, rightmostDomePoint
     ],
     strokeColor: 'black',
     strokeWidth: 1,
