@@ -1,8 +1,8 @@
 <script type="text/javascript">
-var zb, cp, bb, vm, pm, displays = []; 
+var zb, cp, bb, vm, pm, gui, displays = []; 
 var p = Pipeline;
 var files = <%= @files.to_json.html_safe %>;
-var DEFAULT_PIPE_FILE = "BCNM.svg";
+var DEFAULT_PIPE_FILE = "TexasOptimized.svg";
 
 $(function(){
   Utility.paperSetup($('#myCanvas'));
@@ -11,9 +11,15 @@ $(function(){
 
   paper.loadCustomLibraries();
   pm = new PipeManager($('body'));
-  // BIND DOWNLOAD BUTTONS
+  
+  
 
- 
+  gui = new dat.GUI({ autoPlace: false });
+  $(gui.domElement).css({
+    position: "absolute", 
+    bottom: 20
+  })
+  $('body').append(gui.domElement);
 
   $('#png-download').click(function(){
       var result = CanvasUtil.queryPrefix("RESULT")[0];
@@ -32,6 +38,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
+  $('#view-list ul li button[name="raytrace"]').click();
 });
 </script>
 </head>
@@ -44,7 +51,10 @@ $(function(){
         </select> <button id="view-icon" class="pull-right btn btn-primary"></button><br class="clearfix">
     <div id="view-list">
         <ul>
-            <li class="active">
+           <li class="active">
+                <span>RAYTRACE</span> <button name="raytrace" class="view btn-sm btn btn-info"> RT</button>
+            </li>
+            <li>
                 <span>MOLD</span> <button name="mold" class="view btn-sm btn btn-info"> M</button>
             </li>
             <li>

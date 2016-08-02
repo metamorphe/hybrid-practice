@@ -9,7 +9,6 @@
 		<script type="text/javascript" src="libs/math.js"></script>
 
 
-		<script type="text/javascript" src="js/vector.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
@@ -53,12 +52,12 @@
 				var testShape = display.queryPrefix('TEST');
 
 
-				console.log(testShape);
+				// console.log(testShape);
 				testShape = extractPaths(testShape)[0];
-				console.log(testShape);
+				// console.log(testShape);
 
 				_.each(testShape.segments, function(i, j){
-					console.log(i.toString());
+					// console.log(i.toString());
 				});
 
 	
@@ -138,7 +137,6 @@
 				// 	console.log('d is:', d.className);
 				// 	var d = extractPaths(d);
 				// 	strokeHelper(d, 2.5,'brown');
-					
 				// });
 
 				paper.view.zoom = 1.75;
@@ -206,15 +204,13 @@
 					return data;
 				}
 
-				function calcStroke(){
+				function ideas(){
 
 						//TODO: Detect a straight path if same angle as prev
 						if ((Math.abs(currAngle - prevAngle) == 0)) {
 							lineStartingPoint = true;
 						}
 						lineStartingPoint = false;
-					
-
 
                			//Delete overlaps
                			var canDelete;
@@ -286,34 +282,41 @@
 					var points = _.range(0, path.segments.length);
 
 					_.each(points, function(i) {
-						var c = path.segments[i].point;
-						var offset = path.getOffsetOf(c);
-						var norm = path.getNormalAt(c);
+						var cornerPoint = path.segments[i].point;
+						var offset = path.getOffsetOf(cornerPoint);
+						var norm = path.getNormalAt(offset);
 
 						//Average two adjacent points to get accurate normal
-						var step = 0.001;
-						var preNorm = path.getNormalAt(offset - step);
-						var postNorm = path.getNormalAt(offset + step);
+						var step = .000000001;
+
+						//Edge case for first iteration
+						if (i == 0) {
+							var preNorm = path.getNormalAt(path.getOffsetOf(path.segments[path.segments.length -1].point));
+							console.log('bad offset', offset);
+						}
+						else var preNorm = path.getNormalAt(offset - step); 
+					
+							var postNorm = path.getNormalAt(offset + step);
+
 						var prevAngle = preNorm.angle;
 						var postAngle = postNorm.angle;
+						norm.angle = (prevAngle + postAngle) / 2;
 
-						norm.angle = prevAngle + postAngle / 2;
+						if (i != 0) norm.length *= -1;
+						var radiusVector = norm.clone();
+						radiusVector.length = stroke_width * 0.5 * stroke_align;
 
-						console.log(prevAngle, postAngle);
-						console.log(prevAngle + postAngle / 2);
 
-
-						// norm.length *= -1;
-						// var radiusVector = norm.clone();
-						// radiusVector.length = stroke_width / 2 * stroke_align;
-						// if (stroke_align != CENTERED) c = point.add(radiusVector);
+						//Calculating circle centerpoints
+						if (stroke_align != CENTERED) cornerPoint = cornerPoint.add(radiusVector);
+						
 
 						//Drawing circle
 						edgeCircle = new Path.Circle({
-		                    center: norm,
+		                    center: cornerPoint,
 		                    radius: stroke_width / 2 ,
-		                    fillColor: 'black',
-		                    strokeColor: 'black',
+		                    fillColor: 'yellow',
+		                    strokeColor: 'yellow',
 		                    selected: false
                				});
 					});
@@ -347,6 +350,8 @@
 				/*Calculate best fit stroke width via a series of small circles.
 				Three types based on stroke_align: interior, normal, or exterior*/
 				function strokeHelper(path, stroke_width, stroke_color, stroke_align){
+					var groupToRtn;
+
 					var circ;
 					var point = null;
 					var circGroup = new paper.Group();
@@ -356,8 +361,7 @@
 
 
 					//TODO: turn straight lines into rectangles
-					drawCorners(path, stroke_width, stroke_align);
-					calculateAllPoints(path);
+					// calculateAllPoints(path);
 
 					var lineStartingPoint = path.getPointAt(0);
 					var lineEndingPoint = null;
@@ -376,8 +380,6 @@
 						//For edge detection
 						currAngle = norm.angle;
 						
-
-						//TODO: Reference normal--should always be outwards
 						norm.length *= -1;
 						var radiusVector = norm.clone();
 						radiusVector.length = setRadius * stroke_align;
@@ -386,45 +388,35 @@
 						var circle_center = point;
 						if (stroke_align != CENTERED) circle_center = point.add(radiusVector);
 
-						coords.push(norm.angle.toString());
 						//Instantiating circles
 						circ = new Path.Circle({
 		                    center: circle_center,
 		                    radius: setRadius,
 		                    fillColor: stroke_color,
 		                    strokeColor: stroke_color,
-		                    visible: false
+		                    visible: true
                			});
 
-						//TODO: Add circle to outline path object
-               			if (Math.abs(path.getCurvatureAt(i)) < 0.001) {
-               				circ.visible = 'true';
-               			}
+               			var valid = isValid(circ, path, stroke_align);
+               			if (!valid && stroke_align != EXTERIOR) circ.remove();
+
+               		
+
+						//TODO: analyze Math.abs(path.getCurvatureAt(i))
+               			
 
 
 						
 
-      //          			//Locate corner
-						// var cornerEdge = onCorner(circle_center, stroke_width, path, prevAngle, currAngle);
-						// if (cornerEdge) {
-						// 	//draw circle
-						// 	// console.log(i, prevAngle, currAngle);
-						// 	edgeCircle = new Path.Circle({
-		    //                 center: circle_center,
-		    //                 radius: stroke_width / 2 ,
-		    //                 fillColor: 'orange',
-		    //                 strokeColor: 'orange',
-		    //                 selected: false
-      //          				});
-
-      //          				// fillSpace(mostRecentValidPoint, circle_center, stroke_color, stroke_width, offset);
+      					// fillSpace(mostRecentValidPoint, circle_center, stroke_color, stroke_width, offset);
 						// 	edgeCount += 1; console.log('corner found', circle_center);
 						// }
 
 						prevAngle = currAngle;
 					});
 					console.log(coords);
-					console.log(path.className);
+					drawCorners(path, stroke_width, stroke_align);
+
 				}
 
 				function visualizeNormal(origin, normal, tangent){

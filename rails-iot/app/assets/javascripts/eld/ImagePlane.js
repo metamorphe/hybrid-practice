@@ -1,15 +1,23 @@
-function ImagePlane(){
-	position = paper.view.bounds.rightCenter.clone().subtract(40).subtract(new paper.Point(5, 0));
+function ImagePlane(options){
+	if(! options.position)
+		position = paper.view.bounds.rightCenter.clone().subtract(40).subtract(new paper.Point(5, 0));
+	console.log(options.width);
+	
+	var width = Ruler.pts2mm(options.width);
 
-	var width = 30;
 	this.graph = new Graph({
                     name: "Radial Gradient Graph",
-                    position: position,
+                    // position: options.position,
                     range: {x: {identity: "x", min: -width/2.0, max: width/2.0}, y: {identity: "y", min: -width/2.0, max:  width/2.0}},
                     shape: "circle", 
-                    size: new Size(40, 40),
+                    size: new Size(options.width, options.width ),
                     fillColor: "black"
                 });
+	this.graph.dom.set({
+		pivot: this.graph.dom.bounds.bottomRight,
+		position: options.position
+	});
+
 }
 ImagePlane.prototype = {
 	visualize: function(){
