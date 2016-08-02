@@ -204,44 +204,6 @@
 					return data;
 				}
 
-				function ideas(){
-
-						//TODO: Detect a straight path if same angle as prev
-						if ((Math.abs(currAngle - prevAngle) == 0)) {
-							lineStartingPoint = true;
-						}
-						lineStartingPoint = false;
-
-               			//Delete overlaps
-               			var canDelete;
-               			//if exterior or normal
-               			if (stroke_align == 1 || stroke_align == 0) {
-               				canDelete = ((path.contains(new paper.Point(curr_x, curr_y))));
-						}
-
-               			//if internal then make sure path does not contain it
-               			else if (stroke_align == -1) {
-               				canDelete = (!(path.contains(new paper.Point(curr_x, curr_y))));
-               			} 
-
-						for (j = 0; j < circ.segments.length; j++) {
-							var curr_x = circ.segments[j].point.x;
-							var curr_y = circ.segments[j].point.y;
-							//Current point intersects with the path
-							if (canDelete) {
-								circ.scaling.x = .1;
-								circ.scaling.y = .1;
-								// circ.visible = false;
-								// console.log('PATH CONTAINS CIRCLE');
-								// console.log(i, curr_x, curr_y);
-								break;
-							}
-						}
-						// circ.bringToFront();
-						circGroup.addChild(circ);
-               		}
-
-
 				// Returns false if any part of the circle is "IN" the path, 
 				// where "IN" is relative to the stroke_align
 				function isValid(circ, path, stroke_align){
