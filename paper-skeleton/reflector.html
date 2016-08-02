@@ -29,44 +29,62 @@
                 paper.install(window);
                 paper.setup('myCanvas');
 
-                myLens = new Lens(Ruler.mm2pts(30), Ruler.mm2pts(15));
-                gui = new dat.GUI();
-                gui.add(myLens, 'lensHeight')
-                  .min(50)
-                  .max(100)
-                  .onChange(function(value) {
-                    myLens.updateHeight();
-                    myLens.updateHandles();
-                  });
-                gui.add(myLens, 'lensWidthOffset')
-                  .min(0)
-                  .max(myLens.bottomRightPoint.x - myLens.rightmostDomePoint.x)
-                  .onChange(function(value) {
-                    myLens.updateWidthOffset();
-                    myLens.updateHandles();
-                  });
-                gui.add(myLens, 'rightAlpha')
-                  .min(0)
-                  .max(1)
-                  .onChange(function(value) {
-                    myLens.updateHandles();
-                  });
-                gui.add(myLens, 'rightBeta')
-                  .min(0)
-                  .max(1)
-                  .onChange(function(value) {
-                    myLens.updateHandles();
-                  });
+                // myLens = new Lens(Ruler.mm2pts(30), Ruler.mm2pts(15), Ruler.mm2pts(5));
+                // myLens = new Lens({
+                //   lensHeight: Ruler.mm2pts(30),
+                //   lensWidth: Ruler.mm2pts(15),
+                //   lensOffset: Ruler.mm2pts(5),
+                //   alpha: 1.0,
+                //   beta: 1.0
+                // });
+                // gui = new dat.GUI();
+                // gui.add(myLens, 'lensHeight')
+                //   .min(50)
+                //   .max(100)
+                //   .onChange(function(value) {
+                //     myLens.updateHeight();
+                //     myLens.updateHandles();
+                //   });
+                // gui.add(myLens, 'lensWidth')
+                //   .min(0)
+                //   .max(50)
+                //   .onChange(function(value) {
+                //     myLens.updateWidth();
+                //     myLens.updateHandles();
+                //   });
+                // gui.add(myLens, 'lensOffset')
+                //   .min(0)
+                //   .max(myLens.lensWidth)
+                //   .onChange(function(value) {
+                //     myLens.updateWidthOffset();
+                //     myLens.updateHandles();
+                //   });
+                // gui.add(myLens, 'alpha')
+                //   .min(0)
+                //   .max(1)
+                //   .onChange(function(value) {
+                //     myLens.updateHandles();
+                //   });
+                // gui.add(myLens, 'beta')
+                //   .min(0)
+                //   .max(1)
+                //   .onChange(function(value) {
+                //     myLens.updateHandles();
+                //   });
             });
 
-            function Lens(lensHeight, lensWidthOffset) {
+            function Lens(params) {
               this.lensPath = new paper.Path();
               this.lensBasePath = new paper.Path();
-              this.lensHeight = lensHeight;
-              this.lensWidthOffset = lensWidthOffset;
 
-              this.rightBeta = 1.0;
-              this.rightAlpha = 1.0;
+              for (key in params) {
+                this[key] = params[key];
+              }
+              // this.lensHeight = lensHeight;
+              // this.lensWidth = lensWidth;
+              // this.lensOffset = lensOffset;
+              // this.beta = 1.0;
+              // this.alpha = 1.0;
 
               this.domePathArray = []
               this.topLeftSegment = null;
@@ -91,8 +109,6 @@
                 var basePathStartPoint = this.lensBasePath.segments[0].point;
                 var basePathEndPoint = this.lensBasePath.segments[this.lensBasePath
                         .segments.length - 1].point;
-                this.bottomLeftPoint = basePathStartPoint;
-                this.bottomRightPoint = basePathEndPoint;
 
                 // Generate paths, which also fill the segment fields
                 this.generateDomePath(-Ruler.mm2pts(15));
@@ -105,6 +121,12 @@
                 this.rightmostDomePoint = this.domePathArray[1].segments[
                     this.domePathArray[0].segments.length - 2].point;
 
+                this.bottomLeftPoint = basePathStartPoint;
+                this.bottomRightPoint = new Point(
+                  this.rightmostDomePoint.x + this.lensOffset,
+                  this.rightmostDomePoint.y
+                );
+
                 this.generateRampPath();
               },
               /**
@@ -112,21 +134,25 @@
                * segment on THIS.LENS_PATH
                */
               updateHeight: function() {
-                this.topLeftSegment.point.y = this.bottomLeftPoint.y
-                  - this.lensHeight;
+                // this.topLeftSegment.point.y = this.bottomLeftPoint.y
+                //   - this.lensHeight;
                 this.topRightSegment.point.y = this.bottomRightPoint.y
                   - this.lensHeight;
               },
+              updateWidth: function() {
+                this.topRightSegment.point.x = this.rightmostDomePoint.x
+                  + this.lensWidth;
+              },
               updateWidthOffset: function() {
-                this.bottomLeftSegment.point.x = this.leftmostDomePoint.x
-                  - this.lensWidthOffset,
+                // this.bottomLeftSegment.point.x = this.leftmostDomePoint.x
+                //   - this.lensOffset,
                 this.bottomRightSegment.point.x = this.rightmostDomePoint.x
-                  + this.lensWidthOffset;
+                  + this.lensOffset;
               },
               updateHandles: function() {
                 var distBottomRightToEdge = this.topRightSegment.point.x - this.bottomRightSegment.point.x;
-                this.topRightSegment.handleOut.y = this.lensHeight * this.rightAlpha;
-                this.bottomRightSegment.handleIn.x = distBottomRightToEdge * this.rightBeta;
+                this.topRightSegment.handleOut.y = this.lensHeight * this.alpha;
+                this.bottomRightSegment.handleIn.x = distBottomRightToEdge * this.beta;
               },
               /**
                * NOTE: this is for faking an input
@@ -206,9 +232,9 @@
                * Generates a path representing the ramps and top of the lens
                */
               generateRampPath: function() {
-                var topLeftPoint = new Point(this.bottomLeftPoint.x - this.lensWidthOffset,
+                var topLeftPoint = new Point(this.bottomLeftPoint.x - this.lensOffset,
                         this.bottomLeftPoint.y - this.lensHeight);
-                var topRightPoint = new Point(this.bottomRightPoint.x + this.lensWidthOffset,
+                var topRightPoint = new Point(this.rightmostDomePoint.x + this.lensWidth,
                         this.bottomLeftPoint.y - this.lensHeight);
                 var rampPath = new Path({
                   segments: [
@@ -227,8 +253,8 @@
                 this.bottomRightSegment = rampPath.segments[3];
 
                 // Add handles for corner segments
-                this.topRightSegment.handleOut = new Point(0, this.lensHeight * this.rightAlpha);
-                this.bottomRightSegment.handleIn = new Point(this.lensWidthOffset * this.rightBeta, 0);
+                this.topRightSegment.handleOut = new Point(0, this.lensHeight * this.alpha);
+                this.bottomRightSegment.handleIn = new Point(this.lensOffset * this.beta, 0);
                 this.topRightSegment.selected = true;
                 this.bottomRightSegment.selected = true;
               },
@@ -261,11 +287,11 @@
               },
               getRamp: function(params) {
                 if (params) {
-
-                  this.lensHeight = params.rampHeight;//params.lensHeight || this.lensHeight;
-                  this.lensWidthOffset = params.rampWidth; //params.lensWidthOffset || this.lensWidthOffset;
-                  this.rightAlpha = params.alpha; //params.rightAlpha || this.rightAlpha;
-                  this.rightBeta = params.beta;// || this.rightBeta;
+                  this.lensHeight = params.lensHeight;//params.lensHeight || this.lensHeight;
+                  this.lensWidth = params.lensWidth;
+                  this.lensOffset = params.lensOffset; //params.lensOffset || this.lensOffset;
+                  this.alpha = params.alpha; //params.alpha || this.alpha;
+                  this.beta = params.beta;// || this.beta;
                   this.updateHeight();
                   this.updateWidthOffset();
                   this.updateHandles();
@@ -276,25 +302,27 @@
                 });
               }
             }
-        
 
-        var RAMP_HEIGHT = Ruler.mm2pts(10);
-        var RAMP_WIDTH = Ruler.mm2pts(5);
-        var RAMP_OFFSET = Ruler.mm2pts(3);
+
+        var RAMP_HEIGHT = 85;
+        var RAMP_WIDTH = 43;
+        var RAMP_OFFSET = 14;
         var ALPHA = 0.5;
         var BETA = 0.5;
 
 
-        function make_ramp(){
+        function makeRamp(){
           // var myLens = new Lens(Ruler.mm2pts(30), Ruler.mm2pts(15));
-         var ramp =  myLens.getRamp({
-            rampHeight: RAMP_HEIGHT, 
-            rampWidth: RAMP_WIDTH, 
-            rampOffset: RAMP_OFFSET, 
-            alpha: ALPHA, 
-            beta: BETA
-          });
-         ramp.fillColor = "red";
+         var tempLens = new Lens({
+           lensHeight: RAMP_HEIGHT,
+           lensWidth: RAMP_WIDTH,
+           lensOffset: RAMP_OFFSET,
+           alpha: ALPHA,
+           beta: BETA
+         });
+         var ramp = tempLens.getRamp();
+         project.activeLayer.removeChildren();
+         return ramp;
         }
 
         </script>
