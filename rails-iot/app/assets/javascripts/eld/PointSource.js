@@ -2,6 +2,7 @@
 function PointLight (options) {
 	this.options = options;
 	this.source = this.init();
+	this.parent = options.parent;
 }
 PointLight.prototype = {
 	init: function(argument) {
@@ -17,11 +18,10 @@ PointLight.prototype = {
 	toLocalSpace: function(angle){
 		return angle - 90;
 	},
-	emmision: function(){
+	emmision: function(start=-60, end=61, step=0.5){
 		var scope = this;
-		rays = _.range(-60, 61, 0.5);
+		rays = _.range(start, end, step);
 		rays = _.map(rays, function(theta){
-			// console.log(scope.source.position.toString(), theta);
 			return scope.emit(scope.source.position, scope.toLocalSpace(theta), 1, "yellow");
 		})
 
@@ -47,6 +47,11 @@ PointLight.prototype = {
 			strokeWidth: strength, 
 			strokeScaling: false
 		});
+
+		np = p.getIntersections(this.parent);
+		if(np.length > 0)
+		p.lastSegment.point = np[0].point;
+
 		return {
 			path: p, 
 			strength: strength, 

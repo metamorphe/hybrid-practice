@@ -32,10 +32,10 @@
 
         // var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(-10, -3));
         var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(0, -3));
-        // var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
-        var leds = [posA]
+        var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
+        var leds = [posA, posB]
         leds = _.map(leds, function(pos){
-              return  new PointLight({
+              return new PointLight({
                   position: pos, 
                   mediums: _.flatten([lenses,reflectors])
               });

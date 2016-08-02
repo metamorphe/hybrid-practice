@@ -101,16 +101,16 @@ function dome(baseWidth, baseHeight, concaveHeight) {
 
 function draw_scene(box, base_length){
     // add base
-    var base = new paper.Path.Line({
-        from: new paper.Point(0, 0), 
-        to: new paper.Point(base_length, 0), 
-        name: "BASE: PCB", 
+    var base = new paper.Path({
+        segments: [new paper.Point(0, -30), new paper.Point(0, 0), new paper.Point(base_length, 0)], 
+        name: "REF: 0.9", 
         strokeWidth: 2,
         strokeColor: "green", 
         strokeScaling: false
     });
-    base.position = box.bounds.center;
-  
+    base.pivot = base.bounds.bottomCenter;   
+    base.position = box.bounds.bottomRight.add(new paper.Point(-60, -10));
+    
     // add LED
     var led = new paper.Path.Rectangle({
         size: new paper.Size(Ruler.mm2pts(LED_WIDTH / 2.0), Ruler.mm2pts(LED_HEIGHT)), 
@@ -122,16 +122,70 @@ function draw_scene(box, base_length){
     });
     led.set({
         pivot: led.bounds.bottomRight, 
-        position: base.bounds.topRight
+        position: base.bounds.bottomRight
     })
+    
     // add dome
+    var base_offset = new paper.Point(base.strokeWidth, -base.strokeWidth);
     var d = dome(DOME_BASE_WIDTH, DOME_BASE_HEIGHT, CONCAVE_HEIGHT);
     d.set({
         scaling: new paper.Size(-1, 1),
-        pivot: d.bounds.bottomRight, 
-        position: base.bounds.topRight
+        pivot: d.strokeBounds.bottomRight, 
+        position: base.strokeBounds.bottomRight.add(base_offset), 
+        visible: false
     });
+    // d.firstSegment.selected = true;
+    d.firstSegment.handleIn = new paper.Point(0, 0);
+
     // add ramp
+    var ramp_width = base_length - d.bounds.width;
+    var a = d.lastSegment.point.add(new paper.Point(-ramp_width, 0));
+    var b = a.add(new paper.Point(0, Ruler.mm2pts(-10)));
+    var c = b.add(new paper.Point(ramp_width + Ruler.mm2pts(3.5), 0));
+    var d = _.map(d.segments, function(s){ return s.clone()});
+
+    var ramp = new paper.Path({
+        name: "LENS:_1.44",
+        segments: _.flatten([d, a, b, c]),
+        closed: true, 
+        fillColor: "#00A8E1", 
+        strokeWidth: 0
+    });
+
+    // var wall = new paper.Path.Line({
+    //     from: new paper.Point(-50, 5), 
+    //     to: new paper.Point(-50, Ruler.mm2pts(-10)), 
+    //     name: "REF: 0.9", 
+    //     strokeWidth: 5,
+    //     strokeColor: "green", 
+    //     strokeScaling: false
+    // });
+    // wall.position = ramp.bounds.leftCenter;
+
+    // GATHER MEDIUMS
+    var reflectors = CanvasUtil.queryPrefix("REF");
+    var lenses = CanvasUtil.queryPrefix("LENS");
+    _.each(reflectors, function(el){
+        el.reflectance = 0.90;
+    });
+
+    _.each(lenses, function(el){
+        el.refraction = 0.80;
+        el.n = parseFloat(Artwork.getName(el).split("_")[1]);
+    
+    });
+    mediums = _.flatten([lenses,reflectors]);
+    console.log('REFLECTORS', reflectors.length, "LENSES", lenses.length, "TOTAL", mediums.length);
+    console.log(lenses[0].refraction, lenses[0].n);
+
+    ls = new PointLight({
+                  position: led.position, 
+                  mediums: mediums, 
+                  parent: box
+                });
+
+    ls.emmision(-60, 0, 1);
+
 }
 
 
@@ -159,7 +213,7 @@ function interpolation_lines2(diffuser, leds) {
 }
 
 
-function Pipeline(argument) {}
+function Pipeline() {}
 
 Pipeline.getElements = function() {
     return {
@@ -221,7 +275,7 @@ Pipeline.script = {
 
        // PROJECT RAYS AND SHOW ON AN IMAGE_PLANE
        var width = result.bounds.width;
-     
+
        ip = new ImagePlane({
         position: result.bounds.topRight.clone(), 
         width: width, 
@@ -469,12 +523,13 @@ Pipeline.script = {
         var all = _.flatten([e.leds, e.diff, e.mc]);
         var result = new paper.Group(all);
     
+
         var backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.strokeBounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: new paper.Color(BASE_HEIGHT),
-            strokeWidth: 0, 
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: 'white',
             parent: result
-        });        
+        });
+        backgroundBox.sendToBack();        
         // ADD CORNER PEGS
         var pegs = Pipeline.create_corner_pegs({ 
          geometry: "hex",
@@ -831,7 +886,7 @@ PipeManager.prototype = {
     console.log('RUNNING SCRIPT', view)  
     display = new Artwork($('#file-select').val(), function(artwork){
       var e = Pipeline.getElements();
-      p.script[view](artwork, e);
+      Pipeline.script[view](artwork, e);
     });
 
     paper.view.update();
