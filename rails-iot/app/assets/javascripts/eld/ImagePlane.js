@@ -1,18 +1,15 @@
 function ImagePlane(options){
-	if(! options.position)
-		position = paper.view.bounds.rightCenter.clone().subtract(40).subtract(new paper.Point(5, 0));
-	console.log(options.width);
-	
 	var width = Ruler.pts2mm(options.width);
 
 	this.graph = new Graph({
                     name: "Radial Gradient Graph",
                     // position: options.position,
-                    range: {x: {identity: "x", min: -width/2.0, max: width/2.0}, y: {identity: "y", min: -width/2.0, max:  width/2.0}},
+                  	range: options.range,
                     shape: "circle", 
                     size: new Size(options.width, options.width ),
                     fillColor: "black"
                 });
+	this.graph.plotPoint(new paper.Point(10, 0));
 	this.graph.dom.set({
 		pivot: this.graph.dom.bounds.bottomRight,
 		position: options.position
@@ -40,6 +37,7 @@ ImagePlane.prototype = {
 			pt = pt.add(new paper.Point(-15, 0));
 			return pt;
 		});
+		scope.graph.plotPoint(new paper.Point(0, 0));
 		
 		pts = _.map(data, function(pt){
 			return scope.graph.plotPoint(pt, {fillColor: "white"});

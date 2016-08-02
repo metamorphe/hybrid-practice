@@ -46,7 +46,14 @@
             console.log(l.options)
         });
 
-        ip = new ImagePlane();
+        var image_plane = CanvasUtil.queryPrefix("IMG")[0];
+       var range = image_plane.bounds.width / 4.0;
+
+        ip = new ImagePlane({
+          width: 30, 
+          position: display.svg.bounds.bottomCenter, 
+          range: {x: {identity: "x", min: -range, max: range}, y: {identity: "y", min: -range, max:  range}},
+        });
         ip.visualize();
         
         // display.svg.bringToFront();

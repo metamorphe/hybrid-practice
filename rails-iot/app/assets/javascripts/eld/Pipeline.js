@@ -54,14 +54,14 @@ var LED_WIDTH = 5;
 var LED_HEIGHT = 1.4;
 
 // DOME
-var BASE_WIDTH = Ruler.mm2pts(7);
-var BASE_HEIGHT = Ruler.mm2pts(4);
+var DOME_BASE_WIDTH = Ruler.mm2pts(7);
+var DOME_BASE_HEIGHT = Ruler.mm2pts(4);
 var CONCAVE_HEIGHT = Ruler.mm2pts(6);
 
 function dome(baseWidth, baseHeight, concaveHeight) {
     // Generating geometries
     var base = new Path.Rectangle({
-        size: new paper.Size(BASE_WIDTH, BASE_WIDTH),
+        size: new paper.Size(baseWidth, baseHeight),
         strokeColor: 'black',
         strokeWidth: 1,
         fillColor: "", 
@@ -69,7 +69,7 @@ function dome(baseWidth, baseHeight, concaveHeight) {
     });
     // b2.selected = true;
     var lens = new Path.Ellipse({
-        rectangle: new Rectangle(new Point(0, 0), new Size(BASE_WIDTH, CONCAVE_HEIGHT)), 
+        rectangle: new Rectangle(new Point(0, 0), new Size(baseWidth, concaveHeight)), 
         strokeColor: 'black',
         strokeWidth: 1,
         fillColor: "", 
@@ -125,7 +125,7 @@ function draw_scene(box, base_length){
         position: base.bounds.topRight
     })
     // add dome
-    var d = dome(BASE_WIDTH, BASE_HEIGHT, CONCAVE_HEIGHT);
+    var d = dome(DOME_BASE_WIDTH, DOME_BASE_HEIGHT, CONCAVE_HEIGHT);
     d.set({
         scaling: new paper.Size(-1, 1),
         pivot: d.bounds.bottomRight, 
@@ -220,10 +220,14 @@ Pipeline.script = {
        draw_scene(tracerBox, 100);
 
        // PROJECT RAYS AND SHOW ON AN IMAGE_PLANE
+       var width = result.bounds.width;
+     
        ip = new ImagePlane({
         position: result.bounds.topRight.clone(), 
-        width: result.bounds.width
+        width: width, 
+        range: {x: {identity: "x", min: -width/2.0, max: width/2.0}, y: {identity: "y", min: -width/2.0, max:  width/2.0}}
        });
+       
 
        // this.makeReflectorMedium(0.5, 0.5, 10, 20);
 

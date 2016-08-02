@@ -81,7 +81,7 @@ Graph.prototype = {
         var scope = this;
         // LABEL STYLE
         var label_style = { 
-                fillColor: "black",
+                fillColor: "white",
                 fontFamily: 'Courier New',
                 fontWeight: 'bold',
                 fontSize: 8 / paper.view.zoom
@@ -139,17 +139,21 @@ Graph.prototype = {
             this.options.range.y.max - this.options.range.y.min
         );
         
-        var target_range = new paper.Point(this.options.size.width, -this.options.size.height);  
+        var target_range = new paper.Point(this.options.size.width, - this.options.size.height);  
         var normalized = pt.subtract(p_origin).divide(range);
         normalized = normalized.multiply(target_range);
         mapped = normalized.add(this.graph.bounds.bottomLeft);
+        // mapped = mapped.add(this.dom.bounds.center);
         return mapped;
     },
     plotPoint: function(pt, options){
         pt =  new paper.Path.Circle({
             position: this.mapPoint(pt),
             radius: 0.01,
+            // radius: 1,
+            fillColor: "red",
             strokeScaling: false, 
+            parent: this.graph
         });
         pt.set(options);
         return pt;
