@@ -30,7 +30,6 @@
                 paper.setup('myCanvas');
 
                 myLens = new Lens(Ruler.mm2pts(30), Ruler.mm2pts(15));
-                myLens.init();
                 gui = new dat.GUI();
                 gui.add(myLens, 'lensHeight')
                   .min(50)
@@ -77,6 +76,7 @@
               this.bottomRightPoint = null;
               this.leftmostDomePoint = null;
               this.rightmostDomePoint = null;
+              this.init();
             }
 
             Lens.prototype = {
@@ -261,10 +261,11 @@
               },
               getRamp: function(params) {
                 if (params) {
-                  this.lensHeight = params['lensHeight'] || this.lensHeight;
-                  this.lensWidthOffset = params['lensWidthOffset'] || this.lensWidthOffset;
-                  this.rightAlpha = params['rightAlpha'] || this.rightAlpha;
-                  this.rightBeta = params['rightBeta'] || this.rightBeta;
+
+                  this.lensHeight = params.rampHeight;//params.lensHeight || this.lensHeight;
+                  this.lensWidthOffset = params.rampWidth; //params.lensWidthOffset || this.lensWidthOffset;
+                  this.rightAlpha = params.alpha; //params.rightAlpha || this.rightAlpha;
+                  this.rightBeta = params.beta;// || this.rightBeta;
                   this.updateHeight();
                   this.updateWidthOffset();
                   this.updateHandles();
@@ -275,6 +276,26 @@
                 });
               }
             }
+        
+
+        var RAMP_HEIGHT = Ruler.mm2pts(10);
+        var RAMP_WIDTH = Ruler.mm2pts(5);
+        var RAMP_OFFSET = Ruler.mm2pts(3);
+        var ALPHA = 0.5;
+        var BETA = 0.5;
+
+
+        function make_ramp(){
+          // var myLens = new Lens(Ruler.mm2pts(30), Ruler.mm2pts(15));
+         var ramp =  myLens.getRamp({
+            rampHeight: RAMP_HEIGHT, 
+            rampWidth: RAMP_WIDTH, 
+            rampOffset: RAMP_OFFSET, 
+            alpha: ALPHA, 
+            beta: BETA
+          });
+         ramp.fillColor = "red";
+        }
 
         </script>
     </head>
