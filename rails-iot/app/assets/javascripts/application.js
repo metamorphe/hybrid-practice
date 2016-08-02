@@ -19,6 +19,12 @@
 // require_self
 
 
+setVisibility = function(arr, isVisible){
+  _.each(arr, function(el){
+    el.visible = isVisible ? 1: 0;
+  });
+}
+
 Math.radians = function(degrees) {
   return degrees * Math.PI / 180;
 };

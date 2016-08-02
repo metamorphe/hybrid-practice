@@ -11,6 +11,7 @@
 //= require hull
 //= require eld/ruler
 //= require eld/artwork
+//= require eld/CircuitRouting
 //= require eld/Pipeline
 //= require eld/graph
 //= require eld/ButtonExporter

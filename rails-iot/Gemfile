@@ -56,4 +56,5 @@ gem 'csg', '~> 0.1.5'
 gem 'underscore-rails'
 gem 'jquery-sparkline-rails', git: "https://github.com/cubus/jquery-sparkline-rails.git"
 gem 'jquery-ui-rails'
+gem 'htmlbeautifier'
 
