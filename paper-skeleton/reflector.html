@@ -259,9 +259,19 @@
                 basePath.selected = true;
                 return basePath;
               },
-              getRamp: function() {
+              getRamp: function(params) {
+                if (params) {
+                  this.lensHeight = params['lensHeight'] || this.lensHeight;
+                  this.lensWidthOffset = params['lensWidthOffset'] || this.lensWidthOffset;
+                  this.rightAlpha = params['rightAlpha'] || this.rightAlpha;
+                  this.rightBeta = params['rightBeta'] || this.rightBeta;
+                  this.updateHeight();
+                  this.updateWidthOffset();
+                  this.updateHandles();
+                }
                 return new Path({
-                  segments: [topRightSegment, bottomRightSegment, rightmostDomePoint]
+                  segments: [this.topRightSegment, this.bottomRightSegment,
+                    this.rightmostDomePoint]
                 });
               }
             }
