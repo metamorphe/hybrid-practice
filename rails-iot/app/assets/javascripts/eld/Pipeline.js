@@ -50,6 +50,114 @@ var OPT_MAX_ITERS = 20;
 var EPSILON = 10;
 
 
+var LED_WIDTH = 5;
+var LED_HEIGHT = 1.4;
+
+// DOME
+var BASE_WIDTH = Ruler.mm2pts(7);
+var BASE_HEIGHT = Ruler.mm2pts(4);
+var CONCAVE_HEIGHT = Ruler.mm2pts(6);
+
+function dome(baseWidth, baseHeight, concaveHeight) {
+    // Generating geometries
+    var base = new Path.Rectangle({
+        size: new paper.Size(BASE_WIDTH, BASE_WIDTH),
+        strokeColor: 'black',
+        strokeWidth: 1,
+        fillColor: "", 
+        visible: false
+    });
+    // b2.selected = true;
+    var lens = new Path.Ellipse({
+        rectangle: new Rectangle(new Point(0, 0), new Size(BASE_WIDTH, CONCAVE_HEIGHT)), 
+        strokeColor: 'black',
+        strokeWidth: 1,
+        fillColor: "", 
+        visible: false
+    });
+
+    lens.set({
+        position: base.bounds.topCenter
+    });    
+
+    var dome = lens.unite(base);
+    dome.visible = false;
+
+    // Extracting spline
+    var half_dome = _.filter(dome.segments, function(seg) {
+        return seg.point.subtract(dome.bounds.center).x >= 0;
+    });
+
+    var spline = new paper.Path({
+        segments: half_dome,
+        strokeColor: '#00A8E1',
+        strokeWidth: 1,
+        strokeScaling: false,
+        fillColor: "purple"
+    });
+ 
+    return spline;
+}
+
+function draw_scene(box, base_length){
+    // add base
+    var base = new paper.Path.Line({
+        from: new paper.Point(0, 0), 
+        to: new paper.Point(base_length, 0), 
+        name: "BASE: PCB", 
+        strokeWidth: 2,
+        strokeColor: "green", 
+        strokeScaling: false
+    });
+    base.position = box.bounds.center;
+  
+    // add LED
+    var led = new paper.Path.Rectangle({
+        size: new paper.Size(Ruler.mm2pts(LED_WIDTH / 2.0), Ruler.mm2pts(LED_HEIGHT)), 
+        name: "LS: LED LightSource", 
+        strokeWidth: 1,
+        strokeColor: "black", 
+        strokeScaling: false,
+        fillColor: "white"
+    });
+    led.set({
+        pivot: led.bounds.bottomRight, 
+        position: base.bounds.topRight
+    })
+    // add dome
+    var d = dome(BASE_WIDTH, BASE_HEIGHT, CONCAVE_HEIGHT);
+    d.set({
+        scaling: new paper.Size(-1, 1),
+        pivot: d.bounds.bottomRight, 
+        position: base.bounds.topRight
+    });
+    // add ramp
+}
+
+
+function interpolation_lines2(diffuser, leds) {
+    var pts = _.range(0, diffuser.length, 1)
+    return _.map(pts, function(i) {
+        var pt = diffuser.getPointAt(i);
+        var candidates = _.map(leds, function(led) {
+            return led.position;
+        });
+        closest = _.min(candidates, function(c) {
+            return c.getDistance(pt); });
+        l = new paper.Path.Line({
+            from: closest,
+            to: pt,
+            strokeColor: "blue",
+            strokeWidth: 2,
+            visible: true
+        });
+        cross = l.getIntersections(diffuser);
+        if(cross.length >= 2){ l.remove(); return null;}
+        return l;
+    });
+
+}
+
 
 function Pipeline(argument) {}
 
@@ -67,6 +175,60 @@ Pipeline.getElements = function() {
 }
 Pipeline.script = {
     raytrace: function(display, e){
+        display.svg.position = display.svg.bounds.bottomLeft;
+         _.each(e.diff, function(diffuser) {
+            diffuser.set({
+                visible: true,
+                fillColor: "white",
+                strokeWidth: 1
+            });
+        });
+
+        var result = new paper.Group(e.diff);
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: 'white',
+            parent: result
+        });
+       
+        _.each(e.leds, function(led) {
+            led.set({
+                visible: true,
+                fillColor: "#00A8E1",
+                strokeWidth: 0, 
+                parent: result
+            });
+        });
+
+       morph = interpolation_lines2(e.diff[0], e.leds);
+       morph = _.compact(morph);        
+
+       backgroundBox.sendToBack();
+       var invisible = _.compact(_.flatten([e.art, e.dds, e.cp, e.bo, e.bi]));
+       Pipeline.set_visibility(invisible, false);
+
+       // MAKE SCENE INSIDE TRACER BOX
+       tracerBox = new paper.Path.Rectangle({
+            rectangle: result.bounds,
+            fillColor: 'black'
+        }); 
+       tracerBox.set({
+            pivot: tracerBox.bounds.leftCenter,
+            position: result.bounds.rightCenter
+       });
+
+       draw_scene(tracerBox, 100);
+
+       // PROJECT RAYS AND SHOW ON AN IMAGE_PLANE
+       ip = new ImagePlane({
+        position: result.bounds.topRight.clone(), 
+        width: result.bounds.width
+       });
+
+       // this.makeReflectorMedium(0.5, 0.5, 10, 20);
+
+    },
+    makeReflectorMedium: function(){
 
     },
     mold: function(display, e) {
@@ -518,6 +680,7 @@ function rampify(diffuser, leds) {
     return ramp;
 }
 
+
 function what_gray_value_away_from_led(t) {
     // return t; // linear
     c = 1;
@@ -536,104 +699,9 @@ function make_level(lines, level, color) {
     });
 }
 
-function sliceIt(diff, leds, theta) {
-    thetas = _.range(-180, 0, 20);
-
-    ref_pt = leds[0].bounds.center;
-    var n = new paper.Point();
-    n.length = 1000;
-    n.rotation = theta;
-
-    var t = new paper.Point();
-    t.length = -10000;
-    t.rotation = theta;
-
-    result = new paper.Group();
-
-    var l = new paper.Path.Line({
-        segments: [ref_pt.add(n), ref_pt, ref_pt.add(t)],
-        strokeColor: "yellow",
-        strokeWidth: 2,
-        strokeScaling: false,
-        parent: result
-    });
-    ends = l.getIntersections(diff);
-
-    start = _.min(ends, function(e) {
-        return e.offset });
-    end = _.max(ends, function(e) {
-        return e.offset });
-    l.firstSegment.point = start.point;
-    l.lastSegment.point = end.point;
 
 
-    lends = CanvasUtil.getIntersections(l, leds);
-    lends = _.groupBy(lends, function(ixt) {
-        return ixt.path.id;
-    });
-    lends = _.map(lends, function(values, key) {
-            values = _.sortBy(values, function(v) {
-                return v.offset; })
-            vector = values[1].point.subtract(values[0].point);
 
-            midpoint = vector.clone();
-            midpoint.length = vector.length / 2.0;
-
-            return new paper.Path.Rectangle({
-                size: new paper.Size(vector.length, 6),
-                position: values[0].point.add(midpoint),
-                fillColor: "green",
-                rotation: vector.angle
-            });
-        })
-        // lens_profile = getProfile(l, lend);
-    return;
-}
-
-function dome() {
-    // NOTE: rectangles are 7mm wide and 4mm high
-    var lineX = Ruler.mm2pts(15);
-    var rectWidth = Ruler.mm2pts(7);
-    var rectHeight = Ruler.mm2pts(4);
-    var led0Rect = new Path.Rectangle(0, 0, rectWidth, rectHeight);
-    led0Rect.set({
-        position: view.center.add(new Point(-lineX, -rectHeight / 2)),
-        strokeColor: 'black',
-        strokeWidth: 1,
-        fillColor: null
-    });
-    // Define a rectangle that circumscribes the ellipse
-    var ellipseRectWidth = Ruler.mm2pts(7);
-    var ellipseRectHeight = Ruler.mm2pts(6);
-    var ellipseRect = new Rectangle(new Point(0, 0),
-        new Size(ellipseRectWidth, ellipseRectHeight));
-    var led0Ellipse = new Path.Ellipse(ellipseRect);
-    led0Ellipse.set({
-        position: view.center.add(new Point(-lineX, -rectHeight)),
-        strokeColor: 'black',
-        strokeWidth: 1,
-        fillColor: null
-    });
-
-    // Join the ellipse and rectangle, get the rightSegments
-    // of the resulting shape
-    var dome = led0Ellipse.unite(led0Rect);
-    dome.fillColor = 'pink';
-    dome.visible = false;
-    var rightSegs = _.filter(dome.segments, function(seg) {
-        return seg.point.subtract(dome.bounds.center).x >= 0;
-    });
-    var spline = new paper.Path({
-        segments: rightSegs,
-        strokeColor: 'green',
-        strokeWidth: 1,
-        fillColor: null
-    });
-    spline.visible = false;
-    led0Ellipse.visible = false;
-    led0Rect.visible = false;
-    return pathToModel(spline);
-}
 
 function pathToModel(path) {
     // path.selected = true;
