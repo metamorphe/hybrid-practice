@@ -37,24 +37,26 @@
                   .max(100)
                   .onChange(function(value) {
                     myLens.updateHeight();
+                    myLens.updateHandles();
                   });
                 gui.add(myLens, 'lensWidthOffset')
-                  .min(20)
-                  .max(60)
+                  .min(0)
+                  .max(myLens.bottomRightPoint.x - myLens.rightmostDomePoint.x)
                   .onChange(function(value) {
                     myLens.updateWidthOffset();
+                    myLens.updateHandles();
                   });
-                gui.add(myLens.midRightSegment.point, 'x')
-                  .min(myLens.bottomRightPoint.x)
-                  .max(myLens.topRightSegment.point.x)
+                gui.add(myLens, 'rightAlpha')
+                  .min(0)
+                  .max(1)
                   .onChange(function(value) {
-                    myLens.clipHandles();
+                    myLens.updateHandles();
                   });
-                gui.add(myLens.midRightSegment.point, 'y')
-                  .min(myLens.topRightSegment.point.y)
-                  .max(myLens.bottomRightPoint.y)
+                gui.add(myLens, 'rightBeta')
+                  .min(0)
+                  .max(1)
                   .onChange(function(value) {
-                    myLens.clipHandles();
+                    myLens.updateHandles();
                   });
             });
 
@@ -64,17 +66,17 @@
               this.lensHeight = lensHeight;
               this.lensWidthOffset = lensWidthOffset;
 
+              this.rightBeta = 1.0;
+              this.rightAlpha = 1.0;
+
               this.domePathArray = []
               this.topLeftSegment = null;
               this.topRightSegment = null;
-              this.midLeftSegment = null;
-              this.midRightSegment = null;
 
               this.bottomLeftPoint = null;
               this.bottomRightPoint = null;
-
-              this.leftFeasibleRegion = null;
-              this.rightFeasibleRegion = null;
+              this.leftmostDomePoint = null;
+              this.rightmostDomePoint = null;
             }
 
             Lens.prototype = {
@@ -95,22 +97,15 @@
                 // Generate paths, which also fill the segment fields
                 this.generateDomePath(-Ruler.mm2pts(15));
                 this.generateDomePath(Ruler.mm2pts(15));
-                this.generateRampPath();
 
-                // Generate the feasible regions for handle constraints
-                // Note that this must be created after the rampPath
-                this.leftFeasibleRegion = new Path({
-                  segments: [this.topLeftSegment.point, this.bottomLeftPoint,
-                    new Point(this.topLeftSegment.point.x, this.bottomLeftPoint.y)],
-                  fillColor: 'red',
-                  closed: true
-                });
-                this.rightFeasibleRegion = new Path({
-                  segments: [this.topRightSegment.point, this.bottomRightPoint,
-                    new Point(this.topRightSegment.point.x, this.bottomRightPoint.y)],
-                  fillColor: 'red',
-                  closed: true
-                });
+                //FIXME: get the the first point of the first dome and the
+                // last point of the last dome
+                this.leftmostDomePoint = this.domePathArray[0].segments[
+                    this.domePathArray[0].segments.length - 1].point;
+                this.rightmostDomePoint = this.domePathArray[1].segments[
+                    this.domePathArray[0].segments.length - 2].point;
+
+                this.generateRampPath();
               },
               /**
                * Propagates the change in point to the corresponding
@@ -121,39 +116,17 @@
                   - this.lensHeight;
                 this.topRightSegment.point.y = this.bottomRightPoint.y
                   - this.lensHeight;
-                this.midLeftSegment.point.y = this.bottomLeftPoint.y
-                  - this.lensHeight / 2;
-                this.midRightSegment.point.y = this.bottomRightPoint.y
-                  - this.lensHeight / 2;
               },
               updateWidthOffset: function() {
-                this.topLeftSegment.point.x = this.bottomLeftPoint.x
+                this.bottomLeftSegment.point.x = this.leftmostDomePoint.x
                   - this.lensWidthOffset,
-                this.topRightSegment.point.x = this.bottomRightPoint.x
+                this.bottomRightSegment.point.x = this.rightmostDomePoint.x
                   + this.lensWidthOffset;
-                this.midLeftSegment.point.x = this.bottomLeftPoint.x
-                  - this.lensWidthOffset / 2;
-                this.midRightSegment.point.x = this.bottomRightPoint.x
-                  + this.lensWidthOffset / 2;
               },
-              clipHandles: function() {
-                // Check segments
-                if (!this.rightFeasibleRegion.contains(this.midRightSegment.point)) {
-                  var edgePoint = this.rightFeasibleRegion
-                    .getNearestPoint(this.midRightSegment.point);
-                  this.midRightSegment.point = edgePoint;
-                }
-                // Deal with handles
-                if (!this.rightFeasibleRegion.contains(this.midRightSegment.handleIn)) {
-                  var edgePoint = this.rightFeasibleRegion
-                    .getNearestPoint(this.midRightSegment.point);
-                  this.midRightSegment.handleIn = (edgePoint.subtract(this.midRightSegment.point));
-                }
-                // if (!this.rightFeasibleRegion.contains(this.midRightSegment.handleOut)) {
-                //   var edgePoint = this.rightFeasibleRegion
-                //     .getNearestPoint(this.midRightSegment.handleOut);
-                //   this.midRightSegment.handleOut = (edgePoint.subtract(this.midRightSegment.point));
-                // }
+              updateHandles: function() {
+                var distBottomRightToEdge = this.topRightSegment.point.x - this.bottomRightSegment.point.x;
+                this.topRightSegment.handleOut.y = this.lensHeight * this.rightAlpha;
+                this.bottomRightSegment.handleIn.x = distBottomRightToEdge * this.rightBeta;
               },
               /**
                * NOTE: this is for faking an input
@@ -226,6 +199,7 @@
                   fillColor: null
                 });
                 this.domePathArray.push(spline);
+                new Path.Circle(spline.segments[spline.segments.length - 1].point, 2).set({fillColor: 'red'});
                 return spline
               },
               /**
@@ -236,30 +210,27 @@
                         this.bottomLeftPoint.y - this.lensHeight);
                 var topRightPoint = new Point(this.bottomRightPoint.x + this.lensWidthOffset,
                         this.bottomLeftPoint.y - this.lensHeight);
-                var midLeftPoint = new Point(this.bottomLeftPoint.x - this.lensWidthOffset / 2,
-                        this.bottomLeftPoint.y - this.lensHeight / 2);
-                var midRightPoint = new Point(this.bottomRightPoint.x + this.lensWidthOffset / 2,
-                        this.bottomLeftPoint.y - this.lensHeight / 2);
                 var rampPath = new Path({
                   segments: [
-                    this.bottomLeftPoint, midLeftPoint, topLeftPoint, topRightPoint,
-                    midRightPoint, this.bottomRightPoint
+                    this.bottomLeftPoint, topLeftPoint, topRightPoint,
+                    this.bottomRightPoint
                   ],
                   strokeColor: 'black',
                   strokeWidth: 1
                 });
 
                 // Add the top left and top right _segments_ as fields for
-                // updating later, as well as the mid segments
-                this.topLeftSegment = rampPath.segments[2];
-                this.topRightSegment = rampPath.segments[3];
-                this.midLeftSegment = rampPath.segments[1];
-                this.midRightSegment = rampPath.segments[4];
+                // updating laters
+                this.topLeftSegment = rampPath.segments[1];
+                this.topRightSegment = rampPath.segments[2];
+                this.bottomLeftSegment = rampPath.segments[0];
+                this.bottomRightSegment = rampPath.segments[3];
 
-                // Add handles for the mid segments
-                this.midRightSegment.handleIn = new Point(this.lensWidthOffset / 2, -this.lensHeight / 2);
-                this.midRightSegment.handleOut = new Point(-this.lensWidthOffset / 2, this.lensHeight / 2);
-                this.midRightSegment.selected = true;
+                // Add handles for corner segments
+                this.topRightSegment.handleOut = new Point(0, this.lensHeight * this.rightAlpha);
+                this.bottomRightSegment.handleIn = new Point(this.lensWidthOffset * this.rightBeta, 0);
+                this.topRightSegment.selected = true;
+                this.bottomRightSegment.selected = true;
               },
               /**
                *
@@ -287,6 +258,11 @@
                 });
                 basePath.selected = true;
                 return basePath;
+              },
+              getRamp: function() {
+                return new Path({
+                  segments: [topRightSegment, bottomRightSegment, rightmostDomePoint]
+                });
               }
             }
 
