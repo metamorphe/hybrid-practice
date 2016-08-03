@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.view.zoom = 1;
+				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+					runScript(display);
+				});
+				
+			});
+			
+			function runScript(display){
+				display.svg.remove();
+
+				function generateSlicedSegment(angleIn, angleOut, inputPath, inputPathCenter) {
+					// Generate both the inPoint and outPoint vectors.
+					inputPath.remove();
+					var inPoint = inputPathCenter.clone();
+					var outPoint = inputPathCenter.clone();
+					inPoint.length = 100;
+					outPoint.length = 100;
+					inPoint.angle = angleIn;
+					outPoint.angle = angleOut;
+
+					// Translate the vectors to the center of the screen.
+					inPoint = inPoint.add(inputPathCenter);
+					outPoint = outPoint.add(inputPathCenter);
+
+					// Define a circle to be the bounding box of the inputted Geometry.
+					var circle = new paper.Path.Circle({
+						center: inputPathCenter,
+						radius: 100,
+						strokeWidth: 2,
+						strokeColor: "black"
+					});
+
+					// Gets the closest points on the Circle to both the inPoint and outPoint.
+					var nearestInPoint = circle.getNearestPoint(inPoint);
+					var nearestOutPoint = circle.getNearestPoint(outPoint);
+
+					// Define the intersecting path to consist of the inPoint, center, and outPoint.
+					var intersectingPath = new paper.Path({
+						segments: [nearestInPoint, inputPathCenter, nearestOutPoint],
+						strokeWidth: 2,
+						strokeColor: "red"
+					});
+
+					// Get the offset of both the inPoint and the outPoint.
+					var offsetInPoint = circle.getOffsetOf(nearestInPoint);
+					var offsetOutPoint = circle.getOffsetOf(nearestOutPoint);
+
+					// Split the circle based on the offsets derived above.
+					var cutOff = circle.split(offsetOutPoint);
+					cutOff.split(cutOff.getOffsetOf(nearestInPoint));
+					cutOff.strokeColor = "blue";
+
+					// Collect an array of points on the cutoff segment of the circle.
+					var CONSTANT_OFFSET = 0;
+					let NEAREST_IN_POINT_OFFSET = circle.getOffsetOf(nearestInPoint);
+					var segments = [inputPathCenter, nearestOutPoint];
+
+					while (CONSTANT_OFFSET < NEAREST_IN_POINT_OFFSET) {
+						segments.push(circle.getPointAt(CONSTANT_OFFSET));
+						CONSTANT_OFFSET += 3;
+					};
+
+					// Push the inputPathCenter to the segments array.
+					segments.push([inputPathCenter]);
+					
+					// Generate the slicedSegment path.
+					var slicedSegment = new paper.Path({
+						segments: segments
+					})
+
+					slicedSegment.selected = true;
+				};
+		
+				// Example Code to test generateSlicedSegment:
+				var path = new paper.Path.Rectangle(new Point(600, 300), new Size(60, 60));
+				generateSlicedSegment(90, 60, path, path.bounds.center);		
+			};
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>	
