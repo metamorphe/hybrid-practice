@@ -9,7 +9,14 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
-
+CanvasUtil.getIntersections = function(el, collection){
+	var hits = _.map(collection, function(c){
+		return c.getIntersections(el);
+	});
+	hits = _.compact(hits);
+	hits = _.flatten(hits);
+	return hits;
+}
 CanvasUtil.query = function(container, selector){
 	// Prefix extension
 	if ("prefix" in selector){
@@ -22,6 +29,15 @@ CanvasUtil.query = function(container, selector){
 		delete selector["prefix"];
 	}
 	var elements = container.getItems(selector);
+	elements = _.map(elements, function(el, i, arr){
+		if(el.className == "Shape"){
+			nel = el.toPath(true);
+			el.remove();
+			return nel;
+		}
+			
+		else return el;
+	});
 	if ("lid" in selector) {
 		return _.where(elements, {lid: selector["lid"]})
 	} else {
@@ -41,6 +57,7 @@ CanvasUtil.queryPrefixWithId = function(selector, id) {
 function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;
+	// console.log("Importing", this.svgPath)
 	if(_.isUndefined(cloned))
 		this.import(loadFN);
 }
@@ -55,23 +72,26 @@ Artwork.prototype = {
 		cl.svg = this.svg.clone();
 		return cl;
 	},
+	remove: function(){
+		this.svg.remove();
+	},
 	queryable: function(){
 		return _.map(this.query({}), function(el){
 			return el.name;
 		});
 	},
 	import:  function(loadFN) {
-			var scope = this;
-			console.log("Importing", this.svgPath, paper)
-		 	paper.project.importSVG(this.svgPath, function(item) {
+		var scope = this;
+	 	paper.project.importSVG(this.svgPath, function(item) {
+	 		 // console.log("Processing", item.name);
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
-	 		var name = scope.svg.name;
-		    console.log("Importing", name);
-				var ledLists = scope.orderLeds();
-				scope.allLeds = ledLists[0];
-				scope.iLeds = ledLists[1];
-				scope.setLedsOff();
+	 		var ledLists = scope.orderLeds();
+				if(!_.isNull(ledLists)){
+					scope.allLeds = ledLists[0];
+					scope.iLeds = ledLists[1];
+				}
+				// scope.setLedsOff();
 		    loadFN(scope);
 		});
 	},
@@ -99,21 +119,22 @@ Artwork.prototype = {
 	orderLeds: function() {
 		var nLeds = this.queryPrefix('NLED');
 		var iLeds = this.queryPrefix('ILED');
-		var cp = this.queryPrefix('CP')[0];
-		var allLeds = nLeds.concat(iLeds);
+		var cp = this.queryPrefix('CP');
+		var allLeds = _.flatten([nLeds, iLeds]);
 
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
+		
+		if(_.isEmpty(cp)) return null;
+
 		var bo = this.queryPrefix('BO');
 		var bi = this.queryPrefix('BI');
+		cp = cp[0];
 
-		if (bi.length == 0) {
-			throw Error('No breakin in artwork');
-		}
-		if (bo.length == 0) {
-			polarity = 1;
-		}
+
+		if (bi.length == 0) {console.log('No breakin in artwork');  return;}
+		if (bo.length == 0) {polarity = 1;}
 		else {
 			bo = bo[0];
 			bi = bi[0];
@@ -147,17 +168,24 @@ Artwork.prototype = {
 		});
 		return [allLeds, iLeds];
 	},
-	setLedsOff: function() {
-		var leds = this.queryPrefix('NLED');
-		$.each(leds, function (idx, obj) {
-			obj.status = '↓';
-		});
-	},
+	// setLedsOff: function() {
+	// 	var leds = this.queryPrefix('NLED');
+	// 	$.each(leds, function (idx, obj) {
+	// 		obj.status = '↓';
+	// 	});
+	// },
 	findLedWithId: function(id) {
 		return _.findWhere(this.queryPrefix('NLED'),
 						{lid: id});
 	}
 }
+
+Artwork.getPrefix = function(item){
+	if(_.isUndefined(item)) return "";
+	if(item.name.split(":").length < 2) return "";
+	return item.name.split(":")[0].trim();
+}
+
 
 Artwork.getPrefixItem = function(item){
 	if(_.isUndefined(item)) return "";

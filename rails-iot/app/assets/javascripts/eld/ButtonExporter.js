@@ -13,24 +13,35 @@ function ButtonExporter(dom, type, preFN, postFN){
       var scope = this;
       if(this.type == "PNG")
         $(this.dom).click(function(){
+          paper.project.clear();
+          paper.view.update();
+
           display = new Artwork(getActiveArtwork(), function(artwork){
             result = scope.preFN(artwork);
             // result.remove();
-            console.log("FINAL DIMENSIONS", Ruler.pts2mm(result.bounds.width), "mm x", Ruler.pts2mm(result.bounds.height), "mm");
-            result.fitBounds(paper.view.bounds)
+            console.log("FINAL DIMENSIONS", 
+              Ruler.pts2mm(result.bounds.width), "mm x", 
+              Ruler.pts2mm(result.bounds.height), "mm x", 
+              Ruler.pts2mm(result.model_height), "mm"
+            );
+            result.fitBounds(paper.view.bounds.expand(-5))
                       
-            // var fn = scope.getFilename();
-            // ButtonExporter.exportPNG(result, fn, scope.dom);
-            // paper.project.clear();
-            // paper.view.update();
+            var fn = scope.getFilename();
+            ButtonExporter.exportPNG(result, fn, scope.dom);
+           
           })
         })
       else if(this.type == "SVG")
         $(this.dom).click(function(){
-          scope.preFN();
-          // var fn = scope.getFilename();
-          // ButtonExporter.exportSVG(fn);
-          // scope.postFN();
+          paper.project.clear();
+          paper.view.update();
+          
+          display = new Artwork(getActiveArtwork(), function(artwork){
+            scope.preFN(artwork);
+            var fn = scope.getFilename();
+            ButtonExporter.exportSVG(fn);
+            scope.postFN();
+          });
         })
     }, 
     getFilename:  function(){
@@ -44,13 +55,11 @@ function ButtonExporter(dom, type, preFN, postFN){
 
   ButtonExporter.exportPNG = function(result, filename, dom){
       console.log("Exporting PNG...", filename);
-
       result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width / 2.0, result.strokeBounds.height / 2.0));
       paper.view.update();
       bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, result.strokeBounds.width * 2, result.strokeBounds.height * 2);
       dom.attr('href', bufferCanvas.toDataURL("image/png"))
       .attr('download', filename + '.png');
-
       // dom.attr('href', $('#myCanvas')[0].toDataURL("image/png"))
              // .attr('download', filename + '.png');
   }

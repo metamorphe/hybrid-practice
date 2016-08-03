@@ -16,6 +16,32 @@
 
  @import "bootstrap";
 
+	.btn-transparent{
+	  background: none;
+	  border: none;
+	}
+
+	.btn-transparent:visited{
+	  color: #f5f4f0;
+	  outline: none;
+	}
+	.btn-transparent:hover{
+	  color: #f5f4f0;
+	  outline: none;
+	}
+	.btn-transparent:active{
+	  color: #f5f4f0;
+	  outline: none;
+	}
+
+	.btn-transparent:focus{
+	  color: #f5f4f0;
+	  outline: none;
+	}
+
+	.clearfix{
+	  clear: both;
+	}
 
 /* LIBRARY NODE CSS */
 .small-span{

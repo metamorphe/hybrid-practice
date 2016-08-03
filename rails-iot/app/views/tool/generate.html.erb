@@ -3,29 +3,15 @@
 
       $(function(){
         Utility.paperSetup($('#myCanvas'));
-        // displays.push(new Artwork("/artwork/nine-segment.svg", function(artwork){
-        //   })
-        // );
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         $("#shade").fadeOut("slow");
         pipelineSetup();
       });
 
       function pipelineSetup(){
-        // var display = displays[0];
-         // display.svg.remove();
-
-        // var pcb = new ButtonExporter($('#pcb'), "SVG", 
-        //   function(){
-        //       return pcb_script(display); 
-        //   });
-      
         var spacers = new ButtonExporter($('#spacers'), "PNG", spacers_script );
-        var mold = new ButtonExporter($('#mold'), "PNG", mold_script );
-        // var mask = new ButtonExporter($('#mask'), "SVG", 
-        //   function(){
-        //       return mold_script(display); 
-        //   });
+        var mold = new ButtonExporter($('#mold'), "PNG", mold_script_tiered );
+        var mask = new ButtonExporter($('#mask'), "SVG", mask_script );
       }
 
       function pcb_script(display){
@@ -33,13 +19,85 @@
       }
       function spacers_script(display){
         console.log("Running Spacer Generator");
-
         return make_diffuser_spacer(display);
 
       }
 
+      function mask_script(display){
+        var mask = display.queryPrefix("ART");
+        var breakout = display.queryPrefix('BO');
+        var breakin = display.queryPrefix('BI');
+        var circuit_path = display.queryPrefix('CP');
+        var diffusers = display.queryPrefix('DIF');
+        var leds = display.queryPrefix('NLED');
 
+        _.each(mask, function(m){
+          m.set({
+            visible: true,
+            fillColor: "black",
+            strokeWidth: 0
+          });
+        });
+        //Make non-mask objects invisible
+        var invisible = _.flatten([leds, circuit_path, diffusers, breakin, breakout]);
+        _.each(invisible, function(el){
+          el.visible = false;
+        });
+      }
       var MOLD_WALL = 5; // mm
+
+      function mold_script_tiered(display) {
+        console.log("Running Mold Generator2");
+        //Declarations
+        var breakout = display.queryPrefix('BO');
+        var breakin = display.queryPrefix('BI');
+        var circuit_path = display.queryPrefix('CP');
+        var diffusers = display.queryPrefix('DIF');
+        var leds = display.queryPrefix('NLED');
+        var dds = display.queryPrefix('DD');
+
+        console.log("Found", diffusers.length, "diffusers...")
+        //Extrating diffusers
+        _.each(diffusers, function(diffuser){
+          diffuser.set({
+            visible: true,
+          });
+          diffuser.fillColor.lightness = 1.0 - diffuser.fillColor.lightness;
+        });
+
+        console.log("Found", dds.length, "DDs...")
+        _.each(dds, function(dd) {
+          dd.set({
+            visible: true,
+          });
+          dd.fillColor.lightness = 1.0 - dd.fillColor.lightness;
+          dd.bringToFront();
+        });
+
+        var diff_group = new paper.Group(diffusers);
+        var dd_group = new paper.Group(dds);
+
+        //Creating a bounding box
+        boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL)), 0);
+        boundingBox.style = {
+          fillColor: 'white',
+        };
+        boundingBox.sendToBack();
+
+        var result = new paper.Group({
+          children: [boundingBox, diff_group, dd_group]
+        });
+
+        //Make non-molding objects invisible
+        var invisible = _.flatten([leds, circuit_path, breakin, breakout]);
+        _.each(invisible, function(el){
+          el.visible = false;
+        });
+
+        paper.view.update();
+        return result;
+      }
+
       function mold_script(display){
         console.log("Running Mold Generator");
         //Declarations
@@ -53,9 +111,9 @@
         //Extrating diffusers
         _.each(diffusers, function(diffuser){
           diffuser.set({
-            visible: true, 
-            fillColor: "black", 
-            strokeColor: "white", 
+            visible: true,
+            fillColor: "black",
+            strokeColor: "white",
             strokeWidth: Ruler.mm2pts(2)
           });
         });
@@ -67,7 +125,7 @@
         boundingBox.style = {
           fillColor: 'white',
           // strokeColor: 'black'
-        }; 
+        };
         boundingBox.sendToBack();
 
         var result = new paper.Group({
@@ -85,19 +143,17 @@
       }
 
 
-      function mask_script(display){
-        console.log("Running Mask Generator");
-      }
+
       function code_script(display){
         console.log("Running Mask Generator");
       }
-      
 
-    
+
+
     </script>
   </head>
   <body>
-    
+
     <canvas id="myCanvas"></canvas>
     <div id="pipeline">
       <ul>
@@ -108,9 +164,9 @@
           <li><a id="mask" name="mask" href="#" class="process btn btn-lg btn-primary"> Ma </a></li>
           <li><a id="code" name="code" href="#" class="process btn btn-lg btn-default"> Co </a></li>
       </ul>
-      <p id="current-file" class="lead"> /artwork/traffic_light.svg </p>
+      <p id="current-file" class="lead"> /artwork/dd_test.svg </p>
     </div>
-      
+
       <%= render :partial => "modals"%>
       <%= render :partial => "zoom_bar"%>
 

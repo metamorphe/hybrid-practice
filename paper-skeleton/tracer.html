@@ -9,6 +9,7 @@
 		<script type="text/javascript" src="libs/saveas.min.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
+		<script type="text/javascript" src="js/PointLight.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
@@ -36,56 +37,30 @@
 	
 				paper.install(window);
 				paper.setup('myCanvas');
-				paper.view.zoom = 1;
-				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+				paper.view.zoom = 3;
+				tir = new Artwork("img/tir.svg", function(display){
 					runScript(display);
 				});
 				
 			});
 			function runScript(display){
-				display.remove();
+				var reflectors = display.queryPrefix("REF");
+				var lenses = display.queryPrefix("LENS");
 
-				var testRectangle = new paper.Path.Rectangle({
-					size: new paper.Size(30, 40),
-					point: paper.view.center, 
-					strokeColor: "black", 
-					strokeWidth: 1
+				_.each(reflectors, function(el){
+					el.reflectance = 0.90;
 				});
 
-				var corner = testRectangle.segments[0];
-				var gCorner = new paper.Path.Circle({
-					radius: 4, 
-					position: corner.point,
-					fillColor: "red", 
+				_.each(lenses, function(el){
+					el.refraction = 0.80;
+					el.n = 1.44;
 				});
 
-				var corner2 = testRectangle.segments[1];
-				var gCorner2 = new paper.Path.Circle({
-					radius: 4, 
-					position: corner2.point,
-					fillColor: "green", 
+				var pos = display.svg.bounds.bottomCenter;//.add(new paper.Point(0, 3));
+				var ls = new PointLight({
+					position: pos, 
+					mediums: _.flatten([lenses,reflectors])
 				});
-
-
-				var vectorToMove = new paper.Point(-50, 0);
-				corner.point = vectorToMove.add(corner.point);
-				corner2.point = vectorToMove.add(corner2.point);
-
-				var gCorner = new paper.Path.Circle({
-					radius: 4, 
-					position: corner.point,
-					fillColor: "green", 
-					strokeColor: "black",
-					strokeWidth: 1
-				});
-				var gCorner2 = new paper.Path.Circle({
-					radius: 4, 
-					position: corner2.point,
-					fillColor: "green", 
-					strokeColor: "black",
-					strokeWidth: 1
-				});
-
 			}
 		</script>
 	</head>

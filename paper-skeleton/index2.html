@@ -23,7 +23,7 @@
 				$('#downloadButtonSVG').click(function(){
 					console.log("clicked");
 					console.log("Exporting file as SVG");
-					zoom = 1;
+					paper.view.zoom = 1;
 					paper.view.update();
 		
 					exp = paper.project.exportSVG({ 
@@ -39,13 +39,13 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 
-				eld = new Artwork("img/traffic_light.svg", function(display) {
+				eld = new Artwork("img/figure_example.svg", function(display) {
 					runScript(display);
 				});
 			});
 				
 			function runScript(display){
-				POINT_OFFSET = 15;
+				POINT_OFFSET = 10;
 				POINT_INNER_OFFSET = 1;
 
 				
@@ -220,27 +220,8 @@
 					display.svg.remove();
 					paper.view.update();
 				}
-				function init() {					
-					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
-					nodes = _.flatten([display.queryPrefix("BI"),  leds,  display.queryPrefix("BO")]);
-					
-					nodes = generateNodes(nodes, function(nodes){
-							// linked list
-						_.each(nodes, function(node, i, arr){
-							node.right = null;
-							node.left = null;
 
-							if(i - 1 >= 0) node.left = arr[i - 1];
-							if(i + 1 < arr.length) node.right = arr[i + 1];
-						});
-						
-						route(nodes);
-						connect_the_dots(nodes);
-						cleanup(nodes);
-					});
-				};
-				init();
-		};	
+				
 
 				var hitOptions = {
 					segments: true,
@@ -265,11 +246,12 @@
 
 					var hitResult = project.hitTest(event.point, hitOptions);
 					
-					if (!hitResult) {
+
+					if (!hitResult){
 						console.log("No hits");
 						return;
-					}
-				
+					} else{
+
 					if(hitResult.type == "stroke"){
 						console.log("Adding anchor");
 						var anchor = addAnchorPoint(hitResult.item, event.point);
@@ -285,6 +267,7 @@
 						var anchorBG = addAnchorPoint(bgPath, event.point);
 						t.selected.push(anchor);
 						t.selected.push(anchorBG);
+					}
 					}					
 				};
 
@@ -301,8 +284,30 @@
 					});
 					t.selected = [];
 				}
+				// Function that initializes the routing process.
+				function init() {					
+					leds = _.sortBy(display.queryPrefix("NLED"), function(led){ return led.lid;});
+					nodes = _.flatten([display.queryPrefix("BI"),  leds,  display.queryPrefix("BO")]);
+					
+					nodes = generateNodes(nodes, function(nodes){
+							// linked list
+						_.each(nodes, function(node, i, arr){
+							node.right = null;
+							node.left = null;
 
-			
+							if(i - 1 >= 0) node.left = arr[i - 1];
+							if(i + 1 < arr.length) node.right = arr[i + 1];
+						});
+						
+						route(nodes);
+						connect_the_dots(nodes);
+						cleanup(nodes);
+					});
+				};
+
+				// Call to the initialization function.
+				init();
+			};
 		</script>
 	</head>
 	<body>

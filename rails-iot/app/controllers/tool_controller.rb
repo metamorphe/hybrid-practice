@@ -3,7 +3,11 @@ class ToolController < ApplicationController
   	@files = get_displays()
   	render :layout => "full_screen"
   end
-  def generate
+  def lens
+    @files = get_displays()
+    render :layout => "full_screen"
+  end
+  def pipeline
     @files = get_displays()
     render :layout => "full_screen"
   end

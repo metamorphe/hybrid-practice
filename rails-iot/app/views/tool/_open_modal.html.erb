@@ -1,5 +1,6 @@
 <!-- INSERT MODAL -->
 <script type="text/javascript">
+  var DEFAULT_FILE = "/artwork/BCNM.svg";
   var files = <%= @files.to_json.html_safe %>;
   $(function(){
       loadFiles2();
@@ -12,7 +13,7 @@
   });
 
   function getActiveArtwork(){
-    if($('.file-option.selected').length == 0) return "/artwork/traffic_light.svg";
+    if($('.file-option.selected').length == 0) return DEFAULT_FILE;
     return $('.file-option.selected').find('img').attr('src');
   }
 

@@ -6,7 +6,7 @@
         <script type="text/javascript" src="libs/paper-full.min.js"></script>
         <script type="text/javascript" src="libs/bootstrap.min.js"></script>
         <script type="text/javascript" src="libs/underscore.js"></script>
-        <script type="text/javascript" src="libs/math.js"></script>
+        <!-- // <script type="text/javascript" src="libs/math.js"></script> -->
 
         <script type="text/javascript" src="js/graph.js"></script>
         <script type="text/javascript" src="js/artwork.js"></script>
@@ -27,42 +27,206 @@
 
                 paper.install(window);
                 paper.setup('myCanvas');
-                // gradientTesting = new Artwork("img/gradient.svg", function(display){
 
-                    /*Flip display*/
-                    // display.svg.scaling.y = -1
-
-                    runScript();
+                initializeSectionTool();
+                
+                runScript();
 
             });
+
             function runScript(){
-                // TODO: YOUR CODE HERE
-                myGraph = new Graph(new paper.Point(-200,0), [0,500], [0,200]);
+                console.log("Running script...");
+                myGraph = new Graph({
+                    name: "Radial Gradient Graph",
+                    position: paper.view.center,
+                    range: {x: {identity: "x", min: 0, max: 1}, y: {identity: "y", min: 0, max: 1}},
+                    shape: "circle", 
+                    size: new Size(400, 200)
+                });
+                radialPalette();
+
+                paper.view.update();
+           }
+
+           var selectedGradient = null;
+           function radialPalette(){
+               // RADIAL PALETTE
+                swatch = _.range(0, 6);
+                var g = new paper.Group({
+                    name: "Gradient Swatches"
+                })
+                swatches = _.map(swatch, function(i){
+                    console.log(i);
+                    var p = new paper.Path.Rectangle({
+                        parent: g, 
+                        size: new paper.Size(100, 100),
+                        position: paper.view.center.add(new paper.Point(i * 100 + i * 10, 0)),
+                        strokeWidth: 1, 
+                        strokeColor: "black"
+                    });
+                    return p;
+                });
+                g.position = myGraph.graph.bounds.topCenter.add(new paper.Point(0, -100));
+
+                _.each(swatches, function(swatch){
+                    swatch.set({
+                         fillColor: {
+                            gradient: randomGradient(3, true), 
+                            origin: swatch.position, 
+                            destination: swatch.bounds.rightCenter
+                        }
+                    })
+                    swatch.onClick = function(event) {
+                        selectedGradient = this;
+                        var data = this.fillColor.gradient.stops;
+                        var n = this.fillColor.gradient.stops.length;
+                        data = _.map(data, function(datum, idx){
+                           return {pt: new paper.Point((1 - datum.rampPoint)/2.0, datum.color.lightness),
+                                   stopNumber: idx,
+                                   guid: guid(),  
+                                   linked: []
+                           };
+                        });
+                        data = _.sortBy(data, function(datum){ return datum.pt.x});
+                        paddingL =  {
+                                     pt: new paper.Point(0, data[0].pt.y), 
+                                     stopNumber: null, 
+                                     linked: [data[0].guid]
+                                    }
+                        dataR = [];
+                        dataR = _.map(data, function(datum, idx, stops){
+                            var nX = -1 * (datum.pt.x - 0.5) + 0.5;
+                            rtn = {pt: new paper.Point(nX, datum.pt.y), 
+                                    stopNumber: null, 
+                                    guid: guid(), 
+                                    linked: [datum.guid]
+                            }
+                            datum.linked.push(rtn.guid)
+                            return rtn;
+                        });
+
+                         paddingR =  {
+                                     pt: new paper.Point(1.0, data[0].pt.y), 
+                                     stopNumber: null, 
+                                     guid: guid(),
+                                     linked: [paddingL.guid]
+                                    }
+                        paddingL.linked.push(paddingR.guid);
+
+                        data = [paddingL, data, dataR, paddingR];
+                        data = _.flatten(data);
+                        data = _.sortBy(data, function(datum){ return datum.pt.x});
+                        // console.log(_.map(data, function(d){
+                        //     return d.stopNumber + ":" + d.linked.join(',');
+                        // }));
+                        p = new paper.Path({
+                                name: "GradientPath",
+                                strokeColor: "#00A8E1", 
+                                strokeWidth: 2, 
+                        });
+                        data = _.each(data, function(datum){ 
+                            s =  new Segment({
+                                        point: myGraph.mapPoint(datum.pt),
+                                    });
+                            p.add(s);
+                            s.stopNumber = datum.stopNumber;
+                            s.guid = datum.guid;
+                            s.linked = datum.linked;
+                        });
+                        
+
+                      
+
+                    }
+                })
             }
 
-            //Global Variables
-            var thirty = new paper.Color(0.3); //30% gray
-            var ten = new paper.Color(0.1);
-            var sixtyfive = new paper.Color (0.65); //lighter
-            var hundred = new paper.Color(1.00);
+           function randomGradient(num_of_stops, isRadial){
+            stops = _.range(0, num_of_stops);
+            stops = _.map(stops, function(){ return randomStop(); });
+            stops = _.sortBy(stops, function(el){ return el[1]});
 
+            return  {
+                        stops: stops,
+                        radial: isRadial
+                    }
+           }
+
+           function randomStop(){
+                return [new paper.Color(Math.random()), Math.random()]
+           }
+           
+           var selectionTool;
+           var hitOptions = {
+                                handles: true,
+                                stroke: true,
+                                segments: true,
+                                tolerance: 6,
+                                fill: true
+                            }
             function initializeSectionTool() {
-              sectionTool.onMouseDown = function(event) {
-                if (selectedItem) {
-                  selectedItem.selected = false;
-                }
-                var hitResult = paper.project.hitTest(event.point);
-                console.log(hitResult);
-                if (hitResult && hitResult.type == 'fill') {
-                  selectedItem = hitResult.item;
-                  selectedItem.selected = true;
+                selectionTool = new paper.Tool();
+                selectionTool.selection = [];
+                this.selectionTool.onMouseDown = function(event) {
+                    var hitResult = paper.project.hitTest(event.point, hitOptions);
+                   
+                    if (!hitResult || !hitResult.item) {
+                        return;   
+                    }
+                    if(hitResult.item.name == "GradientPath"){
+                        if (hitResult.type == 'segment') {
+                            selectionTool.selection.push(hitResult.segment);
+                            selectionTool.controlPoint = hitResult.segment;
+                            linked = _.filter(hitResult.item.segments, function(s){
+                                return hitResult.segment.linked.indexOf(s.guid) > -1;
+                            });
 
-                }
-              }
+                            selectionTool.selection.push(linked);
+                            selectionTool.selection = _.flatten(selectionTool.selection);
 
-              sectionTool.onMouseDrag = function(event) {
-              }
-            }
+                        }
+                    } 
+                    _.each(selectionTool.selection, function(s){ s.selected = true; });
+
+                  }
+                  selectionTool.onMouseDrag = function(event) {
+                    console.log(selectionTool.selection.length + "selected");
+                    _.each(selectionTool.selection, function(segment){
+                        var delta = event.delta.clone();
+                        if(selectionTool.controlPoint.guid != segment.guid ) delta.x *= -1;
+                        var nPt = segment.point.add(delta);
+
+                        if(! nPt.isInside(myGraph.graph.bounds)) return;
+
+                        segment.point = segment.point.add(delta);
+
+                        if(!_.isNull(segment.stopNumber)){
+                            pt = myGraph.unmapPoint(nPt);
+                            pt.x *= 2.0;
+                            console.log(segment.stopNumber, pt.toString());
+                            selectedGradient.fillColor.gradient.stops[segment.stopNumber].rampPoint = 1 - pt.x;
+                            selectedGradient.fillColor.gradient.stops[segment.stopNumber].color.lightness = pt.y;
+                        }
+                    })
+                }
+                  selectionTool.onMouseUp = function(event) {
+                    _.each(selectionTool.selection, function(s){ s.selected = false; });
+                    selectionTool.selection = [];
+
+                  }
+    
+    }
+
+    function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+          .toString(16)
+          .substring(1);
+      }
+      return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+    }
+
         </script>
     </head>
     <body>
@@ -74,6 +238,11 @@
 </html>
 
 <style>
+    #myCanvas{
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
     #downloadButton{
         position: absolute;
         top: 20px;
