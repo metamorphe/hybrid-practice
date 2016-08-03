@@ -42,13 +42,29 @@
 				});
 				
 			});
+
+			var THETA_OFFSET = 0.5;
+
 			
 			function runScript(display){
 				display.svg.remove();
 
+				function randomGradient(num_of_stops, isRadial){
+		            stops = _.range(0, num_of_stops);
+		            stops = _.map(stops, function(){ return randomStop(); });
+		            stops = _.sortBy(stops, function(el){ return el[1]});
+		            return 	{
+                        stops: stops,
+                        radial: isRadial
+                    }
+	            };
+
+				function randomStop(){
+					return [new paper.Color(Math.random()), Math.random()]
+				};
+
 				function generateSlicedSegment(angleIn, angleOut, inputPath, inputPathCenter) {
 					// Generate both the inPoint and outPoint vectors.
-					inputPath.remove();
 					var inPoint = inputPathCenter.clone();
 					var outPoint = inputPathCenter.clone();
 					inPoint.length = 100;
@@ -76,42 +92,50 @@
 					var intersectingPath = new paper.Path({
 						segments: [nearestInPoint, inputPathCenter, nearestOutPoint],
 						strokeWidth: 2,
-						strokeColor: "red"
 					});
 
 					// Get the offset of both the inPoint and the outPoint.
-					var offsetInPoint = circle.getOffsetOf(nearestInPoint);
 					var offsetOutPoint = circle.getOffsetOf(nearestOutPoint);
 
 					// Split the circle based on the offsets derived above.
-					var cutOff = circle.split(offsetOutPoint);
-					cutOff.split(cutOff.getOffsetOf(nearestInPoint));
-					cutOff.strokeColor = "blue";
+					if (offsetOutPoint != 0) {
+						var cutOff = circle.split(offsetOutPoint);
+						cutOff.split(cutOff.getOffsetOf(nearestInPoint));
+						
+						// Collect an array of points on the cutoff segment of the circle.
+						let NEAREST_IN_POINT_OFFSET = circle.getOffsetOf(nearestInPoint);
+						arcPoints = _.range(0, NEAREST_IN_POINT_OFFSET, THETA_OFFSET);
+						arcPoints = _.map(arcPoints, function(theta){
+							return circle.getPointAt(theta);
+						})
 
-					// Collect an array of points on the cutoff segment of the circle.
-					var CONSTANT_OFFSET = 0;
-					let NEAREST_IN_POINT_OFFSET = circle.getOffsetOf(nearestInPoint);
-					var segments = [inputPathCenter, nearestOutPoint];
+						// Generate the slicedSegment path.
+						var slicedSegment = new paper.Path({
+							segments: _.flatten([inputPathCenter, outPoint, arcPoints, inPoint]),
+						});
 
-					while (CONSTANT_OFFSET < NEAREST_IN_POINT_OFFSET) {
-						segments.push(circle.getPointAt(CONSTANT_OFFSET));
-						CONSTANT_OFFSET += 3;
+						slicedSegment.closePath()
+						var stops = randomGradient(5, true)
+
+						var intersectionPath = new paper.Path({
+							segments: slicedSegment.intersect(inputPath).segments,
+							fillColor: {
+								gradient: stops,
+								origin: inputPathCenter,
+								destination: nearestInPoint,
+							},
+						});
+						intersectionPath.closePath();
 					};
-
-					// Push the inputPathCenter to the segments array.
-					segments.push([inputPathCenter]);
-					
-					// Generate the slicedSegment path.
-					var slicedSegment = new paper.Path({
-						segments: segments
-					})
-
-					slicedSegment.selected = true;
-				};
+				}; 
 		
 				// Example Code to test generateSlicedSegment:
-				var path = new paper.Path.Rectangle(new Point(600, 300), new Size(60, 60));
-				generateSlicedSegment(90, 60, path, path.bounds.center);		
+				var path = new paper.Path.Circle(new Point(600, 300), 60);
+				path.strokeWidth = 2;
+
+				for (var i = -180; i < 180; i += 1) {
+					generateSlicedSegment(i+1, i, path, path.bounds.center);
+				};
 			};
 
 		</script>
