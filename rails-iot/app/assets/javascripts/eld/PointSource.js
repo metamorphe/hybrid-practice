@@ -114,7 +114,7 @@ PointLight.detectMaterial = function(interface, normal){
 		return {reflect: true, reflectance: material.reflectance}
 
 	// go slightly forward
-	normal.length = 0.1;
+	normal.length = 0.001;
 	var forward = normal.clone().multiply(1);
 	var fpt = interface.point.clone().add(forward);
 	var goingIn = material.contains(fpt);

@@ -95,16 +95,19 @@ function dome(baseWidth, baseHeight, concaveHeight) {
         strokeScaling: false,
         fillColor: "purple"
     });
- 
+
+    spline.firstSegment.handleIn = new paper.Point(0, 0);
     return spline;
 }
 
-function draw_scene(box, base_length){
+function draw_scene(box, base_length, lens_height=10){
+    var WALL_GAP = Ruler.mm2pts(0.5);
+    var LENS_HEIGHT = Ruler.mm2pts(lens_height);
     // add base
-    var base = new paper.Path({
-        segments: [new paper.Point(0, -30), new paper.Point(0, 0), new paper.Point(base_length, 0)], 
-        name: "REF: 0.9", 
-        strokeWidth: 2,
+    var base = new paper.Path.Rectangle({
+        size: new paper.Size(base_length, -LENS_HEIGHT),
+        // segments: [new paper.Point(0, -30), new paper.Point(0, 0), new paper.Point(base_length, 0)], 
+        strokeWidth: WALL_GAP,
         strokeColor: "green", 
         strokeScaling: false
     });
@@ -126,7 +129,7 @@ function draw_scene(box, base_length){
     })
     
     // add dome
-    var base_offset = new paper.Point(base.strokeWidth, -base.strokeWidth);
+    var base_offset = new paper.Point(0,  -base.strokeWidth);
     var d = dome(DOME_BASE_WIDTH, DOME_BASE_HEIGHT, CONCAVE_HEIGHT);
     d.set({
         scaling: new paper.Size(-1, 1),
@@ -134,34 +137,66 @@ function draw_scene(box, base_length){
         position: base.strokeBounds.bottomRight.add(base_offset), 
         visible: false
     });
-    // d.firstSegment.selected = true;
-    d.firstSegment.handleIn = new paper.Point(0, 0);
-
+    var lastPoint = d.bounds.bottomRight.add(new paper.Point(0, -Ruler.mm2pts(10)));
+    var ramp_width = base_length - d.bounds.width - WALL_GAP;
+   
+    
     // add ramp
-    var ramp_width = base_length - d.bounds.width;
-    var a = d.lastSegment.point.add(new paper.Point(-ramp_width, 0));
-    var b = a.add(new paper.Point(0, Ruler.mm2pts(-10)));
-    var c = b.add(new paper.Point(ramp_width + Ruler.mm2pts(3.5), 0));
-    var d = _.map(d.segments, function(s){ return s.clone()});
+    
+    var ramp = RampGenerator.generateRampPath({
+        rampHeight: Ruler.mm2pts(lens_height),
+        rampWidth: ramp_width,
+        rampOffset: Ruler.mm2pts(4),
+        alpha: 0.9,
+        beta: 0.9
+    }, visual=false);
+    ramp.set({
+        fillColor: "yellow",
+        scaling: new paper.Size(-1, 1),
+        pivot: ramp.bounds.bottomRight,
+        position: d.lastSegment.point
+    });    
+    ramp.reverse();
+    rgen = _.map(ramp.segments, function(s){ return s.clone()});
+    dgen = _.map(d.segments, function(s){ return s.clone()});
 
-    var ramp = new paper.Path({
+    // make lens
+    var lens = new paper.Path({
         name: "LENS:_1.44",
-        segments: _.flatten([d, a, b, c]),
+        segments: _.flatten([dgen, rgen, lastPoint]),
         closed: true, 
         fillColor: "#00A8E1", 
-        strokeWidth: 0
+        strokeWidth: 0, 
+        strokeColor: "yellow"
     });
 
-    // var wall = new paper.Path.Line({
-    //     from: new paper.Point(-50, 5), 
-    //     to: new paper.Point(-50, Ruler.mm2pts(-10)), 
-    //     name: "REF: 0.9", 
-    //     strokeWidth: 5,
-    //     strokeColor: "green", 
-    //     strokeScaling: false
-    // });
-    // wall.position = ramp.bounds.leftCenter;
 
+    var reflector = new paper.Path.Rectangle({
+        size: new paper.Size(ramp_width + 2, LENS_HEIGHT + 1.9),
+        name: "REF: 0.9", 
+        fillColor: "red", 
+        strokeScaling: false
+    });
+    reflector.pivot = reflector.bounds.bottomRight;   
+    reflector.position =  d.lastSegment.point.add(new paper.Point(0, 3));
+    
+
+    var lenshg = reflector.subtract(lens)
+    var lhg = lenshg.segments;
+
+    lens_holder = new paper.Path({
+        segments: [lhg[3], lhg[4], lhg[5], lhg[0]],
+        name: "REF:_0.90", 
+        strokeWidth: WALL_GAP, 
+        strokeColor: "red",
+        closed: false, 
+        fillColor: null
+    })
+    lenshg.remove();
+    reflector.remove();
+    base.remove();
+
+    
     // GATHER MEDIUMS
     var reflectors = CanvasUtil.queryPrefix("REF");
     var lenses = CanvasUtil.queryPrefix("LENS");
@@ -172,17 +207,18 @@ function draw_scene(box, base_length){
     _.each(lenses, function(el){
         el.refraction = 0.80;
         el.n = parseFloat(Artwork.getName(el).split("_")[1]);
-    
     });
+
     mediums = _.flatten([lenses,reflectors]);
     console.log('REFLECTORS', reflectors.length, "LENSES", lenses.length, "TOTAL", mediums.length);
     console.log(lenses[0].refraction, lenses[0].n);
+    // console.log(reflectors[0].reflectance);
 
     ls = new PointLight({
-                  position: led.position, 
-                  mediums: mediums, 
-                  parent: box
-                });
+          position: led.position, 
+          mediums: mediums, 
+          parent: box
+        });
 
     ls.emmision(-60, 0, 1);
 

@@ -13,14 +13,15 @@ function RampGenerator() {
  */
 RampGenerator.generateRampPath = function(params, visual=false) {
   var rightmostDomePoint = new Point(0, 0);
-  var bottomRightPoint = new Point(
-    rightmostDomePoint.x + params.rampOffset,
-    rightmostDomePoint.y
-  );
+  var offsetVector = new paper.Point(params.rampOffset, 0);
+  var bottomRightPoint = rightmostDomePoint.add(offsetVector);
+
   var topLeftPoint = new Point(0,
           rightmostDomePoint.y - params.rampHeight);
+
   var topRightPoint = new Point(rightmostDomePoint.x + params.rampWidth,
           rightmostDomePoint.y - params.rampHeight);
+  
   var rampPath = new Path({
     segments: [
       topRightPoint, bottomRightPoint, rightmostDomePoint
