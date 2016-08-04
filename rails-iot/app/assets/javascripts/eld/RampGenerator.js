@@ -7,14 +7,29 @@ var CONCAVE_HEIGHT = 6; //mm
 
 function LensGenerator() {
 }
+
 LensGenerator.prototype = {
-  generate: function(box, width){
-    params = _.clone(LensGenerator.DEFAULT_PARAMS);
+  generateRandom: function(width){
+    var params = LensGenerator.DEFAULT_PARAMS;
     params.lens.width = width;
-    return LensGenerator.generateScene(box, LensGenerator.DEFAULT_PARAMS);
+    params.ramp.alpha = Math.random()
+    params.ramp.beta = Math.random()
+    params.ramp.offset = Math.random() * this.maxOffset(params);
+    return JSON.stringify(params);
+  },
+  generate: function(box, params){
+    return LensGenerator.generateScene(box, params);
+  }, 
+  generateW: function(box, width, params){
+    params.lens.width = width;
+    return LensGenerator.generateScene(box, params);
+  }, 
+  maxOffset: function(params){
+    return params.lens.width - params.dome.width - params.wall_gap;
   }
 }
 
+LensGenerator.OPTIMAL_PARAMS = {"lens":{"width":200,"height":28.3464567},"dome":{"width":19.84251969,"height":11.33858268,"concave":17.00787402},"wall_gap":1.417322835,"led":{"width":14.17322835,"height":3.9685039379999996},"ramp":{"offset":174.6202688761353,"alpha":0.8606031599579123,"beta":0.8858146876934188,"width":38.86193567101384}}
 LensGenerator.DEFAULT_PARAMS = {
   lens: {
     width: Ruler.mm2pts(30), 
@@ -50,8 +65,8 @@ LensGenerator.generateScene = function(box, params){
         parent: result
     });
     result.set({
-      pivot: result.bounds.bottomCenter, 
-      position: box.bounds.bottomRight.add(new paper.Point(-60, -10))
+      pivot: result.bounds.bottomRight.add(new paper.Point(10, 10)), 
+      position: box.pivot,//bounds.bottomRight.add(new paper.Point(60, -10))
     });
     
     // LED placement
@@ -84,8 +99,9 @@ LensGenerator.generateScene = function(box, params){
     var lastPoint = d.bounds.bottomRight.add(new paper.Point(0, -Ruler.mm2pts(10)));
    
     // // Ramp
-    params.ramp.width =  params.lens.width - d.bounds.width - params.wall_gap;
-      
+    params.ramp.width =  params.lens.width - params.dome.width - params.ramp.offset;
+    // console.log("CHECK", params.ramp.width + params.ramp.offset + params.dome.width, params.lens.width)
+
 
     var ramp = LensGenerator.generateRampPath({
         rampHeight: params.lens.height,
@@ -97,7 +113,7 @@ LensGenerator.generateScene = function(box, params){
     ramp.set({
         parent: result,
         fillColor: "yellow",
-        scaling: new paper.Size(-1, 1),
+        // scaling: new paper.Size(-1, 1),
         pivot: ramp.bounds.bottomRight,
         position: d.lastSegment.point
     });    
@@ -119,10 +135,11 @@ LensGenerator.generateScene = function(box, params){
         strokeColor: "yellow"
     });
 
+
     // // Reflector
     var reflector = new paper.Path.Rectangle({
         parent: result,
-        size: new paper.Size(params.ramp.width + 2, params.lens.height + 1.9),
+        size: new paper.Size(params.lens.width - params.dome.width + 2, params.lens.height + 1.9),
         name: "REF: 0.9", 
         fillColor: "red", 
         strokeScaling: false
@@ -131,12 +148,21 @@ LensGenerator.generateScene = function(box, params){
       pivot: reflector.bounds.bottomRight, 
       position:  d.lastSegment.point.add(new paper.Point(0, 3))
     });
-    var lens_holder = reflector.subtract(lens)
+
+    lensc = lens.clone();
+    // var s =3;
+    // lensc.scaling.x = (lensc.bounds.width + s) / lensc.bounds.width
+    // lensc.scaling.y = (lensc.bounds.height + s) / lensc.bounds.height
+    // console.log(lensc.scaling);
+
+    var lens_holder = reflector.subtract(lensc)
     lens_holder.set({
         parent: result,
         name: "REF:_0.90", 
         fillColor: "red", 
     });
+    lensc.fillColor = "purple"
+    lensc.remove();
     reflector.remove();
     base.remove();
 
@@ -144,11 +170,11 @@ LensGenerator.generateScene = function(box, params){
     var img_plane = new paper.Path.Line({
         parent: result,
         name: "IMG: Image Plane",
-        segments: [base.bounds.topLeft, base.bounds.topRight], 
-        strokeColor: "white", 
+        segments: [lens.bounds.topLeft, lens.bounds.topRight], 
+        strokeColor: "green", 
         strokeWidth: 2
     });
-    img_plane.position.y -= 10;   
+    img_plane.position.y += 1;   
     return result;
 }
 
@@ -163,19 +189,16 @@ LensGenerator.generateScene = function(box, params){
  * }, visual=true);
  */
 LensGenerator.generateRampPath = function(params, visual=false) {
-  var rightmostDomePoint = new Point(0, 0);
-  var offsetVector = new paper.Point(params.rampOffset, 0);
-  var bottomRightPoint = rightmostDomePoint.add(offsetVector);
-
-  var topLeftPoint = new Point(0,
-          rightmostDomePoint.y - params.rampHeight);
-
-  var topRightPoint = new Point(rightmostDomePoint.x + params.rampWidth,
-          rightmostDomePoint.y - params.rampHeight);
+  
+  var domePoint = new Point(0, 0);
+  var offsetVector = new paper.Point(-params.rampOffset, 0);
+  var rampVector = new paper.Point(-params.rampWidth, -params.rampHeight);
+  var rampStart = domePoint.add(offsetVector);
+  var rampEnd = rampStart.add(rampVector);
   
   var rampPath = new Path({
     segments: [
-      topRightPoint, bottomRightPoint, rightmostDomePoint
+      rampEnd, rampStart, domePoint
     ],
     strokeColor: 'black',
     strokeWidth: 1,
@@ -185,12 +208,12 @@ LensGenerator.generateRampPath = function(params, visual=false) {
 
   // Add the top left and top right _segments_ as fields for
   // updating laters
-  var topRightSegment = rampPath.segments[0];
-  var bottomRightSegment = rampPath.segments[1];
+  rampEnd = rampPath.segments[0];
+  rampStart = rampPath.segments[1];
 
   // Add handles for corner segments
-  topRightSegment.handleOut = new Point(0, params.rampHeight * params.alpha);
-  bottomRightSegment.handleIn = new Point(params.rampOffset * params.beta, 0);
+  rampEnd.handleOut = new Point(0, params.rampHeight * params.alpha);
+  rampStart.handleIn = new Point(-params.rampWidth * params.beta, 0);
 
   // Cleanup if necessary
   if (!visual) {

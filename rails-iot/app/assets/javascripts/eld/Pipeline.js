@@ -53,10 +53,10 @@ var EPSILON = 10;
 var LED_WIDTH = 5;
 var LED_HEIGHT = 1.4;
 
-
+var MORPH_LINE_STEP = 20;
 
 function interpolation_lines2(diffuser, leds) {
-    var pts = _.range(0, diffuser.length, 1)
+    var pts = _.range(0, diffuser.length, MORPH_LINE_STEP)
     return _.map(pts, function(i) {
         var pt = diffuser.getPointAt(i);
         var candidates = _.map(leds, function(led) {
@@ -94,6 +94,58 @@ Pipeline.getElements = function() {
     }
 }
 Pipeline.script = {
+    optimizer: function(display, e){
+        display.svg.remove();
+        tracerBox = new paper.Path.Rectangle({
+            size: new paper.Size(300, 200),
+            position: paper.view.center,
+            fillColor: '#333'
+        }); 
+        tracerBox.set({
+            pivot: tracerBox.bounds.bottomRight
+        });
+
+
+       var lg = new LensGenerator();
+       var scene = lg.generate(tracerBox,LensGenerator.OPTIMAL_PARAMS);
+       var led = CanvasUtil.queryPrefix("LS")[0];
+       var mediums = CanvasUtil.getMediums();
+       var ls = new PointLight({
+              position: led.position, 
+              mediums: mediums, 
+              parent: tracerBox
+        });
+        ls.emmision(-60, 0, 1);
+        uniformity = ImagePlane.calculateUniformity();
+
+       // var samples = _.range(0, 300, 1);
+       // samples = _.map(samples, function(s){
+       //     var params = lg.generateRandom(200);
+       //     var scene = lg.generate(tracerBox, params);
+
+       //     var led = CanvasUtil.queryPrefix("LS")[0];
+       //     var mediums = CanvasUtil.getMediums();
+       //     var ls = new PointLight({
+       //            position: led.position, 
+       //            mediums: mediums, 
+       //            parent: tracerBox
+       //      });
+       //      ls.emmision(-60, 0, 1);
+       //      uniformity = ImagePlane.calculateUniformity();
+
+       //      _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
+       //      scene.remove();
+       //      ls.source.remove();
+       //      console.log(uniformity);
+       //      return {cost: uniformity, params: params}
+       // });
+     
+       // var min = _.min(samples, function(s){ return s.cost; });
+       // var max = _.max(samples, function(s){ return s.cost; });
+       // console.log("RESULTS:", min, max);
+       console.log("RESULTS:", uniformity);
+       //  lr = ip.visualize();
+    },
     raytrace: function(display, e){
         display.svg.position = display.svg.bounds.bottomLeft;
          _.each(e.diff, function(diffuser) {
@@ -144,7 +196,7 @@ Pipeline.script = {
        // var led = LensGenerator.generateScene(tracerBox, LensGenerator.DEFAULT_PARAMS);
        // min is 30
        // morphs = [morphs[200]]
-       // morphs = morphs.slice(300, 400)
+       morphs = morphs.slice(0, 10)
        _.each(morphs, function(morph, i, arr){
           console.log("I", i, arr.length)
           morph.set({
@@ -153,7 +205,8 @@ Pipeline.script = {
            });
            morph.bringToFront();
 
-           var scene = lg.generate(tracerBox, morph.length);
+           var scene = lg.generateW(tracerBox, morph.length, LensGenerator.DEFAULT_PARAMS);
+           scene.position = tracerBox.bounds.bottomRight.add(new paper.Point(-20, -20));
            var led = CanvasUtil.queryPrefix("LS")[0];
            var mediums = CanvasUtil.getMediums();
            var ls = new PointLight({
@@ -181,7 +234,7 @@ Pipeline.script = {
            lr.rotation = morph.firstSegment.point.subtract(morph.lastSegment.point).angle;
             rp.bringToFront();
            
-         
+            if(i == morphs.length - 1) return;
            _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
             scene.remove();
             ls.source.remove();
@@ -585,9 +638,11 @@ function setMoldGradient(domed, diff, leds) {
             radius: Ruler.mm2pts(3.5),
             // visible: false
         });
+        params = LensGenerator.DEFAULT_PARAMS.dome;
+        // console.log(params.width, params.height, params.concave);
         bundt.fillColor = {
             gradient: {
-                stops: LensGenerator.generateDome(),
+                stops: pathToModel(LensGenerator.generateDome(params.width, params.height, params.concave)),
                 radial: true
             },
             origin: bundt.position,

@@ -1,3 +1,4 @@
+// RAILS VERSION
 
 function PointLight (options) {
 	this.options = options;
@@ -24,26 +25,17 @@ PointLight.prototype = {
 		rays = _.map(rays, function(theta){
 			return scope.emit(scope.source.position, scope.toLocalSpace(theta), 1, "yellow");
 		})
-
-		// while(!_.isEmpty(rays)){
+		count = 0;
+		while(!_.isEmpty(rays)){
 			rays = _.map(rays, function(r){
 				if(_.isNull(r) || _.isUndefined(r)) return;
 				return scope.trace(r, false);
 			})
 			rays = _.compact(rays);
-		// }
-
-		rays = _.map(rays, function(r){
-				if(_.isNull(r) || _.isUndefined(r)) return;
-				return scope.trace(r, false);
-			})
-			rays = _.compact(rays);
-
-		rays = _.map(rays, function(r){
-				if(_.isNull(r) || _.isUndefined(r)) return;
-				return scope.trace(r, false);
-			})
-			rays = _.compact(rays);
+			count ++;
+			// console.log("RAY TRACE:", count, rays.length)
+			if(count > 30) break;
+		}
 	},
 	emit: function(origin, direction, strength, color){
 		var strength = strength * 0.5 + 0.1;
@@ -132,7 +124,7 @@ PointLight.detectMaterial = function(interface, normal, mediums){
 		return {reflect: true, reflectance: material.reflectance}
 
 	// go slightly forward
-	normal.length = 3;
+	normal.length = 1;
 	var forward = normal.clone().multiply(1);
 	var fpt = interface.point.clone().add(forward);
 	var backward = normal.clone().multiply(-1);
@@ -150,7 +142,7 @@ PointLight.detectMaterial = function(interface, normal, mediums){
 	
 	
 	if(!_.isUndefined(other.reflectance)) 
-		return {reflect: true, reflectance: other.reflectance}
+		return {reflect: true, refract: false, reflectance: other.reflectance}
 
 	if(goingIn) return {refract: true, n1: other.n, n2: material.n, refraction: material.refraction, reflectance: 1.0}
 	else return {refract: true, n1: material.n, n2: other.n, refraction: material.refraction, reflectance: 1.0}
@@ -234,7 +226,7 @@ PointLight.getIntersections = function(ray, collection){
 	hits = CanvasUtil.getIntersections(ray.path, collection);
 	// console.log("ORIGINAL HITS", hits.length)
 	hits = _.reject(hits, function(h){
-		return ray.path.firstSegment.point.getDistance(h.point) <= 0;
+		return ray.path.firstSegment.point.getDistance(h.point) <= 1;
 	});
 	// console.log("REFINED HITS", hits.length)
 	return _.sortBy(hits, function(h){

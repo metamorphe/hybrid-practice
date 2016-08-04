@@ -17,6 +17,7 @@ function ImagePlane(options){
 
 }
 ImagePlane.prototype = {
+
 	visualize: function(){
 		var scope = this;
 		rays = CanvasUtil.queryPrefix("RAY");
@@ -77,4 +78,57 @@ ImagePlane.visualizeHits = function(hits){
 			return c;
 		})
 	);
+}
+
+ImagePlane.calculateUniformity = function(){
+	rays = CanvasUtil.queryPrefix("RAY");
+	image_plane = CanvasUtil.queryPrefix("IMG");
+
+	if(_.isEmpty(image_plane)) return;
+	image_plane = image_plane[0];
+
+	hits = CanvasUtil.getIntersections(image_plane, rays);
+	
+	var origin = image_plane.lastSegment.point;
+	data = _.map(hits, function(h){
+		var pt = h.point.subtract(origin);
+		return pt.x;
+	});
+	min = _.min(data);
+	data = _.map(data, function(x){
+		x -= min;
+		return x;
+	});
+
+	var range = _.max(data);
+	var bins = 100;
+	var step = range/bins;
+
+	hist = _.groupBy(data, function(x){
+		return Math.floor(x / step);
+	});
+	
+	hist = _.each(hist, function(v, k){
+		hist[k] = v.length;
+	});
+	var signal = [];
+
+
+	for(var i = 0; i < bins; i+= 1){
+		signal[i] = _.isUndefined(hist[i]) ?  0 : hist[i];
+	}
+	// clamp
+	for(var i = 0; i < bins; i+= 1){
+		signal[i] = _.isUndefined(hist[i]) ?  0 : 1;
+	}
+	var switches = 0;
+	var lastVal = signal[i];
+	var sparse = [];
+	for(var i = 1; i < bins; i+= 1){
+		if(signal[i] != lastVal) sparse.push(signal[i]);
+		lastVal = signal[i];
+	}
+
+	// console.log(JSON.stringify(signal), JSON.stringify(sparse));
+	return sparse.length / 2.0;
 }

@@ -38,7 +38,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  $('#view-list ul li button[name="raytrace"]').click();
+  $('#view-list ul li button[name="optimizer"]').click();
 });
 </script>
 </head>
@@ -52,6 +52,9 @@ $(function(){
     <div id="view-list">
         <ul>
            <li class="active">
+                <span>OPTIMIZER</span> <button name="optimizer" class="view btn-sm btn btn-info"> OP</button>
+            </li>
+           <li>
                 <span>RAYTRACE</span> <button name="raytrace" class="view btn-sm btn btn-info"> RT</button>
             </li>
             <li>
