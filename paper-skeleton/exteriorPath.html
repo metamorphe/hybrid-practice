@@ -59,9 +59,8 @@
 					});
 				var test = uniteGroup(testStrokeCircles);
 
-				var co = new ClipperLib.ClipperOffset(2.0, 0.25);
-				co.AddPath(testShape, ClipperLib.JoinType.jtMiter, ClipperLib.EndType.etClosedPolygon);
-
+				// var co = new ClipperLib.ClipperOffset(2.0, 0.25);
+				// co.AddPath(testShape, ClipperLib.JoinType.jtMiter, ClipperLib.EndType.etClosedPolygon);
 				var path = [{X:10,Y:10},{X:110,Y:10},{X:110,Y:110},{X:10,Y:110}];
 				var co = new ClipperLib.ClipperOffset(2, 0.25);
 				co.AddPath(path, ClipperLib.JoinType.jtMiter, ClipperLib.EndType.etClosedPolygon);
