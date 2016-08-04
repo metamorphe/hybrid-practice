@@ -37,7 +37,7 @@
 				paper.install(window);
 				paper.setup('myCanvas');
 				paper.view.zoom = 1;
-				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+				nineSegment = new Artwork("img/Texas.svg", function(display){
 					runScript(display);
 				});
 				
@@ -45,7 +45,6 @@
 
 			var THETA_OFFSET = 0.5;
 
-			
 			function runScript(display){
 				display.svg.remove();
 
@@ -80,8 +79,6 @@
 					var circle = new paper.Path.Circle({
 						center: inputPathCenter,
 						radius: 100,
-						strokeWidth: 2,
-						strokeColor: "black"
 					});
 
 					// Gets the closest points on the Circle to both the inPoint and outPoint.
@@ -95,11 +92,11 @@
 					});
 
 					// Get the offset of both the inPoint and the outPoint.
-					var offsetOutPoint = circle.getOffsetOf(nearestOutPoint);
+					var NEAREST_OUT_POINT_OFFSET = circle.getOffsetOf(nearestOutPoint);
 
 					// Split the circle based on the offsets derived above.
-					if (offsetOutPoint != 0) {
-						var cutOff = circle.split(offsetOutPoint);
+					if (NEAREST_OUT_POINT_OFFSET != 0) {
+						var cutOff = circle.split(NEAREST_OUT_POINT_OFFSET);
 						cutOff.split(cutOff.getOffsetOf(nearestInPoint));
 						
 						// Collect an array of points on the cutoff segment of the circle.
@@ -115,8 +112,8 @@
 						});
 
 						slicedSegment.closePath()
-						var stops = randomGradient(5, true)
 
+						var stops = randomGradient(5, true)
 						var intersectionPath = new paper.Path({
 							segments: slicedSegment.intersect(inputPath).segments,
 							fillColor: {
@@ -130,9 +127,7 @@
 				}; 
 		
 				// Example Code to test generateSlicedSegment:
-				var path = new paper.Path.Circle(new Point(600, 300), 60);
-				path.strokeWidth = 2;
-
+				var path = display.queryPrefix("DIF")[0];
 				for (var i = -180; i < 180; i += 1) {
 					generateSlicedSegment(i+1, i, path, path.bounds.center);
 				};
