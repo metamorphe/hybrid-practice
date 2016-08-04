@@ -121,14 +121,20 @@ ImagePlane.calculateUniformity = function(){
 	for(var i = 0; i < bins; i+= 1){
 		signal[i] = _.isUndefined(hist[i]) ?  0 : 1;
 	}
-	var switches = 0;
-	var lastVal = signal[i];
-	var sparse = [];
-	for(var i = 1; i < bins; i+= 1){
-		if(signal[i] != lastVal) sparse.push(signal[i]);
-		lastVal = signal[i];
-	}
+	// console.log(signal.join(","))
+	hits = _.reduce(signal, function(sum, v){
+		return sum + v;
+	}, 0);
+	area = hits/bins;
+
+	// var switches = 0;
+	// var lastVal = signal[i];
+	// var sparse = [];
+	// for(var i = 1; i < bins; i+= 1){
+	// 	if(signal[i] != lastVal) sparse.push(signal[i]);
+	// 	lastVal = signal[i];
+	// }
 
 	// console.log(JSON.stringify(signal), JSON.stringify(sparse));
-	return sparse.length / 2.0;
+	return area;
 }

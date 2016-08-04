@@ -78,7 +78,37 @@ function interpolation_lines2(diffuser, leds) {
 
 }
 
+function sample_model(lg, lens_length, n){
+     var samples = _.range(0, n, 1);
+     samples = _.map(samples, function(s, i){
+           
+           var params = lg.generateRandom(lens_length);
+           var scene = lg.generate(tracerBox, params);
+           // var scene = lg.generate(tracerBox, LensGenerator.WTF);
 
+           var led = CanvasUtil.queryPrefix("LS")[0];
+           var mediums = CanvasUtil.getMediums();
+           var ls = new PointLight({
+                  position: led.position, 
+                  mediums: mediums, 
+                  parent: tracerBox
+            });
+
+            ls.emmision(-60, 0, 1);
+            uniformity = ImagePlane.calculateUniformity();
+            // console.log("SAMPLE", uniformity)
+            _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
+            scene.remove();
+            ls.source.remove();
+            return {cost: uniformity, params: JSON.stringify(params)}
+       });
+     
+       var min = _.min(samples, function(s){ return s.cost; });
+       var max = _.max(samples, function(s){ return s.cost; });
+       console.log("RESULTS:", min, max);
+       ws.set(lens_length, max.params);
+       return max;
+}
 function Pipeline() {}
 
 Pipeline.getElements = function() {
@@ -95,6 +125,7 @@ Pipeline.getElements = function() {
 }
 Pipeline.script = {
     optimizer: function(display, e){
+        ws = new WebStorage()
         display.svg.remove();
         tracerBox = new paper.Path.Rectangle({
             size: new paper.Size(300, 200),
@@ -105,9 +136,19 @@ Pipeline.script = {
             pivot: tracerBox.bounds.bottomRight
         });
 
-
        var lg = new LensGenerator();
-       var scene = lg.generate(tracerBox,LensGenerator.OPTIMAL_PARAMS);
+
+       // var lengths = _.range(20, 200, 10);
+       // _.each(lengths, function(lens_length){
+       //    console.log("CALCULATING", lens_length);
+       //    result = sample_model(lg, lens_length, 300);
+       // })
+      
+
+       // LOAD BEST
+       var result = JSON.parse(ws.get(180));
+       // console.log(result)
+       var scene = lg.generate(tracerBox, result);
        var led = CanvasUtil.queryPrefix("LS")[0];
        var mediums = CanvasUtil.getMediums();
        var ls = new PointLight({
@@ -117,34 +158,8 @@ Pipeline.script = {
         });
         ls.emmision(-60, 0, 1);
         uniformity = ImagePlane.calculateUniformity();
-
-       // var samples = _.range(0, 300, 1);
-       // samples = _.map(samples, function(s){
-       //     var params = lg.generateRandom(200);
-       //     var scene = lg.generate(tracerBox, params);
-
-       //     var led = CanvasUtil.queryPrefix("LS")[0];
-       //     var mediums = CanvasUtil.getMediums();
-       //     var ls = new PointLight({
-       //            position: led.position, 
-       //            mediums: mediums, 
-       //            parent: tracerBox
-       //      });
-       //      ls.emmision(-60, 0, 1);
-       //      uniformity = ImagePlane.calculateUniformity();
-
-       //      _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
-       //      scene.remove();
-       //      ls.source.remove();
-       //      console.log(uniformity);
-       //      return {cost: uniformity, params: params}
-       // });
-     
-       // var min = _.min(samples, function(s){ return s.cost; });
-       // var max = _.max(samples, function(s){ return s.cost; });
-       // console.log("RESULTS:", min, max);
        console.log("RESULTS:", uniformity);
-       //  lr = ip.visualize();
+
     },
     raytrace: function(display, e){
         display.svg.position = display.svg.bounds.bottomLeft;

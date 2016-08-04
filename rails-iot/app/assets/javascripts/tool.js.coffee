@@ -10,6 +10,7 @@
 //= require convex
 //= require grid
 //= require hull
+//= require metamorphehalf/webcache
 //= require eld/ruler
 //= require eld/artwork
 //= require eld/CircuitRouting

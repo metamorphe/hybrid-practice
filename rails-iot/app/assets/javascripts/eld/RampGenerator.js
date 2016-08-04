@@ -12,10 +12,22 @@ LensGenerator.prototype = {
   generateRandom: function(width){
     var params = LensGenerator.DEFAULT_PARAMS;
     params.lens.width = width;
-    params.ramp.alpha = Math.random()
-    params.ramp.beta = Math.random()
-    params.ramp.offset = Math.random() * this.maxOffset(params);
-    return JSON.stringify(params);
+    params.ramp.alpha = Math.random();
+    params.ramp.beta = Math.random();
+
+    // half of the geom is max dome width
+   
+    var dome_range = (width / 2.0) - Ruler.mm2pts(LED_WIDTH);
+    params.dome.width = Ruler.mm2pts(LED_WIDTH) + (dome_range * Math.random());
+    params.ramp.offset = Math.random() *  (params.lens.width - params.dome.width - params.wall_gap);
+
+    var overall_dome_height = params.lens.height - Ruler.mm2pts(2) - Ruler.mm2pts(LED_HEIGHT);
+    overall_dome_height *= Math.random();
+    var height_concave_ratio = Math.random();
+    height_concave_ratio = height_concave_ratio < 0.5 ? 1 - height_concave_ratio : height_concave_ratio;
+    params.dome.height =  Ruler.mm2pts(LED_HEIGHT) + (overall_dome_height * height_concave_ratio); // 1mm gap from top and 1mm concave min;
+    params.dome.concave = Ruler.mm2pts(1) + (overall_dome_height * (1 - height_concave_ratio));
+    return params;
   },
   generate: function(box, params){
     return LensGenerator.generateScene(box, params);
@@ -23,12 +35,8 @@ LensGenerator.prototype = {
   generateW: function(box, width, params){
     params.lens.width = width;
     return LensGenerator.generateScene(box, params);
-  }, 
-  maxOffset: function(params){
-    return params.lens.width - params.dome.width - params.wall_gap;
   }
 }
-
 LensGenerator.OPTIMAL_PARAMS = {"lens":{"width":200,"height":28.3464567},"dome":{"width":19.84251969,"height":11.33858268,"concave":17.00787402},"wall_gap":1.417322835,"led":{"width":14.17322835,"height":3.9685039379999996},"ramp":{"offset":174.6202688761353,"alpha":0.8606031599579123,"beta":0.8858146876934188,"width":38.86193567101384}}
 LensGenerator.DEFAULT_PARAMS = {
   lens: {
@@ -98,7 +106,7 @@ LensGenerator.generateScene = function(box, params){
 
     var lastPoint = d.bounds.bottomRight.add(new paper.Point(0, -Ruler.mm2pts(10)));
    
-    // // Ramp
+    // Ramp
     params.ramp.width =  params.lens.width - params.dome.width - params.ramp.offset;
     // console.log("CHECK", params.ramp.width + params.ramp.offset + params.dome.width, params.lens.width)
 
@@ -136,24 +144,20 @@ LensGenerator.generateScene = function(box, params){
     });
 
 
-    // // Reflector
+    // Reflector
     var reflector = new paper.Path.Rectangle({
         parent: result,
-        size: new paper.Size(params.lens.width - params.dome.width + 2, params.lens.height + 1.9),
+        size: new paper.Size(params.lens.width - params.dome.width + 6, params.lens.height + 1.9),
         name: "REF: 0.9", 
         fillColor: "red", 
         strokeScaling: false
     });
     reflector.set({
       pivot: reflector.bounds.bottomRight, 
-      position:  d.lastSegment.point.add(new paper.Point(0, 3))
+      position:  d.lastSegment.point.add(new paper.Point(0, 4))
     });
 
     lensc = lens.clone();
-    // var s =3;
-    // lensc.scaling.x = (lensc.bounds.width + s) / lensc.bounds.width
-    // lensc.scaling.y = (lensc.bounds.height + s) / lensc.bounds.height
-    // console.log(lensc.scaling);
 
     var lens_holder = reflector.subtract(lensc)
     lens_holder.set({
@@ -161,7 +165,7 @@ LensGenerator.generateScene = function(box, params){
         name: "REF:_0.90", 
         fillColor: "red", 
     });
-    lensc.fillColor = "purple"
+    // lensc.fillColor = "purple"
     lensc.remove();
     reflector.remove();
     base.remove();
@@ -225,6 +229,7 @@ LensGenerator.generateRampPath = function(params, visual=false) {
 
 
 LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
+    // console.log(baseWidth, baseHeight, concaveHeight)
     // Generating geometries
     var base = new Path.Rectangle({
         size: new paper.Size(baseWidth, baseHeight),
@@ -233,7 +238,6 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
         fillColor: "", 
         visible: false
     });
-    // b2.selected = true;
     var lens = new Path.Ellipse({
         rectangle: new Rectangle(new Point(0, 0), new Size(baseWidth, concaveHeight)), 
         strokeColor: 'black',
@@ -248,7 +252,9 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
 
     var dome = lens.unite(base);
     dome.visible = false;
-
+    dome.position = paper.view.center;
+    lens.remove();
+    base.remove();
     // Extracting spline
     var half_dome = _.filter(dome.segments, function(seg) {
         return seg.point.subtract(dome.bounds.center).x >= 0;
@@ -259,7 +265,8 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
         strokeColor: '#00A8E1',
         strokeWidth: 1,
         strokeScaling: false,
-        fillColor: "purple"
+        fillColor: "purple", 
+        display: false
     });
 
     spline.firstSegment.handleIn = new paper.Point(0, 0);
