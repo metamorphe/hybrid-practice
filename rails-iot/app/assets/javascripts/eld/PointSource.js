@@ -25,13 +25,25 @@ PointLight.prototype = {
 			return scope.emit(scope.source.position, scope.toLocalSpace(theta), 1, "yellow");
 		})
 
-		while(!_.isEmpty(rays)){
+		// while(!_.isEmpty(rays)){
 			rays = _.map(rays, function(r){
 				if(_.isNull(r) || _.isUndefined(r)) return;
-				return scope.trace(r);
+				return scope.trace(r, false);
 			})
 			rays = _.compact(rays);
-		}
+		// }
+
+		rays = _.map(rays, function(r){
+				if(_.isNull(r) || _.isUndefined(r)) return;
+				return scope.trace(r, false);
+			})
+			rays = _.compact(rays);
+
+		rays = _.map(rays, function(r){
+				if(_.isNull(r) || _.isUndefined(r)) return;
+				return scope.trace(r, false);
+			})
+			rays = _.compact(rays);
 	},
 	emit: function(origin, direction, strength, color){
 		var strength = strength * 0.5 + 0.1;
@@ -58,18 +70,23 @@ PointLight.prototype = {
 			direction: direction
 		}
 	}, 
-	trace: function(r){
+	trace: function(r, viz){
 		hits = PointLight.getIntersections(r, this.options.mediums);
-		if(hits.length == 0) return null;
+		if(viz)
+			PointLight.visualizeHits(hits);
 
+		if(hits.length == 0) return null;
 		var interface = hits[0];
+		if(!interface.normal) return null;
+
 		r.path.lastSegment.point = interface.point;
 
 		ref_normal = PointLight.getReferenceNormal(interface.normal, r);
 
 		// PointLight.visualizeNormal(interface.point, ref_normal, interface.tangent, r);
 		
-		material = PointLight.detectMaterial(interface, ref_normal);
+		material = PointLight.detectMaterial(interface, ref_normal, this.options.mediums);
+		if(viz) console.log(material);
 		if(material.reflect){
 			return this.reflect(r, interface, material, ref_normal);
 		} else if(material.refract){
@@ -107,27 +124,36 @@ PointLight.getReferenceNormal = function(normal, r){
 	theta_b = {theta: normal_b.getDirectedAngle(ray), normal: normal_b}
 	return _.min([theta_f, theta_b], function(t){ return Math.abs(t.theta);}).normal;
 }
-PointLight.detectMaterial = function(interface, normal){
+PointLight.detectMaterial = function(interface, normal, mediums){
 	var material = interface.path;
+	// console.log(interface.path);
 
 	if(! _.isUndefined(material.reflectance))
 		return {reflect: true, reflectance: material.reflectance}
 
 	// go slightly forward
-	normal.length = 0.001;
+	normal.length = 3;
 	var forward = normal.clone().multiply(1);
 	var fpt = interface.point.clone().add(forward);
-	var goingIn = material.contains(fpt);
-
-
-	// go slightly backward
 	var backward = normal.clone().multiply(-1);
 	var bpt = interface.point.clone().add(backward);
-	var comingOut = material.contains(bpt);
 
-	if(goingIn) return {refract: true, n1: 1.00, n2: material.n, refraction: material.refraction, reflectance: 1.0}
-	if(comingOut) return {refract: true, n1: material.n, n2: 1.00, refraction: material.refraction, reflectance: 1.0}
-	return {reflect: false, refract: false}
+	var goingIn = material.contains(fpt);
+	var other = goingIn ? bpt : fpt;	
+	other = _.filter(mediums, function(m){
+		return m.contains(other);
+	});
+	
+
+	if(other.length == 0) other = [{n: 1.00}]
+	other = other[0];
+	
+	
+	if(!_.isUndefined(other.reflectance)) 
+		return {reflect: true, reflectance: other.reflectance}
+
+	if(goingIn) return {refract: true, n1: other.n, n2: material.n, refraction: material.refraction, reflectance: 1.0}
+	else return {refract: true, n1: material.n, n2: other.n, refraction: material.refraction, reflectance: 1.0}
 }
 
 PointLight.getCriticalAngle = function(theta0, n1, n2){
@@ -190,11 +216,27 @@ PointLight.visualizeNormal = function(origin, normal, tangent, r){
 	});
 }
 
+
+PointLight.visualizeHits = function(hits){
+	return new paper.Group(
+		_.map(hits, function(h, i){
+			var c = new paper.Path.Circle({
+				radius: 2, 
+				fillColor: "orange", 
+				position: h.point
+			})
+			return c;
+		})
+	);
+}
+
 PointLight.getIntersections = function(ray, collection){
 	hits = CanvasUtil.getIntersections(ray.path, collection);
+	// console.log("ORIGINAL HITS", hits.length)
 	hits = _.reject(hits, function(h){
-		return ray.path.firstSegment.point.getDistance(h.point) < 1;
+		return ray.path.firstSegment.point.getDistance(h.point) <= 0;
 	});
+	// console.log("REFINED HITS", hits.length)
 	return _.sortBy(hits, function(h){
 		return ray.path.firstSegment.point.getDistance(h.point);
 	});

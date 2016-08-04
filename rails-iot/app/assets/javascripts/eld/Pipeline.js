@@ -53,176 +53,6 @@ var EPSILON = 10;
 var LED_WIDTH = 5;
 var LED_HEIGHT = 1.4;
 
-// DOME
-var DOME_BASE_WIDTH = Ruler.mm2pts(7);
-var DOME_BASE_HEIGHT = Ruler.mm2pts(4);
-var CONCAVE_HEIGHT = Ruler.mm2pts(6);
-
-function dome(baseWidth, baseHeight, concaveHeight) {
-    // Generating geometries
-    var base = new Path.Rectangle({
-        size: new paper.Size(baseWidth, baseHeight),
-        strokeColor: 'black',
-        strokeWidth: 1,
-        fillColor: "", 
-        visible: false
-    });
-    // b2.selected = true;
-    var lens = new Path.Ellipse({
-        rectangle: new Rectangle(new Point(0, 0), new Size(baseWidth, concaveHeight)), 
-        strokeColor: 'black',
-        strokeWidth: 1,
-        fillColor: "", 
-        visible: false
-    });
-
-    lens.set({
-        position: base.bounds.topCenter
-    });    
-
-    var dome = lens.unite(base);
-    dome.visible = false;
-
-    // Extracting spline
-    var half_dome = _.filter(dome.segments, function(seg) {
-        return seg.point.subtract(dome.bounds.center).x >= 0;
-    });
-
-    var spline = new paper.Path({
-        segments: half_dome,
-        strokeColor: '#00A8E1',
-        strokeWidth: 1,
-        strokeScaling: false,
-        fillColor: "purple"
-    });
-
-    spline.firstSegment.handleIn = new paper.Point(0, 0);
-    return spline;
-}
-
-function draw_scene(box, base_length, lens_height=10){
-    var WALL_GAP = Ruler.mm2pts(0.5);
-    var LENS_HEIGHT = Ruler.mm2pts(lens_height);
-    // add base
-    var base = new paper.Path.Rectangle({
-        size: new paper.Size(base_length, -LENS_HEIGHT),
-        // segments: [new paper.Point(0, -30), new paper.Point(0, 0), new paper.Point(base_length, 0)], 
-        strokeWidth: WALL_GAP,
-        strokeColor: "green", 
-        strokeScaling: false
-    });
-    base.pivot = base.bounds.bottomCenter;   
-    base.position = box.bounds.bottomRight.add(new paper.Point(-60, -10));
-    
-    // add LED
-    var led = new paper.Path.Rectangle({
-        size: new paper.Size(Ruler.mm2pts(LED_WIDTH / 2.0), Ruler.mm2pts(LED_HEIGHT)), 
-        name: "LS: LED LightSource", 
-        strokeWidth: 1,
-        strokeColor: "black", 
-        strokeScaling: false,
-        fillColor: "white"
-    });
-    led.set({
-        pivot: led.bounds.bottomRight, 
-        position: base.bounds.bottomRight
-    })
-    
-    // add dome
-    var base_offset = new paper.Point(0,  -base.strokeWidth);
-    var d = dome(DOME_BASE_WIDTH, DOME_BASE_HEIGHT, CONCAVE_HEIGHT);
-    d.set({
-        scaling: new paper.Size(-1, 1),
-        pivot: d.strokeBounds.bottomRight, 
-        position: base.strokeBounds.bottomRight.add(base_offset), 
-        visible: false
-    });
-    var lastPoint = d.bounds.bottomRight.add(new paper.Point(0, -Ruler.mm2pts(10)));
-    var ramp_width = base_length - d.bounds.width - WALL_GAP;
-   
-    
-    // add ramp
-    
-    var ramp = RampGenerator.generateRampPath({
-        rampHeight: Ruler.mm2pts(lens_height),
-        rampWidth: ramp_width,
-        rampOffset: Ruler.mm2pts(4),
-        alpha: 0.9,
-        beta: 0.9
-    }, visual=false);
-    ramp.set({
-        fillColor: "yellow",
-        scaling: new paper.Size(-1, 1),
-        pivot: ramp.bounds.bottomRight,
-        position: d.lastSegment.point
-    });    
-    ramp.reverse();
-    rgen = _.map(ramp.segments, function(s){ return s.clone()});
-    dgen = _.map(d.segments, function(s){ return s.clone()});
-
-    // make lens
-    var lens = new paper.Path({
-        name: "LENS:_1.44",
-        segments: _.flatten([dgen, rgen, lastPoint]),
-        closed: true, 
-        fillColor: "#00A8E1", 
-        strokeWidth: 0, 
-        strokeColor: "yellow"
-    });
-
-
-    var reflector = new paper.Path.Rectangle({
-        size: new paper.Size(ramp_width + 2, LENS_HEIGHT + 1.9),
-        name: "REF: 0.9", 
-        fillColor: "red", 
-        strokeScaling: false
-    });
-    reflector.pivot = reflector.bounds.bottomRight;   
-    reflector.position =  d.lastSegment.point.add(new paper.Point(0, 3));
-    
-
-    var lenshg = reflector.subtract(lens)
-    var lhg = lenshg.segments;
-
-    lens_holder = new paper.Path({
-        segments: [lhg[3], lhg[4], lhg[5], lhg[0]],
-        name: "REF:_0.90", 
-        strokeWidth: WALL_GAP, 
-        strokeColor: "red",
-        closed: false, 
-        fillColor: null
-    })
-    lenshg.remove();
-    reflector.remove();
-    base.remove();
-
-    
-    // GATHER MEDIUMS
-    var reflectors = CanvasUtil.queryPrefix("REF");
-    var lenses = CanvasUtil.queryPrefix("LENS");
-    _.each(reflectors, function(el){
-        el.reflectance = 0.90;
-    });
-
-    _.each(lenses, function(el){
-        el.refraction = 0.80;
-        el.n = parseFloat(Artwork.getName(el).split("_")[1]);
-    });
-
-    mediums = _.flatten([lenses,reflectors]);
-    console.log('REFLECTORS', reflectors.length, "LENSES", lenses.length, "TOTAL", mediums.length);
-    console.log(lenses[0].refraction, lenses[0].n);
-    // console.log(reflectors[0].reflectance);
-
-    ls = new PointLight({
-          position: led.position, 
-          mediums: mediums, 
-          parent: box
-        });
-
-    ls.emmision(-60, 0, 1);
-
-}
 
 
 function interpolation_lines2(diffuser, leds) {
@@ -290,14 +120,12 @@ Pipeline.script = {
             });
         });
 
-       morph = interpolation_lines2(e.diff[0], e.leds);
-       morph = _.compact(morph);        
+       morphs = interpolation_lines2(e.diff[0], e.leds);
+       morphs = _.compact(morphs);        
 
-       backgroundBox.sendToBack();
-       var invisible = _.compact(_.flatten([e.art, e.dds, e.cp, e.bo, e.bi]));
-       Pipeline.set_visibility(invisible, false);
+      
 
-       // MAKE SCENE INSIDE TRACER BOX
+       // BEGIN TRACE
        tracerBox = new paper.Path.Rectangle({
             rectangle: result.bounds,
             fillColor: 'black'
@@ -306,25 +134,65 @@ Pipeline.script = {
             pivot: tracerBox.bounds.leftCenter,
             position: result.bounds.rightCenter
        });
-
-       draw_scene(tracerBox, 100);
-
-       // PROJECT RAYS AND SHOW ON AN IMAGE_PLANE
        var width = result.bounds.width;
-
        ip = new ImagePlane({
         position: result.bounds.topRight.clone(), 
         width: width, 
-        range: {x: {identity: "x", min: -width/2.0, max: width/2.0}, y: {identity: "y", min: -width/2.0, max:  width/2.0}}
+        range: {x: {identity: "x", min: -width/2, max: width/2}, y: {identity: "y", min: -width/2, max:  width/2}}
        });
-       
+       var lg = new LensGenerator();
+       // var led = LensGenerator.generateScene(tracerBox, LensGenerator.DEFAULT_PARAMS);
+       // min is 30
+       // morphs = [morphs[200]]
+       // morphs = morphs.slice(300, 400)
+       _.each(morphs, function(morph, i, arr){
+          console.log("I", i, arr.length)
+          morph.set({
+            visible: true, 
+            strokeColor: "yellow"
+           });
+           morph.bringToFront();
 
-       // this.makeReflectorMedium(0.5, 0.5, 10, 20);
+           var scene = lg.generate(tracerBox, morph.length);
+           var led = CanvasUtil.queryPrefix("LS")[0];
+           var mediums = CanvasUtil.getMediums();
+           var ls = new PointLight({
+                  position: led.position, 
+                  mediums: mediums, 
+                  parent: tracerBox
+            });
 
+           ls.emmision(-60, 0, 1);
+          
+           pt = result.bounds.bottomLeft.subtract(morph.firstSegment.point)
+                                       .multiply(new paper.Point(-1, 1))
+                                       .subtract(new paper.Point(result.bounds.width/2.0, result.bounds.height/2.0))
+           boundary = result.bounds.bottomLeft.subtract(morph.lastSegment.point)
+                                       .multiply(new paper.Point(-1, 1))
+                                       .subtract(new paper.Point(result.bounds.width/2.0, result.bounds.height/2.0))                          
+                                       
+           rp = ip.graph.plotPoint(pt, {fillColor: "red"});
+           rp = ip.graph.plotPoint(boundary, {fillColor: "yellow"});
+
+           lr = ip.visualize();
+           pt2 = pt.multiply(new paper.Point(1, -1))
+           lr.position =  lr.position.add(pt2);
+           lr.pivot = ip.graph.graph.bounds.center.add(pt2);
+           lr.rotation = morph.firstSegment.point.subtract(morph.lastSegment.point).angle;
+            rp.bringToFront();
+           
+         
+           _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
+            scene.remove();
+            ls.source.remove();
+       });
+       // END RAYTRACE
+
+       backgroundBox.sendToBack();
+       var invisible = _.compact(_.flatten([e.art, e.dds, e.cp, e.bo, e.bi]));
+       Pipeline.set_visibility(invisible, false);
     },
-    makeReflectorMedium: function(){
 
-    },
     mold: function(display, e) {
         _.each(e.diff, function(diffuser) {
             diffuser.set({
@@ -553,6 +421,7 @@ Pipeline.script = {
             CircuitRouting.cleanup(nodes, e);
             paper.view.update();
         });
+        addTool();
     },
     base: function(display, e) {
        
@@ -641,66 +510,67 @@ Pipeline.set_visibility = function(objects, is_visible) {
 
 
 
-
-// CIRCUIT CLEANING TOOL
-var hitOptions = {
-    segments: true,
-    stroke: true,
-    fill: true,
-    tolerance: 10
-}
-
-var t = new paper.Tool();
-t.selected = [];
-
-function addAnchorPoint(pathReceiver, point) {
-    var closestPoint = pathReceiver.getNearestPoint(point);
-    var location = pathReceiver.getLocationOf(closestPoint);
-    var index = location.curve.segment2.index;
-    console.log(index);
-    return pathReceiver.insert(index, closestPoint);
-}
-
-t.onMouseDown = function(event) {
-
-    var hitResult = project.hitTest(event.point, hitOptions);
-
-
-    if (!hitResult) {
-        console.log("No hits");
-        return;
-    } else {
-
-        if (hitResult.type == "stroke") {
-            console.log("Adding anchor");
-            var anchor = addAnchorPoint(hitResult.item, event.point);
-            var anchorBG = addAnchorPoint(bgPath, event.point);
-
-            t.selected.push(anchor);
-            t.selected.push(anchorBG);
-
-        } else if (hitResult.type == 'segment') {
-            console.log("hit segment")
-            anchor = hitResult.segment;
-            var anchorBG = addAnchorPoint(bgPath, event.point);
-            t.selected.push(anchor);
-            t.selected.push(anchorBG);
-        }
+function addTool(){
+    // CIRCUIT CLEANING TOOL
+    var hitOptions = {
+        segments: true,
+        stroke: true,
+        fill: true,
+        tolerance: 10
     }
-};
 
-t.onMouseDrag = function(event) {
-    _.each(t.selected, function(anchor) {
-        anchor.selected = true;
-        anchor.point = anchor.point.add(event.delta);
-    });
-};
-
-t.onMouseUp = function(event) {
-    _.each(t.selected, function(anchor) {
-        anchor.selected = false;
-    });
+    var t = new paper.Tool();
     t.selected = [];
+
+    function addAnchorPoint(pathReceiver, point) {
+        var closestPoint = pathReceiver.getNearestPoint(point);
+        var location = pathReceiver.getLocationOf(closestPoint);
+        var index = location.curve.segment2.index;
+        console.log(index);
+        return pathReceiver.insert(index, closestPoint);
+    }
+
+    t.onMouseDown = function(event) {
+
+        var hitResult = project.hitTest(event.point, hitOptions);
+
+
+        if (!hitResult) {
+            console.log("No hits");
+            return;
+        } else {
+
+            if (hitResult.type == "stroke") {
+                console.log("Adding anchor");
+                var anchor = addAnchorPoint(hitResult.item, event.point);
+                var anchorBG = addAnchorPoint(bgPath, event.point);
+
+                t.selected.push(anchor);
+                t.selected.push(anchorBG);
+
+            } else if (hitResult.type == 'segment') {
+                console.log("hit segment")
+                anchor = hitResult.segment;
+                var anchorBG = addAnchorPoint(bgPath, event.point);
+                t.selected.push(anchor);
+                t.selected.push(anchorBG);
+            }
+        }
+    };
+
+    t.onMouseDrag = function(event) {
+        _.each(t.selected, function(anchor) {
+            anchor.selected = true;
+            anchor.point = anchor.point.add(event.delta);
+        });
+    };
+
+    t.onMouseUp = function(event) {
+        _.each(t.selected, function(anchor) {
+            anchor.selected = false;
+        });
+        t.selected = [];
+    }
 }
 
 function setMoldGradient(domed, diff, leds) {
@@ -717,7 +587,7 @@ function setMoldGradient(domed, diff, leds) {
         });
         bundt.fillColor = {
             gradient: {
-                stops: dome(),
+                stops: LensGenerator.generateDome(),
                 radial: true
             },
             origin: bundt.position,

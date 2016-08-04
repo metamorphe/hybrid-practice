@@ -9,7 +9,7 @@ function ImagePlane(options){
                     size: new Size(options.width, options.width ),
                     fillColor: "black"
                 });
-	this.graph.plotPoint(new paper.Point(10, 0));
+	// this.graph.plotPoint(new paper.Point(10, 0));
 	this.graph.dom.set({
 		pivot: this.graph.dom.bounds.bottomRight,
 		position: options.position
@@ -22,39 +22,47 @@ ImagePlane.prototype = {
 		rays = CanvasUtil.queryPrefix("RAY");
 		image_plane = CanvasUtil.queryPrefix("IMG");
 
-		console.log("RAYS:", rays.length);
+		// console.log("RAYS:", rays.length);
 		if(_.isEmpty(image_plane)) return;
 		image_plane = image_plane[0];
 
 		hits = CanvasUtil.getIntersections(image_plane, rays);
-		console.log("HITS:", hits.length);
+		// console.log("HITS:", hits.length);
 		
-		var origin = image_plane.firstSegment.point;
+		var origin = image_plane.lastSegment.point;
 		data = _.map(hits, function(h){
 			var pt = h.point.subtract(origin);
-			pt = pt.divide(new paper.Point(image_plane.bounds.width, 1));
-			pt = pt.multiply(new paper.Point(30, 1));
-			pt = pt.add(new paper.Point(-15, 0));
+			// pt = pt.divide(new paper.Point(image_plane.bounds.width, 1));
+			// pt = pt.multiply(new paper.Point(image_plane.bounds.width, 1));
+			// pt = pt.add(new paper.Point(-image_plane.bounds.width/2, 0));
 			return pt;
 		});
-		scope.graph.plotPoint(new paper.Point(0, 0));
-		
+		// console.log(_.map(data, function(d){ return d.toString();}));
+		// scope.graph.plotPoint(data[0]);
+		// console.log(data[0])
 		pts = _.map(data, function(pt){
 			return scope.graph.plotPoint(pt, {fillColor: "white"});
 		});
 
 		line_result = new paper.Group({
-			children: pts, 
+			children: pts,
 			pivot: scope.graph.unmapPoint(new paper.Point(0, 0))
 		});
 
-		theta = _.range(-180, 180, 1);
+		return line_result;
+	}, 
+	visualizeWheel: function(){
+		line_result = this.visualize();
 
+		theta = _.range(-180, 180, 1);
 		_.each(theta, function(t){
 			lr = line_result.clone();
 			lr.rotation = t;
-		})
-		
+		});
+	},
+	visualizeAt: function(orientation){
+		line_result = this.visualize();
+		lr.rotation = orientation;
 		return this;
 	}
 }

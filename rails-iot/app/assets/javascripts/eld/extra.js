@@ -1,4 +1,19 @@
 
+    // var lenshg = reflector.subtract(lens)
+    // var lhg = lenshg.segments;
+
+    // lens_holder = new paper.Path({
+    //     segments: [lhg[3], lhg[4], lhg[5], lhg[0]],
+    //     name: "REF:_0.90", 
+    //     strokeWidth: WALL_GAP, 
+    //     strokeColor: "red",
+    //     closed: false, 
+    //     fillColor: null
+    // })
+    // lenshg.remove();
+    // reflector.remove();
+    // base.remove();
+
 
 function CrossSection(center) {
     this.theta = 0;

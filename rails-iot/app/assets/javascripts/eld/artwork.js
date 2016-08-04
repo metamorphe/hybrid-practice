@@ -9,6 +9,16 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
+CanvasUtil.getMediums =  function(){
+	var reflectors = CanvasUtil.queryPrefix("REF");
+    var lenses = CanvasUtil.queryPrefix("LENS");
+    _.each(reflectors, function(el){ el.reflectance = 0.90;});
+    _.each(lenses, function(el){
+        el.refraction = 0.80;
+        el.n = parseFloat(Artwork.getName(el).split("_")[1]);
+    });
+ 	return  _.flatten([lenses,reflectors]);
+ }
 CanvasUtil.getIntersections = function(el, collection){
 	var hits = _.map(collection, function(c){
 		return c.getIntersections(el);
