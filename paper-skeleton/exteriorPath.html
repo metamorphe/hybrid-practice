@@ -11,12 +11,13 @@
 
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
+		<script type="text/javascript" src="js/clipper.js"></script>
+		<script type="text/javascript" src="js/clipper_unminified.js"></script>
+
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
 		 	var nineSegment;
-		 	var edgeCount = 0;
-		 	var coords = [];
 		 	var INTERIOR = -1; var CENTERED = 0; var EXTERIOR = 1;
 
 			$(function(){
@@ -42,107 +43,49 @@
 				// TODO: YOUR CODE HERE
 
 
-				//Declarations
-				var diffusers = display.queryPrefix('DIF');
-				var leds = display.queryPrefix('NLED');
-				var breakout = display.queryPrefix('BO');
-				var breakin = display.queryPrefix('BI');
-				var circuit_path = display.queryPrefix('CP');
-				var art = display.queryPrefix('ART');
+
+
 				var testShape = display.queryPrefix('TEST');
-
-
-				// console.log(testShape);
-				testShape = extractPaths(testShape)[0];
-				// console.log(testShape);
-
+				var testShape = extractPaths(testShape)[0];
 				_.each(testShape.segments, function(i, j){
 					// console.log(i.toString());
 				});
 
-	
-				var all_objects = [diffusers, leds, breakout, breakin, circuit_path, art];
-				var select_objects = [diffusers, circuit_path];
-
-				var diffuser_centroid_lst = null;
-				// calc_centroids(diffusers);
-				
-				var diffuser_group = create_group(diffusers);
-				// var boundingBox = create_bounding_box(diffuser_group, 1, 13, 1);
-				// color_wires(boundingBox, .128, 1.5);
-
-				set_invisible(leds);
-				set_invisible(breakout);
-				set_invisible(breakin);
-				set_invisible(circuit_path);
-				set_invisible(art);
-
-				set_appearance(diffusers, .128, Ruler.mm2pts(1.5), 'black');
-	
-
-				// extracted = extractPaths(diffusers);
-				// var dummy = null;
-				// var pathToRtn = extracted[0];
-		
-				// _.each(extracted, function(path, i){
-				// 	if (i == 0) {
-				// 		return;
-				// 	}
-				// 	dummy = pathToRtn;
-				// 	pathToRtn = pathToRtn.unite(path);
-				// 	dummy.remove();
-				// });
-				// extracted[0].remove();
-
-				// //Find exterior path and ignore internal paths
-				// var maxChild = _.max(pathToRtn.children, function(x){
-				// 	return x.length;
-				// });
-				
-
-				// var maxChildRef = maxChild;
-				// pathToRtn.removeChildren();
-				// pathToRtn.addChild(maxChildRef);
-				// pathToRtn.sendToBack();
-
-				// pathToRtn = maxChild;
-				// pathToRtn.strokeColor = 'blue';
-				// pathToRtn.strokeWidth = 4;
-				// pathToRtn.sendToBack();
-
-			
-				// pathToRtn.fillColor = 'null';
-				// pathToRtn.visible = true;
-				// pathToRtn.bringToFront();
-
-				// //Coloring the main fill
-				// var c = pathToRtn.clone();
-				// c.strokeWidth = 0;
-				// c.fillColor = "purple";
-				// c.sendToBack();
-				// console.log(pathToRtn);
-				// strokeHelper(pathToRtn, 2.5, 'red');
-
-
 				// var test = strokeHelper(testShape, 2.5, 'red', 0);
-				drawStroke(testShape, {
-							width: 4, 
-							color: 'yellow', 
+				var testStrokeCircles = drawStroke(testShape, {
+							width: 1, 
+							color: 'blue', 
 							alignment: -1
 					});
+				var test = uniteGroup(testStrokeCircles);
 
+				var co = new ClipperLib.ClipperOffset(2.0, 0.25);
+				co.AddPath(testShape, ClipperLib.JoinType.jtMiter, ClipperLib.EndType.etClosedPolygon);
 
-				//Create a stroke over each diffuser
-				// _.each(diffuser_group, function(d, i){
-				// 	console.log('d is:', d.className);
-				// 	var d = extractPaths(d);
-				// 	strokeHelper(d, 2.5,'brown');
-				// });
+				var path = [{X:10,Y:10},{X:110,Y:10},{X:110,Y:110},{X:10,Y:110}];
+				var co = new ClipperLib.ClipperOffset(2, 0.25);
+				co.AddPath(path, ClipperLib.JoinType.jtMiter, ClipperLib.EndType.etClosedPolygon);
+
+			
 
 				paper.view.zoom = 1.75;
 				strokeScaling = false;
 				paper.view.update();
 			}
+
+			/*Unite a group's children into a new path and return new path*/
+				function uniteGroup(arr) {
+						var arr = arr.slice(0, 100);
+						var a = arr[0];
+						var rtnPath = a;
+						_.each(arr, function(el){
+							var temp = rtnPath.unite(el);
+							temp.strokeColor = "red";
+							rtnPath.remove();
+							el.remove();
+							rtnPath = temp;
+						});
+				}
 
 			/*Calculate the centroids of objects and return a list of centroid coordinates**/
 				function calc_centroids(objects){
@@ -150,11 +93,11 @@
 					diffuser_centroid_lst = [];
 
 					//Locate each diffuser
-					_.each(objects, function(diffuser){
+					_.each(objects, function(diffuser) {
 						diffuser.visible = true;
 
 						//Locate each point on a diffuser & add them
-						var calc_centroid = new paper.Point(0,0)
+						var calc_centroid = new paper.Point(0,0);
 						
 						_.each(diffuser.segments, function(seg){
 							calc_centroid = calc_centroid.add(new paper.Point(seg.point.x, seg.point.y));
@@ -168,32 +111,13 @@
 					});
 				}
 
-				/*Unite a group's children into a new path and return new path*/
-				function uniteGroup(path, group) {
-						var retPath = path;
-						_.each(group.children, function(obj, i) {
-							console.log(obj);
-							console.log(obj.children[0].className);
-						
-							var scrapPath = retPath;
-							console.log("obj", obj);
-							console.log(retPath);
-		 					retPath = retPath.unite(obj);
 
-		 					if (scrapPath) {
-		 						scrapPath.remove();
-		 					} return retPath;
-					});
-				}
-
-
-				/*Return Pathes  from group*/
+				/*Return path in array from group*/
 				function extractPaths(group) {
-					//map takes in a collection and a function
 					//_.map(collection, function(el, i, arr) 
 					var data = _.map(group, function(x) {
 						// console.log(x);
-						if (x.className == 'Group') {
+						if (x && x.className == 'Group') {
 							return extractPaths(x.children);
 						} else {
 							return x;
@@ -237,60 +161,53 @@
 							}
 				}
 
-
-
 				//Utilize a path's segments to draw circles indicating corners
-				function drawCorners(path, stroke_width, stroke_align) {
+				function drawCorners(path, stroke_color, stroke_width, stroke_align) {
+					// var cornerGroup = new paper.Group();
 					var points = _.range(0, path.segments.length);
 
-					_.each(points, function(i) {
-						var cornerPoint = path.segments[i].point;
-						var offset = path.getOffsetOf(cornerPoint);
+					return _.map(points, function(i) {
+						var cornerCenterP = path.segments[i].point;
+						var offset = path.getOffsetOf(cornerCenterP);
 						var norm = path.getNormalAt(offset);
 
 						//Average two adjacent points to get accurate normal
 						var step = .000000001;
 
-						//Edge case for first iteration
-						if (i == 0) {
-							var preNorm = path.getNormalAt(path.getOffsetOf(path.segments[path.segments.length -1].point));
-							console.log('bad offset', offset);
-						}
+						//First iteration edge case
+						var preNorm;
+						if (i == 0) preNorm = path.getNormalAt(path.getOffsetOf(path.segments[path.segments.length -1].point));
 						else var preNorm = path.getNormalAt(offset - step); 
-					
-							var postNorm = path.getNormalAt(offset + step);
 
+						var postNorm = path.getNormalAt(offset + step);
 						var prevAngle = preNorm.angle;
 						var postAngle = postNorm.angle;
-						norm.angle = (prevAngle + postAngle) / 2;
+						norm.angle = (prevAngle + postAngle) / 2; //average
 
+						//Normalize point
 						if (i != 0) norm.length *= -1;
 						var radiusVector = norm.clone();
 						radiusVector.length = stroke_width * 0.5 * stroke_align;
-
-
-						//Calculating circle centerpoints
-						if (stroke_align != CENTERED) cornerPoint = cornerPoint.add(radiusVector);
+						if (stroke_align != CENTERED) cornerCenterP = cornerCenterP.add(radiusVector);
 						
-
-						//Drawing circle
+						//Draw circle
 						edgeCircle = new Path.Circle({
-		                    center: cornerPoint,
+		                    center: cornerCenterP,
 		                    radius: stroke_width / 2 ,
-		                    fillColor: 'yellow',
-		                    strokeColor: 'yellow',
+		                    fillColor: stroke_color,
+		                    strokeColor: stroke_color,
 		                    selected: false
-               				});
+               			});
+               			return edgeCircle;
 					});
 				}
 
 				//Utilize a path's segments to draw circles indicating corners
-				function calculateAllPoints(path) {
-					console.log(path.curves);
+				function calcAllSegPoints(path) {
 					var allPoints = [];
 					var points = _.range(0, path.segments.length);
 
-					//Saving offsets of each segment point
+					//Save offsets of each point on segment
 					_.each(points, function(i) {
 						var p = path.segments[i].point;
 						var segPoint = path.getOffsetOf(p);
@@ -311,19 +228,19 @@
 
 				/*Calculate best fit stroke width via a series of small circles.
 				Three types based on stroke_align: interior, normal, or exterior*/
-				function strokeHelper(path, stroke_width, stroke_color, stroke_align){
-					var groupToRtn;
+				function strokeHelper(path, stroke_width, stroke_color, stroke_align) {
+					var groupToRtn = new paper.Group();
+
 
 					var circ;
 					var point = null;
-					var circGroup = new paper.Group();
 					var length = path.length;
-					var offset = .5; //.2;
+					var offset = 1.5 * stroke_width; //.2;
 					var setRadius = stroke_width / 2;
 
 
 					//TODO: turn straight lines into rectangles
-					// calculateAllPoints(path);
+					// calcAllSegPoints(path);
 
 					var lineStartingPoint = path.getPointAt(0);
 					var lineEndingPoint = null;
@@ -331,8 +248,8 @@
 					var prevAngle = 0; var currAngle = 0; var nextAngle = 0; var circle_center;
 					var mostRecentValidPoint = null;
 
-
 					var points = _.range(0, length, offset);
+					var normalCircles = [];
 					_.each(points, function(i) {
 
 						var point = path.getPointAt(i);
@@ -361,24 +278,41 @@
 
                			var valid = isValid(circ, path, stroke_align);
                			if (!valid && stroke_align != EXTERIOR) circ.remove();
-
-               		
+               			else normalCircles.push(circ);
+               			// else groupToRtn.addChild(circ);
 
 						//TODO: analyze Math.abs(path.getCurvatureAt(i))
-               			
-
-
-						
-
       					// fillSpace(mostRecentValidPoint, circle_center, stroke_color, stroke_width, offset);
-						// 	edgeCount += 1; console.log('corner found', circle_center);
-						// }
 
 						prevAngle = currAngle;
 					});
-					console.log(coords);
-					drawCorners(path, stroke_width, stroke_align);
+					var cornerCircles = drawCorners(path, stroke_color, stroke_width, stroke_align);
+					// groupToRtn = new paper.Group(cornerCircles, groupToRtn);
 
+
+
+					// console.log(cornerCircles.children);
+					// _.reject(cornerCircles.children, function(point){ return point.className == 'Path'});
+					// console.log(cornerCircles.children);
+
+					// console.log(groupToRtn.children[0]);
+					// _.reject(groupToRtn.children[0], function(obj){ 
+					// 	if (obj) return obj.className == 'Path';
+					// 	else return false;
+					// 	});
+
+					// console.log(groupToRtn.children[0]);
+					// console.log(cornerCircles.children[0].className);
+
+			
+					//confirming circles are all paths
+					// console.log(cornerCircles);
+					// _.each(normalCircles, function(elem, i) {
+					// 	console.log('elem', elem.className, 'i' , i)
+					// });
+					// console.log(normalCircles);
+
+					return _.flatten([cornerCircles, normalCircles]);
 				}
 
 				function visualizeNormal(origin, normal, tangent){
@@ -432,7 +366,6 @@
 
 				function drawStroke(path, stroke_options){
 					// Attribute alignment (-1 = interior, 0 = centered, 1 = exterior)
-					strokeHelper(path, stroke_options.width, stroke_options.color, stroke_options.alignment);
 
 					if (stroke_options.alignment == EXTERIOR) {
 						var shape = new Group({
@@ -440,8 +373,8 @@
 						});
 						shape.bringToFront();
 					}
+					return strokeHelper(path, stroke_options.width, stroke_options.color, stroke_options.alignment);
 				}
-			
 
 				/*Flip objects on x-axis and/or y-axis based upon arguments--either 1 or -1.*/
 				function flip_on_axis(objects, flip_x, flip_y){
@@ -454,7 +387,6 @@
 
 				function create_group(diffusers) { return new paper.Group(diffusers);}
 
-
 				function create_bounding_box(group, color_amount, bounds, stroke_width){
 					//Create bounding box over entire collection of objects
 					var boundingBox = new paper.Path.Rectangle(group.bounds.expand(Ruler.mm2pts(bounds)), 0);
@@ -462,8 +394,7 @@
 						fillColor: new Color(color_amount),
 						strokeWidth: stroke_width
 						}
-
-					boundingBox.sendToBack(); //bringToFront()
+					boundingBox.sendToBack();
 					return boundingBox;
 				}
 				
