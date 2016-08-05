@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var nineSegment;
+			$(function(){
+				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					zoom = 1;
+					paper.view.update();
+		
+					exp = paper.project.exportSVG({ 
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+	
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.view.zoom = 1;
+				nineSegment = new Artwork("img/Texas.svg", function(display){
+					runScript(display);
+				});
+				
+			});
+
+			var THETA_OFFSET = 0.5;
+
+			function runScript(display){
+				display.svg.remove();
+
+				function randomGradient(num_of_stops, isRadial){
+		            stops = _.range(0, num_of_stops);
+		            stops = _.map(stops, function(){ return randomStop(); });
+		            stops = _.sortBy(stops, function(el){ return el[1]});
+		            return 	{
+                        stops: stops,
+                        radial: isRadial
+                    }
+	            };
+
+				function randomStop(){
+					return [new paper.Color(Math.random()), Math.random()]
+				};
+
+				function generateSlicedSegment(angleIn, angleOut, inputPath, inputPathCenter) {
+					// Generate both the inPoint and outPoint vectors.
+					var inPoint = inputPathCenter.clone();
+					var outPoint = inputPathCenter.clone();
+					inPoint.length = 100;
+					outPoint.length = 100;
+					inPoint.angle = angleIn;
+					outPoint.angle = angleOut;
+
+					// Translate the vectors to the center of the screen.
+					inPoint = inPoint.add(inputPathCenter);
+					outPoint = outPoint.add(inputPathCenter);
+
+					// Define a circle to be the bounding box of the inputted Geometry.
+					var circle = new paper.Path.Circle({
+						center: inputPathCenter,
+						radius: 100,
+					});
+
+					// Gets the closest points on the Circle to both the inPoint and outPoint.
+					var nearestInPoint = circle.getNearestPoint(inPoint);
+					var nearestOutPoint = circle.getNearestPoint(outPoint);
+
+					// Define the intersecting path to consist of the inPoint, center, and outPoint.
+					var intersectingPath = new paper.Path({
+						segments: [nearestInPoint, inputPathCenter, nearestOutPoint],
+						strokeWidth: 2,
+					});
+
+					// Get the offset of both the inPoint and the outPoint.
+					var NEAREST_OUT_POINT_OFFSET = circle.getOffsetOf(nearestOutPoint);
+
+					// Split the circle based on the offsets derived above.
+					if (NEAREST_OUT_POINT_OFFSET != 0) {
+						var cutOff = circle.split(NEAREST_OUT_POINT_OFFSET);
+						cutOff.split(cutOff.getOffsetOf(nearestInPoint));
+						
+						// Collect an array of points on the cutoff segment of the circle.
+						let NEAREST_IN_POINT_OFFSET = circle.getOffsetOf(nearestInPoint);
+						arcPoints = _.range(0, NEAREST_IN_POINT_OFFSET, THETA_OFFSET);
+						arcPoints = _.map(arcPoints, function(theta){
+							return circle.getPointAt(theta);
+						})
+
+						// Generate the slicedSegment path.
+						var slicedSegment = new paper.Path({
+							segments: _.flatten([inputPathCenter, outPoint, arcPoints, inPoint]),
+						});
+
+						slicedSegment.closePath()
+
+						var stops = randomGradient(5, true)
+						var intersectionPath = new paper.Path({
+							segments: slicedSegment.intersect(inputPath).segments,
+							fillColor: {
+								gradient: stops,
+								origin: inputPathCenter,
+								destination: nearestInPoint,
+							},
+						});
+						intersectionPath.closePath();
+					};
+				}; 
+		
+				// Example Code to test generateSlicedSegment:
+				var path = display.queryPrefix("DIF")[0];
+				for (var i = -180; i < 180; i += 1) {
+					generateSlicedSegment(i+1, i, path, path.bounds.center);
+				};
+			};
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
+		</div>
+	</body>
+</html>
+
+<style> 
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>	

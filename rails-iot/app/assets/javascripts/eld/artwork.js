@@ -9,6 +9,16 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
+CanvasUtil.getMediums =  function(){
+	var reflectors = CanvasUtil.queryPrefix("REF");
+    var lenses = CanvasUtil.queryPrefix("LENS");
+    _.each(reflectors, function(el){ el.reflectance = 0.90;});
+    _.each(lenses, function(el){
+        el.refraction = 0.80;
+        el.n = parseFloat(Artwork.getName(el).split("_")[1]);
+    });
+ 	return  _.flatten([lenses,reflectors]);
+ }
 CanvasUtil.getIntersections = function(el, collection){
 	var hits = _.map(collection, function(c){
 		return c.getIntersections(el);
@@ -29,6 +39,15 @@ CanvasUtil.query = function(container, selector){
 		delete selector["prefix"];
 	}
 	var elements = container.getItems(selector);
+	elements = _.map(elements, function(el, i, arr){
+		if(el.className == "Shape"){
+			nel = el.toPath(true);
+			el.remove();
+			return nel;
+		}
+			
+		else return el;
+	});
 	if ("lid" in selector) {
 		return _.where(elements, {lid: selector["lid"]})
 	} else {
@@ -48,7 +67,7 @@ CanvasUtil.queryPrefixWithId = function(selector, id) {
 function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;
-	console.log("Importing", this.svgPath)
+	// console.log("Importing", this.svgPath)
 	if(_.isUndefined(cloned))
 		this.import(loadFN);
 }
@@ -74,7 +93,7 @@ Artwork.prototype = {
 	import:  function(loadFN) {
 		var scope = this;
 	 	paper.project.importSVG(this.svgPath, function(item) {
-	 		 console.log("Processing", item.name);
+	 		 // console.log("Processing", item.name);
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
 	 		var ledLists = scope.orderLeds();

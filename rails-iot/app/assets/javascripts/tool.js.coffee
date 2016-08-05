@@ -3,19 +3,23 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 //= require underscore
+//= require dat.gui.min
 //= require paper-full.min
 //= require saveas.min
 //= require format
 //= require convex
 //= require grid
 //= require hull
+//= require metamorphehalf/webcache
 //= require eld/ruler
 //= require eld/artwork
+//= require eld/CircuitRouting
 //= require eld/Pipeline
 //= require eld/graph
 //= require eld/ButtonExporter
 //= require eld/PointSource
 //= require eld/ImagePlane
+//= require eld/RampGenerator
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

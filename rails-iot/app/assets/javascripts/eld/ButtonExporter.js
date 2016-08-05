@@ -19,11 +19,15 @@ function ButtonExporter(dom, type, preFN, postFN){
           display = new Artwork(getActiveArtwork(), function(artwork){
             result = scope.preFN(artwork);
             // result.remove();
-            console.log("FINAL DIMENSIONS", Ruler.pts2mm(result.bounds.width), "mm x", Ruler.pts2mm(result.bounds.height), "mm");
-            result.fitBounds(paper.view.bounds)
+            console.log("FINAL DIMENSIONS", 
+              Ruler.pts2mm(result.bounds.width), "mm x", 
+              Ruler.pts2mm(result.bounds.height), "mm x", 
+              Ruler.pts2mm(result.model_height), "mm"
+            );
+            result.fitBounds(paper.view.bounds.expand(-5))
                       
             var fn = scope.getFilename();
-            // ButtonExporter.exportPNG(result, fn, scope.dom);
+            ButtonExporter.exportPNG(result, fn, scope.dom);
            
           })
         })
@@ -34,9 +38,9 @@ function ButtonExporter(dom, type, preFN, postFN){
           
           display = new Artwork(getActiveArtwork(), function(artwork){
             scope.preFN(artwork);
-            // var fn = scope.getFilename();
-            // ButtonExporter.exportSVG(fn);
-            // scope.postFN();
+            var fn = scope.getFilename();
+            ButtonExporter.exportSVG(fn);
+            scope.postFN();
           });
         })
     }, 
@@ -56,7 +60,6 @@ function ButtonExporter(dom, type, preFN, postFN){
       bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, result.strokeBounds.width * 2, result.strokeBounds.height * 2);
       dom.attr('href', bufferCanvas.toDataURL("image/png"))
       .attr('download', filename + '.png');
-
       // dom.attr('href', $('#myCanvas')[0].toDataURL("image/png"))
              // .attr('download', filename + '.png');
   }

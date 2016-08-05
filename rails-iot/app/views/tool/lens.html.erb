@@ -32,21 +32,28 @@
 
         // var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(-10, -3));
         var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(0, -3));
-        // var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
-        var leds = [posA]
+        var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
+        var leds = [posA, posB]
         leds = _.map(leds, function(pos){
-              return  new PointLight({
+              return new PointLight({
                   position: pos, 
                   mediums: _.flatten([lenses,reflectors])
               });
         });
 
         _.each(leds, function(l){
-            // l.emmision();
+            l.emmision();
             console.log(l.options)
         });
 
-        ip = new ImagePlane();
+        var image_plane = CanvasUtil.queryPrefix("IMG")[0];
+       var range = image_plane.bounds.width / 4.0;
+
+        ip = new ImagePlane({
+          width: 30, 
+          position: display.svg.bounds.bottomCenter, 
+          range: {x: {identity: "x", min: -range, max: range}, y: {identity: "y", min: -range, max:  range}},
+        });
         ip.visualize();
         
         // display.svg.bringToFront();
