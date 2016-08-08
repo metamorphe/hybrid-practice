@@ -25,7 +25,8 @@ WebStorage.prototype = {
 	}, 	
 	includes: function(k){
 		if(!this.check_valid) return;
-		return this.get(k);
+		// console.log(this.get(k))
+		return !_.isNull(this.get(k));
 	},
 	set: function(k, v){
 		if(typeof k === "undefined"){
