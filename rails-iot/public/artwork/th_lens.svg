@@ -1,0 +1,10 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="70mm" height="150mm" viewBox="0 0 198.43 425.2">
+  <title>th_lens</title>
+  <rect id="NLED:_source" data-name="NLED: source" x="47.34" y="410.17" width="103.75" height="15.02" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="0.5"/>
+  <rect x="92.13" y="420.94" width="14.17" height="4.25" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="0.5"/>
+  <line x1="28.35" y1="425.2" x2="170.08" y2="425.2" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="0.5"/>
+  <rect x="56.69" y="413.86" width="85.04" height="11.34" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="0.5"/>
+  <rect id="LENS:_1.44" data-name="LENS: 1.44" x="56.69" y="405.35" width="85.04" height="8.5" fill="#b2b2b2" stroke="#000" stroke-miterlimit="10" stroke-width="0.5"/>
+  <rect x="7.09" y="56.69" width="184.25" height="368.5" fill="none" stroke="#ff2a2a" stroke-miterlimit="10" stroke-width="2"/>
+  <line id="IMG:_Image_Plane" data-name="IMG: Image Plane" x1="56.69" y1="56.69" x2="141.73" y2="56.69" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="2"/>
+</svg>
