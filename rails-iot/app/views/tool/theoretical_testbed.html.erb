@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+ var gui, testbed, test;
+  $(document).ready(function() {
+    // Hide loading screen
+    $('#shade').hide();
+
+    // Load artwork and GUI
+    paperSetup();
+    testbed = new Artwork("/artwork/th_lens.svg", function(artwork){
+       paper.view.zoom = 2.5;
+    });
+    testbed.lensHeight = 3;
+    testbed.proportionGlass = 0.0;
+    testbed.eta = 1.44;
+    gui = new dat.GUI();
+    gui.add(testbed, 'lensHeight')
+      .min(1)
+      .max(10)
+      .step(1)
+      .onChange(function(value) {
+        testbed.updateLensHeight();
+      });;
+    gui.add(testbed, 'proportionGlass', [
+        0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
+        0.35, 0.40, 0.45, 0.50, 0.55
+      ])
+      .onChange(function(value) {
+        testbed.updateEta();
+      });
+    gui.add(testbed, 'eta').listen();
+  });
+
+  // Extra class methods
+  Artwork.prototype.updateEta = function() {
+    const glassEta = 1.93;
+    const pdmsEta = 1.44;
+    this.eta = (this.proportionGlass * glassEta
+        + (1 - this.proportionGlass) * pdmsEta);
+  }
+
+  Artwork.prototype.updateLensHeight = function() {
+    // Assuming segments are assigned in the order: SW, NW, NE, SE
+    var segments = this.queryPrefix('LENS')[0].segments;
+    var bottomY = segments[0].point.y;
+    segments[1].point.y = bottomY - this.lensHeight;
+    segments[2].point.y = bottomY - this.lensHeight;
+    paper.view.update();
+  }
+
+  // Utility functions
+  function paperSetup() {
+    $('#myCanvas').attr('height', $(window).height());
+    $('#myCanvas').attr('width', $(window).width());
+    paper.install(window);
+    paper.setup('myCanvas');
+
+  function guiSetup() {
+     gui = new dat.GUI();
+     gui.add(myLens, 'lensHeight')
+       .min(50)
+       .max(100)
+       .onChange(function(value) {
+         myLens.updateHeight();
+         myLens.updateHandles();
+       });
+     gui.add(myLens, 'lensWidth')
+       .min(0)
+       .max(50)
+       .onChange(function(value) {
+         myLens.updateWidth();
+         myLens.updateHandles();
+       });
+     gui.add(myLens, 'lensOffset')
+       .min(0)
+       .max(myLens.lensWidth)
+       .onChange(function(value) {
+         myLens.updateWidthOffset();
+         myLens.updateHandles();
+       });
+     gui.add(myLens, 'alpha')
+       .min(0)
+       .max(1)
+       .onChange(function(value) {
+         myLens.updateHandles();
+       });
+     gui.add(myLens, 'beta')
+       .min(0)
+       .max(1)
+       .onChange(function(value) {
+         myLens.updateHandles();
+       });
+  }
+}
+</script>
+</head>
+
+<body>
+  <canvas id="myCanvas"></canvas>
+
+    <%= render :partial => "modals"%>
+    <%= render :partial => "zoom_bar"%>
+
+  <!-- <canvas id="bufferCanvas"></canvas> -->
+</body>
+
+</html>
