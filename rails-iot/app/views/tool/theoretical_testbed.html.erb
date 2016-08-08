@@ -10,21 +10,24 @@
     // Load artwork and GUI
     paperSetup();
     testbed = new Artwork("/artwork/th_lens.svg", function(artwork){
-        paper.view.zoom = 2.5;
+        // paper.view.zoom = 2.5;
         testbed.lensHeight = 3;
         testbed.proportionGlass = 0.0;
         testbed.eta = 1.44;
         guiSetup();
 
         // Load ray tracer
+
         var led = CanvasUtil.queryPrefix("NLED")[0];
+        var bb = CanvasUtil.queryPrefix("BB")[0];
+        led.pivot = led.bounds.center;
 
         var mediums = CanvasUtil.getMediums();
          console.log("mediums", mediums);
         var ls = new PointLight({
-            position: led.position,
+            position: led.position.add(new paper.Point(0, 4)),
             mediums: mediums,
-            parent: testbed.svg
+            parent: bb
         });
 
         ls.emmision(-60, 60, 1);

@@ -40,7 +40,7 @@ PointLight.prototype = {
 	emit: function(origin, direction, strength, color){
 		var strength = strength * 0.5 + 0.1;
 		var rayEnd = new paper.Point(0, -1);
-		rayEnd.length = 200;
+		rayEnd.length = 10000;
 		rayEnd.angle = direction;
 
 		p = new paper.Path.Line({
@@ -52,9 +52,9 @@ PointLight.prototype = {
 			strokeScaling: false
 		});
 
-		np = p.getIntersections(this.parent);
-		if(np.length > 0)
-		p.lastSegment.point = np[0].point;
+		// np = p.getIntersections(this.parent);
+		// if(np.length > 0)
+		// p.lastSegment.point = np[0].point;
 
 		return {
 			path: p, 
