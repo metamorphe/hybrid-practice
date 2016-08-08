@@ -7,6 +7,10 @@ class ToolController < ApplicationController
     @files = get_displays()
     render :layout => "full_screen"
   end
+  def theoretical_testbed
+    @files = get_displays()
+    render :layout => "full_screen"
+  end
   def pipeline
     @files = get_displays()
     render :layout => "full_screen"
@@ -18,7 +22,7 @@ class ToolController < ApplicationController
   end
 
  def start_server
-   # NOTE: currently doesn't work :( 
+   # NOTE: currently doesn't work :(
    dir = system('ruby ./ruby_scripts/ArduinoServer.rb &')
    render :json => {msg: "I started server", debug: dir}
  end
