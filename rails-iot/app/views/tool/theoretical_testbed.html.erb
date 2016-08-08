@@ -15,22 +15,19 @@
     testbed.lensHeight = 3;
     testbed.proportionGlass = 0.0;
     testbed.eta = 1.44;
-    gui = new dat.GUI();
-    gui.add(testbed, 'lensHeight')
-      .min(1)
-      .max(10)
-      .step(1)
-      .onChange(function(value) {
-        testbed.updateLensHeight();
-      });;
-    gui.add(testbed, 'proportionGlass', [
-        0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
-        0.35, 0.40, 0.45, 0.50, 0.55
-      ])
-      .onChange(function(value) {
-        testbed.updateEta();
-      });
-    gui.add(testbed, 'eta').listen();
+    guiSetup();
+
+    // Load ray tracer
+    var led = CanvasUtil.queryPrefix("LED")[0];
+    var mediums = CanvasUtil.getMediums();
+    var ls = new PointLight({
+    	  position: led.position,
+    	  mediums: mediums,
+    	  parent: tracerBox
+    });
+
+ls.emmision(-60, 0, 1);
+uniformity = ImagePlane.calculateUniformity();
   });
 
   // Extra class methods
@@ -58,40 +55,22 @@
     paper.setup('myCanvas');
 
   function guiSetup() {
-     gui = new dat.GUI();
-     gui.add(myLens, 'lensHeight')
-       .min(50)
-       .max(100)
-       .onChange(function(value) {
-         myLens.updateHeight();
-         myLens.updateHandles();
-       });
-     gui.add(myLens, 'lensWidth')
-       .min(0)
-       .max(50)
-       .onChange(function(value) {
-         myLens.updateWidth();
-         myLens.updateHandles();
-       });
-     gui.add(myLens, 'lensOffset')
-       .min(0)
-       .max(myLens.lensWidth)
-       .onChange(function(value) {
-         myLens.updateWidthOffset();
-         myLens.updateHandles();
-       });
-     gui.add(myLens, 'alpha')
-       .min(0)
-       .max(1)
-       .onChange(function(value) {
-         myLens.updateHandles();
-       });
-     gui.add(myLens, 'beta')
-       .min(0)
-       .max(1)
-       .onChange(function(value) {
-         myLens.updateHandles();
-       });
+    gui = new dat.GUI();
+    gui.add(testbed, 'lensHeight')
+      .min(1)
+      .max(10)
+      .step(1)
+      .onChange(function(value) {
+        testbed.updateLensHeight();
+      });;
+    gui.add(testbed, 'proportionGlass', [
+        0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
+        0.35, 0.40, 0.45, 0.50, 0.55
+      ])
+      .onChange(function(value) {
+        testbed.updateEta();
+      });
+    gui.add(testbed, 'eta').listen();
   }
 }
 </script>
