@@ -2,7 +2,7 @@
 <html>
 <head>
 <script type="text/javascript">
- var gui, testbed, test;
+ var gui, testbed, uniformity, test;
   $(document).ready(function() {
     // Hide loading screen
     $('#shade').hide();
@@ -18,16 +18,17 @@
     guiSetup();
 
     // Load ray tracer
-    var led = CanvasUtil.queryPrefix("LED")[0];
+    var led = CanvasUtil.queryPrefix("LENS")[0];
     var mediums = CanvasUtil.getMediums();
     var ls = new PointLight({
     	  position: led.position,
     	  mediums: mediums,
-    	  parent: tracerBox
+    	  parent: testbed.svg
     });
 
-ls.emmision(-60, 0, 1);
-uniformity = ImagePlane.calculateUniformity();
+    // ls.emmision(-60, 60, 1);
+    // uniformity = ImagePlane.calculateUniformity(clamped=false);
+    // console.log(uniformity);
   });
 
   // Extra class methods
@@ -53,6 +54,7 @@ uniformity = ImagePlane.calculateUniformity();
     $('#myCanvas').attr('width', $(window).width());
     paper.install(window);
     paper.setup('myCanvas');
+  }
 
   function guiSetup() {
     gui = new dat.GUI();
@@ -62,7 +64,7 @@ uniformity = ImagePlane.calculateUniformity();
       .step(1)
       .onChange(function(value) {
         testbed.updateLensHeight();
-      });;
+      });
     gui.add(testbed, 'proportionGlass', [
         0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
         0.35, 0.40, 0.45, 0.50, 0.55
@@ -72,7 +74,6 @@ uniformity = ImagePlane.calculateUniformity();
       });
     gui.add(testbed, 'eta').listen();
   }
-}
 </script>
 </head>
 
