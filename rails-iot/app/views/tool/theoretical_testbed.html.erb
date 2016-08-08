@@ -10,25 +10,30 @@
     // Load artwork and GUI
     paperSetup();
     testbed = new Artwork("/artwork/th_lens.svg", function(artwork){
-       paper.view.zoom = 2.5;
-    });
-    testbed.lensHeight = 3;
-    testbed.proportionGlass = 0.0;
-    testbed.eta = 1.44;
-    guiSetup();
+        paper.view.zoom = 2.5;
+        testbed.lensHeight = 3;
+        testbed.proportionGlass = 0.0;
+        testbed.eta = 1.44;
+        guiSetup();
 
-    // Load ray tracer
-    var led = CanvasUtil.queryPrefix("LENS")[0];
-    var mediums = CanvasUtil.getMediums();
-    var ls = new PointLight({
-    	  position: led.position,
-    	  mediums: mediums,
-    	  parent: testbed.svg
-    });
+        // Load ray tracer
+        var led = CanvasUtil.queryPrefix("NLED")[0];
 
-    // ls.emmision(-60, 60, 1);
-    // uniformity = ImagePlane.calculateUniformity(clamped=false);
-    // console.log(uniformity);
+        var mediums = CanvasUtil.getMediums();
+         console.log("mediums", mediums);
+        var ls = new PointLight({
+            position: led.position,
+            mediums: mediums,
+            parent: testbed.svg
+        });
+
+        ls.emmision(-60, 60, 1);
+        // uniformity = ImagePlane.calculateUniformity(clamped=false);
+        // console.log(uniformity);
+
+    });
+   
+   
   });
 
   // Extra class methods
