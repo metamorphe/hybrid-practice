@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 198.4 425.2" style="enable-background:new 0 0 198.4 425.2;" xml:space="preserve">
+	 viewBox="0 0 186.3 370.5" style="enable-background:new 0 0 186.3 370.5;" xml:space="preserve">
 <style type="text/css">
 	.st0{fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;}
 	.st1{fill:#B2B2B2;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;}
@@ -9,11 +9,11 @@
 	.st3{fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
 </style>
 <title>th_lens</title>
-<polygon id="NLED:_source" class="st0" points="47.3,410.2 151.1,410.2 151.1,417.7 151.1,425.2 47.3,425.2 "/>
-<polygon id="BB:_boundin_box" class="st0" points="92.1,420.9 99.2,420.9 106.3,420.9 106.3,425.2 92.1,425.2 "/>
-<line class="st0" x1="28.3" y1="425.2" x2="170.1" y2="425.2"/>
-<rect x="56.7" y="413.9" class="st0" width="85" height="11.3"/>
-<polygon id="LENS:_1.44" class="st1" points="56.7,405.3 112.5,405.3 129.5,405.3 141.7,405.3 141.7,413.8 56.7,413.8 "/>
-<polygon class="st2" points="7.1,56.7 191.3,56.7 191.3,425.2 7.1,425.2 7.1,118.2 "/>
-<line id="IMG:_Image_Plane" class="st3" x1="56.7" y1="56.7" x2="141.7" y2="56.7"/>
+<rect id="NLED:_source" x="41.3" y="354.5" class="st0" width="103.8" height="15"/>
+<rect x="86" y="365.3" class="st0" width="14.2" height="4.3"/>
+<line class="st0" x1="22.3" y1="369.5" x2="164" y2="369.5"/>
+<rect x="50.6" y="358.2" class="st0" width="85" height="11.3"/>
+<rect id="LENS:_1.44" x="50.6" y="349.7" class="st1" width="85" height="8.5"/>
+<rect x="1" y="1" class="st2" width="184.3" height="368.5"/>
+<line id="IMG:_Image_Plane" class="st3" x1="0" y1="1" x2="186.3" y2="1"/>
 </svg>

@@ -10,33 +10,29 @@
     // Load artwork and GUI
     paperSetup();
     testbed = new Artwork("/artwork/th_lens.svg", function(artwork){
-        // paper.view.zoom = 2.5;
         testbed.lensHeight = 3;
         testbed.proportionGlass = 0.0;
         testbed.eta = 1.44;
         guiSetup();
 
         // Load ray tracer
+        testbed.led = CanvasUtil.queryPrefix("NLED")[0];
+        testbed.bb = CanvasUtil.queryPrefix("BB")[0];
+        testbed.lens = CanvasUtil.queryPrefix("LENS")[0];
+        testbed.led.pivot = testbed.led.bounds.center;
 
-        var led = CanvasUtil.queryPrefix("NLED")[0];
-        var bb = CanvasUtil.queryPrefix("BB")[0];
-        led.pivot = led.bounds.center;
-
-        var mediums = CanvasUtil.getMediums();
-         console.log("mediums", mediums);
-        var ls = new PointLight({
-            position: led.position.add(new paper.Point(0, 4)),
-            mediums: mediums,
-            parent: bb
+        testbed.mediums = CanvasUtil.getMediums();
+        testbed.lightSource = new PointLight({
+            position: testbed.led.position.add(new paper.Point(0, 4)),
+            mediums: testbed.mediums,
+            parent: testbed.bb
         });
 
-        ls.emmision(-60, 60, 1);
-        // uniformity = ImagePlane.calculateUniformity(clamped=false);
-        // console.log(uniformity);
-
+        // Trace the first set of rays
+        testbed.lightSource.emmision(-60, 60, 0.5);
     });
-   
-   
+
+
   });
 
   // Extra class methods
@@ -45,6 +41,14 @@
     const pdmsEta = 1.44;
     this.eta = (this.proportionGlass * glassEta
         + (1 - this.proportionGlass) * pdmsEta);
+    this.lens.name = 'LENS:_' + this.eta;
+
+    // Redo the ray trace
+    this.removeRays();
+    testbed.mediums = CanvasUtil.getMediums();
+    testbed.lightSource.mediums = testbed.mediums;
+    this.lightSource.emmision(-60, 60, 0.5);
+    paper.view.update();
   }
 
   Artwork.prototype.updateLensHeight = function() {
@@ -53,7 +57,23 @@
     var bottomY = segments[0].point.y;
     segments[1].point.y = bottomY - this.lensHeight;
     segments[2].point.y = bottomY - this.lensHeight;
+
+    // Redo the ray trace
+    this.removeRays();
+    testbed.mediums = CanvasUtil.getMediums();
+    testbed.lightSource.mediums = testbed.mediums;
+    this.lightSource.emmision(-60, 60, 0.5);
     paper.view.update();
+  }
+
+  Artwork.prototype.removeRays = function() {
+    _.each(CanvasUtil.queryPrefix("RAY"), function(ray) {
+      ray.remove();
+    });
+  }
+
+  Artwork.prototype.calculateUniformity = function() {
+    return ImagePlane.calculateUniformity(clamped=false);
   }
 
   // Utility functions
@@ -93,5 +113,15 @@
 
   <!-- <canvas id="bufferCanvas"></canvas> -->
 </body>
+
+<style>
+
+  body, html{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #aaaaaa;
+  }
+</style>
 
 </html>
