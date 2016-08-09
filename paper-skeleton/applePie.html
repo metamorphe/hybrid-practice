@@ -42,38 +42,75 @@
 				});
 				
 			});
-
+			// Angle Offset
 			var THETA_OFFSET = 0.5;
+
+			// Static Gradients
+			var GRADIENT_A = {
+				stops: [["grey", 0.5], ["yellow", 1]],
+				radial: true
+			}
+			var GRADIENT_B = {
+				stops: [["red", 0.5], ["blue", 1]],
+				radial: true
+			}
+			var GRADIENT_C = {
+				stops: [["yellow", 0.5], ["white", 1]],
+				radial: true
+			}
 
 			function runScript(display){
 				display.svg.remove();
 
-				function randomGradient(num_of_stops, isRadial){
+				function randomGradient(num_of_stops, isRadial) {
 		            stops = _.range(0, num_of_stops);
 		            stops = _.map(stops, function(){ return randomStop(); });
 		            stops = _.sortBy(stops, function(el){ return el[1]});
 		            return 	{
                         stops: stops,
                         radial: isRadial
-                    }
+                    };
 	            };
 
-				function randomStop(){
+				function randomStop() {
 					return [new paper.Color(Math.random()), Math.random()]
 				};
 
-				function generateSlicedSegment(angleIn, angleOut, inputPath, inputPathCenter) {
+				function makeCDome(gradientArray) {
+					var maxRadiusObject = _.max(gradientArray, function(gradientObject){
+						return gradientObject.radius;
+					});
+
+					maxRadius = maxRadiusObject.radius;
+
+					var boundingCircle = new paper.Path.Circle({
+						center: new Point(500, 300),
+						radius: maxRadius,
+						strokeColor: "black",
+						strokeWidth: 2,
+					});
+
+					_.each(gradientArray, function(gradientObject){
+						generateSlicedSegment(gradientObject.angleIn, gradientObject.angleOut, boundingCircle, boundingCircle.bounds.center, gradientObject.radius, gradientObject.gradient);
+					});	
+				};
+
+				function generateSlicedSegment(angleIn, angleOut, inputPath, inputPathCenter, radiusLength, gradient) {
 					// Generate both the inPoint and outPoint vectors.
 					var inPoint = inputPathCenter.clone();
 					var outPoint = inputPathCenter.clone();
+					var radiusPoint = inputPathCenter.clone();
 					inPoint.length = 100;
 					outPoint.length = 100;
+					radiusPoint.length = radiusLength;
 					inPoint.angle = angleIn;
 					outPoint.angle = angleOut;
+					radiusPoint.angle = angleIn;
 
 					// Translate the vectors to the center of the screen.
 					inPoint = inPoint.add(inputPathCenter);
 					outPoint = outPoint.add(inputPathCenter);
+					radiusPoint = radiusPoint.add(inputPathCenter);
 
 					// Define a circle to be the bounding box of the inputted Geometry.
 					var circle = new paper.Path.Circle({
@@ -113,24 +150,19 @@
 
 						slicedSegment.closePath()
 
-						var stops = randomGradient(5, true)
+						// var stops = randomGradient(5, true)
 						var intersectionPath = new paper.Path({
 							segments: slicedSegment.intersect(inputPath).segments,
 							fillColor: {
-								gradient: stops,
+								gradient: gradient,
 								origin: inputPathCenter,
-								destination: nearestInPoint,
+								destination: radiusPoint,
 							},
 						});
 						intersectionPath.closePath();
 					};
+					circle.remove();
 				}; 
-		
-				// Example Code to test generateSlicedSegment:
-				var path = display.queryPrefix("DIF")[0];
-				for (var i = -180; i < 180; i += 1) {
-					generateSlicedSegment(i+1, i, path, path.bounds.center);
-				};
 			};
 
 		</script>
