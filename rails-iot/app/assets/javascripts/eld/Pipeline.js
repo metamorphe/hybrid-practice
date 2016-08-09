@@ -99,7 +99,9 @@ Pipeline.getElements = function() {
         bi: display.queryPrefix('BI'),
         cp: display.queryPrefix('CP'),
         dds: display.queryPrefix('DDS'),
-        mc: display.queryPrefix("MC")
+        mc: display.queryPrefix("MC"),
+        base: display.queryPrefix("BASE"),
+        wires: display.queryPrefix("WIRE")
     }
 }
 Pipeline.script = {
@@ -282,7 +284,7 @@ Pipeline.script = {
         backgroundBox.sendToBack();
 
         //Make non-molding objects invisible
-        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
+        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
         Pipeline.set_visibility(invisible, false);
 
         result.scaling = new paper.Size(-1, 1);
@@ -297,8 +299,8 @@ Pipeline.script = {
                 strokeWidth: 0
             });
         });
-
-        var result = new paper.Group(e.diff);
+        var all = _.flatten([e.base, e.diff]);
+        var result = new paper.Group(all);
 
         //Creating a bounding box
         backgroundBox = new paper.Path.Rectangle({
@@ -306,6 +308,7 @@ Pipeline.script = {
             fillColor: 'white',
             parent: result
         });
+        _.each(e.base, function(b){ b.fillColor = "white";});
         backgroundBox.sendToBack();
 
        var pegs = Pipeline.create_corner_pegs({ 
@@ -352,14 +355,14 @@ Pipeline.script = {
         result.addChildren(ramps);
           
         // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp]));
+        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires]));
         Pipeline.set_visibility(invisible, false);
         result.name = "RESULT: LENS";
         result.model_height = REFLECTOR_HEIGHT;
         boundingBox.sendToBack();
     },
     reflector: function(display, e) {
-        var all = _.flatten([e.diff, e.leds]);
+        var all = _.flatten([e.diff, e.leds, e.base]);
         var result = new paper.Group(all);
         backgroundBox = new paper.Path.Rectangle({
             rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
@@ -417,9 +420,8 @@ Pipeline.script = {
                 strokeWidth: Ruler.mm2pts(LED_TOLERANCE)
             });
         });
-
-
-        var all = _.flatten([e.leds, e.diff]);
+        
+        var all = _.flatten([e.base, e.leds, e.diff]);
         var result = new paper.Group(all);
         result.applyMatrix = false;
 
@@ -495,13 +497,15 @@ Pipeline.script = {
             paper.view.update();
         });
         addTool();
+        var invisible = _.compact(_.flatten([e.base]));
+        Pipeline.set_visibility(invisible, false);
     },
     base: function(display, e) {
        
-        var all = _.flatten([e.leds, e.diff, e.mc]);
+        var all = _.flatten([e.leds, e.diff, e.mc, e.base]);
         var result = new paper.Group(all);
     
-
+       
         var backgroundBox = new paper.Path.Rectangle({
             rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
             fillColor: 'white',
