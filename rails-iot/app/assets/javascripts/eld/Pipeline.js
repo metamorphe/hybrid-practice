@@ -1,4 +1,4 @@
-// #40-40 X 1in
+// #4-40 X 0.75in
 var NUT_HEIGHT = 2.46;//mm
 var HEAD_HEIGHT = 2.76;//mm
 var BOLT_HEIGHT = 21.17; //mm
@@ -53,30 +53,9 @@ var EPSILON = 10;
 var LED_WIDTH = 5;
 var LED_HEIGHT = 1.4;
 
-var MORPH_LINE_STEP = 20;
+var MORPH_LINE_STEP = 3;
 
-function interpolation_lines2(diffuser, leds) {
-    var pts = _.range(0, diffuser.length, MORPH_LINE_STEP)
-    return _.map(pts, function(i) {
-        var pt = diffuser.getPointAt(i);
-        var candidates = _.map(leds, function(led) {
-            return led.position;
-        });
-        closest = _.min(candidates, function(c) {
-            return c.getDistance(pt); });
-        l = new paper.Path.Line({
-            from: closest,
-            to: pt,
-            strokeColor: "blue",
-            strokeWidth: 2,
-            visible: true
-        });
-        cross = l.getIntersections(diffuser);
-        if(cross.length >= 2){ l.remove(); return null;}
-        return l;
-    });
 
-}
 
 function sample_model(lg, lens_length, n){
      var samples = _.range(0, n, 1);
@@ -137,29 +116,51 @@ Pipeline.script = {
         });
 
        var lg = new LensGenerator();
+       // var params = lg.generateRandom(30.5);
+       // var scene = lg.generate(tracerBox, params);
+       // lens_length = 14.281605487012305;
+       // params = lg.getOptimal(14.281605487012305);
+       // result = lg.getRampFromOptimal(14.281605487012305);
+//       console.log(result.ramp.bounds.width + result, result.params.ramp.width + result);
+       // for(var i = 0; i <= 1; i += 0.01){
+       //   y = lg.sampleRamp(result, i);
+       //   console.log(i.toFixed(2), y.toFixed(2));
+       // }      
+       // console.log(result.params);
+      // var scene = lg.generate(tracerBox, result.params);
+      
+       // console.log(result.params.ramp.width + result.params.dome.width + result.params.wall_gap, result.ramp.bounds.width + result.params.dome.width + result.params.wall_gap, params);
 
-       // var lengths = _.range(20, 200, 10);
+       // SAMPLING
+
+       // var lengths = _.range(10, 300, 5);
        // _.each(lengths, function(lens_length){
        //    console.log("CALCULATING", lens_length);
-       //    result = sample_model(lg, lens_length, 300);
+       //    if(! ws.includes(lens_length))
+       //      result = sample_model(lg, lens_length, 300);
+       //    else
+       //      console.log("ALREADY CALCULATED", lens_length)
        // })
       
+      
 
-       // LOAD BEST
-       var result = JSON.parse(ws.get(180));
-       // console.log(result)
+       // VIEWING
+       var params = lg.generateRandom(10);
+       // var params = JSON.parse(ws.get(180));
+       var result = params;
        var scene = lg.generate(tracerBox, result);
-       var led = CanvasUtil.queryPrefix("LS")[0];
-       var mediums = CanvasUtil.getMediums();
-       var ls = new PointLight({
-              position: led.position, 
-              mediums: mediums, 
-              parent: tracerBox
-        });
-        ls.emmision(-60, 0, 1);
-        uniformity = ImagePlane.calculateUniformity();
-       console.log("RESULTS:", uniformity);
-
+       console.log("SCENE", scene.bounds.width);
+       console.log(params);
+       // var led = CanvasUtil.queryPrefix("LS")[0];
+       // var mediums = CanvasUtil.getMediums();
+       // var ls = new PointLight({
+       //        position: led.position, 
+       //        mediums: mediums, 
+       //        parent: tracerBox
+       //  });
+       //  ls.emmision(-60, 0, 1);
+       //  uniformity = ImagePlane.calculateUniformity();
+       // console.log("RESULTS:", uniformity);
     },
     raytrace: function(display, e){
         display.svg.position = display.svg.bounds.bottomLeft;
@@ -187,7 +188,7 @@ Pipeline.script = {
             });
         });
 
-       morphs = interpolation_lines2(e.diff[0], e.leds);
+       morphs = interpolation_lines(e.diff[0], e.leds);
        morphs = _.compact(morphs);        
 
       
@@ -355,6 +356,7 @@ Pipeline.script = {
         Pipeline.set_visibility(invisible, false);
         result.name = "RESULT: LENS";
         result.model_height = REFLECTOR_HEIGHT;
+        boundingBox.sendToBack();
     },
     reflector: function(display, e) {
         var all = _.flatten([e.diff, e.leds]);
@@ -419,7 +421,7 @@ Pipeline.script = {
 
         var all = _.flatten([e.leds, e.diff]);
         var result = new paper.Group(all);
-
+        result.applyMatrix = false;
 
         // // BACKGROUND
         var backgroundBox = new paper.Path.Rectangle({
@@ -427,6 +429,7 @@ Pipeline.script = {
             fillColor: new paper.Color(PCB_HEIGHT/SPACER_HEIGHT),
             strokeColor: 'white',
             strokeWidth: Ruler.mm2pts(WALL_WIDTH),
+            // strokeScaling: false,
             parent: result
         });
         backgroundBox.sendToBack();
@@ -436,19 +439,21 @@ Pipeline.script = {
          radius: PEG_RADIUS, 
          padding: PEG_PADDING, 
          height: 'black', 
+         // strokeScaling: false,
          parent: result
         });
 
         if(e.mc.length > 0){
             var mc = e.mc[0];
             mc.set({
+                // parent: result,
                 fillColor: "black",
                 pivot: mc.bounds.leftCenter
             });
             mc.position = backgroundBox.getNearestPoint(mc.pivot);
-            mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 4.0;
+            mc.position.x -= Ruler.mm2pts(WALL_WIDTH) / 2.0;
             mc.parent = result;
-             mc.bringToFront();
+            mc.bringToFront();
         }
         // ADD CORNER PEGS
         // var pegs = Pipeline.create_corner_pegs({ 
@@ -644,25 +649,69 @@ function addTool(){
 function setMoldGradient(domed, diff, leds) {
     if (leds.length == 0) { diff.fillColor = "black";
         return; }
-    diff.fillColor = "red";
+    
+    var lg = new LensGenerator();
+    var lines = interpolation_lines(diff, leds);
 
-    // ADD BUNDT LENSES
-    bundts = _.map(leds, function(led) {
+    var ramp_lines = _.map(lines, function(l){
+      return {result: lg.getRampFromOptimal(l.length), line: l}
+    });
+
+    var domes = _.groupBy(ramp_lines, function(rl){
+      closest = _.min(leds, function(led) {
+          return led.position.getDistance(rl.line.firstSegment.point); 
+      });
+      return closest.id;
+    });
+
+   
+
+    domes = _.map(domes, function(rl, id){
+      var params = {}
+      params.width = 0; 
+      params.height = 0;
+      params.concave = 0;
+      var params = _.reduce(rl, function(p, r){
+        var other = r.result.params.dome; 
+        p.width += other.width;
+        p.height += other.height;
+        p.concave += other.concave;
+        return p;
+      }, params);
+       
+      params.width /= rl.length;
+      params.height /= rl.length;
+      params.concave /= rl.length;
+      return {params: params, id: parseInt(id)}
+    });
+
+   
+    console.log("DOMES", domed,  domes);
+
+    // ramp = new paper.Group();
+    ramp = rampify(lg, ramp_lines);
+    // // ADD BUNDT LENSES
+    bundts = _.map(domes, function(d) {
+        led = CanvasUtil.query(paper.project, {id: d.id})[0];
+        console.log(d.params);
+        params = d.params;
+
         bundt = new paper.Path.Circle({
             position: led.position,
-            radius: Ruler.mm2pts(3.5),
-            // visible: false
+            radius: params.width,
+            parent: ramp
         });
-        params = LensGenerator.DEFAULT_PARAMS.dome;
-        // console.log(params.width, params.height, params.concave);
+        d = LensGenerator.generateDome(params.width, params.height, params.concave);
         bundt.fillColor = {
             gradient: {
-                stops: pathToModel(LensGenerator.generateDome(params.width, params.height, params.concave)),
+                stops: pathToModel(d),
                 radial: true
             },
             origin: bundt.position,
             destination: bundt.bounds.rightCenter
         }
+        d.remove();
+
         if (domed) {
             led.remove();
             return bundt;
@@ -670,47 +719,55 @@ function setMoldGradient(domed, diff, leds) {
             led.fillColor = "black";
             led.strokeWidth = 0;
             bundt.remove();
-            return led;
+            var led_c = led.clone();
+            led_c.parent = ramp;
+            led_c.bringToFront();
+            return led_c;
         }
     });
-    ramp = rampify(diff, bundts);
-    ramp.addChildren(bundts);
-    _.each(bundts, function(b) { b.bringToFront(); });
     return ramp;
 }
 
+
 function interpolation_lines(diffuser, leds) {
-    var pts = _.range(0, diffuser.length, 20)
+    var pts = _.range(0, diffuser.length, MORPH_LINE_STEP)
     return _.map(pts, function(i) {
         var pt = diffuser.getPointAt(i);
         var candidates = _.map(leds, function(led) {
-            return led.getNearestPoint(pt);
+            return led.position; // getNearestPoint(pt);
         });
         // console.log(candidates[0], pt);
         closest = _.min(candidates, function(c) {
-            return c.getDistance(pt); });
+            return c.getDistance(pt); 
+        });
         // console.log(closest);
-        return new paper.Path.Line({
+        l =  new paper.Path.Line({
             from: closest,
             to: pt,
             strokeColor: "blue",
             strokeWidth: 2,
             visible: false
         });
+        cross = l.getIntersections(diffuser);
+        if(cross.length >= 2){ l.remove(); return null;}
+        return l;
     });
 
 }
 
-function rampify(diffuser, leds) {
-    if (!diffuser.length) return;
-
-    var lines = interpolation_lines(diffuser, leds);
+function rampify(lg, ramp_lines) {
     levels = _.range(1, 0, -0.01);
+    // console.log("RAMP LINES", _.map(ramp_lines, function(rl){
+    //   if(_.isNaN(rl.result.ramp.bounds.width))
+    //     console.log(rl.line.length);
+    //   return rl.result.ramp.bounds.width;
+    // }));
     levels = _.map(levels, function(level) {
         levelColor = what_gray_value_away_from_led(level);
-        return make_level(lines, level, new paper.Color(levelColor));
+        return make_level(lg, ramp_lines, level, new paper.Color(level));
     });
     var ramp = new paper.Group(levels);
+    // var ramp = new paper.Group();
     ramp.sendToBack();
     return ramp;
 }
@@ -724,10 +781,14 @@ function what_gray_value_away_from_led(t) {
     return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
 }
 
-function make_level(lines, level, color) {
+function make_level(lg, rlines, level, color) {
+   
+     // x = lg.sampleRamp(result, i);
     return new paper.Path({
-        segments: _.map(lines, function(l) {
-            return l.getPointAt(l.length * level) }),
+        segments: _.map(rlines, function(rl) {
+            var offset = lg.sampleRamp(rl.result, level);
+            return rl.line.getPointAt(offset * rl.line.length); 
+        }),
         fillColor: color,
         strokeWidth: 2,
         closed: true

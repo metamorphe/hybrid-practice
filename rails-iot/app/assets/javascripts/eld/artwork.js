@@ -15,7 +15,9 @@ CanvasUtil.getMediums =  function(){
     _.each(reflectors, function(el){ el.reflectance = 0.90;});
     _.each(lenses, function(el){
         el.refraction = 0.80;
-        el.n = parseFloat(Artwork.getName(el).split("_")[1]);
+        name = Artwork.getName(el).split("_")[1];
+        name = name.split("_")[0];
+        el.n = parseFloat(name);
     });
  	return  _.flatten([lenses,reflectors]);
  }
