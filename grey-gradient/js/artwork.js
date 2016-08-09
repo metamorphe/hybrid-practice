@@ -5,72 +5,11 @@
 //    Breakin --> obj.query({prefix:['BI']});
 //    Breakin --> obj.queryPrefix("BI");
 
-function CanvasUtil() {
-}
-
-CanvasUtil.prototype = {}
-CanvasUtil.getMediums =  function(){
-	var reflectors = CanvasUtil.queryPrefix("REF");
-    var lenses = CanvasUtil.queryPrefix("LENS");
-    _.each(reflectors, function(el){ el.reflectance = 0.90;});
-    _.each(lenses, function(el){
-        el.refraction = 0.80;
-        name = Artwork.getName(el).split("_")[1];
-        name = name.split("_")[0];
-        el.n = parseFloat(name);
-    });
- 	return  _.flatten([lenses,reflectors]);
- }
-CanvasUtil.getIntersections = function(el, collection){
-	var hits = _.map(collection, function(c){
-		return c.getIntersections(el);
-	});
-	hits = _.compact(hits);
-	hits = _.flatten(hits);
-	return hits;
-}
-CanvasUtil.query = function(container, selector){
-	// Prefix extension
-	if ("prefix" in selector){
-		var prefixes = selector["prefix"];
-
-		selector["name"] = function(item){
-			var p = Artwork.getPrefixItem(item);
-			return prefixes.indexOf(p) != -1;
-		}
-		delete selector["prefix"];
-	}
-	var elements = container.getItems(selector);
-	elements = _.map(elements, function(el, i, arr){
-		if(el.className == "Shape"){
-			nel = el.toPath(true);
-			el.remove();
-			return nel;
-		}
-			
-		else return el;
-	});
-	if ("lid" in selector) {
-		return _.where(elements, {lid: selector["lid"]})
-	} else {
-		return elements;
-	}
-}
-
-CanvasUtil.queryPrefix = function(selector) {
-	return CanvasUtil.query(paper.project, {prefix: [selector]});
-}
-
-CanvasUtil.queryPrefixWithId = function(selector, id) {
-	return _.where(CanvasUtil.queryPrefix(selector),
-					{lid: id});
-}
-
-function Artwork(svgPath, loadFN, cloned){
+function Artwork(svgPath, loadFN, isComponent){
 	this.svgPath = svgPath;
 	this.svg = null;
-	// console.log("Importing", this.svgPath)
-	if(_.isUndefined(cloned))
+	this.isComponent = _.isUndefined(isComponent);
+	if(loadFN != "")
 		this.import(loadFN);
 }
 
@@ -79,13 +18,14 @@ Artwork.prototype = {
 	 * Returns an arrays of strings, where each string is the name
 	 * of a queryable object, prefix included.
 	 */
-	clone: function(){
-		cl = new Artwork(this.svgPath, this.loadFN, true);
-		cl.svg = this.svg.clone();
-		return cl;
-	},
 	remove: function(){
 		this.svg.remove();
+	},
+	clone: function(){
+		art = new Artwork(this.svgPath, "", this.isComponent);
+		art.svg = this.svg.clone();
+		art.svg.self = this;
+		return art;
 	},
 	queryable: function(){
 		return _.map(this.query({}), function(el){
@@ -93,22 +33,34 @@ Artwork.prototype = {
 		});
 	},
 	import:  function(loadFN) {
-		var scope = this;
-	 	paper.project.importSVG(this.svgPath, function(item) {
-	 		 // console.log("Processing", item.name);
+			var scope = this;
+			console.log("Importing", this.svgPath, paper)
+		 	paper.project.importSVG(this.svgPath, function(item) {
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
-	 		var ledLists = scope.orderLeds();
-				if(!_.isNull(ledLists)){
-					scope.allLeds = ledLists[0];
-					scope.iLeds = ledLists[1];
-				}
-				// scope.setLedsOff();
+	 		var name = scope.svg.name;
+		    console.log("Importing", name);
+		    scope.self = scope;
+		    if(scope.isComponent){
+				var ledLists = scope.orderLeds();
+				scope.allLeds = ledLists[0];
+				scope.iLeds = ledLists[1];
+			}
 		    loadFN(scope);
 		});
 	},
 	query: function(selector){
-		return CanvasUtil.query(this.svg, selector);
+		// Prefix extension
+		if("prefix" in selector){
+			var prefixes = selector["prefix"];
+
+			selector["name"] = function(item){
+				var p = Artwork.getPrefixItem(item);
+				return prefixes.indexOf(p) != -1;
+			}
+			delete selector["prefix"];
+		}
+		return this.svg.getItems(selector);
 	},
 	queryPrefix: function(selector){
 		return this.query({prefix: [selector]});
@@ -129,24 +81,24 @@ Artwork.prototype = {
 	 * >>> [allLedsSorted, interactiveLedsSorted]
 	 */
 	orderLeds: function() {
+		console.log("Ordering!");
 		var nLeds = this.queryPrefix('NLED');
 		var iLeds = this.queryPrefix('ILED');
-		var cp = this.queryPrefix('CP');
-		var allLeds = _.flatten([nLeds, iLeds]);
+		var cp = this.queryPrefix('CP')[0];
+		var allLeds = nLeds.concat(iLeds);
 
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
-		
-		if(_.isEmpty(cp)) return null;
-
 		var bo = this.queryPrefix('BO');
 		var bi = this.queryPrefix('BI');
-		cp = cp[0];
 
-
-		if (bi.length == 0) {console.log('No breakin in artwork');  return;}
-		if (bo.length == 0) {polarity = 1;}
+		if (bi.length == 0) {
+			throw Error('No breakin in artwork');
+		}
+		if (bo.length == 0) {
+			polarity = 1;
+		}
 		else {
 			bo = bo[0];
 			bi = bi[0];
@@ -155,7 +107,6 @@ Artwork.prototype = {
 											< cpStartPoint.getDistance(bo.position)
 											? 1 : -1;
 		}
-
 
 		// Note that we cannot guarantee that an LED will lie exactly
 		// on the medial axis of the bus/copper path, so we find the
@@ -179,25 +130,13 @@ Artwork.prototype = {
 			obj.cid = idx;
 		});
 		return [allLeds, iLeds];
-	},
-	// setLedsOff: function() {
-	// 	var leds = this.queryPrefix('NLED');
-	// 	$.each(leds, function (idx, obj) {
-	// 		obj.status = '↓';
-	// 	});
-	// },
-	findLedWithId: function(id) {
-		return _.findWhere(this.queryPrefix('NLED'),
-						{lid: id});
 	}
 }
-
 Artwork.getPrefix = function(item){
-	if(_.isUndefined(item)) return "";
+	if(_.isUndefined(item.name)) return "";
 	if(item.name.split(":").length < 2) return "";
 	return item.name.split(":")[0].trim();
 }
-
 
 Artwork.getPrefixItem = function(item){
 	if(_.isUndefined(item)) return "";

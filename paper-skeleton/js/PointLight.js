@@ -33,32 +33,22 @@ PointLight.prototype = {
 	},
 	emmision: function(start=-60, end=61, step=1){
 		var scope = this;
-		// this.remove();
 		rays = _.range(start, end, step);
-		// rays = _.range(0, 1, 1);
 		rays = _.map(rays, function(theta){
 			return scope.emit(source.position, scope.toLocalSpace(theta), 1, "red");
 		})
 		rays = _.map(rays, function(r){
 			return scope.trace(r);
 		})
-		rays = _.map(rays, function(r){
-			// console.log(r);
-			if(_.isNull(r) || _.isUndefined(r)) return;
-			return scope.trace(r);
-		})
-		rays = _.map(rays, function(r){
-			// console.log(r);
-			if(_.isNull(r) || _.isUndefined(r)) return;
-			return scope.trace(r);
-		})
-		rays = _.map(rays, function(r){
-			// console.log(r);
-			if(_.isNull(r) || _.isUndefined(r)) return;
-			return scope.trace(r);
-		})
-		// this.rays = new paper.Group(rays);
-		// this.emit(source.position, this.toLocalSpace(0), 1, "red");
+
+		while(rays.length > 0){
+			rays = _.map(rays, function(r){
+				// console.log(r);
+				if(_.isNull(r) || _.isUndefined(r)) return;
+				return scope.trace(r);
+			})
+			rays = _.compact(rays);
+		}
 	},
 	emit: function(origin, direction, strength, color){
 		var strength = strength * 0.1 + 1;

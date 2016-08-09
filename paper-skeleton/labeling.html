@@ -3,6 +3,7 @@
 	<head>
 		<title> Labeling Algorithm </title>
 		<script type="text/javascript" src="libs/jquery.min.js"></script>
+
 		<script type="text/javascript" src="libs/paper-full.min.js"></script>
 		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
 		<script type="text/javascript" src="libs/underscore.js"></script>
@@ -13,8 +14,7 @@
 		<script type="text/javascript" src="js/grid.js"></script>
 		<script type="text/javascript" src="js/hull.js"></script>
 		<script type="text/javascript" src="js/intersect.js"></script>
-
-
+		<script type="text/javascript" src="js/Label.js"></script>
 		<script type="text/javascript" src="js/packer.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
@@ -61,12 +61,20 @@
 				var BI = display.queryPrefix('BI');
 				var BO = display.queryPrefix('BO');
 				var CP = display.queryPrefix('CP');
-				var breaks = [BI, BO];
+				var breaks = _.compact([BI[0], BO[0]]);
 				
 				var elements = _.flatten([diffusers, BI, BO, LEDS]);
 				var backgroundBox = create_background(elements);
 				create_LED_holes(LEDS);
-				createLabel(diffusers[0], backgroundBox);
+				_.each(diffusers, function(dif){
+					makeLabel(dif, dif.name, -135);
+				})
+				_.each(LEDS, function(led){
+					makeLabel(led, led.name, -45);
+				});
+				_.each(breaks, function(b){
+					makeLabel(b, b.name, 135);
+				})
 
 			}
 
@@ -86,7 +94,6 @@
 					strokeColor: 'white',
 					strokeWidth: Ruler.mm2pts(WALL_WIDTH)
 				}
-				// backgroundBox.dashArray = [10, 4];
 				backgroundBox.sendToBack();
 				return new paper.Path.Rectangle(backgroundBox.strokeBounds); 
 			}
@@ -100,19 +107,31 @@
 					});
 				}
 			}
-			function createLabel(path, backgroundBox){
-				path.calculateOMBB();
-				path.ombb.visible = true;	
-				path.getMagnets(path.ombb);
-				var line = new paper.Path.Line({
-					from: new paper.Point(path.magnets.north.x + 100, path.magnets.north.y - 100), 
-					to: path.magnets.north,
-					strokeColor: 'black', 
-					strokeWidth: 5
-				});
-				var sideLine = new paper.Point(path.magnets.north.)
-			}
+			function makeLabel(path, text,orientation=-45){
+				// Retrieve path terminal
+				path.setTerminal(orientation);
+				var path_terminal = path.terminal;
+				
+				// Create label handle
+				var handle 	 = new Handle(orientation);
+				// Attach handle to path
+				handle.dom.pivot = handle.dom.firstSegment.point;
+				handle.dom.position = path_terminal.point;
 
+				// Create label box
+				var label_box = new LabelBox(text);
+
+				// Attach label_box to handle
+				label_box.dom.position = handle.dom.lastSegment.point;
+				var label_box_terminal = label_box.getTerminal(orientation);
+				label_box.dom.pivot = label_box_terminal.point;
+				label_box.dom.position = handle.dom.lastSegment.point;
+
+				// Reposition handle if necessary
+				handle.extend(path, label_box_terminal);
+				return new paper.Group([label_box.dom,handle.dom]);
+			}
+			
 		</script>
 	</head>
 	<body>

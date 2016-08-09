@@ -10,6 +10,7 @@
 //= require convex
 //= require grid
 //= require hull
+//= require metamorphehalf/webcache
 //= require eld/ruler
 //= require eld/artwork
 //= require eld/CircuitRouting
@@ -18,7 +19,7 @@
 //= require eld/ButtonExporter
 //= require eld/PointSource
 //= require eld/ImagePlane
-//= require eld/RampGenerator
+//= require eld/LensGenerator
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

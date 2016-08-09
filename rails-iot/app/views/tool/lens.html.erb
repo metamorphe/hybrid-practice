@@ -9,52 +9,37 @@
         var lens = new ButtonExporter($('#mold'), "PNG", makeLenseMold );
         var spacers = new ButtonExporter($('#spacer'), "PNG", makeSpacerMold );
 
-        tir = new Artwork("/artwork/working.svg", function(display){
+        tir = new Artwork("/artwork/raytrace_test.svg", function(display){
           runScript(display);
         });
       });
 
      
       function runScript(display){
-        var reflectors = display.queryPrefix("REF");
-        var lenses = display.queryPrefix("LENS");
-
-        _.each(reflectors, function(el){
-          el.reflectance = 0.90;
-        });
-
-        _.each(lenses, function(el){
-          el.refraction = 0.80;
-          console.log(parseFloat(Artwork.getName(el).split("_")[1]));
-
-          el.n = parseFloat(Artwork.getName(el).split("_")[1]);
-        });
-
-        // var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(-10, -3));
-        var posA = display.svg.bounds.bottomCenter.clone().add(new paper.Point(0, -3));
-        var posB = display.svg.bounds.bottomCenter.clone().add(new paper.Point(10, -3));
-        var leds = [posA, posB]
-        leds = _.map(leds, function(pos){
+        display.svg.fitBounds(paper.view.bounds.expand(-50));
+        var mediums = CanvasUtil.getMediums();
+        var light_source = display.queryPrefix("LS");
+  
+        light_source = _.map(light_source, function(ls){
               return new PointLight({
-                  position: pos, 
-                  mediums: _.flatten([lenses,reflectors])
+                  position: ls.position, 
+                  mediums: mediums
               });
         });
 
-        _.each(leds, function(l){
-            l.emmision();
-            console.log(l.options)
+        _.each(light_source, function(ls){
+            ls.emmision();
         });
 
-        var image_plane = CanvasUtil.queryPrefix("IMG")[0];
-       var range = image_plane.bounds.width / 4.0;
+       //  var image_plane = CanvasUtil.queryPrefix("IMG")[0];
+       // var range = image_plane.bounds.width / 4.0;
 
-        ip = new ImagePlane({
-          width: 30, 
-          position: display.svg.bounds.bottomCenter, 
-          range: {x: {identity: "x", min: -range, max: range}, y: {identity: "y", min: -range, max:  range}},
-        });
-        ip.visualize();
+        // ip = new ImagePlane({
+        //   width: 30, 
+        //   position: display.svg.bounds.bottomCenter, 
+        //   range: {x: {identity: "x", min: -range, max: range}, y: {identity: "y", min: -range, max:  range}},
+        // });
+        // ip.visualize();
         
         // display.svg.bringToFront();
         // return makeLenseMold(display);
