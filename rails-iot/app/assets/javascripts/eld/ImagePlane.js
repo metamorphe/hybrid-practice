@@ -5,7 +5,7 @@ function ImagePlane(options){
                     name: "Radial Gradient Graph",
                     // position: options.position,
                   	range: options.range,
-                    shape: "circle", 
+                    shape: "circle",
                     size: new Size(options.width, options.width ),
                     fillColor: "black"
                 });
@@ -29,7 +29,7 @@ ImagePlane.prototype = {
 
 		hits = CanvasUtil.getIntersections(image_plane, rays);
 		// console.log("HITS:", hits.length);
-		
+
 		var origin = image_plane.lastSegment.point;
 		data = _.map(hits, function(h){
 			var pt = h.point.subtract(origin);
@@ -51,7 +51,7 @@ ImagePlane.prototype = {
 		});
 
 		return line_result;
-	}, 
+	},
 	visualizeWheel: function(){
 		line_result = this.visualize();
 
@@ -71,16 +71,15 @@ ImagePlane.visualizeHits = function(hits){
 	return new paper.Group(
 		_.map(hits, function(h, i){
 			var c = new paper.Path.Circle({
-				radius: 0.1, 
-				fillColor: "orange", 
+				radius: 0.1,
+				fillColor: "orange",
 				position: h.point
 			})
 			return c;
 		})
 	);
 }
-
-ImagePlane.calculateUniformity = function(){
+ImagePlane.getSignal = function(bins=100){
 	rays = CanvasUtil.queryPrefix("RAY");
 	image_plane = CanvasUtil.queryPrefix("IMG");
 
@@ -88,53 +87,37 @@ ImagePlane.calculateUniformity = function(){
 	image_plane = image_plane[0];
 
 	hits = CanvasUtil.getIntersections(image_plane, rays);
-	
-	var origin = image_plane.lastSegment.point;
+	var origin = image_plane.firstSegment.point;
 	data = _.map(hits, function(h){
 		var pt = h.point.subtract(origin);
 		return pt.x;
 	});
-	min = _.min(data);
-	data = _.map(data, function(x){
-		x -= min;
-		return x;
-	});
 
-	var range = _.max(data);
-	var bins = 100;
+	var range = image_plane.length;
 	var step = range/bins;
 
 	hist = _.groupBy(data, function(x){
 		return Math.floor(x / step);
 	});
-	
 	hist = _.each(hist, function(v, k){
 		hist[k] = v.length;
 	});
+	console.log(range.toFixed(0), step.toFixed(0));
 	var signal = [];
-
-
 	for(var i = 0; i < bins; i+= 1){
 		signal[i] = _.isUndefined(hist[i]) ?  0 : hist[i];
 	}
-	// clamp
+	return signal;
+}
+
+ImagePlane.calculateUniformity = function(bins=100){
+	var signal = ImagePlane.getSignal(bins);
 	for(var i = 0; i < bins; i+= 1){
 		signal[i] = _.isUndefined(hist[i]) ?  0 : 1;
 	}
-	// console.log(signal.join(","))
 	hits = _.reduce(signal, function(sum, v){
 		return sum + v;
 	}, 0);
-	area = hits/bins;
-
-	// var switches = 0;
-	// var lastVal = signal[i];
-	// var sparse = [];
-	// for(var i = 1; i < bins; i+= 1){
-	// 	if(signal[i] != lastVal) sparse.push(signal[i]);
-	// 	lastVal = signal[i];
-	// }
-
-	// console.log(JSON.stringify(signal), JSON.stringify(sparse));
+	var area = hits/bins;
 	return area;
 }
