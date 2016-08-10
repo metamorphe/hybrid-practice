@@ -5,6 +5,7 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
                 square = footprint.queryPrefix("SMD");
                 square[0].remove();
                 nodes = _.map(nodes, function(element) {
+                    Artwork.getPrefix(element);
                     is_breakout = ["BO", "BI"].indexOf(Artwork.getPrefix(element)) != -1;
 
                     if (is_breakout) {
@@ -62,7 +63,8 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
         // Function to obtain cost (Path length) from node with two neighbors.
         CircuitRouting.cost = function(node, paths) {
             is_breakout = _.isNull(node.left) || _.isNull(node.right);
-            breakout_bias = is_breakout ? 10000000 : 0;
+            // console.log(node.rectangle.name,  is_breakout)
+            breakout_bias = is_breakout ? 10000000000000 : 0;
             // if(node.rotation % 45 == 0 ) breakout_bias = 0;
             return breakout_bias + _.reduce(paths, function(memo, path) {
                 return memo + path.length;
@@ -71,10 +73,14 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
 
         // Helper Function to determine optimal routing.
         CircuitRouting.bestCost = function(node) {
+            is_breakout = _.isNull(node.left) || _.isNull(node.right);
+            thetas = _.range(-180, 180, THETA_STEP);
+            if(is_breakout) thetas = _.range(-180, 180, 90);
+
             var cost_table = [];
             var original_rotation = node.rotation;
-            for (var theta = 0; theta < 360; theta += THETA_STEP) {
 
+            cost_table = _.map(thetas, function(theta){
                 node.rotation = theta;
                 var neighbors = [];
 
@@ -87,10 +93,13 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
                     return new Path(neighbor[0], neighbor[1])
                 });
 
-                cost_table.push({ theta: theta, cost: CircuitRouting.cost(node, neighbors) })
+                result = { theta: theta, cost: CircuitRouting.cost(node, neighbors) };
                 _.each(neighbors, function(neighbor) { neighbor.remove() });
-            }
+                return result;
+            });
+
             node.rotation = original_rotation;
+
             return _.min(cost_table, function(entry) {return entry.cost });
         }
 
