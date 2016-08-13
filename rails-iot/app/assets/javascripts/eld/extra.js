@@ -1,3 +1,12 @@
+
+// function what_gray_value_away_from_led(t) {
+//     // return t; // linear
+//     c = 1;
+//     d = 1;
+//     b = 0;
+//     return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
+// }
+
 // var domes = _.groupBy(ramp_lines, function(rl){
     //   closest = _.min(leds, function(led) {
     //       return led.position.getDistance(rl.line.firstSegment.point); 

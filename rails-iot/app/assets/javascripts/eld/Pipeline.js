@@ -759,7 +759,8 @@ function makeDomes(lg, leds, diff, parent){
       lower = lower < -180 ? -180 : lower;
 
       return {angleIn: lower, center: theta, angleOut: upper}
-    }).map(function(slice){
+    })
+    .map(function(slice){
       // FIND DISTANCE TO DIFFUSER
       var to = led.position.clone();
       to.angle = slice.center;
@@ -775,15 +776,18 @@ function makeDomes(lg, leds, diff, parent){
       var ixt = line.getIntersections(diff);
       line.lastSegment.point = ixt[0].point;
       return {angleIn: slice.angleIn, length: line.length, angleOut: slice.angleOut}
-    }).map(function(slice){
+    })
+    .map(function(slice){
       // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
       params = lg.getRampFromOptimal(slice.length).params;
       // HEIGHEST POINT IS LENS HEIGHT
-      dome = LensGenerator.generateDome(params.dome.width, params.dome.height, params.dome.concave, true);
+      dome = LensGenerator.generateDome(params.dome.width, params.dome.height, params.dome.concave, false);
       dome.scaling.y = 1 / dome.bounds.height;
       dome.scaling.x = 1 / dome.bounds.width;
       dome.pivot = dome.bounds.bottomLeft;
       dome.position = new paper.Point(0, 0);
+
+      // console.log(params.dome, dome.length);
       var gradient = _.range(0, dome.length, dome.length / 10);
       var MAX_DOME_HEIGHT = (params.dome.height + params.dome.concave) / params.lens.height;
 
@@ -801,7 +805,9 @@ function makeDomes(lg, leds, diff, parent){
           radial: true
         }
       };
-    }).value();
+    })
+    .value();
+  
 
     c = LensGenerator.makeCDome(angles, led.position);
     return new paper.Group({
@@ -848,14 +854,6 @@ function rampify(lg, ramp_lines) {
     return ramp;
 }
 
-
-function what_gray_value_away_from_led(t) {
-    // return t; // linear
-    c = 1;
-    d = 1;
-    b = 0;
-    return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
-}
 
 function make_level(lg, rlines, level, color) {
    

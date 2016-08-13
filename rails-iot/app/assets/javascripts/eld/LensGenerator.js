@@ -323,24 +323,23 @@ LensGenerator.generateRampPath = function(params, visual=false) {
 }
 
 
-
 LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight, visible=false) {
     // console.log(baseWidth, baseHeight, concaveHeight)
     // Generating geometries
     baseWidth *= 2; // split in half
     var base = new Path.Rectangle({
         size: new paper.Size(baseWidth, baseHeight),
-        strokeColor: 'black',
+        strokeColor: 'yellow',
         strokeWidth: 1,
         fillColor: "", 
-        visible: false
+        // visible: true
     });
     var lens = new Path.Ellipse({
         rectangle: new Rectangle(new Point(0, 0), new Size(baseWidth, concaveHeight)), 
-        strokeColor: 'black',
+        strokeColor: 'yellow',
         strokeWidth: 1,
         fillColor: "", 
-        visible: false
+        // visible: true
     });
 
     lens.set({
@@ -352,9 +351,11 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight, visi
     dome.position = paper.view.center;
     lens.remove();
     base.remove();
+    // var test = new paper.Group([lens, base]);
+    // test.position = paper.view.center;
     // Extracting spline
     var half_dome = _.filter(dome.segments, function(seg) {
-        return seg.point.subtract(dome.bounds.center).x >= 0;
+        return seg.point.subtract(dome.bounds.center).x > -0.01;
     });
 
     var spline = new paper.Path({
