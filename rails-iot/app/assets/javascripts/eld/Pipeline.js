@@ -801,8 +801,10 @@ function makeDomes(lg, leds, diff, parent){
       var ixt = line.getIntersections(diff);
       line.lastSegment.point = ixt[0].point;
       return {angleIn: slice.angleIn, length: line.length, angleOut: slice.angleOut}
-    })
-    .map(function(slice){
+    }).value();
+
+
+    var slices = _.map(angles, function(slice){
       // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
       params = lg.getRampFromOptimal(slice.length).params;
       // HEIGHEST POINT IS LENS HEIGHT
@@ -830,11 +832,10 @@ function makeDomes(lg, leds, diff, parent){
           radial: true
         }
       };
-    })
-    .value();
+    });
   
 
-    c = LensGenerator.makeCDome(angles, led.position);
+    c = LensGenerator.makeCDome(slices, led.position);
     return new paper.Group({
       name: "DOME: Custom Dome",
       children: c, 
