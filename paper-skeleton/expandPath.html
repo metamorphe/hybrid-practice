@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Exterior path.</title>
+        <script type="text/javascript" src="libs/jquery.min.js"></script>
+        <script type="text/javascript" src="libs/paper-full.min.js"></script>
+        <script type="text/javascript" src="libs/bootstrap.min.js"></script>
+        <script type="text/javascript" src="libs/underscore.js"></script>
+        
+
+        <script type="text/javascript" src="js/stroke.js"></script>
+        <script type="text/javascript" src="js/artwork.js"></script>
+        <script type="text/javascript" src="js/ruler.js"></script>
+        <script type="text/javascript" src="js/clipper.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+        <script type="text/javascript">
+            var nineSegment;
+            var INTERIOR = -1; var CENTERED = 0; var EXTERIOR = 1;
+
+            $(function(){
+                // MAIN FUNCTION
+                $('#downloadButton').click(function(){
+                    console.log("clicked");
+                    $(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+                });
+                $('#myCanvas').attr('height', $(window).height());
+                $('#myCanvas').attr('width', $(window).width());
+    
+
+                paper.install(window);
+                paper.setup('myCanvas');  
+                paper.Path.Join = {
+                    square: ClipperLib.JoinType.jtSquare, 
+                    round: ClipperLib.JoinType.jtRound, 
+                    miter: ClipperLib.JoinType.jtMiter
+                }
+          
+                display = new Artwork("img/Necklace.svg", function(display){
+                    runScript(display);
+                });
+            });
+            function runScript(display){
+                // TODO: YOUR CODE HERE
+                var base = display.queryPrefix('BASE')[0].clone();
+                var base = extractPaths(base)[0];
+                var xP = expand(base, {
+                                    strokeAlignment: 1, 
+                                    strokeWidth: 1,
+                                    strokeOffset: 10, 
+                                    strokeColor: "red", 
+                                    joinType: "round"
+                                });
+                paper.view.update();
+            }
+             /*Return path in array from group*/
+            function extractPaths(group) {
+                var data = _.map(group, function(x) {
+                    if (x && x.className == 'Group') return extractPaths(x.children);
+                    else return x;
+                });
+                data = _.flatten(data);
+                return data;
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <canvas id="myCanvas" style="position:absolute" id="canvas"></canvas>
+            <a id="downloadButton" class='btn btn-default'> DOWNLOAD </a>
+        </div>
+    </body>
+</html>
+
+<style> 
+    #downloadButton{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+    body, html{
+        margin: 0;
+        padding: 0;
+        background: gray;
+    }
+</style>
