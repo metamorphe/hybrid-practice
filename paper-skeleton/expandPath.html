@@ -46,11 +46,11 @@
                 var base = display.queryPrefix('BASE')[0].clone();
                 var base = extractPaths(base)[0];
                 var xP = expand(base, {
-                                    strokeAlignment: 1, 
+                                    strokeAlignment: "exterior", 
                                     strokeWidth: 1,
                                     strokeOffset: 10, 
-                                    strokeColor: "red", 
-                                    joinType: "round"
+                                    strokeColor: "blue", 
+                                    joinType: "miter"
                                 });
                 paper.view.update();
             }

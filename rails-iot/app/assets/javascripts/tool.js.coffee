@@ -4,6 +4,7 @@
 
 //= require underscore
 //= require dat.gui.min
+//= require clipper
 //= require paper-full.min
 //= require saveas.min
 //= require format

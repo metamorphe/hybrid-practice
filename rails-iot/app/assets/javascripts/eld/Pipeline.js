@@ -271,23 +271,37 @@ Pipeline.script = {
 
     mold: function(display, e) {
         this.adjustLEDs(display, e);
+
+        var result = new paper.Group({name: "MOLD"});
+
         _.each(e.diff, function(diffuser) {
             diffuser.set({
                 visible: true,
                 fillColor: "black",
-                strokeWidth: 0
+                strokeWidth: 0, 
+                parent: result
             });
+
+            var expanded  = diffuser.expand({
+                strokeAlignment: "exterior", 
+                strokeWidth: 0.1,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+                strokeColor: "black", 
+                fillColor: "white", 
+                joinType: "miter", 
+                parent: result
+            });
+            expanded.sendToBack();
         });
 
-        var result = new paper.Group(e.diff);
-
-        //Creating a bounding box
-        backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: 'white',
-            parent: result
-        });
-        backgroundBox.sendToBack();
+        
+        // //Creating a bounding box
+        // backgroundBox = new paper.Path.Rectangle({
+        //     rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+        //     fillColor: 'white',
+        //     parent: result
+        // });
+        // backgroundBox.sendToBack();
 
         //Make non-molding objects invisible
         var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
