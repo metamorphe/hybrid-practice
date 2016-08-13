@@ -196,6 +196,7 @@ LensGenerator.generateScene = function(box, params){
 
 
     var d = LensGenerator.generateDome(params.dome.width, params.dome.height, params.dome.concave);
+    
     d.set({
         scaling: new paper.Size(-1, 1),
         pivot: d.strokeBounds.bottomRight, 
@@ -323,7 +324,7 @@ LensGenerator.generateRampPath = function(params, visual=false) {
 
 
 
-LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
+LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight, visible=false) {
     // console.log(baseWidth, baseHeight, concaveHeight)
     // Generating geometries
     baseWidth *= 2; // split in half
@@ -362,10 +363,84 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
         strokeWidth: 1,
         strokeScaling: false,
         fillColor: "yellow", 
-        display: false
+        visible: visible
     });
 
     spline.firstSegment.handleIn = new paper.Point(0, 0);
     return spline;
 }
+
+// gradient, radius, in, out
+LensGenerator.makeCDome = function(gradientArray, position) {
+    var maxRadiusObject = _.max(gradientArray, function(gradientObject){
+        return gradientObject.radius;
+    });
+
+    maxRadius = maxRadiusObject.radius;
+
+    var path = new paper.Path.Circle({
+        center: new Point(500, 300),
+        radius: maxRadius,
+        strokeColor: "black",
+        strokeWidth: 2,
+        position: position, 
+        visible: false
+    });
+
+    return _.map(gradientArray, function(obj){
+        c = generateSlicedSegment(obj, path, false);
+        // c.visible = true;
+        return c;
+    }); 
+};
+
+function generateSlicedSegment(o, path, visible=false) {
+    // Generate both the inPoint and outPoint vectors.
+    var origin = path.position; 
+
+    var inPoint = origin.clone();
+    var outPoint = origin.clone();
+    var radiusPoint = origin.clone();
+    inPoint.length = 100;
+    outPoint.length = 100;
+    radiusPoint.length = o.radius;
+    inPoint.angle = o.angleIn;
+    outPoint.angle = o.angleOut;
+    radiusPoint.angle = o.angleIn;
+
+    // // Translate the vectors to the origin
+    inPoint = inPoint.add(origin);
+    outPoint = outPoint.add(origin);
+    radiusPoint = radiusPoint.add(origin);
+
+    // // Define a circle to be the bounding box of the inputted Geometry.
+    var circle = new paper.Path.Circle({
+        radius: 300,
+        position: origin, 
+        strokeColor: "blue", 
+        strokeWidth: 0.5, 
+        visible: visible
+    });
+
+    // // // Gets the closest points on the Circle to both the inPoint and outPoint.
+    var nearestInPoint = circle.getNearestPoint(inPoint);
+    var nearestOutPoint = circle.getNearestPoint(outPoint);
+
+    // // // Define the intersecting path to consist of the inPoint, center, and outPoint.
+    var pieSlice = new paper.Path({
+        segments: [nearestInPoint, origin, nearestOutPoint],
+        // strokeWidth: 1,
+        // strokeColor: "red",
+        closed: true
+    });
+    var intersectingPath = pieSlice.intersect(path);
+    pieSlice.remove();
+
+    intersectingPath.fillColor = {
+        gradient: o.gradient,
+        origin: origin,
+        destination: radiusPoint,
+    }
+    return intersectingPath;
+}; 
 

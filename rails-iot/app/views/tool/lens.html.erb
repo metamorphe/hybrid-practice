@@ -9,7 +9,7 @@
         var lens = new ButtonExporter($('#mold'), "PNG", makeLenseMold );
         var spacers = new ButtonExporter($('#spacer'), "PNG", makeSpacerMold );
 
-        tir = new Artwork("/artwork/raytrace_test.svg", function(display){
+        tir = new Artwork("/artwork/ftirtest.svg", function(display){
           runScript(display);
         });
       });
@@ -28,7 +28,7 @@
         });
 
         _.each(light_source, function(ls){
-            ls.emmision();
+            ls.emmision(-60, 60, 1);
         });
 
        //  var image_plane = CanvasUtil.queryPrefix("IMG")[0];

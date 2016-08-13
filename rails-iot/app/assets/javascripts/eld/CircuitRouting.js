@@ -47,6 +47,7 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
                     var group = new Group([rectangle, entryPoint, exitPoint, contactEntryPoint, contactExitPoint]);
 
                     // group.text = pointText;
+                    group.lid = element.lid;
                     group.rectangle = rectangle;
                     group.inputPoint = entryPoint;
                     group.outputPoint = exitPoint;
@@ -75,7 +76,7 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
         CircuitRouting.bestCost = function(node) {
             is_breakout = _.isNull(node.left) || _.isNull(node.right);
             thetas = _.range(-180, 180, THETA_STEP);
-            if(is_breakout) thetas = _.range(-180, 180, 90);
+            if(is_breakout) thetas = _.range(-180, 180, 180);
 
             var cost_table = [];
             var original_rotation = node.rotation;
@@ -93,7 +94,7 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
                     return new Path(neighbor[0], neighbor[1])
                 });
 
-                result = { theta: theta, cost: CircuitRouting.cost(node, neighbors) };
+                result = { id: node.lid, theta: theta, cost: CircuitRouting.cost(node, neighbors) };
                 _.each(neighbors, function(neighbor) { neighbor.remove() });
                 return result;
             });
@@ -123,6 +124,7 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
                 iters++;
                 console.log("OPT STEP", iters, difference);
             }
+            return result;
         };
 
         CircuitRouting.connect_the_dots = function(nodes) {

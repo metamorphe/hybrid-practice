@@ -51,22 +51,21 @@ function ButtonExporter(dom, type, preFN, postFN){
     }
   }
 
-
+  var resultR = "";
   ButtonExporter.exportPNG = function(result, filename, dom){
       console.log("Exporting PNG...", filename);
-      // result.pivot = result.bounds.bottomCenter;
-      // result.position = paper.project.view.projectToView(new paper.Point(0, 0));
-      result.fitBounds(paper.view.bounds.expand(-5))
-            
-      // console.log(result.pivot);
-      // console.log(paper.project.view.projectToView(new paper.Point(0, 0)));
-      result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width / 2.0, result.strokeBounds.height / 2.0));
+     
+      result.fitBounds(paper.view.bounds.expand(-100));
+     
+      result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width/2.0, result.strokeBounds.height/2.0));
+      cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width * 2, result.strokeBounds.height * 2));
+      // result.position.x -= 6;
       paper.view.update();
-      bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, result.strokeBounds.width * 2, result.strokeBounds.height * 2);
+      bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, cut.x, cut.y );
       dom.attr('href', bufferCanvas.toDataURL("image/png"))
               .attr('download', filename + '.png');
       // dom.attr('href', $('#myCanvas')[0].toDataURL("image/png"))
-      //        .attr('download', filename + '.png');
+             // .attr('download', filename + '.png');
   }
 
   ButtonExporter.exportSVG = function(filename){
