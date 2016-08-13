@@ -272,7 +272,7 @@ Pipeline.script = {
     mold: function(display, e) {
         this.adjustLEDs(display, e);
 
-        var result = new paper.Group({name: "MOLD"});
+        var result = new paper.Group({name: "RESULT: MOLD"});
 
         _.each(e.diff, function(diffuser) {
             diffuser.set({
@@ -360,14 +360,40 @@ Pipeline.script = {
     },
     lens: function(display, e) {
         this.adjustLEDs(display, e);
-        var all = _.flatten([e.diff, e.leds]);
-        var result = new paper.Group(all);
 
-        boundingBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: "white",
-            parent: result
+        var result = new paper.Group({
+          name: "RESULT: LENS",
+          model_height: REFLECTOR_HEIGHT
         });
+
+        _.each(e.diff, function(diffuser) {
+            diffuser.set({
+                visible: true,
+                fillColor: "black",
+                strokeWidth: 0, 
+                parent: result
+            });
+
+            var expanded  = diffuser.expand({
+                strokeAlignment: "exterior", 
+                strokeWidth: 0.1,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+                strokeColor: "black", 
+                fillColor: "white", 
+                joinType: "miter", 
+                parent: result
+            });
+            expanded.sendToBack();
+        });
+
+        // var all = _.flatten([e.diff, e.leds]);
+        // var result = new paper.Group(all);
+
+        // boundingBox = new paper.Path.Rectangle({
+        //     rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+        //     fillColor: "white",
+        //     parent: result
+        // });
 
         ramps = _.map(e.diff, function(diffuser) {
             return setMoldGradient(true, diffuser, _.filter(e.leds, function(l) {
@@ -379,9 +405,8 @@ Pipeline.script = {
         // INVISIBILITY
         var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires]));
         Pipeline.set_visibility(invisible, false);
-        result.name = "RESULT: LENS";
-        result.model_height = REFLECTOR_HEIGHT;
-        boundingBox.sendToBack();
+      
+        // boundingBox.sendToBack();
     },
     reflector: function(display, e) {
         this.adjustLEDs(display, e);
