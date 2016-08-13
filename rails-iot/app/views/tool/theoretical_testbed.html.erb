@@ -11,8 +11,9 @@
     paperSetup();
     testbed = new Artwork("/artwork/th_lens.svg", function(artwork){
         testbed.lensHeight = 3;
-        testbed.proportionGlass = 0.0;
+        testbed.proportionGlass = 0.00;
         testbed.eta = 1.44;
+        testbed.theta = 0.10;
         guiSetup();
 
         // Load ray tracer
@@ -29,7 +30,7 @@
         });
 
         // Trace the first set of rays
-        testbed.lightSource.emmision(-60, 60, 0.5);
+        testbed.trace();
     });
 
 
@@ -42,13 +43,7 @@
     this.eta = (this.proportionGlass * glassEta
         + (1 - this.proportionGlass) * pdmsEta);
     this.lens.name = 'LENS:_' + this.eta;
-
-    // Redo the ray trace
-    this.removeRays();
-    testbed.mediums = CanvasUtil.getMediums();
-    testbed.lightSource.mediums = testbed.mediums;
-    this.lightSource.emmision(-60, 60, 0.5);
-    paper.view.update();
+    this.trace();
   }
 
   Artwork.prototype.updateLensHeight = function() {
@@ -57,13 +52,17 @@
     var bottomY = segments[0].point.y;
     segments[1].point.y = bottomY - this.lensHeight;
     segments[2].point.y = bottomY - this.lensHeight;
+    this.trace();
+  }
 
-    // Redo the ray trace
+  Artwork.prototype.trace = function() {
+    console.log('Beginning trace...')
     this.removeRays();
     testbed.mediums = CanvasUtil.getMediums();
     testbed.lightSource.mediums = testbed.mediums;
-    this.lightSource.emmision(-60, 60, 0.5);
+    this.lightSource.emmision(-60, 60, this.theta);
     paper.view.update();
+    console.log('... Trace finished!')
   }
 
   Artwork.prototype.removeRays = function() {
@@ -72,8 +71,8 @@
     });
   }
 
-  Artwork.prototype.calculateUniformity = function() {
-    return ImagePlane.calculateUniformity(clamped=false);
+  Artwork.prototype.getSignal = function(numBins) {
+    return ImagePlane.getSignal(numBins);
   }
 
   // Utility functions
@@ -99,6 +98,13 @@
       ])
       .onChange(function(value) {
         testbed.updateEta();
+      });
+    gui.add(testbed, 'theta')
+      .min(0.01)
+      .max(1.00)
+      .step(0.01)
+      .onChange(function(value) {
+        testbed.trace();
       });
     gui.add(testbed, 'eta').listen();
   }

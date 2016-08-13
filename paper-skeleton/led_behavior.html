@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Led Behavior </title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+		<script type="text/javascript">
+			$(function(){
+				var src = [
+					{
+						behavior: "blink", members: [2], blinks: 3, duration: "3000", color: "green"
+					}, 
+					{
+						behavior: "delay",  duration: "200",
+					}, 
+					{
+						behavior: "blink", members: [1], blinks: 3, duration: "3000", color: "yellow"
+					},
+					{
+						behavior: "delay",  duration: "200",
+					}, 
+
+					{
+						behavior: "blink", members: [0], blinks: 3, duration: "3000", color: "red"
+					}
+				]
+				compileCode(src);
+			});
+			var br = $("<br>");
+			var SYMBOL_ADDITIONS = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+			var SYMBOL = 'member_';
+			function compileCode(src){
+				var result = "// CUSTOM ARDUINO CODE "
+				var start = "#include <Adafruit_DotStar.h>\n#include <avr/power.h>\n#define NUMPIXELS 3\n#define DATAPIN 3\n#define CLOCKPIN 4 \nAdafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);\n";
+				start = escape(start); // escaped version of start 
+
+				var s_additions = SYMBOL_ADDITIONS;
+				var members = [];
+				var symbolic_members = [];
+				loop = _.map(src, function(b){
+					a = [];
+					if (b.blinks) {
+						// extract members
+						members.push(b.members);
+
+						// making the color type to RGB
+						var color = new paper.Color(b.color);
+						var color = rgbToHex(color.red, color.green, color.blue);
+						
+						// generating the variable name
+						var symbol = symbol_generator(s_additions);
+
+						// extract symbolic members
+						symbolic_members.push(symbol);
+						s_additions.splice(0,1);
+
+						// creating the function call
+						a.push([b.behavior + "(" + symbol+ ", "+b.members.length+", "+b.blinks+", " + b.duration + ", " + color + ");"]);
+					}else{
+						a.push([b.behavior + "("+ b.duration + ");"]);
+					}
+					return a;
+
+				})
+				// Insert the declarations into loop
+				_.each(members, function(member, i, arr){
+					var declaration ="uint16_t "+symbolic_members[i]+"[]"+" = "+"{"+member+"}"+";";
+					loop.splice(i, 0, [declaration])
+				})
+				loop = _.map(loop, function(r){
+					return [r];
+				})
+
+				result = [start, loop];
+				result = _.flatten(result);
+				
+				// add line breaks
+				result = result.join("\n");
+				result = nl2br(result, false);
+				// visualize
+				$('code').html(result);
+			}
+
+			function componentToHex(c) {
+			    var hex = c.toString(16);
+			    return hex.length == 1 ? "0" + hex : hex;
+			}
+
+			function rgbToHex(r, g, b) {
+			    return "0x" + (componentToHex(r*255) + componentToHex(g*255) + componentToHex(b*255)).toUpperCase();
+			}
+
+			function nl2br (str, is_xhtml) {
+			    var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+			    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+			}
+			function symbol_generator(symbol_additions){
+				return SYMBOL+symbol_additions[0];
+			}
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<code>
+			CODE HERE
+			</code> 
+		</div>
+	</body>
+</html>
+<style> 
+
+	code{
+		padding: 30px;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background: #333;
+		color: white;
+	}
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: black;
+	}
+</style>
