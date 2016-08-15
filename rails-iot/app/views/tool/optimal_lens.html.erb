@@ -119,17 +119,18 @@
         gui = new dat.GUI();
     
         generator = new Generator();
-        gui.add(generator, "length")
-           .min(15)
-           .max(300)
-           .step(10);
-        gui.add(generator, "generate");
-        gui.add(generator, "fire");
-        gui.add(generator, "sample_size").min(0).max(300).step(10);
-        gui.add(generator, "resample");
-        gui.add(generator, "batch_process");
-        gui.add(generator, "batch_clear");
-
+        var f1 = gui.addFolder('Ray Tracing');
+        f1.add(generator, "length").min(15).max(300).step(10).listen();
+        f1.add(generator, "generate");
+        f1.add(generator, "fire");
+        var f2 = gui.addFolder('Sampling')
+        f2.add(generator, "sample_size").min(0).max(300).step(10);
+        f2.add(generator, "resample");
+        f2.add(generator, "batch_process");
+        f2.add(generator, "batch_clear");
+        
+        f1.open();
+        f2.open();
         // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
         $("#shade").fadeOut();
 

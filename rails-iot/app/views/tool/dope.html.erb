@@ -2,11 +2,12 @@
 $(function() {
     var gui = new dat.GUI();
     var pdms_glass = new DopeMixture("PDMS_GLASS", $("#glass-mass"));
-    gui.add(pdms_glass, "working_mass").min(0).max(50).step(1);
-    gui.add(pdms_glass, "working_ratio").min(0).max(1.0).step(0.05);
-    gui.add(pdms_glass, "target_ratio").min(0).max(1.0).step(0.05);
-    gui.add(pdms_glass, "calculate");
-
+    var f1 = gui.addFolder("PDMS-Glass Doping");
+    f1.add(pdms_glass, "working_mass").min(0).max(50).step(1);
+    f1.add(pdms_glass, "working_ratio").min(0).max(1.0).step(0.05);
+    f1.add(pdms_glass, "target_ratio").min(0).max(1.0).step(0.05);
+    f1.add(pdms_glass, "calculate");
+    f1.open();
      $("#shade").fadeOut();
 
 });
@@ -17,8 +18,7 @@ function DopeMixture(name, dom){
     this.working_mass = 10;
     this.working_ratio = 0.01;
     this.target_ratio = 0.01;
-    this.calculate();
-    
+    this.calculate();   
 }
 DopeMixture.prototype = {
     calculate: function(){
