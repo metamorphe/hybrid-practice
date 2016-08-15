@@ -8,12 +8,16 @@ function PointLight (options) {
 PointLight.prototype = {
 	init: function(argument) {
 		source = new paper.Path.Rectangle({
+			name: "PL: Point Light",
 			size: new paper.Size(Ruler.mm2pts(5), Ruler.mm2pts(1.4)), 
-			position: this.options.position,
 			fillColor: "white", 
 			strokeColor: "#333", 
 			strokeWidth: 1
 		});
+		source.set({
+			pivot: source.bounds.topCenter,
+			position: this.options.position
+		})
 		return source;
 	}, 
 	toLocalSpace: function(angle){

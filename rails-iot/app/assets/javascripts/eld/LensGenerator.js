@@ -43,8 +43,8 @@ LensGenerator.prototype = {
 
     // half of the geom is max dome width
    
-    var dome_range = (width / 2.0) - Ruler.mm2pts(LED_WIDTH);
-    params.dome.width = Ruler.mm2pts(LED_WIDTH) + (dome_range * Math.random());
+    var dome_range =  Ruler.mm2pts(LED_WIDTH); // (width / 4.0) +;
+    params.dome.width = (Ruler.mm2pts(LED_WIDTH) / 2.0) + (dome_range * Math.random());
     params.ramp.width = params.lens.width - params.dome.width - params.wall_gap;
 
     var overall_dome_height = params.lens.height - Ruler.mm2pts(2) - Ruler.mm2pts(LED_HEIGHT);
@@ -141,10 +141,12 @@ LensGenerator.prototype = {
   getOptimal: function(l){
     // console.log("OPTIMAL", l);
     if(this.ws.includes(l)){
-        return this.ws.get(l);
+        return JSON.parse(this.ws.get(l));
     }
     else{
-        keys = _.sortBy(_.map(this.ws.keys(), function(k){ return parseInt(k);}));
+        keys = _.sortBy(_.map(this.ws.keys(), function(k){ return parseFloat(k);}));
+        keys = _.compact(keys);
+        if(keys.length == 0) return this.generateRandom(l);
         b = _.min(keys, function(k){ if(k - l < 0) return 10000000; else return k - l; });
         a = _.min(keys, function(k){ if(l - k < 0) return 10000000; else return l - k; });
         tau = (b-l)/(b-a);
@@ -162,7 +164,7 @@ LensGenerator.prototype = {
 LensGenerator.generateScene = function(box, params){  
     // Base 
     var result = new paper.Group({
-      name: "RT: Ray Tracing Scene"
+      name: "RT: Ray Tracing Scene", 
     });
     var base = new paper.Path.Rectangle({
         size: new paper.Size(params.lens.width, params.lens.height),
@@ -171,10 +173,12 @@ LensGenerator.generateScene = function(box, params){
         strokeScaling: false, 
         parent: result
     });
+
     result.set({
-      pivot: result.bounds.bottomRight.add(new paper.Point(10, 10)), 
-      position: box.pivot,//bounds.bottomRight.add(new paper.Point(60, -10))
+      pivot: result.bounds.topCenter,
+      position: box.position
     });
+
     
     // LED placement
     var led = new paper.Path.Rectangle({
@@ -187,7 +191,7 @@ LensGenerator.generateScene = function(box, params){
         parent: result
     });
     led.set({
-        pivot: led.bounds.bottomRight, 
+        pivot: led.bounds.topRight, 
         position: base.bounds.bottomRight
     })
     
@@ -274,7 +278,7 @@ LensGenerator.generateScene = function(box, params){
         strokeColor: "green", 
         strokeWidth: 1
     });
-    img_plane.position.y += 1;   
+    img_plane.position.y += 2;   
     return result;
 }
 

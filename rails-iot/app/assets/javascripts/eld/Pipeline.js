@@ -765,6 +765,8 @@ function interpolation_lines(diffuser, leds, visible=false) {
 
 }
 
+DOME_DIFF_EPSILON = 10;
+
 function makeDomes(lg, leds, diff, parent){
   // MAKE A DOME FOR EVERY LED
   return _.map(leds, function(led){
@@ -802,9 +804,20 @@ function makeDomes(lg, leds, diff, parent){
       line.lastSegment.point = ixt[0].point;
       return {angleIn: slice.angleIn, length: line.length, angleOut: slice.angleOut}
     }).value();
-
-
-    var slices = _.map(angles, function(slice){
+    // COMPACT SLICES
+    compact_angles = [];
+    var n = angles.length;
+    var current = angles[0];
+    for(var i = 1; i < angles.length; i++){
+      var slice = angles[i];
+      if(Math.abs(slice.length - current.length) < DOME_DIFF_EPSILON) current.angleOut = slice.angleOut;
+      else{
+        compact_angles.push(current);
+        current = slice;
+      }
+    }
+    // END COMPACT
+    var slices = _.map(compact_angles, function(slice){
       // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
       params = lg.getRampFromOptimal(slice.length).params;
       // HEIGHEST POINT IS LENS HEIGHT

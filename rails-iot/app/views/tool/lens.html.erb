@@ -143,8 +143,10 @@
     </script>
   </head>
   <body>
-    <a id="mold" name="mold" href="#" class="process btn btn-lg btn-success"> Lens </a>
-    <a id="spacer" name="spacer" href="#" class="process btn btn-lg btn-success"> Spacer </a>
+   <div class="btn-group">
+    <a id="mold" name="mold" href="#" class="process btn btn-sm btn-success"> Lens </a>
+    <a id="spacer" name="spacer" href="#" class="process btn btn-sm btn-success"> Spacer </a>
+  </div>
     <canvas id="myCanvas"></canvas>
     
       <%= render :partial => "modals"%>
@@ -154,6 +156,9 @@
   </body>
 
   <style>
+  .btn-group{
+    margin: 10px;
+  }
    #zoom-bar{
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       padding: 4px 8px;
