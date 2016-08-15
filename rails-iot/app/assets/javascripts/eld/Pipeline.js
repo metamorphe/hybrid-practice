@@ -56,39 +56,6 @@ var LED_HEIGHT = 1.4;
 
 var MORPH_LINE_STEP = 3;
 
-
-
-function sample_model(lg, lens_length, n){
-     var samples = _.range(0, n, 1);
-     samples = _.map(samples, function(s, i){
-           
-           var params = lg.generateRandom(lens_length);
-           var scene = lg.generate(tracerBox, params);
-           // var scene = lg.generate(tracerBox, LensGenerator.WTF);
-
-           var led = CanvasUtil.queryPrefix("LS")[0];
-           var mediums = CanvasUtil.getMediums();
-           var ls = new PointLight({
-                  position: led.position, 
-                  mediums: mediums, 
-                  parent: tracerBox
-            });
-
-            ls.emmision(-60, 0, 1);
-            uniformity = ImagePlane.calculateUniformity();
-            // console.log("SAMPLE", uniformity)
-            _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
-            scene.remove();
-            ls.source.remove();
-            return {cost: uniformity, params: JSON.stringify(params)}
-       });
-     
-       var min = _.min(samples, function(s){ return s.cost; });
-       var max = _.max(samples, function(s){ return s.cost; });
-       console.log("RESULTS:", min, max);
-       this.ws.set(lens_length, max.params);
-       return max;
-}
 function Pipeline() {
   
 }
@@ -108,66 +75,6 @@ Pipeline.getElements = function() {
     }
 }
 Pipeline.script = {
-    optimizer: function(display, e){
-        this.adjustLEDs(display, e);
-        ws = new WebStorage();
-        display.svg.remove();
-        tracerBox = new paper.Path.Rectangle({
-            size: new paper.Size(300, 200),
-            position: paper.view.center,
-            fillColor: '#333'
-        }); 
-        tracerBox.set({
-            pivot: tracerBox.bounds.bottomRight
-        });
-
-       var lg = new LensGenerator();
-       // var params = lg.generateRandom(30.5);
-       // var scene = lg.generate(tracerBox, params);
-       // lens_length = 14.281605487012305;
-       // params = lg.getOptimal(14.281605487012305);
-       // result = lg.getRampFromOptimal(14.281605487012305);
-//       console.log(result.ramp.bounds.width + result, result.params.ramp.width + result);
-       // for(var i = 0; i <= 1; i += 0.01){
-       //   y = lg.sampleRamp(result, i);
-       //   console.log(i.toFixed(2), y.toFixed(2));
-       // }      
-       // console.log(result.params);
-      // var scene = lg.generate(tracerBox, result.params);
-      
-       // console.log(result.params.ramp.width + result.params.dome.width + result.params.wall_gap, result.ramp.bounds.width + result.params.dome.width + result.params.wall_gap, params);
-
-       // SAMPLING
-
-       // var lengths = _.range(10, 300, 5);
-       // _.each(lengths, function(lens_length){
-       //    console.log("CALCULATING", lens_length);
-       //    if(! ws.includes(lens_length))
-       //      result = sample_model(lg, lens_length, 300);
-       //    else
-       //      console.log("ALREADY CALCULATED", lens_length)
-       // })
-      
-      
-
-       // VIEWING
-       var params = lg.generateRandom(10);
-       // var params = JSON.parse(ws.get(180));
-       var result = params;
-       var scene = lg.generate(tracerBox, result);
-       console.log("SCENE", scene.bounds.width);
-       console.log(params);
-       // var led = CanvasUtil.queryPrefix("LS")[0];
-       // var mediums = CanvasUtil.getMediums();
-       // var ls = new PointLight({
-       //        position: led.position, 
-       //        mediums: mediums, 
-       //        parent: tracerBox
-       //  });
-       //  ls.emmision(-60, 0, 1);
-       //  uniformity = ImagePlane.calculateUniformity();
-       // console.log("RESULTS:", uniformity);
-    },
     raytrace: function(display, e){
       this.adjustLEDs(display, e);
         display.svg.position = display.svg.bounds.bottomLeft;

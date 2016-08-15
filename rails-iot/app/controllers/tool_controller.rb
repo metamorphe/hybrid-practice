@@ -3,6 +3,9 @@ class ToolController < ApplicationController
   	@files = get_displays()
   	render :layout => "full_screen"
   end
+  def dope
+     render :layout => "full_screen"
+  end
   def lens
     @files = get_displays()
     render :layout => "full_screen"
