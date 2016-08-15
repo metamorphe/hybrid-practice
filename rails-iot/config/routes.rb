@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get 'tool/displays'
   get 'tool/start_server'
   get 'tool/dope'
+  get 'tool/refract'
 
 
   get 'devices/index'
