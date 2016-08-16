@@ -114,6 +114,7 @@ ImagePlane.getSignal = function(bins=100){
 	hist = _.each(hist, function(v, k){
 		hist[k] = _.reduce(v, function(sum, ray){ return sum + ray.strength}, 0);
 	});
+
 	var signal = [];
 	for(var i = 0; i < bins; i+= 1){
 		signal[i] = 0;
@@ -122,7 +123,11 @@ ImagePlane.getSignal = function(bins=100){
 		var key = parseInt(i);
 		signal[key] = hist[i];
 	}
-	return signal;
+	console.log(signal, _.max(signal));
+
+	console.log(numeric.div(signal, _.max(signal)))
+	return numeric.div(signal, _.max(signal));
+	
 }
 
 ImagePlane.calculateUniformity = function(bins=100){
