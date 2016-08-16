@@ -15,5 +15,5 @@
 <rect x="50.6" y="358.2" class="st0" width="85" height="11.3"/>
 <rect id="LENS:_1.44" x="50.6" y="349.7" class="st1" width="85" height="8.5"/>
 <rect x="1" y="1" class="st2" width="184.3" height="368.5"/>
-<line id="IMG:_Image_Plane" class="st3" x1="0" y1="294.4" x2="186.3" y2="294.4"/>
+<line id="IMG:_Image_Plane" class="st3" x1="50.6" y1="350.5" x2="135.7" y2="350.5"/>
 </svg>
