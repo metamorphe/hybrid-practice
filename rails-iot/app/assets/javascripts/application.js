@@ -14,7 +14,7 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require bootstrap
-//= require sparkline.min
+//= require Chart
 // require turbolinks
 // require_self
 

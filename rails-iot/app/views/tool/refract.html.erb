@@ -1,0 +1,214 @@
+<script type="text/javascript">
+
+  $(function(){
+    Utility.paperSetup($('#myCanvas'));
+    zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
+    $("#shade").fadeOut("slow");
+    $('#download').click(function(){
+        ButtonExporter.exportSVG("refraction_layout");
+    })
+
+    runScript();
+    paper.view.zoom = 1;
+  });
+ 
+  function runScript(){
+    var result = new paper.Group({name: "RESULT"})
+    // GRID
+    var xp = new paper.Point(1, 0);
+    var xn = new paper.Point(-1, 0);
+    var yp = new paper.Point(0, -1);
+    var yn = new paper.Point(0, 1);
+    xp.length = xn.length = Ruler.mm2pts(60)
+    yp.length = yn.length = Ruler.mm2pts(70);
+    var axis = new paper.Group({
+        name: "AXIS", 
+        parent: result
+    });
+    var x = new paper.Path.Line({
+        from: xn, 
+        to: xp,
+        strokeColor: "black", 
+        strokeWidth: 3, 
+        parent: axis, 
+        strokeScaling: false
+    });
+    var y = new paper.Path.Line({
+        from: yn, 
+        to: yp,
+        strokeColor: "black", 
+        strokeWidth: 3, 
+        parent: axis, 
+        strokeScaling: false
+    });
+    axis.position = paper.view.center;
+
+    half_circle = new paper.Path.Circle({
+        radius: Ruler.mm2pts(45), 
+        strokeWidth: 3, 
+        strokeColor: "black", 
+        position: axis.bounds.center, 
+        parent: result
+    });
+
+    outer_circle = new paper.Path.Circle({
+        radius: Ruler.mm2pts(60), 
+        strokeWidth: 3, 
+        strokeColor: "red", 
+        position: axis.bounds.center, 
+        parent: result
+    });
+
+    sub_outer_circle = new paper.Path.Circle({
+        radius: Ruler.mm2pts(58), 
+        strokeWidth: 3, 
+        strokeColor: "green", 
+        position: axis.bounds.center, 
+        parent: result
+    });
+
+    // Major Lines
+    var major = _.flatten([_.range(-90, 0, 10),_.range(90, 190, 10)]) ;
+    _.chain(major).map(function(theta){
+        console.log(theta);
+        var line = new paper.Point(0, 1);
+        line.angle = theta;
+        line.length = Ruler.mm2pts(70);
+        
+        return new paper.Path.Line({
+            from: half_circle.bounds.center, 
+            to: half_circle.bounds.center.add(line),
+            strokeColor: "black", 
+            strokeWidth: 2, 
+            parent: axis, 
+            strokeScaling: false
+        })
+    }).each(function(line){
+        line.firstSegment.point = line.getIntersections(half_circle)[0].point;
+        var theta = (line.firstSegment.point.subtract(line.lastSegment.point).angle - 90);
+        var angle = theta.toFixed(0) + "º";
+
+        var text = new PointText({
+            content: theta < 0 ? ((180 + theta) % 180).toFixed(0) + "º": angle,
+            fillColor: 'black',
+            fontFamily: 'Courier New',
+            fontWeight: 'bold',
+            fontSize: 10
+        });
+        text.set({
+            pivot: theta < 0 ? text.bounds.topRight: text.bounds.bottomLeft,
+            position: line.lastSegment.point
+        })
+    });
+    // SubMinor Lines
+    var subminor = _.flatten([_.range(-85, 0, 10)]);
+    _.chain(subminor).map(function(theta){
+        console.log(theta);
+        var line = new paper.Point(0, 1);
+        line.angle = theta;
+        line.length = Ruler.mm2pts(60);
+        
+        return new paper.Path.Line({
+            from: half_circle.bounds.center.clone(), 
+            to: half_circle.bounds.center.add(line),
+            strokeColor: "black", 
+            strokeWidth: 1, 
+            parent: axis, 
+            strokeScaling: false
+        })
+    }).each(function(line){
+         line.firstSegment.point = line.getIntersections(half_circle)[0].point;
+    });
+
+    var subminor = _.range(95, 180, 10);
+    _.chain(subminor).map(function(theta){
+        console.log(theta);
+        var line = new paper.Point(0, 1);
+        line.angle = theta;
+        line.length = Ruler.mm2pts(70);
+        
+        return new paper.Path.Line({
+            from: half_circle.bounds.center.clone(), 
+            to: half_circle.bounds.center.add(line),
+            strokeColor: "black", 
+            strokeWidth: 1, 
+            parent: axis, 
+            strokeScaling: false
+        })
+    }).each(function(line){
+         line.firstSegment.point = line.getIntersections(outer_circle)[0].point;
+    });
+    
+    // SubMinor Lines
+    var subminor = _.range(-89, 0, 1);
+    _.chain(subminor).map(function(theta){
+        console.log(theta);
+        var line = new paper.Point(0, 1);
+        line.angle = theta;
+        line.length = Ruler.mm2pts(60);
+        
+        return new paper.Path.Line({
+            from: half_circle.bounds.center.clone(), 
+            to: half_circle.bounds.center.add(line),
+            strokeColor: "black", 
+            strokeWidth: 0.5, 
+            parent: axis, 
+            strokeScaling: false
+        })
+    }).each(function(line){
+         line.firstSegment.point = line.getIntersections(sub_outer_circle)[0].point;
+    });
+
+    outer_circle.remove();
+    sub_outer_circle.remove();
+
+    paper.view.update();
+  }
+
+</script>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+  <%= render :partial => "zoom_bar"%>
+
+<!-- <canvas id="bufferCanvas"></canvas> -->
+</body>
+
+<style>
+.btn-group{
+margin: 10px;
+}
+#zoom-bar{
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 4px 8px;
+  color: #AAA;
+  position: absolute;
+  z-index: 1000;
+  top: 230px;
+  left: 100px;
+   z-index: -1;
+}
+body, html{
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f5f4f0;
+}
+#myCanvas {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 0px);
+  border: solid 1px black;
+  /*background: black;*/
+  /*display: none;*/
+  z-index: -100;
+  cursor: pointer;
+}
+
+
+</style>
+
+<a id="download" name="refract" href="#" class="process btn btn-sm btn-success"> REFRACT </a>
+    

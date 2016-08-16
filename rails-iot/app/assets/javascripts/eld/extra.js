@@ -1,4 +1,40 @@
 
+// function what_gray_value_away_from_led(t) {
+//     // return t; // linear
+//     c = 1;
+//     d = 1;
+//     b = 0;
+//     return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
+// }
+
+// var domes = _.groupBy(ramp_lines, function(rl){
+    //   closest = _.min(leds, function(led) {
+    //       return led.position.getDistance(rl.line.firstSegment.point); 
+    //   });
+    //   return closest.id;
+    // });
+
+   
+
+    // domes = _.map(domes, function(rl, id){
+    //   var params = {}
+    //   params.width = 0; 
+    //   params.height = 0;
+    //   params.concave = 0;
+    //   var params = _.reduce(rl, function(p, r){
+    //     var other = r.result.params.dome; 
+    //     p.width += other.width;
+    //     p.height += other.height;
+    //     p.concave += other.concave;
+    //     return p;
+    //   }, params);
+       
+    //   params.width /= rl.length;
+    //   params.height /= rl.length;
+    //   params.concave /= rl.length;
+    //   return {params: params, id: parseInt(id)}
+    // });
+
     // var lenshg = reflector.subtract(lens)
     // var lhg = lenshg.segments;
 

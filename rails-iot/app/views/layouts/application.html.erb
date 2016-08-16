@@ -67,8 +67,17 @@
 	        <li class="<%= params[:action] == "lens" ? "active" : "" %>">
 	        	<%= link_to "Lens Designer", tool_lens_path() %>
 	        </li>
-	        <li class="<%= params[:action] == "pipelinee" ? "active" : "" %>">
+	        <li class="<%= params[:action] == "pipeline" ? "active" : "" %>">
 	        	<%= link_to "Pipeline", tool_pipeline_path() %>
+	        </li>
+	         <li class="<%= params[:action] == "pipeline" ? "active" : "" %>">
+	        	<%= link_to "Optimizer", tool_optimal_lens_path() %>
+	        </li>
+	         <li class="<%= params[:action] == "pipeline" ? "active" : "" %>">
+	        	<%= link_to "Dope", tool_dope_path() %>
+	        </li>
+	         <li class="<%= params[:action] == "pipeline" ? "active" : "" %>">
+	        	<%= link_to "Refract", tool_refract_path() %>
 	        </li>
 
 	        

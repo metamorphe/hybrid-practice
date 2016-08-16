@@ -3,11 +3,22 @@ class ToolController < ApplicationController
   	@files = get_displays()
   	render :layout => "full_screen"
   end
+  def refract
+     render :layout => "full_screen"
+  end
+  def dope
+     render :layout => "full_screen"
+  end
   def lens
     @files = get_displays()
     render :layout => "full_screen"
   end
   def theoretical_testbed
+    @files = get_displays()
+    render :layout => "full_screen"
+  end
+
+  def optimal_lens
     @files = get_displays()
     render :layout => "full_screen"
   end

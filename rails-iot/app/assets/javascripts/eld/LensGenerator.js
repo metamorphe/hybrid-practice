@@ -43,8 +43,8 @@ LensGenerator.prototype = {
 
     // half of the geom is max dome width
    
-    var dome_range = (width / 2.0) - Ruler.mm2pts(LED_WIDTH);
-    params.dome.width = Ruler.mm2pts(LED_WIDTH) + (dome_range * Math.random());
+    var dome_range =  Ruler.mm2pts(LED_WIDTH); // (width / 4.0) +;
+    params.dome.width = (Ruler.mm2pts(LED_WIDTH) / 2.0) + (dome_range * Math.random());
     params.ramp.width = params.lens.width - params.dome.width - params.wall_gap;
 
     var overall_dome_height = params.lens.height - Ruler.mm2pts(2) - Ruler.mm2pts(LED_HEIGHT);
@@ -141,10 +141,12 @@ LensGenerator.prototype = {
   getOptimal: function(l){
     // console.log("OPTIMAL", l);
     if(this.ws.includes(l)){
-        return this.ws.get(l);
+        return JSON.parse(this.ws.get(l));
     }
     else{
-        keys = _.sortBy(_.map(this.ws.keys(), function(k){ return parseInt(k);}));
+        keys = _.sortBy(_.map(this.ws.keys(), function(k){ return parseFloat(k);}));
+        keys = _.compact(keys);
+        if(keys.length == 0) return this.generateRandom(l);
         b = _.min(keys, function(k){ if(k - l < 0) return 10000000; else return k - l; });
         a = _.min(keys, function(k){ if(l - k < 0) return 10000000; else return l - k; });
         tau = (b-l)/(b-a);
@@ -162,7 +164,7 @@ LensGenerator.prototype = {
 LensGenerator.generateScene = function(box, params){  
     // Base 
     var result = new paper.Group({
-      name: "RT: Ray Tracing Scene"
+      name: "RT: Ray Tracing Scene", 
     });
     var base = new paper.Path.Rectangle({
         size: new paper.Size(params.lens.width, params.lens.height),
@@ -171,10 +173,12 @@ LensGenerator.generateScene = function(box, params){
         strokeScaling: false, 
         parent: result
     });
+
     result.set({
-      pivot: result.bounds.bottomRight.add(new paper.Point(10, 10)), 
-      position: box.pivot,//bounds.bottomRight.add(new paper.Point(60, -10))
+      pivot: result.bounds.topCenter,
+      position: box.position
     });
+
     
     // LED placement
     var led = new paper.Path.Rectangle({
@@ -187,7 +191,7 @@ LensGenerator.generateScene = function(box, params){
         parent: result
     });
     led.set({
-        pivot: led.bounds.bottomRight, 
+        pivot: led.bounds.topRight, 
         position: base.bounds.bottomRight
     })
     
@@ -196,6 +200,7 @@ LensGenerator.generateScene = function(box, params){
 
 
     var d = LensGenerator.generateDome(params.dome.width, params.dome.height, params.dome.concave);
+    
     d.set({
         scaling: new paper.Size(-1, 1),
         pivot: d.strokeBounds.bottomRight, 
@@ -273,7 +278,7 @@ LensGenerator.generateScene = function(box, params){
         strokeColor: "green", 
         strokeWidth: 1
     });
-    img_plane.position.y += 1;   
+    img_plane.position.y += 2;   
     return result;
 }
 
@@ -322,24 +327,23 @@ LensGenerator.generateRampPath = function(params, visual=false) {
 }
 
 
-
-LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
+LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight, visible=false) {
     // console.log(baseWidth, baseHeight, concaveHeight)
     // Generating geometries
     baseWidth *= 2; // split in half
     var base = new Path.Rectangle({
         size: new paper.Size(baseWidth, baseHeight),
-        strokeColor: 'black',
+        strokeColor: 'yellow',
         strokeWidth: 1,
         fillColor: "", 
-        visible: false
+        // visible: true
     });
     var lens = new Path.Ellipse({
         rectangle: new Rectangle(new Point(0, 0), new Size(baseWidth, concaveHeight)), 
-        strokeColor: 'black',
+        strokeColor: 'yellow',
         strokeWidth: 1,
         fillColor: "", 
-        visible: false
+        // visible: true
     });
 
     lens.set({
@@ -351,9 +355,11 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
     dome.position = paper.view.center;
     lens.remove();
     base.remove();
+    // var test = new paper.Group([lens, base]);
+    // test.position = paper.view.center;
     // Extracting spline
     var half_dome = _.filter(dome.segments, function(seg) {
-        return seg.point.subtract(dome.bounds.center).x >= 0;
+        return seg.point.subtract(dome.bounds.center).x > -0.01;
     });
 
     var spline = new paper.Path({
@@ -362,10 +368,84 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight) {
         strokeWidth: 1,
         strokeScaling: false,
         fillColor: "yellow", 
-        display: false
+        visible: visible
     });
 
     spline.firstSegment.handleIn = new paper.Point(0, 0);
     return spline;
 }
+
+// gradient, radius, in, out
+LensGenerator.makeCDome = function(gradientArray, position) {
+    var maxRadiusObject = _.max(gradientArray, function(gradientObject){
+        return gradientObject.radius;
+    });
+
+    maxRadius = maxRadiusObject.radius;
+
+    var path = new paper.Path.Circle({
+        center: new Point(500, 300),
+        radius: maxRadius,
+        strokeColor: "black",
+        strokeWidth: 2,
+        position: position, 
+        visible: false
+    });
+
+    return _.map(gradientArray, function(obj){
+        c = generateSlicedSegment(obj, path, false);
+        // c.visible = true;
+        return c;
+    }); 
+};
+
+function generateSlicedSegment(o, path, visible=false) {
+    // Generate both the inPoint and outPoint vectors.
+    var origin = path.position; 
+
+    var inPoint = origin.clone();
+    var outPoint = origin.clone();
+    var radiusPoint = origin.clone();
+    inPoint.length = 100;
+    outPoint.length = 100;
+    radiusPoint.length = o.radius;
+    inPoint.angle = o.angleIn;
+    outPoint.angle = o.angleOut;
+    radiusPoint.angle = o.angleIn;
+
+    // // Translate the vectors to the origin
+    inPoint = inPoint.add(origin);
+    outPoint = outPoint.add(origin);
+    radiusPoint = radiusPoint.add(origin);
+
+    // // Define a circle to be the bounding box of the inputted Geometry.
+    var circle = new paper.Path.Circle({
+        radius: 300,
+        position: origin, 
+        strokeColor: "blue", 
+        strokeWidth: 0.5, 
+        visible: visible
+    });
+
+    // // // Gets the closest points on the Circle to both the inPoint and outPoint.
+    var nearestInPoint = circle.getNearestPoint(inPoint);
+    var nearestOutPoint = circle.getNearestPoint(outPoint);
+
+    // // // Define the intersecting path to consist of the inPoint, center, and outPoint.
+    var pieSlice = new paper.Path({
+        segments: [nearestInPoint, origin, nearestOutPoint],
+        // strokeWidth: 1,
+        // strokeColor: "red",
+        closed: true
+    });
+    var intersectingPath = pieSlice.intersect(path);
+    pieSlice.remove();
+
+    intersectingPath.fillColor = {
+        gradient: o.gradient,
+        origin: origin,
+        destination: radiusPoint,
+    }
+    return intersectingPath;
+}; 
 

@@ -3,10 +3,13 @@ Rails.application.routes.draw do
   get 'tool/index'
   get 'tool/pipeline'
   get 'tool/lens'
+  get 'tool/optimal_lens'
   get 'tool/theoretical_testbed'
   get 'tool/index'
   get 'tool/displays'
   get 'tool/start_server'
+  get 'tool/dope'
+  get 'tool/refract'
 
 
   get 'devices/index'

@@ -1,0 +1,179 @@
+   <script type="text/javascript">
+      var ip, ws, generator, gui;
+      
+      function Generator(){
+        this.length = 200;
+        this.lg = new LensGenerator();
+        this.ws = new WebStorage();
+        this.init();
+        this.generate();
+        this.sample_size = 150;
+      }
+      Generator.prototype = {
+        init: function(){
+          this.box = new paper.Path.Rectangle(paper.view.bounds);
+          this.box.set({
+              position: paper.view.center,
+              fillColor: '#333'
+          }); 
+          
+          paper.view.update();
+        }, 
+        clear: function(prefixes){
+          _.each(prefixes, function(prefix){
+            _.each(CanvasUtil.queryPrefix(prefix), function(rt){
+              rt.remove();
+            });
+          }) 
+        },
+        generate: function(random=false){
+            this.clear(["RT", "RAY", "PL"]);
+            
+            if(random){
+              params = this.lg.generateRandom(this.length)
+            } else{
+              params = this.lg.getOptimal(this.length);
+              console.log("STORED COST", params.cost);
+            }
+
+            var scene = this.lg.generate(this.box, params);
+            paper.view.update();
+        }, 
+        resample: function(){
+         var scope = this;
+         var samples = _.range(0, this.sample_size, 1);
+
+          samples = _.map(samples, function(s, i){
+            var scene = scope.generate(random=true);
+            uniformity = scope.fire();
+            return {cost: uniformity, params: JSON.stringify(params)}
+          });
+         
+          var min = _.min(samples, function(s){ return s.cost; });
+          var max = _.max(samples, function(s){ return s.cost; });
+          // console.log("RESULTS:", min, max);
+
+          max_p = JSON.parse(max.params);
+          max_p.cost = max.cost;
+          max.params = JSON.stringify(max_p);
+          
+
+          if(this.ws.includes(scope.length)){
+            params = JSON.parse(this.ws.get(scope.length));
+            console.log("PREVIOUSLY STORED", scope.length, params.cost, "v", max.cost);
+            if(!_.isUndefined(params.cost) && params.cost > max.cost){
+              this.generate();
+              return params.cost;
+            }
+          }
+          console.log("REWRITING", scope.length, max.params);
+          this.ws.set(this.length, max.params);
+          
+          // LOAD UP THE BEST ONE
+          this.generate();
+          return max.cost;
+        },
+        fire: function(){
+           this.clear(["RAY", "PL"]);
+           var mediums = CanvasUtil.getMediums();
+           var light_source = CanvasUtil.queryPrefix("LS");
+      
+            light_source = _.chain(light_source).map(function(ls){
+                  return new PointLight({
+                      position: ls.position, 
+                      mediums: mediums
+                  });
+            }).each(function(ls){
+              ls.emmision(-60, 0, 1);
+            });
+           
+           uniformity = ImagePlane.calculateUniformity();
+           // console.log("RESULTS:", uniformity);
+           paper.view.update();
+           return uniformity;
+        }, 
+        batch_clear: function(){
+          var scope = this;
+          _.each(scope.ws.keys(), function(key){
+            var k = parseFloat(key);
+
+            if(!_.isNaN(k))
+              scope.ws.remove(key);
+            
+          });
+        }, 
+        batch_process: function(){
+          var scope = this;
+          lengths = _.range(35, 600, 5);
+          _.each(lengths, function(l){
+            scope.length = l;
+            console.log("PROCESSING", l);
+            scope.resample();
+
+          });
+        }
+      }
+      $(function(){
+        // ws = new WebStorage();
+        Utility.paperSetup($('#myCanvas'));
+        gui = new dat.GUI();
+    
+        generator = new Generator();
+        var f1 = gui.addFolder('Ray Tracing');
+        f1.add(generator, "length").min(15).max(300).step(10).listen();
+        f1.add(generator, "generate");
+        f1.add(generator, "fire");
+        var f2 = gui.addFolder('Sampling')
+        f2.add(generator, "sample_size").min(0).max(300).step(10);
+        f2.add(generator, "resample");
+        f2.add(generator, "batch_process");
+        f2.add(generator, "batch_clear");
+        
+        f1.open();
+        f2.open();
+        // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
+        $("#shade").fadeOut();
+
+      });
+
+    </script>
+  </head>
+  <body>
+   
+    <canvas id="myCanvas"></canvas>
+    <%= render :partial => "zoom_bar"%>
+  </body>
+
+  <style>
+  
+   #zoom-bar{
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      padding: 4px 8px;
+      color: #AAA;
+      position: absolute;
+      z-index: 1000;
+      top: 230px;
+      left: 10px;
+       z-index: -1;
+   }
+    body, html{
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f5f4f0;
+    }
+    #myCanvas {
+      position: absolute;
+      top: 0px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 0px);
+      border: solid 1px black;
+      background: black;
+      /*display: none;*/
+      z-index: -100;
+      cursor: pointer;
+    }
+
+   
+  </style>

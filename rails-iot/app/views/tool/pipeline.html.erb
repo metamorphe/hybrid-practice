@@ -2,7 +2,7 @@
 var zb, cp, bb, vm, pm, gui, displays = []; 
 var p = Pipeline;
 var files = <%= @files.to_json.html_safe %>;
-var DEFAULT_PIPE_FILE = "traffic_light.svg";
+var DEFAULT_PIPE_FILE = "spiral.svg";
 
 $(function(){
   Utility.paperSetup($('#myCanvas'));
@@ -48,13 +48,10 @@ $(function(){
 </div>
 <div id="views">
     <select id="file-select" class="form-control">
-        </select> <button id="view-icon" class="pull-right btn btn-primary"></button><br class="clearfix">
+        </select> <button id="view-icon" class="pull-right btn btn-primary">EL</button><br class="clearfix">
     <div id="view-list">
         <ul>
            <li class="active">
-                <span>OPTIMIZER</span> <button name="optimizer" class="view btn-sm btn btn-info"> OP</button>
-            </li>
-           <li>
                 <span>RAYTRACE</span> <button name="raytrace" class="view btn-sm btn btn-info"> RT</button>
             </li>
             <li>

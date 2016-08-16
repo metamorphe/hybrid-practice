@@ -90,30 +90,47 @@ ImagePlane.getSignal = function(bins=100){
 	var origin = image_plane.firstSegment.point;
 	data = _.map(hits, function(h){
 		var pt = h.point.subtract(origin);
-		return pt.x;
+		return {x: pt.x, strength: h.path.strength, direction: h.path.direction};
 	});
 
 	var range = image_plane.length;
+	
 	var step = range/bins;
 
-	hist = _.groupBy(data, function(x){
-		return Math.floor(x / step);
+	hist = _.groupBy(data, function(ray){
+		return Math.floor(ray.x / step);
 	});
+
+
+	// brdf_association = {}
+	// _.each(hist, function(v, k){
+	// 	_.each(v, function(ray){ 
+	// 		brdf_association[ray.direction] = parseInt(k);
+	// 	})
+	// });
+	// console.log('BRDF', JSON.stringify(brdf_association));
+
+
 	hist = _.each(hist, function(v, k){
-		hist[k] = v.length;
+		hist[k] = _.reduce(v, function(sum, ray){ return sum + ray.strength}, 0);
 	});
-	console.log(range.toFixed(0), step.toFixed(0));
 	var signal = [];
 	for(var i = 0; i < bins; i+= 1){
-		signal[i] = _.isUndefined(hist[i]) ?  0 : hist[i];
+		signal[i] = 0;
+	}
+	for(var i in hist){
+		var key = parseInt(i);
+		signal[key] = hist[i];
 	}
 	return signal;
 }
 
 ImagePlane.calculateUniformity = function(bins=100){
 	var signal = ImagePlane.getSignal(bins);
-	for(var i = 0; i < bins; i+= 1){
-		signal[i] = _.isUndefined(hist[i]) ?  0 : 1;
+	// console.log(signal);
+	// CAP
+	for(var i = 0; i < bins; i += 1){
+		signal[i] = signal[i] > 0 ?  1 : 0;
 	}
 	hits = _.reduce(signal, function(sum, v){
 		return sum + v;

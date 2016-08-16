@@ -1,0 +1,66 @@
+<script type="text/javascript">
+$(function() {
+    var gui = new dat.GUI();
+    var pdms_glass = new DopeMixture("PDMS_GLASS", $("#glass-mass"));
+    var f1 = gui.addFolder("PDMS-Glass Doping");
+    f1.add(pdms_glass, "working_mass").min(0).max(50).step(1);
+    f1.add(pdms_glass, "working_ratio").min(0).max(1.0).step(0.05);
+    f1.add(pdms_glass, "target_ratio").min(0).max(1.0).step(0.05);
+    f1.add(pdms_glass, "calculate");
+    f1.open();
+     $("#shade").fadeOut();
+
+});
+
+function DopeMixture(name, dom){
+    this.name = name;
+    this.dom = dom;
+    this.working_mass = 10;
+    this.working_ratio = 0.01;
+    this.target_ratio = 0.01;
+    this.calculate();   
+}
+DopeMixture.prototype = {
+    calculate: function(){
+        this.amount = this.get_b_mass();
+        console.log(this.amount);
+        this.dom.html(this.amount.toFixed(1));
+    },
+    get_b_mass: function(){
+        // Given GRAMS_W grams of the working mixture with PROP_W
+        // proportion of dust and PROP_NEW desired, returns the
+        // grams of dust that should be added to the solution.
+        
+        // ERROR if either proportion is not in [0, 1)
+        if (this.target_ratio < 0.0 || this.target_ratio >= 1.0 || this.working_ratio < 0.0 || this.working_ratio >= 1.0)
+            throw new Error("Proportions needs to be between 0 and 1 inclusive.")
+        return (this.working_mass * (this.target_ratio - this.working_ratio)) / (1.00000000001 - this.target_ratio);
+    }
+}
+
+</script>
+<div id="mixture-container" class="">
+    <div class="col-xs-12 text-center">
+        <p id="mixture" class="lead"> +</span> <span id="glass-mass"> 5.17 </span>  (g)</p>
+        <span id="mixture-description"> Refractive Glass Beads </span>
+    </div>
+</div>
+
+<style>
+#mixture-container{
+    margin-top: 150px;
+    width: 100%;
+}
+#mixture{
+    font-size: 200px;
+}
+#mixture-description{
+    font-size: 60px;
+}
+  body, html{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+</style>

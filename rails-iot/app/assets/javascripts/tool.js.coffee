@@ -3,7 +3,9 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 //= require underscore
+//= require numeric.min
 //= require dat.gui.min
+//= require clipper
 //= require paper-full.min
 //= require saveas.min
 //= require format
