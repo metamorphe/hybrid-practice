@@ -92,7 +92,18 @@ function convolve(array, weights) {
       var options = {
         scales: {
             xAxes: [{
-                display: false
+                display: false, 
+                ticks: {
+                    min: 0,
+                    max: 100
+                }
+            }], 
+            yAxes: [{
+                display: true, 
+                ticks: {
+                    min: 0,
+                    max: 1
+                }
             }], 
         },
         legend: {
