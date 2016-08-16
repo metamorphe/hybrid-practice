@@ -172,9 +172,9 @@ function convolve(array, weights) {
     this.lightSource.emmision(-60, 60, this.theta);
     paper.view.update();
     // console.log('... Trace finished!');
-    var data = this.getSignal(30);
+    var data = this.getSignal(50);
     data = {x: _.map(_.keys(data), function(n){return parseInt(n)}), y: _.values(data)}
-    createChart(data, bins=30);
+    createChart(data, bins=50);
   }
 
   Artwork.prototype.removeRays = function() {

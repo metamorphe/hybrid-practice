@@ -101,10 +101,11 @@ ImagePlane.getSignal = function(bins=100){
 		return Math.floor(ray.x / step);
 	});
 
-
+	// console.log("STEP", step, "RANGE", range, "BINS", bins);
 	// brdf_association = {}
 	// _.each(hist, function(v, k){
 	// 	_.each(v, function(ray){ 
+	// 		console.log(ray.direction, ray.x, parseInt(k));
 	// 		brdf_association[ray.direction] = parseInt(k);
 	// 	})
 	// });
@@ -123,9 +124,6 @@ ImagePlane.getSignal = function(bins=100){
 		var key = parseInt(i);
 		signal[key] = hist[i];
 	}
-	console.log(signal, _.max(signal));
-
-	console.log(numeric.div(signal, _.max(signal)))
 	return numeric.div(signal, _.max(signal));
 	
 }
