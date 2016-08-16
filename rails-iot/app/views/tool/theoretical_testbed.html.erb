@@ -80,7 +80,7 @@ function convolve(array, weights) {
 
     var labels = numeric.linspace(0, bins-1, 500);
     var data = numeric.spline(signal.x, signal.y).at(labels);
-    var kernel = _.map(_.range(0, 5), function(el, i, arr){ return 1/arr.length; });
+    var kernel = _.map(_.range(0, 11), function(el, i, arr){ return 1/arr.length; });
     // sigma = Math.sqrt(1.0/2/Math.log(2))
     // kernel = gaussian_kernel(50, 99); 
     data = convolve(data, kernel)
@@ -172,9 +172,10 @@ function convolve(array, weights) {
     this.lightSource.emmision(-60, 60, this.theta);
     paper.view.update();
     // console.log('... Trace finished!');
-    var data = this.getSignal(50);
+    var bins = 100;
+    var data = this.getSignal(bins);
     data = {x: _.map(_.keys(data), function(n){return parseInt(n)}), y: _.values(data)}
-    createChart(data, bins=50);
+    createChart(data, bins);
   }
 
   Artwork.prototype.removeRays = function() {
@@ -201,7 +202,7 @@ function convolve(array, weights) {
     gui = new dat.GUI();
     gui.add(testbed, 'lensHeight')
       .min(1)
-      .max(10)
+      .max(30)
       .step(1)
       .onChange(function(value) {
         testbed.updateLensHeight();
