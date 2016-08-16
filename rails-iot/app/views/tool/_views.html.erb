@@ -66,67 +66,7 @@
 								strokeWidth: 0
 						});
 
-						_.each(e.leds, function(led, i){
-							var diffs = _.filter(e.diff, function(diff){ return diff.contains(led.position);});
-							if(diffs.length ==  0) return;
-
-							var hue = (360 / e.leds.length) * i;
 						
-							var rays = CanvasUtil.query(paper.project, { prefix: "RAY", originLight: led.id });
-							
-							if(rays.length != 0){
-								// UPDATE RAYS
-								CanvasUtil.set(rays, "position", led.position.clone());
-							} else{
-								// CREATE RAYS
-								var rays = _.range(-180, 180, 1);
-								var color = new paper.Color("red");
-								color.hue = hue;
-								color.saturation = 0.8;
-								color.brightness = 0.8;
-
-								var led_color = color.clone();
-								led_color.brightness = 1;
-								led.set({
-									fillColor: led_color, 
-									strokeColor: led_color, 
-									strokeWidth: 1
-								})
-
-								rays = _.map(rays, function(theta){
-
-									var point = new paper.Point(1, 0);
-									point.length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH);
-									point.angle = theta;
-									var line = new paper.Path.Line({
-										name: "RAY: Cast",
-										from: led.position.clone(), 
-										to: led.position.clone().add(point), 
-										strokeColor: color, 
-										strokeWidth: 1,
-										opacity: 0.2, 
-										parent: display.svg, 
-										originLight: led.id, 
-										originAngle: theta,
-										hue: hue, 
-										// applyMatrix: false
-										// shadowColor: color,
-    								// shadowBlur: 30,
-  								  // shadowOffset: new Point(1, 1)
-									});
-									line.pivot = line.firstSegment.point.clone();;
-									
-									ixts = line.getIntersections(diffs[0]);
-									if(ixts.length > 0)
-									line.lastSegment.point = ixts[0].point;
-									
-								});
-								
-							}
-						});
-						_.each(e.leds, function(led, i){
-							led.bringToFront();
-						});
 						break;
 					case "LIGHTS OUT":
 						$('#myCanvas').css('background', '#111');

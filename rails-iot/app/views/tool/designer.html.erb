@@ -4,8 +4,11 @@
       $(function(){
         paperSetup();
         var display = new Artwork("/artwork/bcnm.svg", function(artwork){
-           artwork.svg.fitBounds(paper.view.bounds.expand(-200));
-           artwork.svg.position.y -= 100;
+           // artwork.svg.fitBounds(paper.view.bounds.expand(-200));
+           
+           paper.view.zoom = 3;
+           artwork.svg.position = paper.view.center;
+           artwork.svg.position.y -= 30;
            
            vm = new ViewManager($('#views'));
         });
