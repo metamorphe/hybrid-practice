@@ -38,14 +38,14 @@ function LEDPlacerBrush(paper){
 				else{
 					r.opacity = 0.3;
 					var dir = new paper.Point(1, 0);
-					dir.length = MAX_APA102C_RAY_LENGTH;
+					dir.length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH);
 					dir.angle = r.originAngle;
 					dir = dir.add(drag.position);
 					r.lastSegment.point = dir;
 					ixts = r.getIntersections(diff[0]);
 					if(ixts.length > 0){
 						var furthestIxt = _.max(ixts, function(ixt){ return ixt.point.getDistance(drag.position); })
-						r.lastSegment.point = furthestIxt.point;
+						r.lastSegment.point = furthestIxt.point.clone();
 					}
 				}
 			})

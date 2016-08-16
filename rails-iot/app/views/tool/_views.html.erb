@@ -96,7 +96,7 @@
 								rays = _.map(rays, function(theta){
 
 									var point = new paper.Point(1, 0);
-									point.length = 200; //Ruler.mm2pts(MAX_APA102C_RAY_LENGTH);
+									point.length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH);
 									point.angle = theta;
 									var line = new paper.Path.Line({
 										name: "RAY: Cast",
@@ -109,6 +109,7 @@
 										originLight: led.id, 
 										originAngle: theta,
 										hue: hue, 
+										// applyMatrix: false
 										// shadowColor: color,
     								// shadowBlur: 30,
   								  // shadowOffset: new Point(1, 1)

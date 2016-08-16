@@ -4,7 +4,9 @@
       $(function(){
         paperSetup();
         var display = new Artwork("/artwork/bcnm.svg", function(artwork){
+           artwork.svg.fitBounds(paper.view.bounds.expand(-200));
            artwork.svg.position.y -= 100;
+           
            vm = new ViewManager($('#views'));
         });
         displays.push(display);
