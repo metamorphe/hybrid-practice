@@ -60,7 +60,7 @@ function Pipeline() {
   
 }
 
-Pipeline.getElements = function() {
+Pipeline.getElements = function(display) {
     return {
         art: display.queryPrefix('ART'),
         diff: display.queryPrefix('DIF'),
@@ -71,7 +71,8 @@ Pipeline.getElements = function() {
         dds: display.queryPrefix('DDS'),
         mc: display.queryPrefix("MC"),
         base: display.queryPrefix("BASE"),
-        wires: display.queryPrefix("WIRE")
+        wires: display.queryPrefix("WIRE"), 
+        rays: display.queryPrefix("RAY") 
     }
 }
 Pipeline.script = {
@@ -942,7 +943,7 @@ PipeManager.prototype = {
 
     console.log('RUNNING SCRIPT', view)  
     display = new Artwork($('#file-select').val(), function(artwork){
-      var e = Pipeline.getElements();
+      var e = Pipeline.getElements(artwork);
       Pipeline.script[view](artwork, e);
     });
 

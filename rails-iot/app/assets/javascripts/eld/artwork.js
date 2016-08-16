@@ -21,6 +21,12 @@ CanvasUtil.getMediums =  function(){
     });
  	return  _.flatten([lenses,reflectors]);
  }
+
+CanvasUtil.getIDs = function(arr){
+	return _.chain(arr).map(function(el){
+		return CanvasUtil.query(paper.project, {id: el});
+	}).flatten().compact().value();
+}
 CanvasUtil.getIntersections = function(el, collection){
 	var hits = _.map(collection, function(c){
 		return c.getIntersections(el);
@@ -64,6 +70,21 @@ CanvasUtil.queryPrefix = function(selector) {
 CanvasUtil.queryPrefixWithId = function(selector, id) {
 	return _.where(CanvasUtil.queryPrefix(selector),
 					{lid: id});
+}
+
+CanvasUtil.set = function(arr, property, value){
+	if(typeof(property) == "object"){
+		_.each(arr, function(el){
+			for(k in property){
+				value = property[k];
+				el[k] = value;
+			}
+		});
+	}
+	else
+	_.each(arr, function(el){
+	  el[property] = value;
+	});
 }
 
 function Artwork(svgPath, loadFN, cloned){

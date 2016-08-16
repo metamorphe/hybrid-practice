@@ -12,14 +12,6 @@ $(function(){
   paper.loadCustomLibraries();
   pm = new PipeManager($('body'));
   
-  
-
-  gui = new dat.GUI({ autoPlace: false });
-  $(gui.domElement).css({
-    position: "absolute", 
-    bottom: 20
-  })
-  $('body').append(gui.domElement);
 
   $('#png-download').click(function(){
       var result = CanvasUtil.queryPrefix("RESULT")[0];

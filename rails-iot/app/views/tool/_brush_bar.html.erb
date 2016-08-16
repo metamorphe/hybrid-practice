@@ -49,10 +49,11 @@ function BrushBar(container){
             oldbrush.disable();
           }
           // ACTIVATE BRUSH
-          console.log("Enabling", scope.brush);
           scope.brush = $(this).attr('tool');
           var brush = scope.toolbox[scope.brush];
           brush.enable();
+          console.log("Enabling", scope.brush);
+        
           paper.tool = brush.tool;
 
           $(this).attr('active', 'active');
@@ -122,10 +123,10 @@ function BrushBar(container){
 </div>
 <div class="col-xs-5">
   <div id="brush-set">
-    <img class="brush" tool="CircuitBrush" src="/brushes/brush_CircuitBrush_NonActive.png">
-    <img class="brush" tool="MagicWandBrush" src="/brushes/brush_MagicWand_NonActive.png">
-    <img class="brush" tool="HeatBrush" src="/brushes/brush_HeatGun_NonActive.png">
-    <img class="brush" tool="LinkBrush" src="/brushes/brush_LinkBrush_NonActive.png">
+    <img class="brush" tool="LEDPlacerBrush" src="/brushes/brush_CircuitBrush_NonActive.png">
+    <!-- <img class="brush" tool="MagicWandBrush" src="/brushes/brush_MagicWand_NonActive.png"> -->
+    <!-- <img class="brush" tool="HeatBrush" src="/brushes/brush_HeatGun_NonActive.png"> -->
+    <!-- <img class="brush" tool="LinkBrush" src="/brushes/brush_LinkBrush_NonActive.png"> -->
   </div>
   <!-- SET OF TOOLS HERE -->
 </div>

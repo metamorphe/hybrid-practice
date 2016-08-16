@@ -1,437 +1,247 @@
 <!-- Views -->
 <script type="text/javascript">
-  function ViewManager(container){
-    this.container = container;
-    this.state = true;
-    this.init();
-    this.view = "GLOBAL";
-  }
+ const MAX_APA102C_RAY_LENGTH = 100;
+	function ViewManager(container){
+		this.container = container;
+		this.state = true;
+		this.view = "NORMAL";
+		this.init();
+		this.show();
+	}
+	ViewManager.CANVAS_COLOR = "rgb(245, 244, 240)";
 
-  ViewManager.prototype = {
-     init: function(){
-      this.hide(true);
-      var scope = this;
-      console.log(this);
-      this.update();
-      $('#view-icon').click(function(){
-        if(scope.state) scope.hide();
-        else scope.show();
-      });
-      $('#view-list ul li').click(function(){
-        $('#view-icon').html($(this).children('button').html());
-        $('#view-list ul li').removeClass('active');
-        $(this).addClass('active');
-        $('#view-icon').attr('class', $(this).children('button').attr('class')).removeClass('view').removeClass("btn-sm").addClass('pull-right');
-        scope.view = $(this).children('span').html();
-        scope.update();
-      });
-      $('button[name="circuit"]').click();
-
-      // Create labels and hide them immediately after
-      $.each(displays, function(idx, obj) {
-        ViewManager.generateLabels(obj.allLeds, 'lid', 'CIR');
-        ViewManager.generateLabels(obj.allLeds, 'status', 'STA',
-                  useOffset=false, greyed=true);
-      });
-      this.update();
-    },
-    getCurrentView: function(){
-      return this.view;
-    },
-    update: function(){
-      var view = this.getCurrentView();
-      _.each(displays, function(display){
-
-        var BO = display.queryPrefix("BO");
-        var BI = display.queryPrefix("BI");
-        var DIF = display.queryPrefix("DIF");
-        var CP = display.queryPrefix("CP");
-        var NLED = display.queryPrefix("NLED");
-
-        // Because we create
-        var CIR = CanvasUtil.queryPrefix("CIR");
-        var STA = CanvasUtil.queryPrefix("STA");
-
-        _.each(NLED, function(LED){
-          LED.style.strokeWidth = 1;
-          LED.style.strokeColor = "#666";
-        });
-        // LOGIC FOR VIEW SHIFT
-
-        switch(view){
-          case "GLOBAL":
-            ViewManager.setElementVisibility(BO, true);
-            ViewManager.setElementVisibility(BI, true);
-            ViewManager.setElementVisibility(DIF, true);
-            ViewManager.setElementVisibility(CP, true);
-            ViewManager.setElementVisibility(NLED, true);
-            ViewManager.setElementVisibility(CIR, false);
-            ViewManager.setElementVisibility(STA, false);
-            break;
-          case "INTERACTIVITY":
-              ViewManager.setElementVisibility(BO, false);
-              ViewManager.setElementVisibility(BI, false);
-              ViewManager.setElementVisibility(DIF, true);
-              ViewManager.setElementVisibility(CP, false);
-              ViewManager.setElementVisibility(NLED, false);
-              ViewManager.setElementVisibility(CIR, false);
-              ViewManager.setElementVisibility(STA, true);
-            break;
-          case "SPACER":
-            break;
-          case "DIFFUSER":
-            ViewManager.setElementVisibility(BO, false);
-            ViewManager.setElementVisibility(BI, false);
-            ViewManager.setElementVisibility(DIF, true);
-            ViewManager.setElementVisibility(CP, false);
-            ViewManager.setElementVisibility(NLED, false);
-            ViewManager.setElementVisibility(CIR, false);
-            ViewManager.setElementVisibility(STA, false);
-            break;
-          case "LIGHTS":
-            ViewManager.setElementVisibility(BO, false);
-            ViewManager.setElementVisibility(BI, false);
-            ViewManager.setElementVisibility(DIF, false);
-            ViewManager.setElementVisibility(CP, false);
-            ViewManager.setElementVisibility(NLED, true);
-            ViewManager.setElementVisibility(CIR, false);
-            ViewManager.setElementVisibility(STA, false);
-            break;
-          case "CIRCUIT":
-            circuitMakerScript(display);
-            ViewManager.setElementVisibility(BO, true);
-            ViewManager.setElementVisibility(BI, true);
-            ViewManager.setElementVisibility(DIF, false);
-            ViewManager.setElementVisibility(CP, true);
-            ViewManager.setElementVisibility(NLED, true);
-            ViewManager.setElementVisibility(CIR, true);
-            ViewManager.setElementVisibility(STA, false);
-            break;
-          default:
-            break;
-        }
-      });
-      paper.view.update();
-    },
-    show: function(now){
-      if(this.state) return;
-      this.state = true;
-      if(now){$("#view-list").show(); return;}
-      $("#view-list").toggle("slide", { direction: "up" }, 300);
-    },
-    hide: function(now){
-      if(!this.state) return;
-      this.state = false;
-      if(now){$("#view-list").hide(); return;}
-      $("#view-list").toggle("slide", { direction: "up" }, 300);
-    }
-  }
-
-  ViewManager.setElementVisibility = function(arr, isVisible){
-    _.each(arr, function(el){
-      el.opacity = isVisible ? 1: 0;
-    });
-  }
-
-  /**
-   * Generates labels for a list of Paper.js objects named
-   * COMPONENTS, and displays them on the canvas. Objects created
-   * have a .name property of PREFIX + ":circle" and PREFIX + ":text",
-   * and the text generated for each label is obtained from the
-   * .ID_NAME property of each object in COMPONENTS.
-   *
-   * Note that the ID_NAME must match the property name for each
-   * object exactly, otherwise behavior is undefined.
-   */
-  ViewManager.generateLabels = function(components, idName, prefix,
-        useOffset=true, greyed=false) {
-    //FIXME: use hash parameter syntax
-    var circle, text, x, y, point;
-		var radius = 10;
-		var offset = useOffset ? 15 : 0;
-		$.each(components, function(idx, obj) {
-			x = obj.position.x;
-			y = obj.position.y;
-			circle = new Path.Circle(new Point(x + offset, y + offset)
-									, radius);
-			circle.name = prefix + ':circle_' + obj[idName];
-      circle.lid = obj.lid;
-			circle.set({
-				strokeWidth: 1,
-				strokeColor: '#292824',
-				fillColor: greyed ? '#b7b3aa' : '#ffffff',
-				opacity: 1.0,
+	ViewManager.prototype = {
+		 init: function(){
+			this.hide(true);
+			var scope = this;
+			this.update();
+			// CONTROL LOGIC
+			$('#view-icon').click(function(){
+				if(scope.state) scope.hide();
+				else scope.show();
 			});
-			text = new PointText(new Point(x + offset,
-					y + offset));
-			text.name = prefix + ':text_' + obj[idName];
-      text.lid = obj.lid;
-			text.set({
-				fillColor: '#292824',
-				content: '' + obj[idName]
+			$('#view-list ul li').click(function(){
+				$('#view-icon').html($(this).children('button').html());
+				$('#view-list ul li').removeClass('active');
+				$(this).addClass('active');
+				$('#view-icon').attr('class', $(this).children('button').attr('class')).removeClass('view').removeClass("btn-sm").addClass('pull-right');
+				scope.view = $(this).children('span').html();
+				scope.update();
 			});
-			text.position.x -= text.bounds.width / 2;
-			text.position.y += text.bounds.height / 4;
-		});
-  }
+			this.update();
+		},
+		getCurrentView: function(){
+			return this.view;
+		},
+		update: function(){
+			var view = this.getCurrentView();
+			console.log("VIEW", view);
+			
+					
+			_.each(displays, function(display){
+				e = Pipeline.getElements(display);
+				var all = [e.art, e.diff, e.leds, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
+		
+				switch(view){
+					case "NORMAL":
+						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
+						var show = [e.art, e.diff, e.leds, e.dds, e.base, e.wires];
+						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi];
+						CanvasUtil.set(e.diff, {
+								fillColor: "#DFDFDF", 
+								strokeWidth: 1,
+								strokeColor: "black"
+						});
+						console.log(e.rays);
+						
+						break;
+					case "RAYS":
+						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
+						var show = [e.diff, e.leds, e.rays];
+						var hide = [e.art, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
+						
+					
+						CanvasUtil.set(e.diff, {
+								fillColor: "black", 
+								strokeWidth: 0
+						});
 
-  ViewManager.updateLabel = function(prefix, lid, contentHash) {
-    var selectionHash = {
-      prefix: prefix,
-      lid: lid
-    };
-    console.log(selectionHash);
-    var els = CanvasUtil.query(paper.project, selectionHash);
-    console.log(els);
-    $.each(els, function(idx, obj) {
-      // FIXME: kludge, we only pull out the content
-      // field for setting the point text, and the
-      // entire rest of the hash is used to set
-      // the circle
-      if (obj.className == 'PointText') {
-        obj.status = contentHash['content'];
-        obj.content = contentHash['content'];
-      }
-      if (obj.className == 'Path') {
-        obj.set(contentHash);
-      }
-    });
-    paper.view.update();
-  }
+						_.each(e.leds, function(led, i){
+							var diffs = _.filter(e.diff, function(diff){ return diff.contains(led.position);});
+							if(diffs.length ==  0) return;
 
-  function circuitMakerScript(display){
-    // GENERATE BASE
-    var CP = display.queryPrefix("CP")[0];
-    var base = CP.clone();
-    base.set({
-      name: "BASE: FR1 Board",
-      strokeColor: "#fe6e4b",
-      strokeWidth: Ruler.mm2pts(6)
-    });
-    base.sendToBack();
+							var hue = (360 / e.leds.length) * i;
+						
+							var rays = CanvasUtil.query(paper.project, { prefix: "RAY", originLight: led.id });
+							
+							if(rays.length != 0){
+								// UPDATE RAYS
+								CanvasUtil.set(rays, "position", led.position.clone());
+							} else{
+								// CREATE RAYS
+								var rays = _.range(-180, 180, 1);
+								var color = new paper.Color("red");
+								color.hue = hue;
+								color.saturation = 0.8;
+								color.brightness = 0.8;
 
-    // CIRCUIT BACKGROUND
-    // expandPath(CP, 20);
-    // for(var i = 0; i < CP.segments.length; i += 1){
-    //   if(i + 1 >= CP.segments.length) break;
-    //   var seg0 = CP.segments[i];
-    //   var seg1 = CP.segments[i+1];
+								var led_color = color.clone();
+								led_color.brightness = 1;
+								led.set({
+									fillColor: led_color, 
+									strokeColor: led_color, 
+									strokeWidth: 1
+								})
 
-    //   var offset0 = CP.getOffsetOf(seg0.point)_;
-    //   var x0 = CP.getPointAt(offset0);
-    //   var n0 = CP.getNormalAt(offset0);
-    //   n0.length = 10;
+								rays = _.map(rays, function(theta){
 
+									var point = new paper.Point(1, 0);
+									point.length = 200; //Ruler.mm2pts(MAX_APA102C_RAY_LENGTH);
+									point.angle = theta;
+									var line = new paper.Path.Line({
+										name: "RAY: Cast",
+										from: led.position.clone(), 
+										to: led.position.clone().add(point), 
+										strokeColor: color, 
+										strokeWidth: 1,
+										opacity: 0.2, 
+										parent: display.svg, 
+										originLight: led.id, 
+										originAngle: theta,
+										hue: hue, 
+										// shadowColor: color,
+    								// shadowBlur: 30,
+  								  // shadowOffset: new Point(1, 1)
+									});
+									line.pivot = line.firstSegment.point.clone();;
+									
+									ixts = line.getIntersections(diffs[0]);
+									if(ixts.length > 0)
+									line.lastSegment.point = ixts[0].point;
+									
+								});
+								
+							}
+						});
+						_.each(e.leds, function(led, i){
+							led.bringToFront();
+						});
+						break;
+					case "LIGHTS OUT":
+						$('#myCanvas').css('background', '#111');
+						var show = [e.rays];
+						var hide = [e.leds, e.diff, e.art, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
+						break;
+					default:
+						break;
+				}
+				CanvasUtil.set(_.flatten(show), "visible", true);
+				CanvasUtil.set(_.flatten(hide), "visible", false);
 
-    //   var offset1 = CP.getOffsetOf(seg1.point);
-    //   var x1 = CP.getPointAt(offset1);
-    //   var n1 = CP.getNormalAt(offset1);
-    //   n1.length = 10;
-
-    //   var line = new paper.Path({
-    //       segments: [x0.add(n0), x1.add(n1) ],
-    //       strokeColor: 'red'
-    //   });
-    //   console.log(offset0, offset1)
-    // }
-    // expandPath(CP, 20);
-
-    // // GENERATE CONTROL LINES
-    // var PWR = new paper.Path({
-    //   name: "CL: PWR",
-    //   strokeColor: "#FF0000",
-    //   strokeWidth: Ruler.mm2pts(0.648)
-    // });
-    // var GND = new paper.Path({
-    //   name: "CL: GND",
-    //   strokeColor: "#000000",
-    //   strokeWidth: Ruler.mm2pts(0.648)
-    // });
-
-   //  var expandedPath = new paper.Path.Circle({
-   //      fillColor: "green",
-   //      radius: 10,
-   //      position: CP.getPointAt(0)
-   //    });
-   //  expandedPath.bringToFront();
-   // var c = new paper.Path.Circle({
-   //    fillColor: "grey",
-   //    radius: 10,
-   //    position: CP.getPointAt(10)
-   //  });
-   //  var prev = expandedPath;
-   //  expandedPath = expandedPath.unite(c);
-   //  c.remove();
-   //  // prev.remove();
-   //  expandedPath.remove();
-    // for(var offset = 0; offset < CP.length; offset += 90){
-    // for(var i = 0; i < CP.segments.length; i += 1){
-      // console.log(CP.segments)
-      // var seg = CP.segments[i];
-      // console.log(seg);
-      // c = new paper.Path.Circle({
-      //   fillColor: "purple",
-      //   radius: 10,
-      //   position: seg.point
-      // })
-
-      // offset = CP.getOffsetOf(seg.point);
-      // var nPWR = CP.getNormalAt(offset);
-      // var xPWR = CP.getPointAt(offset);
-
-      // nPWR.length = 10;
-      // c = new paper.Path.Circle({
-      //   fillColor: "purple",
-      //   radius: 10,
-      //   position: xPWR
-      // });
-      // prev = expandedPath;
-      // expandedPath = expandedPath.unite(c);
-      // prev.remove();
-      // c.remove();
-      // var nGND = nPWR.clone();
-      // nGND.length = 10;
-
-      // var xGND = CP.getPointAt(offset);
-      // // var pos = n.subtract(x);
-      // // c = new paper.Path.Circle({
-      // //   fillColor: "purple",
-      // //   radius: 3,
-      // //   position: n.add(x)
-      // // })
-      // var line = new paper.Path({
-      //     segments: [xPWR, xPWR.add(nPWR)],
-      //     strokeColor: 'red'
-      // });
-      // PWR.addSegment(xPWR.add(nPWR))
-      // GND.addSegment(xGND.subtract(nGND))
-    // }
-    // CP.name = "PWR: PowerLine"
-
-  }
-
-  function expandPath(path, amount){
-    var circles = [];
-    for(var offset = 0; offset < path.length; offset += 12){
-      var x = path.getPointAt(offset);
-      var pos = x.clone();
-      pos.x -= amount/2;
-      pos.y -= amount/2;
-      var n = path.getTangentAt(offset);
-      c = new paper.Path.Rectangle({
-        fillColor: "purple",
-        // radius: 10,
-        size: [amount, amount],
-        radius: amount/4,
-        point: pos,
-        rotation: n.angle
-      });
-      circles.push(c);
-    }
-    var master = circles[0];
-    master.style.fillColor = "#00A8E1";
-    master.style.strokeColor = "black";
-    master.style.strokeWidth = 3;
-    _.each(circles, function(circle, i){
-      if(i == 0) return;
-      next = master.unite(circle);
-      master.remove();
-      circle.remove();
-      master = next;
-    });
-    master.bringToFront();
-    // master.remove();
-    return master;
-  }
+			});
+			paper.view.update();
+		},
+		show: function(now){
+			if(this.state) return;
+			this.state = true;
+			if(now){$("#view-list").show(); return;}
+			$("#view-list").toggle("slide", { direction: "up" }, 300);
+		},
+		hide: function(now){
+			if(!this.state) return;
+			this.state = false;
+			if(now){$("#view-list").hide(); return;}
+			$("#view-list").toggle("slide", { direction: "up" }, 300);
+		}
+	}
 </script>
+<!-- 
+
+Pipeline.getElements = function() {
+		return {
+				art: display.queryPrefix('ART'),
+				diff: display.queryPrefix('DIF'),
+				leds: display.queryPrefix('NLED'),
+				bo: display.queryPrefix('BO'),
+				bi: display.queryPrefix('BI'),
+				cp: display.queryPrefix('CP'),
+				dds: display.queryPrefix('DDS'),
+				mc: display.queryPrefix("MC"),
+				base: display.queryPrefix("BASE"),
+				wires: display.queryPrefix("WIRE")
+		}
+} -->
+
 <div id="views">
-  <button id="view-icon" class="pull-right btn btn-primary">
-    <span class="glyphicon glyphicon-globe"></span>
-  </button>
-  <br class="clearfix"/>
-  <div id="view-list">
-    <ul>
-      <li class="active">
-        <span>GLOBAL</span>
-        <button name="global" class="view btn-sm btn btn-primary">
-         <span class="glyphicon glyphicon-globe"></span>
-        </button>
-      </li>
-      <li>
-        <span>INTERACTIVITY</span>
-        <button name="interactivity" class="view btn-sm btn btn-danger">
-          I
-        </button>
-      </li>
-      <li>
-        <span>SPACER</span>
-        <button name="spacer" class="view btn-sm btn btn-default">
-          S
-        </button>
-      </li>
-      <li>
-        <span>DIFFUSER</span>
-        <button name="diffuser" class="view btn-sm btn btn-warning">
-          D
-        </button>
-      </li>
-      <li>
-        <span>LIGHTS</span>
-          <button name="light" class="view btn btn-sm btn-success">
-            L
-          </button>
-        </li>
-      <li>
-       <span>CIRCUIT</span>
-        <button name="circuit" class="view btn btn-sm btn-info">
-          C
-        </button>
-      </li>
-    </ul>
-  </div>
+	<button id="view-icon" class="pull-right btn btn-primary">
+		<span class="glyphicon glyphicon-globe"></span>
+	</button>
+	<br class="clearfix"/>
+	<div id="view-list">
+		<ul>
+			<li class="active">
+				<span>NORMAL</span>
+				<button name="normal" class="view btn-sm btn btn-primary">
+				 <span class="glyphicon glyphicon-globe"></span>
+				</button>
+			</li>
+			 <li>
+				<span>RAYS</span>
+				<button name="interactivity" class="view btn-sm btn btn-danger">
+					R
+				</button>
+			</li>
+			<li>
+				<span>LIGHTS OUT</span>
+				<button name="lights" class="view btn-sm btn btn-success">
+					L
+				</button>
+			</li>
+		</ul>
+	</div>
 </div>
 
 <style type="text/css">
-  #views{
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      padding: 4px 8px;
-      color: #AAA;
-      position: absolute;
-      z-index: 1000;
-      top: 60px;
-      right: 25px;
-      z-index: -1;
-      /*text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);*/
-   }
-    .view{
-      float: right;
-      width: 20px;
-      padding: 1px;
-      height: 20px;
-      margin-left: 5px;
-    }
-    .view:focus{
-      outline: none;
-    }
-    #view-icon{
-      width: 40px;
-    }
-      #view-icon:focus{
-        outline: none;
-      }
-    #view-list{
-      width: 175px;
-      text-align: right;
-      text-decoration: none;
+	#views{
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			padding: 4px 8px;
+			color: #AAA;
+			position: absolute;
+			z-index: 1000;
+			top: 60px;
+			right: 25px;
+			z-index: -1;
+			/*text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);*/
+	 }
+		.view{
+			float: right;
+			width: 20px;
+			padding: 1px;
+			height: 20px;
+			margin-left: 5px;
+		}
+		.view:focus{
+			outline: none;
+		}
+		#view-icon{
+			width: 40px;
+		}
+			#view-icon:focus{
+				outline: none;
+			}
+		#view-list{
+			width: 175px;
+			text-align: right;
+			text-decoration: none;
 
-    }
-      #view-list ul{
-        list-style-type: none;
-      }
-      #view-list ul li{
-        margin: 2px 0;
-      }
-      #view-list ul li.active{
-        color: #888;
-      }
+		}
+			#view-list ul{
+				list-style-type: none;
+			}
+			#view-list ul li{
+				margin: 2px 0;
+			}
+			#view-list ul li.active{
+				color: #888;
+			}
 </style>

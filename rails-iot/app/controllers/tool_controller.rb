@@ -1,4 +1,8 @@
 class ToolController < ApplicationController
+  def designer
+    @files = get_displays()
+    render :layout => "full_screen"
+  end
   def index
   	@files = get_displays()
   	render :layout => "full_screen"

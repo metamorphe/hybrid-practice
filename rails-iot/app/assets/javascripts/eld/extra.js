@@ -1,4 +1,69 @@
+/**
+   * Generates labels for a list of Paper.js objects named
+   * COMPONENTS, and displays them on the canvas. Objects created
+   * have a .name property of PREFIX + ":circle" and PREFIX + ":text",
+   * and the text generated for each label is obtained from the
+   * .ID_NAME property of each object in COMPONENTS.
+   *
+   * Note that the ID_NAME must match the property name for each
+   * object exactly, otherwise behavior is undefined.
+   */
+  ViewManager.generateLabels = function(components, idName, prefix,
+        useOffset=true, greyed=false) {
+    //FIXME: use hash parameter syntax
+    var circle, text, x, y, point;
+        var radius = 10;
+        var offset = useOffset ? 15 : 0;
+        $.each(components, function(idx, obj) {
+            x = obj.position.x;
+            y = obj.position.y;
+            circle = new Path.Circle(new Point(x + offset, y + offset)
+                                    , radius);
+            circle.name = prefix + ':circle_' + obj[idName];
+      circle.lid = obj.lid;
+            circle.set({
+                strokeWidth: 1,
+                strokeColor: '#292824',
+                fillColor: greyed ? '#b7b3aa' : '#ffffff',
+                opacity: 1.0,
+            });
+            text = new PointText(new Point(x + offset,
+                    y + offset));
+            text.name = prefix + ':text_' + obj[idName];
+      text.lid = obj.lid;
+            text.set({
+                fillColor: '#292824',
+                content: '' + obj[idName]
+            });
+            text.position.x -= text.bounds.width / 2;
+            text.position.y += text.bounds.height / 4;
+        });
+  }
 
+  ViewManager.updateLabel = function(prefix, lid, contentHash) {
+    var selectionHash = {
+      prefix: prefix,
+      lid: lid
+    };
+    console.log(selectionHash);
+    var els = CanvasUtil.query(paper.project, selectionHash);
+    console.log(els);
+    $.each(els, function(idx, obj) {
+      // FIXME: kludge, we only pull out the content
+      // field for setting the point text, and the
+      // entire rest of the hash is used to set
+      // the circle
+      if (obj.className == 'PointText') {
+        obj.status = contentHash['content'];
+        obj.content = contentHash['content'];
+      }
+      if (obj.className == 'Path') {
+        obj.set(contentHash);
+      }
+    });
+    paper.view.update();
+  }
+  
 // function what_gray_value_away_from_led(t) {
 //     // return t; // linear
 //     c = 1;
