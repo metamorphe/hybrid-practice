@@ -9,6 +9,13 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
+CanvasUtil.fitToViewWithZoom = function(element, bounds){
+	var scaleX = element.bounds.width / bounds.width;
+	var scaleY = element.bounds.height / bounds.height;
+	var scale = _.max([scaleX, scaleY]);
+	console.log("SET ZOOM TO", scale);
+	paper.view.zoom = 1.0/scale;
+}
 CanvasUtil.getMediums =  function(){
 	var reflectors = CanvasUtil.queryPrefix("REF");
     var lenses = CanvasUtil.queryPrefix("LENS");

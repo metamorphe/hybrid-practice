@@ -89,7 +89,10 @@ PointLight.prototype = {
 		if(viz)
 			PointLight.visualizeHits(hits);
 
-		if(hits.length == 0) return null;
+		if(hits.length == 0){
+			r.path.lastSegment.point = r.path.getPointAt(50);
+			return null;
+		}
 		var interface = hits[0];
 		if(!interface.normal) return null;
 

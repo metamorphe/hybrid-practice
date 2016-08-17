@@ -62,8 +62,8 @@ function LEDPlacerBrush(paper){
 					r.lastSegment.point = dir;
 					ixts = r.getIntersections(diff[0]);
 					if(ixts.length > 0){
-						var furthestIxt = _.max(ixts, function(ixt){ return ixt.point.getDistance(drag.position); })
-						r.lastSegment.point = furthestIxt.point.clone();
+						var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(drag.position); })
+						r.lastSegment.point = closestIxT.point.clone();
 					}
 				}
 			})
@@ -74,6 +74,7 @@ function LEDPlacerBrush(paper){
 		_.each(scope.selection, function(el){
 			var rays = CanvasUtil.queryPrefix("RAY");
 			_.each(rays, function(r){
+				if(r.opacity == 0) return;
 				r.opacity = 0.2;
 			});
 		})
