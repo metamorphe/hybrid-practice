@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   get 'tool/index'
   get 'tool/pipeline'
   get 'tool/lens'
+  get 'tool/splitter'
   get 'tool/optimal_lens'
   get 'tool/theoretical_testbed'
   get 'tool/index'

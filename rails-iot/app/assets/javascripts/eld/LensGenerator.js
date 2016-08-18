@@ -59,6 +59,133 @@ LensGenerator.prototype = {
   generate: function(box, params){
     return LensGenerator.generateScene(box, params);
   }, 
+  generateSplit:  function(box, params){
+    var result = new paper.Group({
+      name: "RT: Ray Tracing Scene", 
+    });
+
+    var base = new paper.Path.Rectangle({
+        size: new paper.Size(params.lens.width, params.lens.height),
+        strokeWidth: 1,
+        fillColor: "purple", 
+        strokeScaling: false, 
+        parent: result
+    });
+
+    result.set({
+      pivot: result.bounds.topCenter,
+      position: box.position.clone()
+    });
+
+    console.log(params.led.width);
+    var led_ref = new paper.Path.Rectangle({
+        size: new paper.Size(params.led.width, params.led.height),
+        strokeWidth: 1,
+        name: "LS: APA102C",
+        fillColor: "white", 
+        strokeScaling: false, 
+        parent: result
+    });
+
+    led_ref.set({
+        pivot: led_ref.bounds.topCenter.clone(), 
+        position: box.position.clone()
+    });
+    led_ref.position.y += 3
+    base.remove();
+
+
+    var lens = new Path.Rectangle({
+        size: new paper.Size(params.split.width * 2, params.lens.height),
+        fillColor: "blue"
+    });
+    lens.set({
+        pivot: lens.bounds.bottomCenter.clone(),
+        position: led_ref.position.clone(),
+    });
+
+    var lens_hole = new Path.Rectangle({
+        size: new paper.Size((params.split.width * 2) - Ruler.mm2pts(5), params.collimator.height + params.collimator.gap + 10),
+        fillColor: "orange"
+    });
+    lens_hole.set({
+        pivot: lens_hole.bounds.bottomCenter.clone(),
+        position: led_ref.position.clone().subtract(new paper.Point(0, -10)),
+    });
+
+    var temp = lens.subtract(lens_hole);
+    lens.remove();
+    lens_hole.remove();
+    lens = temp;
+
+    var collimator = new Path.Ellipse({
+        rectangle: new Rectangle(new Point(0, 0), new Size(params.collimator.width * 2, params.collimator.height * 2)), 
+        fillColor: "green", 
+    });
+    collimator.set({
+        pivot: collimator.bounds.bottomCenter.clone().add(new paper.Point(0, params.collimator.gap)),
+        position: led_ref.position.clone()
+    });
+
+    temp = lens.unite(collimator);
+    lens.remove();
+    collimator.remove();
+    lens = temp;
+
+
+
+    var center = lens.bounds.topRight.clone().subtract(lens.bounds.topLeft.clone());
+    center.length = center.length / 2.0; // midpoint
+    center = center.add(lens.bounds.topLeft.clone()); // anchor it
+    center.y += params.split.height;
+
+    var splitter = new paper.Path({
+        segments: [lens.bounds.topLeft.clone(), lens.bounds.topLeft.clone().add(new paper.Point(0, -10)), lens.bounds.topRight.clone().add(new paper.Point(0, -10)), lens.bounds.topRight.clone(), center],
+        fillColor: "green", 
+        opacity: 0.5, 
+        closed: true
+    });
+
+    temp = lens.subtract(splitter);
+    lens.remove();
+    splitter.remove();
+    temp.name = "LENS:_1.44";
+    lens = temp;
+    lens.name = "LENS:_1.44";
+    lens.opacity = 0.5;
+    // lens.selected = true;
+
+
+    ramp_height = params.led.height + params.collimator.gap + params.collimator.height
+    ramp_width = (params.lens.width/2) - params.split.width;
+    var ramp = new Path.Rectangle({
+        size: new paper.Size(ramp_width, ramp_height),
+        // strokeColor: 'yellow',
+        name: "RAMP_BASE",
+        strokeWidth: 1,
+        fillColor: "yellow" 
+        // visible: true
+    });
+    ramp.set({
+        pivot: ramp.bounds.bottomLeft.clone(),
+        position: lens.bounds.bottomRight.clone().add(new paper.Point(5, 0))
+    });
+   
+    var topRight = _.min(ramp.segments, function(seg){ return seg.point.getDistance(ramp.bounds.topRight); })
+    var diff = lens.bounds.topRight.y - topRight.point.y;
+    topRight.point.y = lens.bounds.topRight.y;
+    ramp.name = "REF:_0.90"; 
+
+    var topLeft = _.min(ramp.segments, function(seg){ return seg.point.getDistance(ramp.bounds.topLeft); })
+    topLeft.selected = true;
+    topLeft.handleOut = new paper.Point(ramp_width * 0.3, 0);
+
+    var topRight = _.min(ramp.segments, function(seg){ return seg.point.getDistance(ramp.bounds.topRight); })
+    topRight.selected = true;
+    topRight.handleIn = new paper.Point(0, - diff * 0.5);
+
+    // lens.remove();
+  }, 
   generateW: function(box, width, params){
     params.lens.width = width;
     return LensGenerator.generateScene(box, params);

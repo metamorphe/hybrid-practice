@@ -19,7 +19,9 @@ CanvasUtil.fitToViewWithZoom = function(element, bounds){
 CanvasUtil.getMediums =  function(){
 	var reflectors = CanvasUtil.queryPrefix("REF");
     var lenses = CanvasUtil.queryPrefix("LENS");
-    _.each(reflectors, function(el){ el.reflectance = 0.90;});
+    _.each(reflectors, function(el){ 
+    	el.reflectance = 0.90;
+    });
     _.each(lenses, function(el){
         el.refraction = 0.80;
         name = Artwork.getName(el).split("_")[1];

@@ -9,10 +9,12 @@ PointLight.prototype = {
 	init: function(argument) {
 		source = new paper.Path.Rectangle({
 			name: "PL: Point Light",
-			size: new paper.Size(Ruler.mm2pts(5), Ruler.mm2pts(1.4)), 
+			size: new paper.Size(Ruler.mm2pts(5) , Ruler.mm2pts(1.4) ), 
 			fillColor: "white", 
 			strokeColor: "#333", 
-			strokeWidth: 1
+			strokeWidth: 1, 
+			// strokeScaling: false, 
+			// applyMatrix: false
 		});
 		source.set({
 			pivot: source.bounds.topCenter,
@@ -37,11 +39,14 @@ PointLight.prototype = {
 				 1.00058041,  0.99865814,  1.00161796,  0.99824739,  1.00184367,  0.9980743,
 				 1.00201503,  0.99787902,  1.00225174]
 		// console.log(ibrdf[angle_to_bin[theta]]);
-		return ibrdf[angle_to_bin[theta]];
-		// return 1;
+		if(angle_to_bin[theta] in ibrdf)
+		return ibrdf[angle_to_bin[theta]]
+		else
+			return 1;
 	},
 	emmision: function(start=-60, end=61, step=0.5){
 		var scope = this;
+		console.log(start, end, step, scope.toLocalSpace(end), scope.brdf(end))
 		rays = _.range(start, end, step);
 		rays = _.map(rays, function(theta){
 			return scope.emit(scope.source.position, scope.toLocalSpace(theta), scope.brdf(theta), "yellow", theta);
@@ -90,7 +95,7 @@ PointLight.prototype = {
 			PointLight.visualizeHits(hits);
 
 		if(hits.length == 0){
-			r.path.lastSegment.point = r.path.getPointAt(50);
+			// r.path.lastSegment.point = r.path.getPointAt(50);
 			return null;
 		}
 		var interface = hits[0];
