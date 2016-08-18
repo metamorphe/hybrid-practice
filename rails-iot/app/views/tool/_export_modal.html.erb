@@ -1,7 +1,16 @@
 <script type="text/javascript">
   $(function(){
-    var pngButton = new ButtonExporter($('#downloadButtonPNG'), "PNG");
-    var svgButton = new ButtonExporter($('#downloadButtonSVG'), "SVG");
+    $('#downloadButtonSVG').click(function(){
+       rays = CanvasUtil.queryPrefix("RAY");
+       _.each(rays, function(r){ r.remove(); });
+
+       ButtonExporter.exportSVG($('#export-filename').val());
+       displaySVG = CanvasUtil.queryPrefix("ELD")[0];
+       displaySVG.addChildren(rays); 
+       leds = CanvasUtil.queryPrefix("NLED");
+       _.each(leds, function(led){ led.bringToFront(); });
+    });
+  
   });
 </script>
 

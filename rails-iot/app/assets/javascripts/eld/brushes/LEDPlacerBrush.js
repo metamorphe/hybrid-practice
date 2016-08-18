@@ -9,36 +9,73 @@ function LEDPlacerBrush(paper){
 	this.paper = paper;
 	this.name = "LEDPlacerBrush";
 	this.tool = new paper.Tool();
-	this.hue = 0; 
 	this.hue_step = (360 /8);
+	this.hue = -this.hue_step; // start at red
 	var scope = this;
 	this.selection = [];
 
 	this.tool.onMouseDown = function(event){
 		var diffs = CanvasUtil.queryPrefix('DIF');
-
-		if(event.event.metaKey){
-
-			var led = new paper.Path.Rectangle({
-				name: "NLED: APA102C", 
-				size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
-				position: event.point, 
-				fillColor: "white", 
-				parent: CanvasUtil.queryPrefix("ELD")[0]
-			});
-
-			scope.addRays(diffs, led);
-			scope.selection.push(led.id);
-			return;
-		}
 		var hitResult = project.hitTest(event.point, hitOptions);
 		if (!hitResult)
 			return;
 
 		path = hitResult.item;
 		name = Artwork.getPrefix(path);
-		console.log(name);
+		
 		if(name == "NLED") scope.selection.push(path.id);
+		else{
+			if(event.event.metaKey){
+				// ADD LED
+				var led = new paper.Path.Rectangle({
+					name: "NLED: APA102C", 
+					size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
+					position: event.point, 
+					fillColor: "white", 
+					parent: CanvasUtil.queryPrefix("ELD")[0]
+				});
+
+				scope.addRays(diffs, led);
+				scope.selection.push(led.id);
+				return;
+			}
+		}
+		// REMOVE LED
+		if(event.event.metaKey){
+			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: path.id});
+			_.each(rays, function(r){ r.remove(); });
+			path.remove();
+			scope.selection = [];
+		}
+	}
+	this.tool.onMouseMove = function(event){
+		var hitResult = project.hitTest(event.point, hitOptions);
+		if (hitResult){
+			path = hitResult.item;
+			name = Artwork.getPrefix(path);
+			if(name == "NLED"){
+				if(event.event.metaKey){
+					$('#myCanvas').css('cursor', 'not-allowed');
+					return;
+				}else{
+					$('#myCanvas').css('cursor', 'move');
+					return;
+				}
+			}
+		}
+		if(event.event.metaKey){
+			$('#myCanvas').css('cursor', 'copy');
+			
+			if (hitResult){
+				path = hitResult.item;
+				name = Artwork.getPrefix(path);
+				if(name == "NLED") $('#myCanvas').css('cursor', 'alias');
+			}
+
+			console.log("CURSOR SET TO", $('#myCanvas').css('cursor'));
+		}else{
+			$('#myCanvas').css('cursor', 'pointer');
+		}
 	}
 	this.tool.onMouseDrag = function(event){
 		var drags = CanvasUtil.getIDs(scope.selection);
@@ -121,10 +158,13 @@ LEDPlacerBrush.prototype = {
 
 			var led_color = color.clone();
 			led_color.brightness = 1;
+
+
 			led.set({
 				fillColor: led_color, 
 				strokeColor: led_color, 
-				strokeWidth: 1
+				strokeWidth: 1, 
+				colorID: led_color
 			})
 
 			rays = _.map(rays, function(theta){

@@ -47,6 +47,12 @@
 						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
 						var show = [e.art, e.diff, e.leds, e.dds, e.base, e.wires];
 						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi];
+
+						CanvasUtil.set(e.leds, {
+							fillColor: "#FFFFFF", 
+							strokeColor: "black",
+							strokeWidth: 1
+						});
 						CanvasUtil.set(e.diff, {
 								fillColor: "#DFDFDF", 
 								strokeWidth: 1,
@@ -60,7 +66,16 @@
 						var show = [e.diff, e.leds, e.rays];
 						var hide = [e.art, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
 						
-					
+						_.each(e.leds, function(led){
+							color = _.isUndefined(led.colorID) ?  "#FFFFFF": led.colorID;
+							
+							led.set({
+								fillColor: color, 
+								strokeColor: color,
+								strokeWidth: 1
+							});
+						});
+						
 						CanvasUtil.set(e.diff, {
 								fillColor: "black", 
 								strokeWidth: 0
