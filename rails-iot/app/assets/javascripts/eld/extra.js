@@ -1,3 +1,33 @@
+ // _.each(e.diff, function(diffuser) {
+        //     diffuser.set({
+        //         visible: true,
+        //         fillColor: "black",
+        //         strokeWidth: 0, 
+        //         parent: result
+        //     });
+
+        //     var expanded  = diffuser.expand({
+        //         strokeAlignment: "exterior", 
+        //         strokeWidth: 0.1,
+        //         strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+        //         strokeColor: "black", 
+        //         fillColor: "white", 
+        //         joinType: "miter", 
+        //         parent: result
+        //     });
+        //     expanded.sendToBack();
+        // });
+
+        // var all = _.flatten([e.diff, e.leds]);
+        // var result = new paper.Group(all);
+
+        // boundingBox = new paper.Path.Rectangle({
+        //     rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+        //     fillColor: "white",
+        //     parent: result
+        // });
+
+ 
 function setMoldGradient(domed, diff, leds) {
     if (leds.length == 0) { diff.fillColor = "black"; return; }
   

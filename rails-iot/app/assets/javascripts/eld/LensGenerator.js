@@ -375,7 +375,7 @@ LensGenerator.generateDome = function(baseWidth, baseHeight, concaveHeight, visi
 }
 
 // gradient, radius, in, out
-LensGenerator.makeCDome = function(gradientArray, position) {
+LensGenerator.makeCDome = function(gradientArray, gradient, position) {
     var maxRadiusObject = _.max(gradientArray, function(gradientObject){
         return gradientObject.radius;
     });
@@ -392,13 +392,13 @@ LensGenerator.makeCDome = function(gradientArray, position) {
     });
 
     return _.map(gradientArray, function(obj){
-        c = generateSlicedSegment(obj, path, false);
+        c = generateSlicedSegment(obj, path, gradient, false);
         // c.visible = true;
         return c;
     }); 
 };
 
-function generateSlicedSegment(o, path, visible=false) {
+function generateSlicedSegment(o, path, gradient, visible=false) {
     // Generate both the inPoint and outPoint vectors.
     var origin = path.position; 
 
@@ -441,7 +441,7 @@ function generateSlicedSegment(o, path, visible=false) {
     pieSlice.remove();
 
     intersectingPath.fillColor = {
-        gradient: o.gradient,
+        gradient: o[gradient],
         origin: origin,
         destination: radiusPoint,
     }

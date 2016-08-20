@@ -30,7 +30,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  $('#view-list ul li button[name="lens"]').click();
+  $('#view-list ul li button[name="cones"]').click();
 });
 </script>
 </head>
@@ -52,6 +52,9 @@ $(function(){
             <li>
                 <span>DIFFUSER</span> <button name="diffuser" class="view btn-sm btn btn-primary"> D</button>
             </li>
+            <li>
+                <span>CONES</span> <button name="cones" class="view btn-sm btn btn-default">C</button>
+            </li>  
             <li>
                 <span>LENS</span> <button name="lens" class="view btn-sm btn btn-default">L</button>
             </li>

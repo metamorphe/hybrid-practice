@@ -89,11 +89,14 @@ Splitter.moldGradient = function(params){
     var stops = _.chain(samples).map(function(sample){
       var pt = mold_gradient.getPointAt(sample);
       var x = pt.x;
+      if(x == 1) x = 0.99;
       var range_y = mold_height / params.lens.height;
       y = (1 - pt.y);
       y *= range_y;
       return [new paper.Color(y), x]
     }).unique(function(g){ return g[1]; }).value();
+
+    stops.push([new paper.Color(0, 0 , 0, 0), 1.0]); 
     return stops;
 }
 Splitter.coneGradient = function(params){

@@ -284,49 +284,149 @@ Pipeline.script = {
           model_height: REFLECTOR_HEIGHT
         });
 
-        _.each(e.diff, function(diffuser) {
-            diffuser.set({
-                visible: true,
-                fillColor: "black",
-                strokeWidth: 0, 
-                parent: result
-            });
-
-            var expanded  = diffuser.expand({
-                strokeAlignment: "exterior", 
-                strokeWidth: 0.1,
-                strokeOffset: Ruler.mm2pts(MOLD_WALL), 
-                strokeColor: "black", 
-                fillColor: "white", 
-                joinType: "miter", 
-                parent: result
-            });
-            expanded.sendToBack();
+       
+        var lenses = new paper.Group({
+            parent: result
         });
+       
+        _.each(e.diff, function(diff) {
+            dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
+            if (dleds.length == 0) { diff.fillColor = "black"; return; }
 
-        // var all = _.flatten([e.diff, e.leds]);
-        // var result = new paper.Group(all);
+            _.each(dleds, function(led){
+                var slices = getSlices(ws, box, led, diff);
+                var slices = _.map(slices, function(slice){  
+                    // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
+                    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                    CanvasUtil.call(removeable, "remove");    
+                    params = Splitter.getOptimal(ws, slice.length);
+                    var scene = Splitter.makeScene(box, params);
+                    paper.view.update();
+                    moldStops = Splitter.moldGradient(params);
+                   
+                    // GENERATE GRADIENT
+                    return {  angleIn: slice.angleIn, 
+                            angleOut: slice.angleOut, 
+                            radius: params.prism.width,
+                            mold_gradient: {
+                              stops: moldStops, 
+                              radial: true
+                            }
+                         };
+                });
+                 var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                CanvasUtil.call(removeable, "remove");  
 
-        // boundingBox = new paper.Path.Rectangle({
-        //     rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-        //     fillColor: "white",
-        //     parent: result
-        // });
+                m = LensGenerator.makeCDome(slices, "mold_gradient", led.position);
 
-        ramps = _.map(e.diff, function(diffuser) {
-            dleds = _.filter(e.leds, function(l) { return diffuser.contains(l.bounds.center); });
-            return setMoldGradient(ws, box, diffuser, dleds);
-        });
+                m = new paper.Group({
+                  name: "COLLIMATOR: Custom Lens",
+                  children: m, 
+                  parent: lenses
+                });  
+                 var c = new paper.Path.Circle({
+                    radius: _.chain(slices).pluck("radius").max().value(), 
+                    position: led.position, 
+                    strokeWidth: Ruler.mm2pts(MOLD_WALL), 
+                    strokeColor: "white",
+                    strokeScaling: true,
+                    // parent: m,
+                });
 
-        result.addChildren(ramps);
-          
+                  wall = c.expand({
+                     strokeAlignment: "exterior", 
+                     strokeWidth: 0.1,
+                     strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+                     fillColor: "white", 
+                     joinType: "miter", 
+                     parent: m
+                  });
+                  wall.sendToBack();
+                  c.remove();
+                Splitter.makeWings(m, lenses, "white");
+                m.bringToFront();
+            });
+        }); 
+
+        
+        box.remove();
         // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires]));
+        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.diff, e.leds]));
         Pipeline.set_visibility(invisible, false);
-      
-        // boundingBox.sendToBack();
+    },
+    cones: function(display, e){
+         var ws = new WebStorage();
+        var box = new paper.Path.Rectangle(paper.view.bounds);
+        box.set({
+              position: paper.view.center,
+              fillColor: '#111'
+        }); 
+        
+        this.adjustLEDs(display, e);
+
+        var result = new paper.Group({
+          name: "RESULT: LENS",
+          model_height: REFLECTOR_HEIGHT
+        });
+
+       
+        var lenses = new paper.Group({
+            parent: result
+        });
+        _.each(e.diff, function(diff) {
+            dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
+            if (dleds.length == 0) { diff.fillColor = "black"; return; }
+
+            _.each(dleds, function(led){
+                var slices = getSlices(ws, box, led, diff);
+                var slices = _.map(slices, function(slice){  
+                    // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
+                    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                    CanvasUtil.call(removeable, "remove");    
+                    params = Splitter.getOptimal(ws, slice.length);
+                    var scene = Splitter.makeScene(box, params);
+                    paper.view.update();
+                    coneStops = Splitter.coneGradient(params);
+                    console.log(params);
+                    // GENERATE GRADIENT
+                    return {  angleIn: slice.angleIn, 
+                            angleOut: slice.angleOut, 
+                            radius: params.prism.width,
+                            height: params.prism.height,
+                            cone_gradient: {
+                              stops: coneStops, 
+                              radial: true
+                            }
+                         };
+                });
+                 var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                CanvasUtil.call(removeable, "remove");  
+                max_height = _.chain(slices).pluck("height").max().value();
+
+                c = LensGenerator.makeCDome(slices, "cone_gradient", led.position);  
+                c = new paper.Group({
+                  name: "COLLIMATOR: Custom Lens",
+                  children: c, 
+                  parent: lenses
+                });    
+                var cone_assembly_height = max_height + WING_HEIGHT;
+                result.model_height = Ruler.pts2mm(cone_assembly_height);
+                Splitter.makeWings(c, lenses, new paper.Color(WING_HEIGHT / cone_assembly_height));
+
+                c.bringToFront();            
+            });
+        }); 
+
+        
+        box.remove();
+        // INVISIBILITY
+        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.leds]));
+        Pipeline.set_visibility(invisible, false);
     },
     reflector: function(display, e) {
+        var ws = new WebStorage();
+        var box = new paper.Path.Rectangle(paper.view.bounds);
+       
         this.adjustLEDs(display, e);
         var all = _.flatten([e.diff, e.leds, e.base]);
         var result = new paper.Group(all);
@@ -339,11 +439,34 @@ Pipeline.script = {
         var mc = this.adjustMC(display, e, backgroundBox);
         if(mc){ mc.parent = result; mc.bringToFront();}
 
-        ramps = _.map(e.diff, function(diffuser) {
-            return setMoldGradient(false, diffuser, _.filter(e.leds, function(l) {
-                return diffuser.contains(l.bounds.center); }));
+         ramps = _.map(e.diff, function(diff) {
+            dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
+            var lines = interpolation_lines(diff, dleds, visible=false);
+
+            var ramp_lines = _.map(lines, function(l){
+                var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                CanvasUtil.call(removeable, "remove");    
+                params = Splitter.getOptimal(ws, l.length);
+                var scene = Splitter.makeScene(box, params);
+                paper.view.update();
+                return { ramp: Splitter.rampGradient(params), line: l};
+            }); 
+            var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+            CanvasUtil.call(removeable, "remove"); 
+
+            // MAKE RAMPS
+            return rampify(ramp_lines);
         });
+
+
         result.addChildren(ramps);
+        _.each(e.leds, function(led){
+            l = led.clone();
+            l.fillColor = "black";
+            l.strokeColor = "black";
+            l.strokeWidth = 2;
+            result.addChild(l);
+        })
 
         // var pegs = Pipeline.create_corner_pegs({ 
         //  geometry: "hex",
@@ -685,11 +808,10 @@ function interpolation_lines(diffuser, leds, visible=false) {
 
 DOME_DIFF_EPSILON = 10;
 
-function makeDomes(lg, leds, diff, parent){
+function getSlices(ws, box, led,  diff, parent){
   // MAKE A DOME FOR EVERY LED
-  return _.map(leds, function(led){
     var DOME_STEP = 5;
-    var angles = _.range(-180, 181, DOME_STEP);
+    var angles = _.range(-184, 180 + DOME_STEP, DOME_STEP);
 
     // angles = angles.slice(0, 1);
     var angles = _.chain(angles).map(function(theta){
@@ -735,68 +857,15 @@ function makeDomes(lg, leds, diff, parent){
       }
     }
     // END COMPACT
-    var slices = _.map(compact_angles, function(slice){
-      // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
-      params = lg.getRampFromOptimal(slice.length).params;
-      // HEIGHEST POINT IS LENS HEIGHT
-      dome = LensGenerator.generateDome(params.dome.width, params.dome.height, params.dome.concave, false);
-      dome.scaling.y = 1 / dome.bounds.height;
-      dome.scaling.x = 1 / dome.bounds.width;
-      dome.pivot = dome.bounds.bottomLeft;
-      dome.position = new paper.Point(0, 0);
-
-      // console.log(params.dome, dome.length);
-      var gradient = _.range(0, dome.length, dome.length / 10);
-      var MAX_DOME_HEIGHT = (params.dome.height + params.dome.concave) / params.lens.height;
-
-      // GENERATE GRADIENT
-      gradient = _.chain(gradient).map(function(offset){
-        var pt = dome.getPointAt(offset);
-        var x = pt.x;
-        if(x == 1) x = 0.99;
-        return [new paper.Color(-pt.y * MAX_DOME_HEIGHT), x];
-      }).unique(function(g){return g[1]; }).value();
-      gradient.push([new paper.Color(0, 0 , 0, 0), 1.0]); // ensure last element is black
-
-      return {angleIn: slice.angleIn, angleOut: slice.angleOut, radius: params.dome.width, gradient: {
-          stops: gradient, 
-          radial: true
-        }
-      };
-    });
-  
-
-    c = LensGenerator.makeCDome(slices, led.position);
-    return new paper.Group({
-      name: "DOME: Custom Dome",
-      children: c, 
-      parent: parent
-    });
-    led.remove();
-  }); 
+    return compact_angles;
 }
 
 function setMoldGradient(ws, box, diff, leds) {
     if (leds.length == 0) { diff.fillColor = "black"; return; }
   
-    var lines = interpolation_lines(diff, leds, visible=false);
-    var ramp_lines = _.map(lines, function(l){
-        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-        CanvasUtil.call(removeable, "remove");    
-        params = Splitter.getOptimal(ws, l.length);
-        var scene = Splitter.makeScene(box, params);
-        paper.view.update();
-        return {mold: Splitter.moldGradient(params), ramp: Splitter.rampGradient(params), cone: Splitter.coneGradient(params), line: l};
-    }); 
-    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-    CanvasUtil.call(removeable, "remove"); 
 
-    // MAKE RAMPS
-    geom = rampify(ramp_lines);
+      var slices = getSlices(ws, box, leds, diff, geom);
 
-    // if(domed){
-    //   var domes = makeDomes(lg, leds, diff, geom);
-    // } else{
     //   _.each(leds, function(led){
     //     led.fillColor = "black";
     //     led.strokeWidth = 0;
