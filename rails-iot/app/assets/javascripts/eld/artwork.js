@@ -96,6 +96,13 @@ CanvasUtil.set = function(arr, property, value){
 	});
 }
 
+
+CanvasUtil.call = function(collection, calling){
+	_.each(collection, function(rt){
+	  rt[calling]();
+	});
+}
+        
 function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
 	this.svg = null;

@@ -1,60 +1,63 @@
+const WING_HEIGHT = Ruler.mm2pts(1.5); 
+const WING_OFFSET = Ruler.mm2pts(2);
+     
 // #4-40 X 0.75in
-var NUT_HEIGHT = 2.46;//mm
-var HEAD_HEIGHT = 2.76;//mm
-var BOLT_HEIGHT = 21.17; //mm
-var THREAD_HEIGHT = BOLT_HEIGHT - NUT_HEIGHT - HEAD_HEIGHT;//mm
+const NUT_HEIGHT = 2.46;//mm
+const HEAD_HEIGHT = 2.76;//mm
+const BOLT_HEIGHT = 21.17; //mm
+const THREAD_HEIGHT = BOLT_HEIGHT - NUT_HEIGHT - HEAD_HEIGHT;//mm
 
-var HEAD_RADIUS = 5.58 * 1.3 / 2.0; //mm
-var PEG_RADIUS = 3.0 * 1.3 / 2.0; //mm
-var HEX_RADIUS = 7.6 / 2.0; //mm
+const HEAD_RADIUS = 5.58 * 1.3 / 2.0; //mm
+const PEG_RADIUS = 3.0 * 1.3 / 2.0; //mm
+const HEX_RADIUS = 7.6 / 2.0; //mm
 
-var END_GAP = 1.4125;//mm
+const END_GAP = 1.4125;//mm
 
 // NAMESPACE FOR ELD PIPEPLINE
-var DIFUSSER_HEIGHT = END_GAP + HEAD_HEIGHT;//mm
-var REFLECTOR_HEIGHT = 10;//mm
-var SPACER_HEIGHT = 3.1;
-var BASE_HEIGHT = END_GAP + NUT_HEIGHT;
+const DIFUSSER_HEIGHT = END_GAP + HEAD_HEIGHT;//mm
+const REFLECTOR_HEIGHT = 10;//mm
+const SPACER_HEIGHT = 3.1;
+const BASE_HEIGHT = END_GAP + NUT_HEIGHT;
 
-var OVERALL_HEIGHT = DIFUSSER_HEIGHT + REFLECTOR_HEIGHT + SPACER_HEIGHT + BASE_HEIGHT;
+const OVERALL_HEIGHT = DIFUSSER_HEIGHT + REFLECTOR_HEIGHT + SPACER_HEIGHT + BASE_HEIGHT;
 
 // BASE
 
 // SPACER + REFLECTOR
-var WALL_WIDTH = 3; //mm
-var PEG_PADDING = WALL_WIDTH * 1.2;// + (PEG_RADIUS / 2.0); //mm
+const WALL_WIDTH = 3; //mm
+const PEG_PADDING = WALL_WIDTH * 1.2;// + (PEG_RADIUS / 2.0); //mm
 
 
 // REFLECTOR
-var DIFUSSER_BASE_HEIGHT = 0.641;
-var BASE_EXPANSION = -WALL_WIDTH; //mm
-var RIM_HEIGHT = 0.128;
-var RIM_WIDTH = 1.5; //mm
+const DIFUSSER_BASE_HEIGHT = 0.641;
+const BASE_EXPANSION = -WALL_WIDTH; //mm
+const RIM_HEIGHT = 0.128;
+const RIM_WIDTH = 1.5; //mm
 
 // SPACER 
-var WALL_EXPANISION = BASE_EXPANSION; //mm
-var PCB_HEIGHT = 1.7; // relative 1.7 (base) /3.1 (wall) mm
-var CHANGE_IN_X_DIR = 8; //pts
-var CHANGE_IN_Y_DIR = 8; //pts
-var LED_TOLERANCE = 3; //mm
+const WALL_EXPANISION = BASE_EXPANSION; //mm
+const PCB_HEIGHT = 1.7; // relative 1.7 (base) /3.1 (wall) mm
+const CHANGE_IN_X_DIR = 8; //pts
+const CHANGE_IN_Y_DIR = 8; //pts
+const LED_TOLERANCE = 3; //mm
 
 
 // MOLDS
-var MOLD_WALL = 5; // mm
+const MOLD_WALL = 5; // mm
 
 // PCB
-var POINT_OFFSET = 10; //pts
-var POINT_INNER_OFFSET = 1; //pts
-var THETA_STEP = 1; //pts
-var THETA_OFFSET = 0.5; //pts
-var OPT_MAX_ITERS = 20;
-var EPSILON = 10;
+const POINT_OFFSET = 10; //pts
+const POINT_INNER_OFFSET = 1; //pts
+const THETA_STEP = 1; //pts
+const THETA_OFFSET = 0.5; //pts
+const OPT_MAX_ITERS = 20;
+const EPSILON = 10;
 
 
-var LED_WIDTH = 5;
-var LED_HEIGHT = 1.4;
+const LED_WIDTH = 5;
+const LED_HEIGHT = 1.4;
 
-var MORPH_LINE_STEP = 3;
+const MORPH_LINE_STEP = 3;
 
 function Pipeline() {
   
@@ -267,6 +270,13 @@ Pipeline.script = {
         result.model_height = DIFUSSER_HEIGHT;
     },
     lens: function(display, e) {
+        var ws = new WebStorage();
+        var box = new paper.Path.Rectangle(paper.view.bounds);
+        box.set({
+              position: paper.view.center,
+              fillColor: '#111'
+        }); 
+        
         this.adjustLEDs(display, e);
 
         var result = new paper.Group({
@@ -304,8 +314,8 @@ Pipeline.script = {
         // });
 
         ramps = _.map(e.diff, function(diffuser) {
-            return setMoldGradient(true, diffuser, _.filter(e.leds, function(l) {
-                return diffuser.contains(l.bounds.center); }));
+            dleds = _.filter(e.leds, function(l) { return diffuser.contains(l.bounds.center); });
+            return setMoldGradient(ws, box, diffuser, dleds);
         });
 
         result.addChildren(ramps);
@@ -766,35 +776,43 @@ function makeDomes(lg, leds, diff, parent){
   }); 
 }
 
-function setMoldGradient(domed, diff, leds) {
+function setMoldGradient(ws, box, diff, leds) {
     if (leds.length == 0) { diff.fillColor = "black"; return; }
   
-    var lg = new LensGenerator();
     var lines = interpolation_lines(diff, leds, visible=false);
     var ramp_lines = _.map(lines, function(l){
-      return {result: lg.getRampFromOptimal(l.length), line: l}
-    });
-    geom = rampify(lg, ramp_lines);
+        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+        CanvasUtil.call(removeable, "remove");    
+        params = Splitter.getOptimal(ws, l.length);
+        var scene = Splitter.makeScene(box, params);
+        paper.view.update();
+        return {mold: Splitter.moldGradient(params), ramp: Splitter.rampGradient(params), cone: Splitter.coneGradient(params), line: l};
+    }); 
+    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+    CanvasUtil.call(removeable, "remove"); 
 
-    if(domed){
-      var domes = makeDomes(lg, leds, diff, geom);
-    } else{
-      _.each(leds, function(led){
-        led.fillColor = "black";
-        led.strokeWidth = 0;
-        var led_c = led.clone();
-        led_c.parent = geom;
-        led_c.bringToFront();
-      });
-    }      
+    // MAKE RAMPS
+    geom = rampify(ramp_lines);
+
+    // if(domed){
+    //   var domes = makeDomes(lg, leds, diff, geom);
+    // } else{
+    //   _.each(leds, function(led){
+    //     led.fillColor = "black";
+    //     led.strokeWidth = 0;
+    //     var led_c = led.clone();
+    //     led_c.parent = geom;
+    //     led_c.bringToFront();
+    //   });
+    // }      
     return geom;
 }
 
 
-function rampify(lg, ramp_lines) {
+function rampify(ramp_lines) {
     levels = _.range(1, 0, -0.01);
     levels = _.map(levels, function(level) {
-        return make_level(lg, ramp_lines, level, new paper.Color(level));
+        return make_level(ramp_lines, level, new paper.Color(level));
     });
     var ramp = new paper.Group(levels);
     ramp.sendToBack();
@@ -802,104 +820,20 @@ function rampify(lg, ramp_lines) {
 }
 
 
-function make_level(lg, rlines, level, color) {
-   
-     // x = lg.sampleRamp(result, i);
+function make_level(ramp_lines, level, color) {
     return new paper.Path({
-        segments: _.map(rlines, function(rl) {
-            var offset = lg.sampleRamp(rl.result, level);
-            return rl.line.getPointAt(offset * rl.line.length); 
+        segments: _.map(ramp_lines, function(rl) {
+            closestStop = _.min(rl.ramp, function(v){
+                return Math.abs(v[0].gray - level);
+            });
+            var offset = closestStop[1] * rl.line.length;
+            return rl.line.getPointAt(offset); 
         }),
         fillColor: color,
         strokeWidth: 2,
         closed: true
     });
 }
-
-
-
-
-
-function pathToModel(path) {
-    // path.selected = true;
-    data = _.range(0, path.length, 0.5);
-    padding = 1.00;
-    var size = new paper.Size(path.bounds.width / padding, path.bounds.width / padding);
-
-    data = _.map(data, function(offset) {
-        pt = path.getPointAt(offset);
-        return pt;
-    });
-
-    // normalizing
-    min = new paper.Point(_.min(data, function(pt) {
-        return pt.x }).x, _.min(data, function(pt) {
-        return pt.y }).y);
-    max = new paper.Point(_.max(data, function(pt) {
-        return pt.x }).x, _.max(data, function(pt) {
-        return pt.y }).y);
-    max = max.subtract(min);
-
-    data = _.map(data, function(pt) {
-        return pt.subtract(min).divide(max);
-    });
-
-    // data = _.filter(data, function(d){
-    //   // console.log(d.y)
-    //   d.x *= 2;
-    //   d.x -= 1;
-    //   return d.y > 0.10 && d.x > 0;
-    // });
-
-
-    // min = new paper.Point(_.min(data, function(pt){ return pt.x}).x, _.min(data, function(pt){ return pt.y}).y);
-    // max = new paper.Point(_.max(data, function(pt){ return pt.x}).x, _.max(data, function(pt){ return pt.y}).y);
-    // console.log(data.length, min.toString(), max.toString())
-
-
-    // .each(data, function(da))
-    // data = _.sortBy(data, function(d){ return d.x });
-
-    // data = _.reject(data, function(d){ return d.x > 1 });
-
-
-    gradient_stops = _.map(data, function(pt) {
-        return [new paper.Color((1 - pt.y) * 0.7 + 0.05), pt.x];
-    });
-    // gradient_stops.push([new paper.Color(1.0), padding]); // bounding wall of white
-    // gradient_stops.push([new paper.Color(1.0), 1.0]); // bounding wall of white
-
-    // var img = new paper.Path.Rectangle({
-    //   position: paper.view.center.clone().add(new paper.Point(0, 70)), 
-    //   size: size, 
-    //   strokeColor: "black", 
-    //   strokeWidth: 0.02
-    //   // strokeScaling: false
-    // });
-
-    // img.fillColor = {
-    //     gradient: {
-    //         stops: gradient_stops,
-    //         radial: true
-    //     },
-    //     destination: img.bounds.leftCenter,
-    //     origin: img.bounds.center
-    // };
-
-    // console.log("SIZE", Ruler.pts2mm(size.width));
-    // p = new paper.Path(data);
-    // p.set({
-    //   strokeColor: "red", 
-    //   strokeWidth: 2, 
-    //   position: img.bounds.center
-    // });
-
-    // p.bringToFront();
-    // console.log("L", p.length);
-    // p.scaling =  new paper.Size(path.bounds.width, path.bounds.height);//new paper.Size(50, 10);
-    return gradient_stops;
-}
-
 
 
 function PipeManager(container){

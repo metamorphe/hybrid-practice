@@ -1,3 +1,26 @@
+function setMoldGradient(domed, diff, leds) {
+    if (leds.length == 0) { diff.fillColor = "black"; return; }
+  
+    // var lg = new LensGenerator();
+    // var lines = interpolation_lines(diff, leds, visible=false);
+    // var ramp_lines = _.map(lines, function(l){
+    //   return {result: lg.getRampFromOptimal(l.length), line: l}
+    // });
+    // geom = rampify(lg, ramp_lines);
+
+    // if(domed){
+    //   var domes = makeDomes(lg, leds, diff, geom);
+    // } else{
+    //   _.each(leds, function(led){
+    //     led.fillColor = "black";
+    //     led.strokeWidth = 0;
+    //     var led_c = led.clone();
+    //     led_c.parent = geom;
+    //     led_c.bringToFront();
+    //   });
+    // }      
+    // return geom;
+}
 /**
    * Generates labels for a list of Paper.js objects named
    * COMPONENTS, and displays them on the canvas. Objects created
