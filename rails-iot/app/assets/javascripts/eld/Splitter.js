@@ -17,7 +17,7 @@ Splitter.random = function(length){
     ramp: {
       a:{
         alpha: Math.random(),  // free variables
-        beta: Math.random(),// free variables
+        beta: Math.random(),  // free variables
       },
       b:{
         alpha: Math.random(),  // free variables
@@ -32,17 +32,40 @@ Splitter.random = function(length){
   params.collimator.height = (Ruler.mm2pts(10) - params.prism.height) / 2.0 * Math.random();
   return params;
 }
+Splitter.getOptimal = function(ws, l){
+    if(ws.includes(l)){
+        return JSON.parse(ws.get(l));
+    }
+    else{
+        keys = _.sortBy(_.map(ws.keys(), function(k){ return parseFloat(k);}));
+        keys = _.compact(keys);
+        if(keys.length == 0) return Splitter.random(l);
+        b = _.min(keys, function(k){ if(k - l < 0) return 10000000; else return k - l; });
+        a = _.min(keys, function(k){ if(l - k < 0) return 10000000; else return l - k; });
+        tau = (b-l)/(b-a);
+
+        // console.log("KEYS", a, b, tau);
+
+        a = JSON.parse(ws.get(a));
+        b = JSON.parse(ws.get(b));
+        // return b;
+        return Splitter.interpolateParams(a, b, tau);
+    }  
+}
 Splitter.interpolateParams = function(a, b, tau){
     // console.log("Interpolating", a, b, tau);
     itau = 1 - tau;
 
-    a.dome.width = a.dome.width * tau + b.dome.width * itau;
-    a.dome.height = a.dome.height * tau + b.dome.height * itau;
-    a.dome.concave = a.dome.concave * tau + b.dome.concave * itau;
-    a.ramp.width = a.ramp.width * tau + b.ramp.width * itau;
-    a.ramp.offset = a.ramp.offset * tau + b.ramp.offset * itau;
-    a.ramp.alpha = a.ramp.alpha * tau + b.ramp.alpha * itau;
-    a.ramp.beta = a.ramp.beta * tau + b.ramp.beta * itau;
+    a.lens.width = a.lens.width * tau + b.lens.width * itau;
+    a.ramp.a.alpha = a.ramp.a.alpha * tau + b.ramp.a.alpha * itau;
+    a.ramp.a.beta = a.ramp.a.beta * tau + b.ramp.a.beta * itau;
+    
+    a.ramp.b.alpha = a.ramp.b.alpha * tau + b.ramp.b.alpha * itau;
+    a.ramp.b.beta = a.ramp.b.beta * tau + b.ramp.b.beta * itau;
+
+    a.prism.height = a.prism.height * tau + b.prism.height * itau;
+    a.collimator.height = a.collimator.height * tau + b.collimator.height * itau;
+
     return a;
 }
 Splitter.moldGradient = function(params){

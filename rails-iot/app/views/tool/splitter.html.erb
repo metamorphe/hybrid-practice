@@ -35,7 +35,7 @@
             if(random){
                 params = Splitter.random(this.length);
             } else{
-              params = this.lg.getOptimal(this.length);
+              params = Splitter.getOptimal(this.ws, this.length);
               console.log("STORED COST", params.cost);
             }
             paper.view.zoom = 3
