@@ -46,7 +46,6 @@ PointLight.prototype = {
 	},
 	emmision: function(start=-60, end=61, step=0.5){
 		var scope = this;
-		console.log(start, end, step, scope.toLocalSpace(end), scope.brdf(end))
 		rays = _.range(start, end, step);
 		rays = _.map(rays, function(theta){
 			return scope.emit(scope.source.position, scope.toLocalSpace(theta), scope.brdf(theta), "yellow", theta);

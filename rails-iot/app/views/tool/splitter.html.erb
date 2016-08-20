@@ -1,12 +1,15 @@
    <script type="text/javascript">
       var ip, ws, generator, gui;
-      
+      const WING_HEIGHT = Ruler.mm2pts(1.5); 
+      const WING_OFFSET = Ruler.mm2pts(2);
       function Generator(){
-        this.length = 200;
+        this.length = 50;
         this.lg = new LensGenerator();
         this.ws = new WebStorage();
+        this.export = "MOLD";
         this.init();
         this.generate();
+        this.fabricate();
         this.sample_size = 150;
       }
       Generator.prototype = {
@@ -14,7 +17,7 @@
           this.box = new paper.Path.Rectangle(paper.view.bounds);
           this.box.set({
               position: paper.view.center,
-              fillColor: '#333'
+              fillColor: '#111'
           }); 
           
           paper.view.update();
@@ -27,43 +30,27 @@
           }) 
         },
         generate: function(random=false){
-            this.clear(["RT", "RAY", "PL"]);
+            this.clear(["RT", "RAY", "PL", "LS"]);
             
-            // if(random){
-            //   params = this.lg.generateRandom(this.length)
-            // } else{
-            //   params = this.lg.getOptimal(this.length);
-            //   console.log("STORED COST", params.cost);
-            // }
+            if(random){
+                params = Splitter.random(this.length);
+            } else{
+              params = this.lg.getOptimal(this.length);
+              console.log("STORED COST", params.cost);
+            }
             paper.view.zoom = 3
-            var scene = this.lg.generateSplit(this.box, {
-                lens: {
-                  width: Ruler.mm2pts(100), 
-                  height: Ruler.mm2pts(10)
-                }, 
-                split:{
-                  height: Ruler.mm2pts(10) * 0.55, 
-                  width: Ruler.mm2pts(6.5)
-                }, 
-                collimator: {
-                  width: Ruler.mm2pts(4),
-                  height: Ruler.mm2pts(10) * 0.2, 
-                  gap: Ruler.mm2pts(2) // above the LED
-                }, 
-                led: {
-                  width: Ruler.mm2pts(5), 
-                  height: Ruler.mm2pts(1.4)
-                }
-            });
-           // this.fire();
+            var scene = Splitter.makeScene(this.box, params);
+
+            // this.fire();
             paper.view.update();
+            return params;
         }, 
         resample: function(){
          var scope = this;
          var samples = _.range(0, this.sample_size, 1);
 
           samples = _.map(samples, function(s, i){
-            var scene = scope.generate(random=true);
+            var params = scope.generate(random=true);
             uniformity = scope.fire();
             return {cost: uniformity, params: JSON.stringify(params)}
           });
@@ -89,14 +76,13 @@
           this.ws.set(this.length, max.params);
           
           // LOAD UP THE BEST ONE
-          this.generate();
+          this.generate(false);
           return max.cost;
         },
         fire: function(){
            this.clear(["RAY", "PL"]);
            var mediums = CanvasUtil.getMediums();
            var light_source = CanvasUtil.queryPrefix("LS");
-          console.log("light_source", light_source)
            
             light_source = _.chain(light_source).map(function(ls){
                   return new PointLight({
@@ -104,13 +90,16 @@
                       mediums: mediums
                   });
             }).each(function(ls){
-              ls.emmision(0, 60, 1);
+              ls.emmision(-60, 0, 1);
             });
 
-           // uniformity = ImagePlane.calculateUniformity();
-           // console.log("RESULTS:", uniformity);
+           uniformity = ImagePlane.calculateUniformity();
+           normality = ImagePlane.calculateNormality();
+           // console.log("RESULTS:", uniformity.toFixed(2), normality.toFixed(2), (uniformity * 0.8 + normality * 0.2).toFixed(2));
+
            paper.view.update();
-           // return uniformity;
+           return uniformity * 0.8 + normality * 0.2;
+           // return  normality * 0.2 ;
         }, 
         batch_clear: function(){
           var scope = this;
@@ -131,11 +120,171 @@
             scope.resample();
 
           });
+        }, 
+        fabricate: function(){
+          var params = this.generate();
+          lens = CanvasUtil.queryPrefix('LENS')[0];
+          ref = CanvasUtil.queryPrefix('REF')[0];
+
+
+          // MOLD
+          var mold_group = new paper.Group({
+            name: "MOLD:  Mold ASSEMBLY"
+          })
+          var mold = paper.Path.Circle({
+            name: "FAB: Secondary Optics", 
+            radius: Ruler.mm2pts(6.5), 
+            position: paper.view.center.add(new paper.Point(0, 40)), 
+            fillColor: "black", 
+            parent: mold_group
+          });
+          Splitter.makeWings(mold, mold_group, "white");
+
+          wall = mold.expand({
+             strokeAlignment: "exterior", 
+             strokeWidth: 0.1,
+             strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+             fillColor: "white", 
+             joinType: "miter", 
+             parent: mold_group
+          });
+        
+          mold.bringToFront();
+
+          stops = Splitter.moldGradient(params);
+          mold.fillColor = {
+            gradient: {
+              stops: stops, 
+              radial: true
+            },
+            origin: mold.bounds.center.clone(), 
+            destination: mold.bounds.rightCenter.clone()
+          };
+
+         
+          mold.bringToFront();
+         
+           bg = new paper.Path.Rectangle({
+            rectangle: mold_group.bounds, 
+            fillColor: "black", 
+            parent: mold_group
+          });
+          bg.sendToBack();
+
+          console.log("MOLD DIMENSIONS", Ruler.pts2mm(mold_group.bounds.width).toFixed(2), Ruler.pts2mm(mold_group.bounds.height).toFixed(2), Ruler.pts2mm(params.lens.height).toFixed(2));
+
+          // CONE
+          var cone_assembly_height = params.prism.height + WING_HEIGHT;
+          var cone_assembly = new paper.Group({
+            name: "CONE: ASSEMBLY"
+          })
+          var cone = Path.Circle({
+            name: "FAB: Secondary Optics", 
+            radius: Ruler.mm2pts(6.5), 
+            position: paper.view.center.add(new paper.Point(- this.length * 2,  40)), 
+            fillColor: "black",
+            parent: cone_assembly 
+          });
+          var stops = Splitter.coneGradient(params);
+         
+          cone.fillColor = {
+            gradient: {
+              stops: stops, 
+              radial: true
+            },
+            origin: cone.bounds.center.clone(), 
+            destination: cone.bounds.rightCenter.clone()
+          };
+
+          Splitter.makeWings(cone, cone_assembly, new paper.Color(WING_HEIGHT / cone_assembly_height));
+
+
+          cone.bringToFront();
+          // cone_assembly.selected = true;
+          console.log("CONE DIMENSIONS", Ruler.pts2mm(cone_assembly.bounds.width).toFixed(2), Ruler.pts2mm(cone_assembly.bounds.height).toFixed(2), Ruler.pts2mm(cone_assembly_height.toFixed(2)));
+
+          bg = new paper.Path.Rectangle({
+            rectangle: cone_assembly.bounds, 
+            fillColor: "black", 
+            parent: cone_assembly
+          });
+          bg.sendToBack();
+         
+
+          // REFLECTOR
+          var reflector_group = new paper.Group({
+            name: "REF_GROUP"
+          });
+          var reflector = Path.Circle({
+            name: "REFL: Secondary Optics", 
+            radius: this.length, 
+            position: paper.view.center.add(new paper.Point(this.length * 2,  40)), 
+            fillColor: "black", 
+            strokeColor: "black", 
+            strokeWidth: 1, 
+            parent: reflector_group
+          })  
+          stops = Splitter.rampGradient(params);
+
+          reflector.fillColor = {
+            gradient: {
+              stops: stops, 
+              radial: true
+            },
+            origin: reflector.bounds.center.clone(), 
+            destination: reflector.bounds.rightCenter.clone()
+          };
+          var led_hole = new paper.Path.Rectangle({
+            size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)), 
+            fillColor: "black", 
+            position: reflector.bounds.center, 
+            parent: reflector_group
+          })
+
+          bg = new paper.Path.Rectangle({
+            rectangle: reflector_group.bounds, 
+            fillColor: "black", 
+            parent: reflector_group
+          });
+          bg.sendToBack();
+
+          console.log("REFLECTOR DIMENSIONS", Ruler.pts2mm(reflector_group.bounds.width).toFixed(2), Ruler.pts2mm(reflector_group.bounds.height).toFixed(2), Ruler.pts2mm(total_ref_height.toFixed(2)));
+          // reflector_group.selected =true;
+          // reflector_gradient.position = reflector.bounds.center.add(new paper.Point(Ruler.mm2pts(6.5), 0));
+          paper.view.update();
+        }, 
+        download: function(){
+          paper.view.zoom = 1;
+          var result = CanvasUtil.queryPrefix(this.export);
+          if(result.length == 0) return;
+          result = result[0];
+          result.bringToFront();
+          result.fitBounds(paper.view.bounds.expand(-100));
+
+          result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width/2.0, result.strokeBounds.height/2.0));
+          cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width, result.strokeBounds.height));
+          // result.position.x -= 6;
+          paper.view.update();
+          bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, cut.x, cut.y );
+          
+          var download = document.createElement('a');
+          download.href = bufferCanvas.toDataURL("image/png");
+          download.download = this.export + '.png';
+          download.click();
+
+            //     dom.attr('href', bufferCanvas.toDataURL("image/png"))
+            //             .attr('download', filename + '.png');
+            //     // dom.attr('href', $('#myCanvas')[0].toDataURL("image/png"))
+            //            // .attr('download', filename + '.png');
+            // }
         }
       }
+      
       $(function(){
         // ws = new WebStorage();
         Utility.paperSetup($('#myCanvas'));
+
+        paper.loadCustomLibraries();
         gui = new dat.GUI();
     
         generator = new Generator();
@@ -149,10 +298,17 @@
         f2.add(generator, "batch_process");
         f2.add(generator, "batch_clear");
         
+        var f3 = gui.addFolder('Fabrication')
+        f3.add(generator, "fabricate");
+        f3.add(generator, "export").options(["MOLD", "REFL", "CONE"]);
+        f3.add(generator, "download");
+        
         f1.open();
         f2.open();
+        f3.open();
         // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
         $("#shade").fadeOut();
+
 
       });
 

@@ -22,6 +22,7 @@
 //= require eld/PointSource
 //= require eld/ImagePlane
 //= require eld/LensGenerator
+//= require eld/Splitter
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

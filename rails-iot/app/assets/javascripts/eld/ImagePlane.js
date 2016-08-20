@@ -127,6 +127,27 @@ ImagePlane.getSignal = function(bins=100){
 	return numeric.div(signal, _.max(signal));
 	
 }
+ImagePlane.calculateNormality = function(){
+	rays = CanvasUtil.queryPrefix("RAY");
+	image_plane = CanvasUtil.queryPrefix("IMG");
+
+	if(_.isEmpty(image_plane)) return 0;
+	image_plane = image_plane[0];
+
+	hits = CanvasUtil.getIntersections(image_plane, rays);
+	if(hits.length == 0) return 0;
+
+	sum = _.reduce(hits, function(sum, hit){
+		// console.log("ANG", hit.path.lastSegment.point.angle);
+		return sum + Math.abs(-90 - hit.path.lastSegment.point.angle);
+	}, 0);	
+	sum /= hits.length;
+	// NORMALIZE AND INVERT
+	norm = sum / 90;
+	invert = 1 - norm;
+	
+	return invert * (hits.length / rays.length);
+}
 
 ImagePlane.calculateUniformity = function(bins=100){
 	var signal = ImagePlane.getSignal(bins);
