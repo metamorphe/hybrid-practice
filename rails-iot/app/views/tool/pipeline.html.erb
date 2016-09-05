@@ -2,7 +2,7 @@
 var zb, cp, bb, vm, pm, gui, displays = []; 
 var p = Pipeline;
 var files = <%= @files.to_json.html_safe %>;
-var DEFAULT_PIPE_FILE = "spiral.svg";
+var DEFAULT_PIPE_FILE = "swatchplate.svg";
 
 $(function(){
   Utility.paperSetup($('#myCanvas'));
@@ -30,7 +30,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  $('#view-list ul li button[name="cones"]').click();
+  // $('#view-list ul li button[name="cones"]').click();
 });
 </script>
 </head>
@@ -50,25 +50,43 @@ $(function(){
                 <span>MOLD</span> <button name="mold" class="view btn-sm btn btn-info"> M</button>
             </li>
             <li>
-                <span>DIFFUSER</span> <button name="diffuser" class="view btn-sm btn btn-primary"> D</button>
+                <span>DIFFUSER</span> <button name="diffuser" class="view btn-sm btn btn-info"> D</button>
             </li>
+            <br>
             <li>
-                <span>CONES</span> <button name="cones" class="view btn-sm btn btn-default">C</button>
+                <span>CONE</span> <button name="cones" class="view btn-sm btn btn-danger">C</button>
             </li>  
             <li>
-                <span>LENS</span> <button name="lens" class="view btn-sm btn btn-default">L</button>
+                <span>CONE LENS</span> <button name="cone_lens" class="view btn-sm btn btn-danger">CL</button>
             </li>
             <li>
-                <span>REFLECTOR</span> <button name="reflector" class="view btn-sm btn btn-danger">R</button>
+                <span>CONE REF</span> <button name="cone_reflector" class="view btn-sm btn btn-danger">CR</button>
             </li>
+            <br>         
+           <li>
+                <span>TIR LENS</span> <button name="tir_lens" class="view btn-sm btn btn-danger">TL</button>
+            </li> 
+            <li>
+                <span>TIR REF</span> <button name="tir_reflector" class="view btn-sm btn btn-danger">TR</button>
+            </li>
+            <br>
+            <li>
+                <span>REF</span> <button name="reflector" class="view btn-sm btn btn-danger">R</button>
+            </li>
+            <br> 
+             <li>
+                <span>NO LENS</span> <button name="no_lens" class="view btn-sm btn btn-danger">NL</button>
+            </li>  
+             <br> 
+
             <li>
                 <span>SPACER</span> <button name="spacer" class="view btn-sm btn btn-warning">S</button>
             </li>
             <li>
-                <span>CIRCUIT</span> <button name="circuit" class="view btn btn-sm btn-success">C</button>
+                <span>CIRCUIT</span> <button name="circuit" class="view btn btn-sm btn-warning">C</button>
             </li>
             <li>
-                <span>BASE</span> <button name="base" class="view btn btn-sm btn-info">B</button>
+                <span>BASE</span> <button name="base" class="view btn btn-sm btn-warning">B</button>
             </li>
         </ul>
     </div>

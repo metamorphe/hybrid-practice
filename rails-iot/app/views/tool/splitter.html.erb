@@ -1,13 +1,19 @@
    <script type="text/javascript">
       var ip, ws, generator, gui;
       function Generator(){
-        this.length = 50;
+        this.length = 85;
         this.lg = new LensGenerator();
         this.ws = new WebStorage();
+        this.diffuser = "Hemisphere";
+        this.model = "Reflector";
         this.export = "MOLD";
         this.init();
+        this.c_norm = 0.5;
+        this.c_uni = 0.5;
+        this.cost = 0.5;
+        this.random = true;
         this.generate();
-        this.fabricate();
+        // this.fabricate();
         this.sample_size = 150;
       }
       Generator.prototype = {
@@ -27,17 +33,17 @@
             });
           }) 
         },
-        generate: function(random=false){
-            this.clear(["RT", "RAY", "PL", "LS"]);
-            
-            if(random){
-                params = Splitter.random(this.length);
+        generate: function(){
+            this.clear(["RT", "RAY", "PL", "LS", "DRAY"]);
+            var model = eval(this.model);
+            if(this.random || this.model == "noLens"){
+                params = model.random(this.length);
             } else{
-              params = Splitter.getOptimal(this.ws, this.length);
+              params = this.getOptimal();
               console.log("STORED COST", params.cost);
             }
-            paper.view.zoom = 3
-            var scene = Splitter.makeScene(this.box, params);
+            paper.view.zoom = 2
+            var scene = model.makeScene(this.box, params, this.diffuser);
 
             // this.fire();
             paper.view.update();
@@ -61,9 +67,9 @@
           max_p.cost = max.cost;
           max.params = JSON.stringify(max_p);
           
-
-          if(this.ws.includes(scope.length)){
-            params = JSON.parse(this.ws.get(scope.length));
+          var key = scope.generateKey(scope.length);
+          if(this.ws.includes(key)){
+            params = JSON.parse(this.ws.get(key));
             console.log("PREVIOUSLY STORED", scope.length, params.cost, "v", max.cost);
             if(!_.isUndefined(params.cost) && params.cost > max.cost){
               this.generate();
@@ -71,14 +77,14 @@
             }
           }
           console.log("REWRITING", scope.length, max.params);
-          this.ws.set(this.length, max.params);
+          this.ws.set(key, max.params);
           
           // LOAD UP THE BEST ONE
           this.generate(false);
           return max.cost;
         },
         fire: function(){
-           this.clear(["RAY", "PL"]);
+           this.clear(["RAY", "PL", "DRAY"]);
            var mediums = CanvasUtil.getMediums();
            var light_source = CanvasUtil.queryPrefix("LS");
            
@@ -91,20 +97,25 @@
               ls.emmision(-60, 0, 1);
             });
 
-           uniformity = ImagePlane.calculateUniformity();
-           normality = ImagePlane.calculateNormality();
+         
+           this.c_uni =  ImagePlane.calculateUniformity();
+           this.c_norm = ImagePlane.calculateNormality();
            // console.log("RESULTS:", uniformity.toFixed(2), normality.toFixed(2), (uniformity * 0.8 + normality * 0.2).toFixed(2));
 
            paper.view.update();
-           return uniformity * 0.8 + normality * 0.2;
+           this.cost = this.c_uni * 0.8 + this.c_norm * 0.2;
+
+           console.log("COST", this.cost);
+
+           return this.cost;
            // return  normality * 0.2 ;
         }, 
         batch_clear: function(){
           var scope = this;
           _.each(scope.ws.keys(), function(key){
-            var k = parseFloat(key);
+            var k = scope.decodeKey(key);
 
-            if(!_.isNaN(k))
+            if(!_.isNull(k))
               scope.ws.remove(key);
             
           });
@@ -121,134 +132,8 @@
         }, 
         fabricate: function(){
           var params = this.generate();
-          lens = CanvasUtil.queryPrefix('LENS')[0];
-          ref = CanvasUtil.queryPrefix('REF')[0];
-
-
-          // MOLD
-          var mold_group = new paper.Group({
-            name: "MOLD:  Mold ASSEMBLY"
-          })
-          var mold = paper.Path.Circle({
-            name: "FAB: Secondary Optics", 
-            radius: Ruler.mm2pts(6.5), 
-            position: paper.view.center.add(new paper.Point(0, 40)), 
-            fillColor: "black", 
-            parent: mold_group
-          });
-          Splitter.makeWings(mold, mold_group, "white");
-
-          wall = mold.expand({
-             strokeAlignment: "exterior", 
-             strokeWidth: 0.1,
-             strokeOffset: Ruler.mm2pts(MOLD_WALL), 
-             fillColor: "white", 
-             joinType: "miter", 
-             parent: mold_group
-          });
-        
-          mold.bringToFront();
-
-          stops = Splitter.moldGradient(params);
-          mold.fillColor = {
-            gradient: {
-              stops: stops, 
-              radial: true
-            },
-            origin: mold.bounds.center.clone(), 
-            destination: mold.bounds.rightCenter.clone()
-          };
-
-         
-          mold.bringToFront();
-         
-           bg = new paper.Path.Rectangle({
-            rectangle: mold_group.bounds, 
-            fillColor: "black", 
-            parent: mold_group
-          });
-          bg.sendToBack();
-
-          console.log("MOLD DIMENSIONS", Ruler.pts2mm(mold_group.bounds.width).toFixed(2), Ruler.pts2mm(mold_group.bounds.height).toFixed(2), Ruler.pts2mm(params.lens.height).toFixed(2));
-
-          // CONE
-          var cone_assembly_height = params.prism.height + WING_HEIGHT;
-          var cone_assembly = new paper.Group({
-            name: "CONE: ASSEMBLY"
-          })
-          var cone = Path.Circle({
-            name: "FAB: Secondary Optics", 
-            radius: Ruler.mm2pts(6.5), 
-            position: paper.view.center.add(new paper.Point(- this.length * 2,  40)), 
-            fillColor: "black",
-            parent: cone_assembly 
-          });
-          var stops = Splitter.coneGradient(params);
-         
-          cone.fillColor = {
-            gradient: {
-              stops: stops, 
-              radial: true
-            },
-            origin: cone.bounds.center.clone(), 
-            destination: cone.bounds.rightCenter.clone()
-          };
-          
-          Splitter.makeWings(cone, cone_assembly, new paper.Color(WING_HEIGHT / cone_assembly_height));
-
-
-          cone.bringToFront();
-          // cone_assembly.selected = true;
-          console.log("CONE DIMENSIONS", Ruler.pts2mm(cone_assembly.bounds.width).toFixed(2), Ruler.pts2mm(cone_assembly.bounds.height).toFixed(2), Ruler.pts2mm(cone_assembly_height.toFixed(2)));
-
-          bg = new paper.Path.Rectangle({
-            rectangle: cone_assembly.bounds, 
-            fillColor: "black", 
-            parent: cone_assembly
-          });
-          bg.sendToBack();
-         
-
-          // REFLECTOR
-          var reflector_group = new paper.Group({
-            name: "REF_GROUP"
-          });
-          var reflector = Path.Circle({
-            name: "REFL: Secondary Optics", 
-            radius: this.length, 
-            position: paper.view.center.add(new paper.Point(this.length * 2,  40)), 
-            fillColor: "black", 
-            strokeColor: "black", 
-            strokeWidth: 1, 
-            parent: reflector_group
-          })  
-          stops = Splitter.rampGradient(params);
-
-          reflector.fillColor = {
-            gradient: {
-              stops: stops, 
-              radial: true
-            },
-            origin: reflector.bounds.center.clone(), 
-            destination: reflector.bounds.rightCenter.clone()
-          };
-          var led_hole = new paper.Path.Rectangle({
-            size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)), 
-            fillColor: "black", 
-            position: reflector.bounds.center, 
-            parent: reflector_group
-          })
-
-          bg = new paper.Path.Rectangle({
-            rectangle: reflector_group.bounds, 
-            fillColor: "black", 
-            parent: reflector_group
-          });
-          bg.sendToBack();
-
-          console.log("REFLECTOR DIMENSIONS", Ruler.pts2mm(reflector_group.bounds.width).toFixed(2), Ruler.pts2mm(reflector_group.bounds.height).toFixed(2), Ruler.pts2mm(total_ref_height.toFixed(2)));
-          // reflector_group.selected =true;
-          // reflector_gradient.position = reflector.bounds.center.add(new paper.Point(Ruler.mm2pts(6.5), 0));
+          var model = eval(this.model);
+          model.fabricate(params, this.length);
           paper.view.update();
         }, 
         download: function(){
@@ -275,9 +160,59 @@
             //     // dom.attr('href', $('#myCanvas')[0].toDataURL("image/png"))
             //            // .attr('download', filename + '.png');
             // }
+        }, 
+        generateKey: function(){
+          return [this.model, this.diffuser, this.length].join("_"); 
+        },
+        decodeKey: function(k){
+          if(k.split("_").length <= 1) return null;
+          else{
+            d = k.split("_");
+            return {model: d[0], diffuser: d[1], length: parseFloat(d[2])}
+          }
+        }, 
+        getSamples: function(){
+          var scope = this;
+          return  _.chain(this.ws.keys())
+                      .map(function(k){
+                        return scope.decodeKey(k);
+                      })
+                      .filter(function(k){
+                        if(_.isNull(k)) return null;
+                        return scope.model == k.model && scope.diffuser == k.diffuser;
+                      })
+                      .compact()
+                      .value();
+        },
+        getOptimal: function(){
+          var scope = this;
+          var model = eval(this.model);
+          var key = this.generateKey();    
+          if(this.ws.includes(key)){
+              return JSON.parse(this.ws.get(key));
+          }
+          else{
+              keys = _.chain(scope.getSamples())
+                      .pluck("length")
+                      .sortBy()
+                      .value();
+
+              if(keys.length == 0) return model.random(l);
+              b = _.min(keys, function(k){ if(k - l < 0) return 10000000; else return k - l; });
+              a = _.min(keys, function(k){ if(l - k < 0) return 10000000; else return l - k; });
+              tau = (b-l)/(b-a);
+
+              // console.log("KEYS", a, b, tau);
+
+              a = JSON.parse(this.ws.get([this.model, this.diffuser, a].join("_")));
+              b = JSON.parse(this.ws.get([this.model, this.diffuser, b].join("_")));
+            
+              return model.interpolateParams(a, b, tau);
+          }  
         }
       }
       
+
       $(function(){
         // ws = new WebStorage();
         Utility.paperSetup($('#myCanvas'));
@@ -286,10 +221,21 @@
         gui = new dat.GUI();
     
         generator = new Generator();
+        var f0 = gui.addFolder('Model');
+        f0.add(generator, "diffuser").options(["Planar", "Hemisphere", "Cuboid"]);
+        f0.add(generator, "model").options(["noLens", "Reflector", "TIR", "Splitter"]);
+        f0.add(generator, "length").min(15).max(300).step(5).listen();
+        f0.add(generator, "random");
+        f0.add(generator, "generate");
+        
         var f1 = gui.addFolder('Ray Tracing');
-        f1.add(generator, "length").min(15).max(300).step(10).listen();
-        f1.add(generator, "generate");
+        f1.add(generator, "c_uni").min(0).max(1).listen();
+        f1.add(generator, "c_norm").min(0).max(1).listen();
+        f1.add(generator, "cost").min(0).max(1).listen();
         f1.add(generator, "fire");
+        
+        
+
         var f2 = gui.addFolder('Sampling')
         f2.add(generator, "sample_size").min(0).max(300).step(10);
         f2.add(generator, "resample");
@@ -304,9 +250,9 @@
         f1.open();
         f2.open();
         f3.open();
+        f0.open();
         // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
         $("#shade").fadeOut();
-
 
       });
 

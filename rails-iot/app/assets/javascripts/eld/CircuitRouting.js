@@ -1,7 +1,7 @@
 function CircuitRouting(){}
 
 CircuitRouting.generateNodes = function(nodes, callbackFN) {
-            var c = new Artwork("/components/APA102C.svg", function(footprint) {
+            var c = new Artwork("/components/APA102C_opt.svg", function(footprint) {
                 square = footprint.queryPrefix("SMD");
                 square[0].remove();
                 nodes = _.map(nodes, function(element) {
@@ -150,7 +150,7 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
             bgPath = new paper.Path({
                 strokeColor: "yellow",
                 segments: _.flatten(pts),
-                strokeWidth: Ruler.mm2pts(10)
+                strokeWidth: Ruler.mm2pts(8.5)
             });
             bgPath.sendToBack();
         }

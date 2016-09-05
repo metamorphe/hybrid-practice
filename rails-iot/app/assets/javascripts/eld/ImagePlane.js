@@ -88,9 +88,13 @@ ImagePlane.getSignal = function(bins=100){
 
 	hits = CanvasUtil.getIntersections(image_plane, rays);
 	var origin = image_plane.firstSegment.point;
+
 	data = _.map(hits, function(h){
-		var pt = h.point.subtract(origin);
-		return {x: pt.x, strength: h.path.strength, direction: h.path.direction};
+		// var pt = h.point.subtract(origin); // planar surface
+		var pt = image_plane.getNearestPoint(h.point);
+		var offset = image_plane.getOffsetOf(pt);
+		var rel_pos = offset;
+		return {x: rel_pos, strength: h.path.strength, direction: h.path.direction};
 	});
 
 	var range = image_plane.length;
@@ -139,7 +143,18 @@ ImagePlane.calculateNormality = function(){
 
 	sum = _.reduce(hits, function(sum, hit){
 		// console.log("ANG", hit.path.lastSegment.point.angle);
-		return sum + Math.abs(-90 - hit.path.lastSegment.point.angle);
+		var offset = image_plane.getOffsetOf(hit.point);
+		var normal = image_plane.getNormalAt(offset);
+		
+		normal.length = 30;
+		var c = new paper.Path.Line({
+			from: hit.point, 
+			to: hit.point.add(normal), 
+			strokeColor: "purple", 
+			strokeWidth: 1, 
+			name: "DRAY: Desired Ray"
+		});
+		return sum + Math.abs(normal.angle - hit.path.lastSegment.point.angle);
 	}, 0);	
 	sum /= hits.length;
 	// NORMALIZE AND INVERT

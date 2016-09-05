@@ -260,16 +260,18 @@ Pipeline.script = {
          height: 'black', 
          parent: result
         });
-
+        _.each(e.diff, function(diffuser) {
+            diffuser.bringToFront();
+        });
         //Make non-molding objects invisible
-        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
+        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base]));
         Pipeline.set_visibility(invisible, false);
 
         // result.scaling = new paper.Size(-1, 1);
         result.name = "RESULT: DIFFUSER";
         result.model_height = DIFUSSER_HEIGHT;
     },
-    lens: function(display, e) {
+    cone_lens: function(display, e) {
         var ws = new WebStorage();
         var box = new paper.Path.Rectangle(paper.view.bounds);
         box.set({
@@ -494,6 +496,57 @@ Pipeline.script = {
         result.name = "RESULT: REFLECTOR";
         result.model_height = REFLECTOR_HEIGHT;
     },
+    no_lens: function(display, e) {
+        var ws = new WebStorage();
+
+        this.adjustLEDs(display, e);
+
+        var all = _.flatten([e.diff, e.leds, e.base]);
+        var result = new paper.Group(all);
+
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: "white",
+            parent: result
+        });
+
+        var mc = this.adjustMC(display, e, backgroundBox);
+        if(mc){ mc.parent = result; mc.bringToFront();}
+
+
+        _.each(e.diff, function(diff){
+           
+            diff.set({
+              fillColor: "black", 
+              strokeWidth: 0
+            });
+        });
+        // var pegs = Pipeline.create_corner_pegs({ 
+        //  geometry: "hex",
+        //  bounds: backgroundBox.strokeBounds, 
+        //  radius: HEX_RADIUS, 
+        //  padding: PEG_PADDING, 
+        //  height: 'yellow', 
+        //  parent: result
+        // });
+      
+        var pegs = Pipeline.create_corner_pegs({ 
+         geometry: "circle",
+         bounds: backgroundBox.strokeBounds, 
+         radius: PEG_RADIUS, 
+         padding: PEG_PADDING, 
+         height: 'black', 
+         parent: result
+        });
+        backgroundBox.sendToBack();
+
+        // INVISIBILITY
+        var invisible = _.compact(_.flatten([e.art, e.base, e.dds, e.bo, e.bi, e.cp, e.leds]));
+        Pipeline.set_visibility(invisible, false);
+
+        result.name = "RESULT: NO LENS";
+        result.model_height = REFLECTOR_HEIGHT;
+    },
     spacer: function(display, e) {
         var ws = new WebStorage();
         
@@ -603,7 +656,7 @@ Pipeline.script = {
             parent: result
         });
         backgroundBox.sendToBack();        
-        // ADD CORNER PEGS
+        // // ADD CORNER PEGS
         var pegs = Pipeline.create_corner_pegs({ 
          geometry: "hex",
          bounds: backgroundBox.bounds, 
@@ -924,7 +977,7 @@ PipeManager.prototype = {
       $('#view-list ul li').removeClass('active');
       $(this).addClass('active');
       $('#view-icon').attr('class', $(this).children('button').attr('class')).removeClass('view').removeClass("btn-sm").addClass('pull-right');
-      scope.view = $(this).children('span').html();
+      scope.view = $(this).children('button').attr('name');
       scope.update();
     });
     // populate SELECT
@@ -942,6 +995,7 @@ PipeManager.prototype = {
   update: function(){
     var view = this.getCurrentView();  
     paper.project.clear();
+    paper.view.zoom = 1;
     paper.view.update();
 
     console.log('RUNNING SCRIPT', view)  

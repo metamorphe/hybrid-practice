@@ -32,9 +32,9 @@ Splitter.random = function(length){
   params.collimator.height = (Ruler.mm2pts(10) - params.prism.height) / 2.0 * Math.random();
   return params;
 }
-Splitter.getOptimal = function(ws, l){
+Splitter.getOptimal = function(ws, key){
     if(ws.includes(l)){
-        return JSON.parse(ws.get(l));
+        return JSON.parse(ws.get(key));
     }
     else{
         keys = _.sortBy(_.map(ws.keys(), function(k){ return parseFloat(k);}));
@@ -197,7 +197,7 @@ Splitter.makeWings = function(geometry, parent, color){
     return wings;
 }
 
-Splitter.makeScene = function(box, params){
+Splitter.makeScene = function(box, params, diffuser){
     var result = new paper.Group({
       name: "RT: Ray Tracing Scene", 
     });
@@ -317,4 +317,133 @@ Splitter.boolean = function(pathA, pathB, operation){
   pathA.remove();
   pathB.remove();
   return temp;
+}
+
+Splitter.fabricate = function(params, l){
+   lens = CanvasUtil.queryPrefix('LENS')[0];
+          ref = CanvasUtil.queryPrefix('REF')[0];
+  // MOLD
+          var mold_group = new paper.Group({
+            name: "MOLD:  Mold ASSEMBLY"
+          })
+          var mold = paper.Path.Circle({
+            name: "FAB: Secondary Optics", 
+            radius: Ruler.mm2pts(6.5), 
+            position: paper.view.center.add(new paper.Point(0, 40)), 
+            fillColor: "black", 
+            parent: mold_group
+          });
+          Splitter.makeWings(mold, mold_group, "white");
+
+          wall = mold.expand({
+             strokeAlignment: "exterior", 
+             strokeWidth: 0.1,
+             strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+             fillColor: "white", 
+             joinType: "miter", 
+             parent: mold_group
+          });
+        
+          mold.bringToFront();
+
+          stops = Splitter.moldGradient(params);
+          mold.fillColor = {
+            gradient: {
+              stops: stops, 
+              radial: true
+            },
+            origin: mold.bounds.center.clone(), 
+            destination: mold.bounds.rightCenter.clone()
+          };
+
+         
+          mold.bringToFront();
+         
+           bg = new paper.Path.Rectangle({
+            rectangle: mold_group.bounds, 
+            fillColor: "black", 
+            parent: mold_group
+          });
+          bg.sendToBack();
+
+          console.log("MOLD DIMENSIONS", Ruler.pts2mm(mold_group.bounds.width).toFixed(2), Ruler.pts2mm(mold_group.bounds.height).toFixed(2), Ruler.pts2mm(params.lens.height).toFixed(2));
+
+          // CONE
+          var cone_assembly_height = params.prism.height + WING_HEIGHT;
+          var cone_assembly = new paper.Group({
+            name: "CONE: ASSEMBLY"
+          })
+          var cone = Path.Circle({
+            name: "FAB: Secondary Optics", 
+            radius: Ruler.mm2pts(6.5), 
+            position: paper.view.center.add(new paper.Point(- this.length * 2,  40)), 
+            fillColor: "black",
+            parent: cone_assembly 
+          });
+          var stops = Splitter.coneGradient(params);
+         
+          cone.fillColor = {
+            gradient: {
+              stops: stops, 
+              radial: true
+            },
+            origin: cone.bounds.center.clone(), 
+            destination: cone.bounds.rightCenter.clone()
+          };
+          
+          Splitter.makeWings(cone, cone_assembly, new paper.Color(WING_HEIGHT / cone_assembly_height));
+
+
+          cone.bringToFront();
+          // cone_assembly.selected = true;
+          console.log("CONE DIMENSIONS", Ruler.pts2mm(cone_assembly.bounds.width).toFixed(2), Ruler.pts2mm(cone_assembly.bounds.height).toFixed(2), Ruler.pts2mm(cone_assembly_height.toFixed(2)));
+
+          bg = new paper.Path.Rectangle({
+            rectangle: cone_assembly.bounds, 
+            fillColor: "black", 
+            parent: cone_assembly
+          });
+          bg.sendToBack();
+         
+
+          // REFLECTOR
+          var reflector_group = new paper.Group({
+            name: "REF_GROUP"
+          });
+          var reflector = Path.Circle({
+            name: "REFL: Secondary Optics", 
+            radius: l, 
+            position: paper.view.center.add(new paper.Point(this.length * 2,  40)), 
+            fillColor: "black", 
+            strokeColor: "black", 
+            strokeWidth: 1, 
+            parent: reflector_group
+          })  
+          stops = Splitter.rampGradient(params);
+
+          reflector.fillColor = {
+            gradient: {
+              stops: stops, 
+              radial: true
+            },
+            origin: reflector.bounds.center.clone(), 
+            destination: reflector.bounds.rightCenter.clone()
+          };
+          var led_hole = new paper.Path.Rectangle({
+            size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)), 
+            fillColor: "black", 
+            position: reflector.bounds.center, 
+            parent: reflector_group
+          })
+
+          bg = new paper.Path.Rectangle({
+            rectangle: reflector_group.bounds, 
+            fillColor: "black", 
+            parent: reflector_group
+          });
+          bg.sendToBack();
+
+          console.log("REFLECTOR DIMENSIONS", Ruler.pts2mm(reflector_group.bounds.width).toFixed(2), Ruler.pts2mm(reflector_group.bounds.height).toFixed(2), Ruler.pts2mm(total_ref_height.toFixed(2)));
+          // reflector_group.selected =true;
+          // reflector_gradient.position = reflector.bounds.center.add(new paper.Point(Ruler.mm2pts(6.5), 0));
 }

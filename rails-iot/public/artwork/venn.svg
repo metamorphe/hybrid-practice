@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="ELD:_Venn_Diagram_Color_Mixing"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1728 864"
+	 style="enable-background:new 0 0 1728 864;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st1{fill:#FFFFFF;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+</style>
+<circle id="DIF:_Venn_2_" class="st0" cx="509.7" cy="323.6" r="70.9"/>
+<circle id="DIF:_Venn_1_" class="st0" cx="439.3" cy="322.9" r="70.9"/>
+<circle id="DIF:_Venn" class="st0" cx="475.1" cy="263.2" r="70.9"/>
+<rect id="NLED:_APA102C_2_" x="468" y="256.1" class="st1" width="14.2" height="14.2"/>
+<rect id="NLED:_APA102C_1_" x="432.2" y="315.8" class="st1" width="14.2" height="14.2"/>
+<rect id="NLED:_APA102C" x="503.1" y="316.5" class="st1" width="14.2" height="14.2"/>
+<rect id="BASE:_diagram" x="355.1" y="188" class="st0" width="238.9" height="211"/>
+</svg>

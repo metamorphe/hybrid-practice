@@ -23,6 +23,9 @@
 //= require eld/ImagePlane
 //= require eld/LensGenerator
 //= require eld/Splitter
+//= require eld/Reflector
+//= require eld/TIR
+//= require eld/noLens
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

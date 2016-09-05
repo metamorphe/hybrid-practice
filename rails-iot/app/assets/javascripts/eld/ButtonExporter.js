@@ -53,6 +53,7 @@ function ButtonExporter(dom, type, preFN, postFN){
 
   var resultR = "";
   ButtonExporter.exportPNG = function(result, filename, dom){
+      paper.view.zoom = 1;
       console.log("Exporting PNG...", filename);
      
       result.fitBounds(paper.view.bounds.expand(-100));

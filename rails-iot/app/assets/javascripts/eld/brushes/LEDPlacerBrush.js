@@ -181,11 +181,7 @@ LEDPlacerBrush.prototype = {
 					parent: CanvasUtil.queryPrefix("ELD")[0], 
 					originLight: led.id, 
 					originAngle: theta,
-					hue: scope.hue, 
-					// applyMatrix: false
-					// shadowColor: color,
-					// shadowBlur: 30,
-				  // shadowOffset: new Point(1, 1)
+					hue: scope.hue
 				});
 				line.pivot = line.firstSegment.point.clone();;
 				

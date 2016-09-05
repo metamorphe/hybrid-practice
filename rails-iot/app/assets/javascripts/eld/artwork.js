@@ -133,8 +133,11 @@ Artwork.prototype = {
 		var scope = this;
 	 	paper.project.importSVG(this.svgPath, function(item) {
 	 		 // console.log("Processing", item.name);
+	 	
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
+ 			CanvasUtil.fitToViewWithZoom(scope.svg, paper.view.bounds.expand(-280))
+        
 	 		var ledLists = scope.orderLeds();
 				if(!_.isNull(ledLists)){
 					scope.allLeds = ledLists[0];
