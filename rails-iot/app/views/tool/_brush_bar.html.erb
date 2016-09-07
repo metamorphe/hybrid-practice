@@ -63,6 +63,10 @@ function BrushBar(container){
     getCurrentBrush: function(){
       return this.brush;
     },
+    update: function(){
+      if(_.isNull(this.brush)) return;
+      this.toolbox[this.brush].update()
+    },
     show: function(now){
       var scope = this;
       if(this.state) return;
@@ -90,7 +94,7 @@ function BrushBar(container){
       });
     }
   }
-
+  
   BrushBar.setBrush = function(jqNode, active){
      var img = jqNode.attr('src');
      if(_.isUndefined(img)) return;
@@ -124,6 +128,7 @@ function BrushBar(container){
 <div class="col-xs-5">
   <div id="brush-set">
     <img class="brush" tool="LEDPlacerBrush" src="/brushes/brush_CircuitBrush_NonActive.png">
+    <img class="brush" tool="FillBrush" src="/brushes/brush_PaintCan_NonActive.png">
     <!-- <img class="brush" tool="MagicWandBrush" src="/brushes/brush_MagicWand_NonActive.png"> -->
     <!-- <img class="brush" tool="HeatBrush" src="/brushes/brush_HeatGun_NonActive.png"> -->
     <!-- <img class="brush" tool="LinkBrush" src="/brushes/brush_LinkBrush_NonActive.png"> -->

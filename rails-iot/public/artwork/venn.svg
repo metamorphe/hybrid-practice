@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="ELD:_Venn_Diagram_Color_Mixing"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1728 864"
-	 style="enable-background:new 0 0 1728 864;" xml:space="preserve">
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 240.9 229.1"
+	 style="enable-background:new 0 0 240.9 229.1;" xml:space="preserve">
 <style type="text/css">
 	.st0{fill:none;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
 	.st1{fill:#FFFFFF;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
@@ -10,15 +10,15 @@
 	.st3{fill:#FFE313;}
 	.st4{fill:none;stroke:#FFE313;stroke-width:3;stroke-miterlimit:10;}
 </style>
-<circle id="DIF:_Venn_2_" class="st0" cx="509.7" cy="323.6" r="70.9"/>
-<circle id="DIF:_Venn_1_" class="st0" cx="439.3" cy="322.9" r="70.9"/>
-<circle id="DIF:_Venn" class="st0" cx="475.1" cy="263.2" r="70.9"/>
-<rect id="NLED:_APA102C_2_" x="468" y="256.1" class="st1" width="14.2" height="14.2"/>
-<rect id="NLED:_APA102C_1_" x="432.2" y="315.8" class="st1" width="14.2" height="14.2"/>
-<rect id="NLED:_APA102C" x="503.1" y="316.5" class="st1" width="14.2" height="14.2"/>
-<rect id="BASE:_diagram" x="355.1" y="179" class="st0" width="238.9" height="227.1"/>
-<rect id="MC:_Microcontroller" x="556.5" y="179" class="st2" width="37.5" height="99.7"/>
-<polygon id="BI:_Breakin_1_" class="st3" points="584.3,267.7 582,267.7 580.5,267.7 576,267.7 574.5,267.7 570,267.7 564,267.7 
-	564,278.8 568.1,278.8 570,278.8 574.5,278.8 576,278.8 580.5,278.8 582,278.8 584.3,278.8 586.5,278.8 586.5,267.7 "/>
-<polyline id="CP:_Circuit_Path" class="st4" points="578.5,286.5 540,347.5 415,347.5 474.5,228.9 "/>
+<circle id="DIF:_Venn_2_" class="st0" cx="155.6" cy="145.6" r="70.9"/>
+<circle id="DIF:_Venn_1_" class="st0" cx="85.2" cy="144.9" r="70.9"/>
+<circle id="DIF:_Venn" class="st0" cx="121" cy="85.2" r="70.9"/>
+<rect id="NLED:_APA102C_2_" x="113.9" y="78.1" class="st1" width="14.2" height="14.2"/>
+<rect id="NLED:_APA102C_1_" x="78.1" y="137.8" class="st1" width="14.2" height="14.2"/>
+<rect id="NLED:_APA102C" x="149" y="138.5" class="st1" width="14.2" height="14.2"/>
+<rect id="BASE:_diagram" x="1" y="1" class="st0" width="238.9" height="227.1"/>
+<rect id="MC:_Microcontroller" x="202.4" y="1" class="st2" width="37.5" height="99.7"/>
+<polygon id="BI:_Breakin_1_" class="st3" points="230.2,89.7 227.9,89.7 226.4,89.7 221.9,89.7 220.4,89.7 215.9,89.7 209.9,89.7 
+	209.9,100.8 214,100.8 215.9,100.8 220.4,100.8 221.9,100.8 226.4,100.8 227.9,100.8 230.2,100.8 232.4,100.8 232.4,89.7 "/>
+<polyline id="CP:_Circuit_Path" class="st4" points="224.4,108.5 185.9,169.5 60.9,169.5 120.4,50.9 "/>
 </svg>

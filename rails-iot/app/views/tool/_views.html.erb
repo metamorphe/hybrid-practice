@@ -25,8 +25,9 @@
 				$('#view-list ul li').removeClass('active');
 				$(this).addClass('active');
 				$('#view-icon').attr('class', $(this).children('button').attr('class')).removeClass('view').removeClass("btn-sm").addClass('pull-right');
-				scope.view = $(this).children('span').html();
+				scope.view = $(this).children('button').attr('name').toUpperCase();
 				scope.update();
+				bb.update();
 			});
 			this.update();
 		},
@@ -51,14 +52,15 @@
 						CanvasUtil.set(e.leds, {
 							fillColor: "#FFFFFF", 
 							strokeColor: "black",
-							strokeWidth: 1
+							strokeWidth: 1, 
+							opacity: 1.0
 						});
 						CanvasUtil.set(e.diff, {
 								fillColor: "#DFDFDF", 
 								strokeWidth: 1,
-								strokeColor: "black"
+								strokeColor: "black", 
+								opacity: 0.5
 						});
-						console.log(e.rays);
 						
 						break;
 					case "RAYS":
@@ -72,21 +74,55 @@
 							led.set({
 								fillColor: color, 
 								strokeColor: color,
-								strokeWidth: 1
+								strokeWidth: 1, 
+								opacity: 1.0
 							});
 						});
 						
 						CanvasUtil.set(e.diff, {
-								fillColor: "black", 
-								strokeWidth: 0
+							fillColor: "black", 
+							strokeWidth: 0
 						});
 
 						
 						break;
-					case "LIGHTS OUT":
+					case "WHITE_RAYS":
+						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
+						var show = [e.diff, e.leds, e.rays];
+						var hide = [e.art, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
+						
+						_.each(e.leds, function(led){
+							color = "#FFFFFF";
+							
+							led.set({
+								fillColor: color, 
+								strokeColor: color,
+								strokeWidth: 1, 
+								opacity: 1.0
+							});
+						});
+						
+						CanvasUtil.set(e.diff, {
+							fillColor: "black", 
+							strokeWidth: 0
+						});
+
+						
+						break;
+					case "LIGHTS":
 						$('#myCanvas').css('background', '#111');
 						var show = [e.rays];
-						var hide = [e.leds, e.diff, e.art, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
+
+						_.each(e.leds, function(led){
+							
+							
+							led.set({
+								opacity: 0.2
+							});
+						});
+
+						var hide = [e.diff, e.art, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
+
 						break;
 					default:
 						break;
@@ -142,9 +178,15 @@ Pipeline.getElements = function() {
 				</button>
 			</li>
 			 <li>
-				<span>RAYS</span>
-				<button name="interactivity" class="view btn-sm btn btn-danger">
+				<span>COLORED RAYS</span>
+				<button name="rays" class="view btn-sm btn btn-danger">
 					R
+				</button>
+			</li>
+			<li>
+				<span>WHITE RAYS</span>
+				<button name="white_rays" class="view btn-sm btn btn-info">
+					W
 				</button>
 			</li>
 			<li>

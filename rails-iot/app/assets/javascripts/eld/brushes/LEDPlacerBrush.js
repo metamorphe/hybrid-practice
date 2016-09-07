@@ -6,6 +6,7 @@ function LEDPlacerBrush(paper){
 		fill: true,
 		tolerance: 5
 	};
+	this.enabled = false;
 	this.paper = paper;
 	this.name = "LEDPlacerBrush";
 	this.tool = new paper.Tool();
@@ -72,7 +73,7 @@ function LEDPlacerBrush(paper){
 				if(name == "NLED") $('#myCanvas').css('cursor', 'alias');
 			}
 
-			console.log("CURSOR SET TO", $('#myCanvas').css('cursor'));
+			// console.log("CURSOR SET TO", $('#myCanvas').css('cursor'));
 		}else{
 			$('#myCanvas').css('cursor', 'pointer');
 		}
@@ -108,6 +109,8 @@ function LEDPlacerBrush(paper){
 	
 	}
 	this.tool.onMouseUp = function(event){
+		bb.update();
+		vm.update();
 		_.each(scope.selection, function(el){
 			var rays = CanvasUtil.queryPrefix("RAY");
 			_.each(rays, function(r){
@@ -121,18 +124,29 @@ function LEDPlacerBrush(paper){
 
 LEDPlacerBrush.prototype = {
 	enable: function(){
+		// console.log("ENABLING LED PLACE BRUSH");
 	   var scope = this;
 	   diffs = CanvasUtil.queryPrefix("DIF");
 	   leds = CanvasUtil.queryPrefix("NLED");
 	   _.each(leds, function(led){
 	   		scope.addRays(diffs, led);
 	   });
+	   paper.view.update();
+	   this.enabled = true;
+	   vm.update();
 	},
 	disable: function(){
 	   var scope  = this;
+	   this.enabled = false;
 	},
 	update: function(){
-		paper.view.update();
+	   var scope = this;
+	   diffs = CanvasUtil.queryPrefix("DIF");
+	   leds = CanvasUtil.queryPrefix("NLED");
+	   _.each(leds, function(led){
+	   		scope.addRays(diffs, led);
+	   });
+	   paper.view.update();
 	}, 
 	clear: function(){
 	
@@ -145,6 +159,10 @@ LEDPlacerBrush.prototype = {
 		var rays = CanvasUtil.query(paper.project, { prefix: "RAY", originLight: led.id });
 		if(rays.length != 0){
 			CanvasUtil.set(rays, "position", led.position.clone());
+			// var color = _.isUndefined(led.colorID) ?  "#FFFFFF": led.colorID;
+			// if(vm.getCurrentView() == "WHITE_RAYS") color = "#FFFFFF"
+			// CanvasUtil.set(rays, "strokeColor", color);
+			CanvasUtil.set(rays, "strokeColor", led.fillColor);
 		} else{
 			// CREATE RAYS
 			var rays = _.range(-180, 180, 1);
@@ -158,11 +176,12 @@ LEDPlacerBrush.prototype = {
 
 			var led_color = color.clone();
 			led_color.brightness = 1;
-
-
+			var was_white = CanvasUtil.queryPrefix("NLED");
+			was_white = was_white.length > 0 && was_white[0].fillColor.equals("#FFFFFF");
+			var fill = vm.getCurrentView() == "WHITE_RAYS" || was_white  ? "#FFFFFF" : led_color
 			led.set({
-				fillColor: led_color, 
-				strokeColor: led_color, 
+				fillColor: fill, 
+				strokeColor: fill, 
 				strokeWidth: 1, 
 				colorID: led_color
 			})
@@ -188,7 +207,10 @@ LEDPlacerBrush.prototype = {
 				ixts = line.getIntersections(diffs[0]);
 				if(ixts.length > 0)
 				line.lastSegment.point = ixts[0].point;
+				return line;
 			});
+			if(vm.getCurrentView() == "WHITE_RAYS")
+				CanvasUtil.set(rays, "strokeColor", "#FFFFFF");
 			
 		}
 		// UPDATE

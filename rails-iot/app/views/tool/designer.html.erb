@@ -4,12 +4,9 @@
       $(function(){
         paperSetup();
         var display = new Artwork("/artwork/venn.svg", function(artwork){
-          CanvasUtil.fitToViewWithZoom(artwork.svg, paper.view.bounds.expand(-280))
-           // artwork.svg.fitBounds(paper.view.bounds.expand(-200));
-
            artwork.svg.position = paper.view.center;
-           artwork.svg.position.y -= 80;
-           
+           artwork.svg.position.y -= 60;
+        
            vm = new ViewManager($('#views'));
         });
         displays.push(display);
