@@ -48,7 +48,7 @@ PointLight.prototype = {
 		var scope = this;
 		rays = _.range(start, end, step);
 		rays = _.map(rays, function(theta){
-			return scope.emit(scope.source.position, scope.toLocalSpace(theta), scope.brdf(theta), "yellow", theta);
+			return scope.emit(scope.source.position, scope.toLocalSpace(theta), scope.brdf(theta), "yellow", theta, 0);
 		})
 		count = 0;
 		while(!_.isEmpty(rays)){
@@ -56,13 +56,13 @@ PointLight.prototype = {
 				if(_.isNull(r) || _.isUndefined(r)) return;
 				return scope.trace(r, false);
 			})
-			rays = _.compact(rays);
+			rays = _.compact(_.flatten(rays));
 			count ++;
 			// console.log("RAY TRACE:", count, rays.length)
 			if(count > 30) break;
 		}
 	},
-	emit: function(origin, direction, strength, color, original_angle){
+	emit: function(origin, direction, strength, color, original_angle, distance_travelled=0){
 		var sW = strength * 0.5 + 0.1;
 		var rayEnd = new paper.Point(0, -1);
 		rayEnd.length = 10000;
@@ -75,9 +75,9 @@ PointLight.prototype = {
 			strokeWidth: sW,
 			strength: strength, 
 			strokeScaling: false,
-			direction: original_angle
+			direction: original_angle, 
+			distance_travelled: distance_travelled
 		});
-
 		// np = p.getIntersections(this.parent);
 		// if(np.length > 0)
 		// p.lastSegment.point = np[0].point;
@@ -89,6 +89,7 @@ PointLight.prototype = {
 		}
 	}, 
 	trace: function(r, viz){
+		
 		hits = PointLight.getIntersections(r, this.options.mediums);
 		if(viz)
 			PointLight.visualizeHits(hits);
@@ -101,6 +102,11 @@ PointLight.prototype = {
 		if(!interface.normal) return null;
 
 		r.path.lastSegment.point = interface.point;
+		r.path.distance_travelled += r.path.length;
+
+		// console.log(r.path.distance_travelled, Ruler.mm2pts(10));
+		if(r.path.distance_travelled > Ruler.mm2pts(20)){  return null;} //KILL RAYS THAT GOT TOO LONG ;(
+
 
 		ref_normal = PointLight.getReferenceNormal(interface.normal, r);
 
@@ -117,7 +123,7 @@ PointLight.prototype = {
 	reflect: function(r, interface, material, normal){
 		theta0 = PointLight.getIncidentAngle(normal, r);
 		back_normal = normal.clone().multiply(-1);
-		return this.emit(interface.point, back_normal.angle - theta0, r.strength * material.reflectance, "yellow", r.path.direction);
+		return this.emit(interface.point, back_normal.angle - theta0, r.strength * material.reflectance, "yellow", r.path.direction, r.path.distance_travelled);
 	}, 
 	refract: function(r, interface, material, normal){
 		theta0 = PointLight.getIncidentAngle(normal, r);
@@ -125,12 +131,13 @@ PointLight.prototype = {
 
 		// INTERNAL REFLECTION ACHIEVED
 		if(!_.isNaN(theta_c) && Math.abs(theta0) > Math.abs(theta_c) ){
-			return this.reflect(r, interface, material, normal);
+			theta1 = PointLight.snell(theta0, 1.00, 1.44);
+			return [this.reflect(r, interface, material, normal), this.emit(interface.point, normal.angle +  theta1 , r.strength * 0.3, "yellow", r.path.direction, r.path.distance_travelled)];
 		}
 
 		// NO TOTAL INTERNAL REFLECTION POSSIBLE
 		theta1 = PointLight.snell(theta0, material.n1, material.n2);
-		return this.emit(interface.point, normal.angle +  theta1, r.strength * material.refraction, "yellow", r.path.direction)
+		return this.emit(interface.point, normal.angle +  theta1, r.strength * material.refraction, "yellow", r.path.direction, r.path.distance_travelled)
 	}
 }
 

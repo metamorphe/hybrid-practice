@@ -127,7 +127,7 @@ noLens.makeScene = function(box, params, diffuser){
         position: box.position.clone()
     });
     // MAKING RAMP
-    console.log(params);
+    // console.log(params);
     var ramp = new Path.Rectangle({
         size: new paper.Size(params.ramp.width, params.lens.height),
         fillColor: "#ED1C24", 
@@ -140,12 +140,49 @@ noLens.makeScene = function(box, params, diffuser){
     });
 
     // IMAGE PLANE
-    var img_plane = new Path.Line({
-        parent: result,
-        name: "IMG: Image Plane",
-        segments: [ramp.bounds.topRight, new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y)], 
+
+    // IMAGE PLANE
+    if(diffuser == "Planar"){
+      var img_plane = new Path.Line({
+          parent: result,
+          name: "IMG: Image Plane",
+          segments: [ramp.bounds.topRight, new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y)], 
+          strokeColor: "green", 
+          strokeWidth: 1
+      });
+      // img_plane.reverse();
+    }
+    if(diffuser == "Hemisphere"){
+      var hemis = new Path.Circle({
+        parent: result, 
+        name: "IMG: Image Plane", 
+        radius: Ruler.mm2pts(30), 
+        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
         strokeColor: "green", 
         strokeWidth: 1
-    });
+      });
+      hemis.segments[0].handleIn = null;
+      hemis.segments[1].handleOut = null;
+      hemis.segments[2].remove();
+      hemis.segments[2].remove();
+      hemis.closed = false;
+    }
+    if(diffuser == "Cuboid"){
+      var cuboid = new Path.Rectangle({
+        parent: result, 
+        name: "IMG: Image Plane", 
+        size: new paper.Size(params.lens.width, Ruler.mm2pts(30)), 
+        strokeColor: "green", 
+        strokeWidth: 1
+      });
+      cuboid.set({
+        pivot: cuboid.bounds.bottomRight,
+        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
+      });
+      cuboid.segments[3].remove();
+      cuboid.closed = false;
+    }
+
+
    
 }

@@ -641,7 +641,7 @@ Pipeline.script = {
             paper.view.update();
         });
         addTool();
-        var invisible = _.compact(_.flatten([e.base]));
+        var invisible = _.compact(_.flatten([e.base, e.cp]));
         Pipeline.set_visibility(invisible, false);
     },
     base: function(display, e) {

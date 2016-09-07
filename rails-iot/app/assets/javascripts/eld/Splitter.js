@@ -32,26 +32,7 @@ Splitter.random = function(length){
   params.collimator.height = (Ruler.mm2pts(10) - params.prism.height) / 2.0 * Math.random();
   return params;
 }
-Splitter.getOptimal = function(ws, key){
-    if(ws.includes(l)){
-        return JSON.parse(ws.get(key));
-    }
-    else{
-        keys = _.sortBy(_.map(ws.keys(), function(k){ return parseFloat(k);}));
-        keys = _.compact(keys);
-        if(keys.length == 0) return Splitter.random(l);
-        b = _.min(keys, function(k){ if(k - l < 0) return 10000000; else return k - l; });
-        a = _.min(keys, function(k){ if(l - k < 0) return 10000000; else return l - k; });
-        tau = (b-l)/(b-a);
 
-        // console.log("KEYS", a, b, tau);
-
-        a = JSON.parse(ws.get(a));
-        b = JSON.parse(ws.get(b));
-        // return b;
-        return Splitter.interpolateParams(a, b, tau);
-    }  
-}
 Splitter.interpolateParams = function(a, b, tau){
     // console.log("Interpolating", a, b, tau);
     itau = 1 - tau;
@@ -68,6 +49,7 @@ Splitter.interpolateParams = function(a, b, tau){
 
     return a;
 }
+
 Splitter.moldGradient = function(params){
     lens = CanvasUtil.queryPrefix('LENS')[0]; 
     var mold_gradient = new Path({

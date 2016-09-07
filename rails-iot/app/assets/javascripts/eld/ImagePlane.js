@@ -151,11 +151,14 @@ ImagePlane.calculateNormality = function(){
 			from: hit.point, 
 			to: hit.point.add(normal), 
 			strokeColor: "purple", 
-			strokeWidth: 1, 
+			strokeWidth: 0.5, 
 			name: "DRAY: Desired Ray"
 		});
-		return sum + Math.abs(normal.angle - hit.path.lastSegment.point.angle);
+		test = hit.path.lastSegment.point.subtract(hit.point);
+		return sum + (Math.abs(normal.angle - test.angle) % 180);
 	}, 0);	
+	// console.log(sum, hits.length)
+
 	sum /= hits.length;
 	// NORMALIZE AND INVERT
 	norm = sum / 90;

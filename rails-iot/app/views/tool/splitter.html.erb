@@ -5,7 +5,7 @@
         this.lg = new LensGenerator();
         this.ws = new WebStorage();
         this.diffuser = "Hemisphere";
-        this.model = "Reflector";
+        this.model = "TIR";
         this.export = "MOLD";
         this.init();
         this.c_norm = 0.5;
@@ -40,7 +40,7 @@
                 params = model.random(this.length);
             } else{
               params = this.getOptimal();
-              console.log("STORED COST", params.cost);
+              console.log("STORED COST", params.costs.cost);
             }
             paper.view.zoom = 2
             var scene = model.makeScene(this.box, params, this.diffuser);
@@ -55,25 +55,26 @@
 
           samples = _.map(samples, function(s, i){
             var params = scope.generate(random=true);
-            uniformity = scope.fire();
-            return {cost: uniformity, params: JSON.stringify(params)}
+            costs = scope.fire();
+
+            return {costs: costs, params: JSON.stringify(params)}
           });
          
-          var min = _.min(samples, function(s){ return s.cost; });
-          var max = _.max(samples, function(s){ return s.cost; });
+          var min = _.min(samples, function(s){ return s.costs.cost; });
+          var max = _.max(samples, function(s){ return s.costs.cost; });
           // console.log("RESULTS:", min, max);
 
           max_p = JSON.parse(max.params);
-          max_p.cost = max.cost;
+          max_p.costs = max.costs;
           max.params = JSON.stringify(max_p);
           
           var key = scope.generateKey(scope.length);
           if(this.ws.includes(key)){
             params = JSON.parse(this.ws.get(key));
-            console.log("PREVIOUSLY STORED", scope.length, params.cost, "v", max.cost);
-            if(!_.isUndefined(params.cost) && params.cost > max.cost){
-              this.generate();
-              return params.cost;
+            console.log("PREVIOUSLY STORED", scope.length, params.costs.cost, "v", max.costs.cost);
+            if(!_.isUndefined(params.costs) && params.costs.cost > max.costs.cost){
+              // this.generate(random=false);
+              return params.costs.cost;
             }
           }
           console.log("REWRITING", scope.length, max.params);
@@ -81,7 +82,7 @@
           
           // LOAD UP THE BEST ONE
           this.generate(false);
-          return max.cost;
+          return max.costs.cost;
         },
         fire: function(){
            this.clear(["RAY", "PL", "DRAY"]);
@@ -94,7 +95,7 @@
                       mediums: mediums
                   });
             }).each(function(ls){
-              ls.emmision(-60, 0, 1);
+              ls.emmision(-60, 0, 0.5);
             });
 
          
@@ -107,7 +108,7 @@
 
            console.log("COST", this.cost);
 
-           return this.cost;
+           return {uni: this.c_uni, norm: this.c_norm, cost: this.cost};
            // return  normality * 0.2 ;
         }, 
         batch_clear: function(){
@@ -122,12 +123,11 @@
         }, 
         batch_process: function(){
           var scope = this;
-          lengths = _.range(35, 600, 5);
+          lengths = _.range(35, 300, 5);
           _.each(lengths, function(l){
             scope.length = l;
             console.log("PROCESSING", l);
             scope.resample();
-
           });
         }, 
         fabricate: function(){
@@ -136,6 +136,38 @@
           model.fabricate(params, this.length);
           paper.view.update();
         }, 
+        download_data: function(){
+          var scope = this;
+          var entries = this.ws.keys();
+          var entries = _.chain(entries).map(function(k){
+            var info = scope.decodeKey(k);
+            if(_.isNull(info)) return null;
+
+            var costs = JSON.parse(scope.ws.get(k)).costs;
+            for(var key in costs) info[key] = costs[key];
+            return info;
+          })
+          .compact()
+          .filter(function(entry){ return entry.diffuser == "Planar"})
+          .map(function(entry){
+            return _.values(entry).join(',')
+          })
+          .value().join('\n');
+
+          saveAs(new Blob(["Model,Diffuser,Length,Uniformity,Normality,Cost\n" + entries], {type:"text/csv"}), "simulation_results" + ".csv")
+
+          // .groupBy(function(e){
+          //   return e.model
+          // }).mapObject(function(values, model){
+          //   return _.groupBy(values, function(v){return v.diffuser});
+          // })
+          // .value();
+
+
+
+
+          console.log(entries);
+        },
         download: function(){
           paper.view.zoom = 1;
           var result = CanvasUtil.queryPrefix(this.export);
@@ -197,7 +229,7 @@
                       .sortBy()
                       .value();
 
-              if(keys.length == 0) return model.random(l);
+              if(keys.length == 0) return model.random(this.length);
               b = _.min(keys, function(k){ if(k - l < 0) return 10000000; else return k - l; });
               a = _.min(keys, function(k){ if(l - k < 0) return 10000000; else return l - k; });
               tau = (b-l)/(b-a);
@@ -247,9 +279,14 @@
         f3.add(generator, "export").options(["MOLD", "REFL", "CONE"]);
         f3.add(generator, "download");
         
+
+        var f4 = gui.addFolder('Results')
+        f4.add(generator, 'download_data')
+
         f1.open();
         f2.open();
         f3.open();
+        f4.open();
         f0.open();
         // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
         $("#shade").fadeOut();
