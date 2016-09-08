@@ -84,13 +84,13 @@ function LEDPlacerBrush(paper){
 		_.each(drags, function(drag){
 			drag.position = drag.position.add(event.delta);
 
-			diff = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
+			// diffs = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
 			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: drag.id});
 
 			// UPDATE RAYS
 			_.each(rays, function(r){
 				r.position = r.position.add(event.delta);
-				if(diff.length == 0) r.opacity = 0;
+				if(diffs.length == 0) r.opacity = 0;
 				else{
 					r.opacity = 0.3;
 					var dir = new paper.Point(1, 0);
@@ -98,9 +98,11 @@ function LEDPlacerBrush(paper){
 					dir.angle = r.originAngle;
 					dir = dir.add(drag.position);
 					r.lastSegment.point = dir;
-					ixts = r.getIntersections(diff[0]);
+	
+					ixts = CanvasUtil.getIntersections(r, diffs);
+
 					if(ixts.length > 0){
-						var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(drag.position); })
+						var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(r.position); })
 						r.lastSegment.point = closestIxT.point.clone();
 					}
 				}
@@ -153,7 +155,7 @@ LEDPlacerBrush.prototype = {
 	}, 
 	addRays: function(diffs, led){
 		var scope = this;
-		var diffs = _.filter(diffs, function(diff){ return diff.contains(led.position);});
+		// var diffs = _.filter(diffs, function(diff){ return diff.contains(led.position);});
 		if(diffs.length ==  0) return;
 				
 		var rays = CanvasUtil.query(paper.project, { prefix: "RAY", originLight: led.id });
@@ -204,9 +206,13 @@ LEDPlacerBrush.prototype = {
 				});
 				line.pivot = line.firstSegment.point.clone();;
 				
-				ixts = line.getIntersections(diffs[0]);
-				if(ixts.length > 0)
-				line.lastSegment.point = ixts[0].point;
+				ixts = CanvasUtil.getIntersections(line, diffs);
+
+
+				if(ixts.length > 0){
+					var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(line.position); })
+					line.lastSegment.point = closestIxT.point.clone();
+				}
 				return line;
 			});
 			if(vm.getCurrentView() == "WHITE_RAYS")
