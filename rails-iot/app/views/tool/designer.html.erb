@@ -12,6 +12,7 @@
         displays.push(display);
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         cp = new ColorPalette($('#sidebar-left'));
+        cc = new ControlCenter($('#sidebar-left-control'));
         bb = new BrushBar($('#brush-bar'));
 
         $("#shade").fadeOut("slow");
@@ -101,6 +102,7 @@
       <%= render :partial => "modals"%>
       <%= render :partial => "views"%>
       <%= render :partial => "color_palette"%>
+      <%= render :partial => "control"%>
       <%= render :partial => "brush_bar"%>
       <%= render :partial => "zoom_bar"%>
   </body>

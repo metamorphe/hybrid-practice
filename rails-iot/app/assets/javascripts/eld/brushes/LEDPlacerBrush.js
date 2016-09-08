@@ -9,11 +9,16 @@ function LEDPlacerBrush(paper){
 	this.enabled = false;
 	this.paper = paper;
 	this.name = "LEDPlacerBrush";
+
 	this.tool = new paper.Tool();
+	this.tool.holder = this;
 	this.hue_step = (360 /8);
 	this.hue = -this.hue_step; // start at red
 	var scope = this;
+	this.selected_stroke = null;
 	this.selection = [];
+	this.target_selection_mode = false;
+	this.prev_style = {}
 
 	this.tool.onMouseDown = function(event){
 		var diffs = CanvasUtil.queryPrefix('DIF');
@@ -23,8 +28,36 @@ function LEDPlacerBrush(paper){
 
 		path = hitResult.item;
 		name = Artwork.getPrefix(path);
-		
-		if(name == "NLED") scope.selection.push(path.id);
+		console.log("TSM", scope.target_selection_mode)
+		if(scope.target_selection_mode){
+			if(["DDS", "DIF"].indexOf(name) != -1){
+				this.selected_stroke = path.id;
+				path.strokeColor = "yellow";
+				path.strokeWidth = 2;
+				scope.target_selection_mode = false;
+
+				var led_id = parseInt($(".badge").attr('cid'));
+				if(! _.isNaN(led_id)){
+					var led = CanvasUtil.getIDs([led_id])[0];
+					led.forceTarget = path.id;
+					// $('#select-target').removeClass('btn-primary');
+					$('#select-target').addClass('btn-success');
+					$("#target-view").attr("data-target", led.forceTarget);
+				}
+			}
+		}
+
+		if(name == "NLED"){
+			scope.selection.push(path.id);
+			cc.updatePanel(path.id);
+			if(path.forceTarget){
+				scope.prev_style = {strokeColor: path.strokeColor, strokeWidth: path.strokeWidth};
+				CanvasUtil.getIDs([path.forceTarget])[0].set({strokeWidth: 2, strokeColor: "yellow"})
+			} else{
+				scope.prev_style = {strokeColor: path.strokeColor, strokeWidth: path.strokeWidth};
+				CanvasUtil.getIDs([path.target])[0].set({strokeWidth: 2, strokeColor: "yellow"})
+			}
+		}
 		else{
 			if(event.event.metaKey){
 				// ADD LED
@@ -54,6 +87,8 @@ function LEDPlacerBrush(paper){
 		if (hitResult){
 			path = hitResult.item;
 			name = Artwork.getPrefix(path);
+
+
 			if(name == "NLED"){
 				if(event.event.metaKey){
 					$('#myCanvas').css('cursor', 'not-allowed');
@@ -84,10 +119,35 @@ function LEDPlacerBrush(paper){
 		_.each(drags, function(drag){
 			drag.position = drag.position.add(event.delta);
 
+			contained_by = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
+			main_container = _.min(contained_by, function(diff){ return diff.position.getDistance(drag.position);});
+			
+			if(drag.forceTarget){
+				console.log("FORCE TARGET");
+				diffs = _.flatten([CanvasUtil.queryPrefix("DIF"), CanvasUtil.queryPrefix("DDS")]);
+				diffs = _.filter(diffs, function(diff){
+					return diff.id == drag.forceTarget;
+				});
+
+				var others = CanvasUtil.queryPrefix("DIF");
+				others = _.filter(others, function(diff){
+					return ! diff.contains(drag.position)
+				});
+				console.log("OTHERS", _.map(others, function(o){return o.name; }));
+				// is it inside?
+				if(! diffs[0].contains(drag.position))
+					diffs = [];
+				// if(diffs.length > 0 && main_container.id != diffs[0].id)
+				// 	diffs = []; 
+				// console.log(main_container.name)
+				diffs = _.flatten([diffs, others]);
+			}
 			// diffs = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
 			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: drag.id});
-
+			
 			// UPDATE RAYS
+			console.log("DIFF?", _.map(diffs, function(o){return o.name; }));
+				
 			_.each(rays, function(r){
 				r.position = r.position.add(event.delta);
 				if(diffs.length == 0) r.opacity = 0;
@@ -100,7 +160,7 @@ function LEDPlacerBrush(paper){
 					r.lastSegment.point = dir;
 	
 					ixts = CanvasUtil.getIntersections(r, diffs);
-
+					
 					if(ixts.length > 0){
 						var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(r.position); })
 						r.lastSegment.point = closestIxT.point.clone();
@@ -114,6 +174,8 @@ function LEDPlacerBrush(paper){
 		bb.update();
 		vm.update();
 		_.each(scope.selection, function(el){
+			cc.updatePanel(path.id);
+			path.set(scope.prev_style);
 			var rays = CanvasUtil.queryPrefix("RAY");
 			_.each(rays, function(r){
 				if(r.opacity == 0) return;
@@ -155,7 +217,10 @@ LEDPlacerBrush.prototype = {
 	}, 
 	addRays: function(diffs, led){
 		var scope = this;
-		// var diffs = _.filter(diffs, function(diff){ return diff.contains(led.position);});
+		var target  = _.filter(diffs, function(diff){ return diff.contains(led.position);});
+		target = _.min(target, function(t){ return t.position.getDistance(led.position)});
+		led.target = target.id;
+
 		if(diffs.length ==  0) return;
 				
 		var rays = CanvasUtil.query(paper.project, { prefix: "RAY", originLight: led.id });
