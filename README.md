@@ -1,5 +1,23 @@
 # Hybrid Practice
 
+## Prerequisites
+1. Install rails and configure github 4.2.6 by following [these instructions.](https://gorails.com/setup/osx/10.11-el-capitan)
+2. Clone this repo into <top directory> somewhere on your machine.
+3. CD into <top directory>/rails-iot
+4. Run ```bundle install``` (see Troubleshooting section if you get error messages)
+3. Handle the migration
+  ```
+  bin/rake db:migrate RAILS_ENV=development
+  ```
+  
+## Control server
+1. Navigate to rails-iot/
+2. To start the server, run
+  ```
+  rails server
+  ```
+3. To stop the server, type ```ctrl-c``` in the window where you started the server.
+
 #Troubleshooting
 1. Error message:
 
