@@ -49,13 +49,18 @@ function LEDPlacerBrush(paper){
 
 		if(name == "NLED"){
 			scope.selection.push(path.id);
+			scope.led_prev_style = {strokeColor: path.strokeColor, strokeWidth: path.strokeWidth};
+			path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
+
 			cc.updatePanel(path.id);
 			if(path.forceTarget){
-				scope.prev_style = {strokeColor: path.strokeColor, strokeWidth: path.strokeWidth};
-				CanvasUtil.getIDs([path.forceTarget])[0].set({strokeWidth: 2, strokeColor: "yellow"})
+				var forced_diff = CanvasUtil.getIDs([path.forceTarget])[0];
+				scope.prev_style = {strokeColor: forced_diff.strokeColor, strokeWidth: forced_diff.strokeWidth};
+				forced_diff.set({strokeWidth: 2, strokeColor: "yellow"})
 			} else{
-				scope.prev_style = {strokeColor: path.strokeColor, strokeWidth: path.strokeWidth};
-				CanvasUtil.getIDs([path.target])[0].set({strokeWidth: 2, strokeColor: "yellow"})
+				var norm_diff = CanvasUtil.getIDs([path.target])[0];
+				scope.prev_style = {strokeColor: norm_diff.strokeColor, strokeWidth: norm_diff.strokeWidth};
+				norm_diff.set({strokeWidth: 2, strokeColor: "yellow"})
 			}
 		}
 		else{
@@ -119,28 +124,52 @@ function LEDPlacerBrush(paper){
 		_.each(drags, function(drag){
 			drag.position = drag.position.add(event.delta);
 
-			contained_by = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
+
+			var cdiffs = _.flatten([CanvasUtil.queryPrefix("DIF"), CanvasUtil.queryPrefix("DDS")]);
+			contained_by = _.filter(cdiffs, function(diff){ return diff.contains(drag.position);});
 			main_container = _.min(contained_by, function(diff){ return diff.position.getDistance(drag.position);});
 			
 			if(drag.forceTarget){
-				console.log("FORCE TARGET");
-				diffs = _.flatten([CanvasUtil.queryPrefix("DIF"), CanvasUtil.queryPrefix("DDS")]);
-				diffs = _.filter(diffs, function(diff){
-					return diff.id == drag.forceTarget;
-				});
-
-				var others = CanvasUtil.queryPrefix("DIF");
-				others = _.filter(others, function(diff){
-					return ! diff.contains(drag.position)
-				});
-				console.log("OTHERS", _.map(others, function(o){return o.name; }));
-				// is it inside?
-				if(! diffs[0].contains(drag.position))
+				//ONLY CAST RAYS IN THE FORCE TARGET
+				// IT IF CONSIDERED OUTSIDE IF ITS IN ANOTHER DIFFUSER
+				//DONT CAST RAYS IN DIFFUSER WITHIN FORCE TARGET
+				// console.log("FORCE TARGET", drag.forceTarget);
+				
+				forced_diff = CanvasUtil.getIDs([drag.forceTarget])[0];
+				if(! forced_diff.contains(drag.position)){
 					diffs = [];
-				// if(diffs.length > 0 && main_container.id != diffs[0].id)
-				// 	diffs = []; 
-				// console.log(main_container.name)
-				diffs = _.flatten([diffs, others]);
+				} else{
+					var cdiffs = _.flatten([CanvasUtil.queryPrefix("DIF")]);
+					diffusers_in_force_target = _.filter(cdiffs, function(diff){ return  forced_diff.id != diff.id && !diff.contains(forced_diff.position) && forced_diff.contains(diff.position);});
+					console.log("DIFF IN FT", forced_diff.id, _.map(diffusers_in_force_target, function(d){return d.id}));
+					
+					in_another_diffuser = _.compact(_.map(diffusers_in_force_target, function(diff){ return diff.contains(drag.position);})).length > 0;
+					
+					if(in_another_diffuser) 
+						diffs = [];
+					else
+						diffs = _.flatten([forced_diff, diffusers_in_force_target]);
+				}
+				
+				// var others = CanvasUtil.queryPrefix("DIF");
+				// others = _.filter(others, function(diff){
+				// 	return ! diff.contains(drag.position)
+				// });
+				// console.log("OTHERS", _.map(others, function(o){return o.name; }));
+				
+				// diffs = _.flatten([forced_diff, others]);
+				// console.log("FORCED", forced_diff.name)
+				// // is it inside?
+				// if(! forced_diff.contains(drag.position)){
+				// 	console.log("NOT IN FORCED");
+				// 	diffs = [];
+				// }
+				// if(forced_diff.id != main_container.id){
+				// 	console.log("INSIDE, BUT NOT MAIN", main_container.name);
+				// 	diffs = [];
+				// }
+				
+				
 			}
 			// diffs = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
 			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: drag.id});
@@ -181,6 +210,7 @@ function LEDPlacerBrush(paper){
 				if(r.opacity == 0) return;
 				r.opacity = 0.2;
 			});
+			path.strokeColor = "#00A8E1"
 		})
 		scope.selection = [];
 	}
