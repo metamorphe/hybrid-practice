@@ -31,6 +31,13 @@
           }
         });
       });
+
+      $('#led-color').on('input', function() {
+        clickedColor = $("#led-color").val();
+        scope.led.colorID = new paper.Color(clickedColor);
+        vm.update();
+      });
+
       $('#select-target').click(function(){
         paper.tool.holder.target_selection_mode = true;
         // $(this).removeClass('btn-default');
@@ -41,7 +48,7 @@
         $("#target-view").attr('data-target', "");
 
       });
-     
+      
      
       $("#target-view").hover(function(){
         var targetID = parseInt($(this).attr('data-target'));
