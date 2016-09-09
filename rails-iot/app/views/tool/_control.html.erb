@@ -24,6 +24,7 @@
           scope.led.colorID = new paper.Color(clickedColor);
           scope.led.fillColor = scope.led.colorID;
           vm.update();
+          bb.update();
           if(scope.getCurrentColor() != clickedColor){
             $(".color-swatch").not(this)
               .removeClass('color-swatch-active');
@@ -39,6 +40,7 @@
         scope.led.colorID = new paper.Color(clickedColor);
         scope.led.fillColor = scope.led.colorID;
         vm.update();
+        bb.update();
       });
 
       $('#select-target').click(function(){
