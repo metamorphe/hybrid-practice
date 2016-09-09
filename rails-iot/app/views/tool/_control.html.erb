@@ -22,6 +22,7 @@
           var clickedColor = $(swatch).attr('name');
           $("#led-color").val(clickedColor);
           scope.led.colorID = new paper.Color(clickedColor);
+          scope.led.fillColor = scope.led.colorID;
           vm.update();
           if(scope.getCurrentColor() != clickedColor){
             $(".color-swatch").not(this)
@@ -36,6 +37,7 @@
       $('#led-color').on('input', function() {
         clickedColor = $("#led-color").val();
         scope.led.colorID = new paper.Color(clickedColor);
+        scope.led.fillColor = scope.led.colorID;
         vm.update();
       });
 
