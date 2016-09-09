@@ -65,17 +65,17 @@ function Pipeline() {
 
 Pipeline.getElements = function(display) {
     return {
-        art: display.queryPrefix('ART'),
-        diff: display.queryPrefix('DIF'),
-        leds: display.queryPrefix('NLED'),
-        bo: display.queryPrefix('BO'),
-        bi: display.queryPrefix('BI'),
-        cp: display.queryPrefix('CP'),
-        dds: display.queryPrefix('DDS'),
-        mc: display.queryPrefix("MC"),
-        base: display.queryPrefix("BASE"),
-        wires: display.queryPrefix("WIRE"), 
-        rays: display.queryPrefix("RAY") 
+        art: CanvasUtil.queryPrefix('ART'),
+        diff: CanvasUtil.queryPrefix('DIF'),
+        leds: CanvasUtil.queryPrefix('NLED'),
+        bo: CanvasUtil.queryPrefix('BO'),
+        bi: CanvasUtil.queryPrefix('BI'),
+        cp: CanvasUtil.queryPrefix('CP'),
+        dds: CanvasUtil.queryPrefix('DDS'),
+        mc: CanvasUtil.queryPrefix("MC"),
+        base: CanvasUtil.queryPrefix("BASE"),
+        wires: CanvasUtil.queryPrefix("WIRE"), 
+        rays: CanvasUtil.queryPrefix("RAY") 
     }
 }
 Pipeline.script = {
