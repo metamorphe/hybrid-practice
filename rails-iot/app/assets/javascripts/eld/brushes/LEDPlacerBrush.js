@@ -28,8 +28,9 @@ function LEDPlacerBrush(paper){
 
 		path = hitResult.item;
 		name = Artwork.getPrefix(path);
-		console.log("TSM", scope.target_selection_mode)
-		if(scope.target_selection_mode){
+		// console.log("TSM", scope.target_selection_mode)
+	
+		if(scope.target_selection_mode || event.modifiers.shift){
 			if(["DDS", "DIF"].indexOf(name) != -1){
 				this.selected_stroke = path.id;
 				path.strokeColor = "yellow";
