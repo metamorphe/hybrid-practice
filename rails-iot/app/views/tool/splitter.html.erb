@@ -4,12 +4,13 @@
         this.length = 85;
         this.lg = new LensGenerator();
         this.ws = new WebStorage();
-        this.diffuser = "Hemisphere";
-        this.model = "TIR";
+        this.diffuser = "Planar";
+        this.model = "Reflector";
         this.export = "MOLD";
         this.init();
         this.c_norm = 0.5;
         this.c_uni = 0.5;
+        this.c_energy = 0.50;
         this.cost = 0.5;
         this.random = true;
         this.generate();
@@ -87,6 +88,7 @@
         fire: function(){
            this.clear(["RAY", "PL", "DRAY"]);
            var mediums = CanvasUtil.getMediums();
+           
            var light_source = CanvasUtil.queryPrefix("LS");
            
             light_source = _.chain(light_source).map(function(ls){
@@ -101,14 +103,15 @@
          
            this.c_uni =  ImagePlane.calculateUniformity();
            this.c_norm = ImagePlane.calculateNormality();
+           this.c_energy = ImagePlane.calculateEnergy();
            // console.log("RESULTS:", uniformity.toFixed(2), normality.toFixed(2), (uniformity * 0.8 + normality * 0.2).toFixed(2));
 
            paper.view.update();
-           this.cost = this.c_uni * 0.8 + this.c_norm * 0.2;
+           this.cost = this.c_uni * 0.7 + this.c_norm * 0.1 + 0.2 * this.c_energy;
 
            console.log("COST", this.cost);
 
-           return {uni: this.c_uni, norm: this.c_norm, cost: this.cost};
+           return {uni: this.c_uni, norm: this.c_norm, energy: this.c_energy, cost: this.cost};
            // return  normality * 0.2 ;
         }, 
         batch_clear: function(){
@@ -219,8 +222,10 @@
         getOptimal: function(){
           var scope = this;
           var model = eval(this.model);
-          var key = this.generateKey();    
+          var key = this.generateKey(); 
+          // console.log(key);   
           if(this.ws.includes(key)){
+              // console.log("Stored", key)
               return JSON.parse(this.ws.get(key));
           }
           else{
@@ -263,6 +268,7 @@
         var f1 = gui.addFolder('Ray Tracing');
         f1.add(generator, "c_uni").min(0).max(1).listen();
         f1.add(generator, "c_norm").min(0).max(1).listen();
+        f1.add(generator, "c_energy").min(0).max(1).listen();
         f1.add(generator, "cost").min(0).max(1).listen();
         f1.add(generator, "fire");
         

@@ -19,16 +19,29 @@ CanvasUtil.fitToViewWithZoom = function(element, bounds){
 CanvasUtil.getMediums =  function(){
 	var reflectors = CanvasUtil.queryPrefix("REF");
     var lenses = CanvasUtil.queryPrefix("LENS");
+    var diffusers = CanvasUtil.queryPrefix("DIFF");
+    
+    _.each(diffusers, function(el){
+    	el.optic_type = "diffuser" 
+    	el.reflectance = 0.3;
+    	el.refraction = 0.8;
+    	// el.probability = 0.5;
+    	name = Artwork.getName(el).split("_")[1];
+        name = name.split("_")[0];
+        el.n = parseFloat(name);
+    });
     _.each(reflectors, function(el){ 
-    	el.reflectance = 0.90;
+    	el.optic_type = "reflector" 
+    	el.reflectance = 0.9;
     });
     _.each(lenses, function(el){
+    	el.optic_type = "lens" 
         el.refraction = 0.80;
         name = Artwork.getName(el).split("_")[1];
         name = name.split("_")[0];
         el.n = parseFloat(name);
     });
- 	return  _.flatten([lenses,reflectors]);
+ 	return  _.flatten([lenses,reflectors,diffusers]);
  }
 
 CanvasUtil.getIDs = function(arr){
@@ -137,7 +150,18 @@ Artwork.prototype = {
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
  			CanvasUtil.fitToViewWithZoom(scope.svg, paper.view.bounds.expand(-280))
-        
+        	
+ 			// metadata import
+ 			leds = scope.queryPrefix("NLED");
+ 			_.each(leds, function(led){
+ 				console.log(led.name);
+ 				if(led.name.indexOf("{") != -1){
+ 					led = _.extend(led, JSON.parse(led.name.split("_")[1]));
+ 					console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
+ 				}
+ 			});
+
+
 	 		var ledLists = scope.orderLeds();
 				if(!_.isNull(ledLists)){
 					scope.allLeds = ledLists[0];

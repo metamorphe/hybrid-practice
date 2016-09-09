@@ -88,9 +88,9 @@ Reflector.fabricate = function(params, l){
 }
 Reflector.rampGradient = function(params){
     // REFLECTOR
-    console.log("NO LENS FAB")
     ref = CanvasUtil.queryPrefix('REF')[0];
     led = CanvasUtil.queryPrefix('LS')[0];
+
     var r_grad = new paper.Path({
       segments: ref.segments.slice(1, 4), 
       strokeColor: "yellow",
@@ -171,9 +171,30 @@ Reflector.makeScene = function(box, params, diffuser){
     cpB.handleOut = new paper.Point( params.ramp.width * params.ramp.b.alpha,  params.ramp.height * params.ramp.b.beta);
     
     cpB.selected = true;
+    ramp2 = ramp.clone();
+    ramp2.scaling = new paper.Size(-1, 1);
+    ramp2.pivot = ramp2.bounds.bottomLeft;
+    ramp2.position = led_ref.bounds.bottomRight.clone(); 
 
+
+    
     // IMAGE PLANE
     if(diffuser == "Planar"){
+      led_refl = led_ref.clone();
+      led_refl.set({
+        name: "REF:_0.90", 
+        fillColor:  "red",
+        parent: result
+      });
+      led_refl.position.y += led_refl.bounds.height;
+      var diff = new Path.Line({
+          parent: result,
+          name: "DIFF:_1.44",
+          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
+          strokeColor: "blue", 
+          strokeWidth: 1
+      });
+     
       var img_plane = new Path.Line({
           parent: result,
           name: "IMG: Image Plane",
@@ -181,15 +202,40 @@ Reflector.makeScene = function(box, params, diffuser){
           strokeColor: "green", 
           strokeWidth: 1
       });
+      img_plane.position.y -= Ruler.mm2pts(4);
       img_plane.reverse();
     }
     if(diffuser == "Hemisphere"){
+      led_refl = led_ref.clone();
+      led_refl.set({
+        name: "REF:_0.90", 
+        fillColor:  "red",
+        parent: result
+      })
+      led_refl.position.y += led_refl.bounds.height;
+      
+
       var hemis = new Path.Circle({
         parent: result, 
-        name: "IMG: Image Plane", 
+        name: "DIFF:_1.44", 
         radius: Ruler.mm2pts(30), 
-        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
-        strokeColor: "green", 
+        position: new paper.Point(led_ref.bounds.topCenter.x + Ruler.mm2pts(0), ramp.bounds.topRight.y), 
+        strokeColor: "blue", 
+        strokeWidth: 1
+      });
+      hemis.segments[0].handleIn = null;
+      hemis.segments[2].handleOut = null;
+      hemis.segments[3].remove();
+      // hemis.segments[2].remove();
+      hemis.closed = false;
+
+
+      var hemis = new Path.Circle({
+        parent: result, 
+        name: "DIFF:_1.44", 
+        radius: Ruler.mm2pts(30), 
+        position: new paper.Point(led_ref.bounds.topCenter.x + Ruler.mm2pts(0), ramp.bounds.topRight.y), 
+        strokeColor: "blue", 
         strokeWidth: 1
       });
       hemis.segments[0].handleIn = null;
@@ -197,8 +243,45 @@ Reflector.makeScene = function(box, params, diffuser){
       hemis.segments[2].remove();
       hemis.segments[2].remove();
       hemis.closed = false;
+
+      var expanded  = hemis.expand({
+          strokeAlignment: "exterior", 
+          strokeWidth: 1,
+          name: "IMG: Image Plane",
+          strokeOffset: Ruler.mm2pts(4), 
+          strokeColor: "green", 
+          fillColor: null, 
+          joinType: "miter", 
+          parent: result, 
+          closed: false
+      });
+      hemis.bringToFront();
+      expanded.firstSegment.remove();
+      expanded.firstSegment.remove();
+      // hemis.remove();
+      // var hemis = new Path.Circle({
+      //   parent: result, 
+      //   name: "DIFF:_1.44", 
+      //   radius: Ruler.mm2pts(30), 
+      //   position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
+      //   strokeColor: "blue", 
+      //   strokeWidth: 1
+      // });
+      // hemis.segments[0].handleIn = null;
+      // hemis.segments[1].handleOut = null;
+      // hemis.segments[2].remove();
+      // hemis.segments[2].remove();
+      // hemis.closed = false;
     }
     if(diffuser == "Cuboid"){
+      led_refl = led_ref.clone();
+      led_refl.set({
+        name: "REF:_0.90", 
+        fillColor:  "red",
+        parent: result
+      })
+      led_refl.position.y += led_refl.bounds.height;
+
       var cuboid = new Path.Rectangle({
         parent: result, 
         name: "IMG: Image Plane", 

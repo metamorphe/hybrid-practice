@@ -87,6 +87,7 @@ ImagePlane.getSignal = function(bins=100){
 	image_plane = image_plane[0];
 
 	hits = CanvasUtil.getIntersections(image_plane, rays);
+	n = hits.length;
 	var origin = image_plane.firstSegment.point;
 
 	data = _.map(hits, function(h){
@@ -94,6 +95,7 @@ ImagePlane.getSignal = function(bins=100){
 		var pt = image_plane.getNearestPoint(h.point);
 		var offset = image_plane.getOffsetOf(pt);
 		var rel_pos = offset;
+		// console.log(h.path.strength);
 		return {x: rel_pos, strength: h.path.strength, direction: h.path.direction};
 	});
 
@@ -119,7 +121,7 @@ ImagePlane.getSignal = function(bins=100){
 	hist = _.each(hist, function(v, k){
 		hist[k] = _.reduce(v, function(sum, ray){ return sum + ray.strength}, 0);
 	});
-
+	// console.log(hist);
 	var signal = [];
 	for(var i = 0; i < bins; i+= 1){
 		signal[i] = 0;
@@ -128,7 +130,7 @@ ImagePlane.getSignal = function(bins=100){
 		var key = parseInt(i);
 		signal[key] = hist[i];
 	}
-	return numeric.div(signal, _.max(signal));
+	return {signal: numeric.div(signal, _.max(signal) + 0.01), hits: n};
 	
 }
 ImagePlane.calculateNormality = function(){
@@ -166,9 +168,15 @@ ImagePlane.calculateNormality = function(){
 	
 	return invert * (hits.length / rays.length);
 }
+ImagePlane.calculateEnergy = function(bins=100){
+	var data = ImagePlane.getSignal(bins);
+	var signal = data.signal;
+	return _.reduce(signal, function(memo, s){ return memo + s}, 0)/ 50;
+}
 
 ImagePlane.calculateUniformity = function(bins=100){
-	var signal = ImagePlane.getSignal(bins);
+	var data = ImagePlane.getSignal(bins);
+	var signal = data.signal;
 	// console.log(signal);
 	// CAP
 	for(var i = 0; i < bins; i += 1){

@@ -75,6 +75,11 @@ function ButtonExporter(dom, type, preFN, postFN){
     paper.view.zoom = 1;
     paper.view.update();
 
+    leds = CanvasUtil.queryPrefix("NLED");
+    _.each(leds, function(led){
+       led.name = "NLED:_" + JSON.stringify(_.pick(led, "target", "forceTarget"));
+    });
+
     exp = paper.project.exportSVG({ 
       asString: true,
       precision: 5

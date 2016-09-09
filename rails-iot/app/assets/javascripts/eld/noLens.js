@@ -143,6 +143,25 @@ noLens.makeScene = function(box, params, diffuser){
 
     // IMAGE PLANE
     if(diffuser == "Planar"){
+      led_refl = led_ref.clone();
+      led_refl.set({
+        name: "REF:_0.20", 
+        fillColor:  "red",
+        parent: result
+      })
+      led_refl.position.y += led_refl.bounds.height;
+      led_refl.firstSegment.point.x = ramp.bounds.bottomLeft.x;
+      led_refl.segments[1].point.x = ramp.bounds.bottomLeft.x;
+      // point.x = ramp.bounds.bottomLeft.clone();
+
+       var diff = new Path.Line({
+          parent: result,
+          name: "DIFF:_1.44",
+          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
+          strokeColor: "blue", 
+          strokeWidth: 1
+      });
+
       var img_plane = new Path.Line({
           parent: result,
           name: "IMG: Image Plane",
@@ -150,6 +169,7 @@ noLens.makeScene = function(box, params, diffuser){
           strokeColor: "green", 
           strokeWidth: 1
       });
+      img_plane.position.y -= Ruler.mm2pts(4);
       // img_plane.reverse();
     }
     if(diffuser == "Hemisphere"){

@@ -1,4 +1,7 @@
 // RAILS VERSION
+const WAVE_ENERGY = 40;
+const ENERGY_DEATH = 0.04; // when a ray's energy gets below value, it is no longer rendered;
+
 var angle_to_bin = {"0":25,"1":25,"2":25,"3":25,"4":25,"5":25,"6":25,"7":25,"8":25,"9":25,"10":26,"11":26,"12":26,"13":26,"14":26,"15":26,"16":26,"17":26,"18":26,"19":27,"20":27,"21":27,"22":27,"23":27,"24":27,"25":27,"26":27,"27":27,"28":28,"29":28,"30":28,"31":28,"32":28,"33":28,"34":28,"35":29,"36":29,"37":29,"38":29,"39":29,"40":29,"41":29,"42":30,"43":30,"44":30,"45":30,"46":30,"47":30,"48":31,"49":31,"50":31,"51":31,"52":32,"53":32,"54":32,"55":32,"56":33,"57":33,"58":33,"59":33,"-60":15,"-59.5":15,"-59":16,"-58.5":16,"-58":16,"-57.5":16,"-57":16,"-56.5":16,"-56":16,"-55.5":17,"-55":17,"-54.5":17,"-54":17,"-53.5":17,"-53":17,"-52.5":17,"-52":18,"-51.5":18,"-51":18,"-50.5":18,"-50":18,"-49.5":18,"-49":18,"-48.5":18,"-48":18,"-47.5":18,"-47":19,"-46.5":19,"-46":19,"-45.5":19,"-45":19,"-44.5":19,"-44":19,"-43.5":19,"-43":19,"-42.5":19,"-42":19,"-41.5":20,"-41":20,"-40.5":20,"-40":20,"-39.5":20,"-39":20,"-38.5":20,"-38":20,"-37.5":20,"-37":20,"-36.5":20,"-36":20,"-35.5":20,"-35":21,"-34.5":21,"-34":21,"-33.5":21,"-33":21,"-32.5":21,"-32":21,"-31.5":21,"-31":21,"-30.5":21,"-30":21,"-29.5":21,"-29":21,"-28.5":21,"-28":21,"-27.5":22,"-27":22,"-26.5":22,"-26":22,"-25.5":22,"-25":22,"-24.5":22,"-24":22,"-23.5":22,"-23":22,"-22.5":22,"-22":22,"-21.5":22,"-21":22,"-20.5":22,"-20":22,"-19.5":22,"-19":23,"-18.5":23,"-18":23,"-17.5":23,"-17":23,"-16.5":23,"-16":23,"-15.5":23,"-15":23,"-14.5":23,"-14":23,"-13.5":23,"-13":23,"-12.5":23,"-12":23,"-11.5":23,"-11":23,"-10.5":23,"-10":24,"-9.5":24,"-9":24,"-8.5":24,"-8":24,"-7.5":24,"-7":24,"-6.5":24,"-6":24,"-5.5":24,"-5":24,"-4.5":24,"-4":24,"-3.5":24,"-3":24,"-2.5":24,"-2":24,"-1.5":24,"-1":24,"-0.5":24,"0.5":25,"1.5":25,"2.5":25,"3.5":25,"4.5":25,"5.5":25,"6.5":25,"7.5":25,"8.5":25,"9.5":25,"10.5":26,"11.5":26,"12.5":26,"13.5":26,"14.5":26,"15.5":26,"16.5":26,"17.5":26,"18.5":26,"19.5":27,"20.5":27,"21.5":27,"22.5":27,"23.5":27,"24.5":27,"25.5":27,"26.5":27,"27.5":28,"28.5":28,"29.5":28,"30.5":28,"31.5":28,"32.5":28,"33.5":28,"34.5":28,"35.5":29,"36.5":29,"37.5":29,"38.5":29,"39.5":29,"40.5":29,"41.5":29,"42.5":30,"43.5":30,"44.5":30,"45.5":30,"46.5":30,"47.5":31,"48.5":31,"49.5":31,"50.5":31,"51.5":31,"52.5":32,"53.5":32,"54.5":32,"55.5":32,"56.5":33,"57.5":33,"58.5":33,"59.5":34}
 function PointLight (options) {
 	this.options = options;
@@ -63,10 +66,15 @@ PointLight.prototype = {
 		}
 	},
 	emit: function(origin, direction, strength, color, original_angle, distance_travelled=0){
+		// console.log("S", strength);
+		if(strength < ENERGY_DEATH) return null;
+		// else(console.log(strength, "MADE IT"));
 		var sW = strength * 0.5 + 0.1;
+
 		var rayEnd = new paper.Point(0, -1);
 		rayEnd.length = 10000;
 		rayEnd.angle = direction;
+		// console.log("REFL", strength)
 		p = new paper.Path.Line({
 			name: "RAY: Ray of Light!",
 			from: origin, 
@@ -105,24 +113,30 @@ PointLight.prototype = {
 		r.path.distance_travelled += r.path.length;
 
 		// console.log(r.path.distance_travelled, Ruler.mm2pts(10));
-		if(r.path.distance_travelled > Ruler.mm2pts(20)){  return null;} //KILL RAYS THAT GOT TOO LONG ;(
+		if(r.path.distance_travelled > Ruler.mm2pts(WAVE_ENERGY)){  return null;} //KILL RAYS THAT GOT TOO LONG ;(
 
 
 		ref_normal = PointLight.getReferenceNormal(interface.normal, r);
 
 		// PointLight.visualizeNormal(interface.point, ref_normal, interface.tangent, r);
 		
-		material = PointLight.detectMaterial(interface, ref_normal, this.options.mediums);
-		if(viz) console.log(material);
-		if(material.reflect){
-			return this.reflect(r, interface, material, ref_normal);
-		} else if(material.refract){
-			return this.refract(r, interface, material, ref_normal);
-		}
+		materials = PointLight.detectMaterial(interface, ref_normal, this.options.mediums);
+		// if(viz) console.log(material);
+		var scope = this;
+		new_rays = _.map(materials, function(material){
+			// console.log(material);
+			if(material.reflect){
+				return scope.reflect(r, interface, material, ref_normal);
+			} else if(material.refract){
+				return scope.refract(r, interface, material, ref_normal);
+			}
+		});
+		return new_rays;
 	}, 
 	reflect: function(r, interface, material, normal){
 		theta0 = PointLight.getIncidentAngle(normal, r);
 		back_normal = normal.clone().multiply(-1);
+
 		return this.emit(interface.point, back_normal.angle - theta0, r.strength * material.reflectance, "yellow", r.path.direction, r.path.distance_travelled);
 	}, 
 	refract: function(r, interface, material, normal){
@@ -156,8 +170,17 @@ PointLight.detectMaterial = function(interface, normal, mediums){
 	var material = interface.path;
 	// console.log(interface.path);
 
-	if(! _.isUndefined(material.reflectance))
-		return {reflect: true, reflectance: material.reflectance}
+	if(! _.isUndefined(material.reflectance) && material.optic_type != "diffuser")
+		return [{reflect: true, reflectance: material.reflectance}]
+	
+	if(material.optic_type == "diffuser"){
+		var rand = Math.random();
+		// console.log("PROB", material.probability, rand)
+		// if(rand > material.probability) 
+			// return [{reflect: true, refract: false, reflectance: material.reflectance}]
+		// else
+			return [{reflect: true, refract: false, reflectance: material.reflectance}, {refract: true, n1: 1.00, n2: material.n, refraction: material.refraction, reflectance: 1.0}]
+	}
 
 	// go slightly forward
 	normal.length = 1;
@@ -171,17 +194,19 @@ PointLight.detectMaterial = function(interface, normal, mediums){
 	other = _.filter(mediums, function(m){
 		return m.contains(other);
 	});
-	
+	// console.log(material);
 
 	if(other.length == 0) other = [{n: 1.00}]
 	other = other[0];
 	
 	
-	if(!_.isUndefined(other.reflectance)) 
-		return {reflect: true, refract: false, reflectance: other.reflectance}
 
-	if(goingIn) return {refract: true, n1: other.n, n2: material.n, refraction: material.refraction, reflectance: 1.0}
-	else return {refract: true, n1: material.n, n2: other.n, refraction: material.refraction, reflectance: 1.0}
+	
+	if(!_.isUndefined(other.reflectance)) 
+		return [{reflect: true, refract: false, reflectance: other.reflectance}]
+
+	if(goingIn) return [{refract: true, n1: other.n, n2: material.n, refraction: material.refraction, reflectance: 1.0}]
+	else return [{refract: true, n1: material.n, n2: other.n, refraction: material.refraction, reflectance: 1.0}]
 }
 
 PointLight.getCriticalAngle = function(theta0, n1, n2){

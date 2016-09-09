@@ -283,7 +283,8 @@ Splitter.makeScene = function(box, params, diffuser){
     var img_plane = new Path.Line({
         parent: result,
         name: "IMG: Image Plane",
-        segments: [result.bounds.topLeft, ramp.bounds.topRight], 
+        segments: [result.bounds.topLeft, result.bounds.topRight], 
+        // segments: [result.bounds.topLeft, ramp.bounds.topRight], 
         strokeColor: "green", 
         strokeWidth: 1
     });

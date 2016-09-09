@@ -247,6 +247,34 @@ TIR.makeScene = function(box, params, diffuser){
 
     // IMAGE PLANE
     if(diffuser == "Planar"){
+      // var img_plane = new Path.Line({
+      //     parent: result,
+      //     name: "IMG: Image Plane",
+      //     segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
+      //     strokeColor: "green", 
+      //     strokeWidth: 1
+      // });
+      // // img_plane.position.y += 0.5; 
+      // img_plane.reverse();
+      led_refl = led_ref.clone();
+      led_refl.set({
+        name: "REF:_0.90", 
+        fillColor:  "red",
+        parent: result
+      });
+      led_refl.position.y +=1; // led_refl.bounds.height;
+      led_refl.firstSegment.point.x -= 100;
+      led_refl.firstSegment.point.y -= 2;
+      led_refl.segments[1].point.x -= 100;
+      led_refl.segments[1].point.y -= 2;
+      var diff = new Path.Line({
+          parent: result,
+          name: "DIFF:_1.44",
+          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
+          strokeColor: "blue", 
+          strokeWidth: 1
+      });
+     
       var img_plane = new Path.Line({
           parent: result,
           name: "IMG: Image Plane",
@@ -254,7 +282,7 @@ TIR.makeScene = function(box, params, diffuser){
           strokeColor: "green", 
           strokeWidth: 1
       });
-      // img_plane.position.y += 0.5; 
+      img_plane.position.y -= Ruler.mm2pts(4);
       img_plane.reverse();
     }
     if(diffuser == "Hemisphere"){
