@@ -22,6 +22,7 @@
           var clickedColor = $(swatch).attr('name');
           $("#led-color").val(clickedColor);
           scope.led.colorID = new paper.Color(clickedColor);
+          vm.update();
           if(scope.getCurrentColor() != clickedColor){
             $(".color-swatch").not(this)
               .removeClass('color-swatch-active');
