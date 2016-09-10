@@ -84,11 +84,12 @@ Reflector.fabricate = function(params, l){
     paper.view.update();
 }
 Reflector.getGradient = function(type){
-  if(type == "RFL"){
-    return Reflector.rampGradient(params);
+  if(type == "REFL"){
+    return Reflector.reflectorGradient(params);
   }
 }
-Reflector.rampGradient = function(params){
+
+Reflector.reflectorGradient = function(params){
     // REFLECTOR
     ref = CanvasUtil.queryPrefix('REF')[0];
     led = CanvasUtil.queryPrefix('LS')[0];
@@ -102,30 +103,9 @@ Reflector.rampGradient = function(params){
     });
     r_grad.add(led.bounds.bottomCenter);
     r_grad.reverse();
-     
-    r_grad.set({
-       pivot: r_grad.bounds.topRight.clone(),
-       position: new paper.Point(0, 0)
-    });
-
-    r_grad.scaling = new paper.Size(-1/(r_grad.bounds.width), -1/r_grad.bounds.height);
-    r_grad.position.y ++;
-    var segment_positions = _.map(r_grad.segments, function(seg){return r_grad.getOffsetOf(seg.point); });
-    var samples = _.flatten([_.range(0, r_grad.length, 0.01), segment_positions]);
-  
-    var stops = _.chain(samples).map(function(sample){
-      var pt = r_grad.getPointAt(sample);
-      var x = pt.x;
-      if(x == 1) x = 0.99;
-      y = pt.y;
-      return [new paper.Color(y), x]
-    }).unique(function(g){ return g[1]; }).value();
-
-    total_ref_height = params.lens.height + Ruler.mm2pts(0.01); 
     
-    stops.push([new paper.Color(Ruler.mm2pts(0.01) / total_ref_height), 0]); 
-    stops.push([new paper.Color(0, 0 , 0, 0), 1.0]); 
-    r_grad.remove();
+    stops = Generator.profileToGradient(params, r_grad);
+    
     return stops;
 }
 

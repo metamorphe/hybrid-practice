@@ -363,7 +363,7 @@ Pipeline.script = {
                 .map(function(l){
                   g.length = l.roundedLength;
                   g.random = false;
-                  g.export = "RFL";
+                  g.export = "REFL";
                   g.diffuser = diff.diffuser;
                   return { roundedLength: l.roundedLength,  ramp: g.getGradient(), line: l.line};
                 })
@@ -423,7 +423,7 @@ Pipeline.script = {
 
         var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
         CanvasUtil.call(removeable, "remove"); 
-        var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp]));
+        var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp, e.base]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: REFLECTOR";

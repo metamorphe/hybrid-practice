@@ -1,9 +1,9 @@
 function Generator(){
         this.length = 72;
         this.ws = new WebStorage();
-        this.diffuser = "Cuboid";
+        this.diffuser = "Hemisphere";
         this.model = "Splitter";
-        this.export = "MOLD";
+        this.export = "REFL";
        
         this.c_norm = 0.5;
         this.c_uni = 0.5;
@@ -285,3 +285,38 @@ function Generator(){
           }  
         }
       }
+
+Generator.profileToGradient = function(params, profile, invert = false){
+    profile.scaling = new paper.Size(1/profile.bounds.width, 1/profile.bounds.height);
+    var origin = profile.bounds.bottomRight.clone();
+    var x_max = profile.bounds.bottomLeft.clone();
+    var y_max = profile.bounds.topRight.clone();
+    var x_axis = x_max.subtract(origin);
+    var y_axis = y_max.subtract(origin);
+
+    // POINTS TO SAMPLE
+    var segment_positions = _.map(profile.segments, function(seg){return profile.getOffsetOf(seg.point); });
+    var supersampled_positions = _.range(0, profile.length, 0.01);
+    var samples = _.flatten([supersampled_positions, segment_positions]);
+    
+
+
+    var total_ref_height = params.lens.height + Ruler.mm2pts(0.01); 
+    var stops = _.chain(samples).map(function(sample){
+      var pt = profile.getPointAt(sample);
+      var vec = pt.subtract(origin);
+      x = vec.dot(x_axis);
+      y = vec.dot(y_axis);
+      if(y < 0.05) y = Ruler.mm2pts(0.10) / total_ref_height; // stop holes 
+      if(x == 1) y = 1.0; // make sure it ends on white
+      if(invert) y = 1.0 - y;
+      return [new paper.Color(y), x]
+    }).sortBy(function(g){ return g[1]; })
+    .unique(function(g){ return g[1]; })
+    .value();
+
+    profile.remove();
+
+    // console.log(_.map(stops, function(s){ return s[1].toFixed(3) + "\t" + s[0].gray.toFixed(2)  }).join('\n'));
+    return stops;
+}

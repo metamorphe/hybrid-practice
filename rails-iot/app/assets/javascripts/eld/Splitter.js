@@ -115,40 +115,26 @@ Splitter.coneGradient = function(params){
     cone_gradient.remove();
     return stops;
 }
+Splitter.getGradient = function(type){
+  if(type == "REFL"){
+    return Splitter.rampGradient(params);
+  }
+}
 Splitter.rampGradient = function(params){
     // REFLECTOR
     ref = CanvasUtil.queryPrefix('REF')[0];
+    led_ref = CanvasUtil.queryPrefix('LS')[0];
 
     var reflector_gradient = new paper.Path({
       segments: ref.segments.slice(1, 4), 
       strokeColor: "yellow",
       strokeWidth: 1
     });
+    reflector_gradient.add(led_ref.bounds.topCenter.clone());
     reflector_gradient.reverse();
-     
-    reflector_gradient.set({
-       pivot: reflector_gradient.bounds.topRight.clone(), 
-       position: new paper.Point(0, 0), 
-    })
-    reflector_gradient_width = reflector_gradient.bounds.width + Ruler.mm2pts(6.5);
-    reflector_gradient.scaling = new paper.Size(-1/(reflector_gradient.bounds.width + Ruler.mm2pts(6.5)), 1/reflector_gradient.bounds.height);
-    reflector_gradient.position = new paper.Point(Ruler.mm2pts(6.5) / reflector_gradient_width, 0);
-    var samples = _.range(0, reflector_gradient.length, 0.01);
-    var stops = _.chain(samples).map(function(sample){
-      var pt = reflector_gradient.getPointAt(sample);
-      var x = pt.x;
-      if(x == 1) x = 0.99;
-      y = 1 - pt.y;
-      return [new paper.Color(y), x]
-    }).unique(function(g){ return g[1]; }).value();
     
-    total_ref_height = params.lens.height + Ruler.mm2pts(0.01); 
-    stops.push([new paper.Color(Ruler.mm2pts(0.01) / total_ref_height), 0]); 
-    stops.push([new paper.Color(0, 0 , 0, 0), 1.0]); 
-
-    reflector_gradient.scaling = new paper.Size(-1, 1);
-    reflector_gradient.position = paper.view.center;
-    reflector_gradient.remove();
+    stops = Generator.profileToGradient(params, reflector_gradient, invert=false);
+    
     return stops;
 }
 

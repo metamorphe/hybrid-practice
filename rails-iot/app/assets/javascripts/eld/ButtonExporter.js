@@ -59,7 +59,7 @@ function ButtonExporter(dom, type, preFN, postFN){
       result.fitBounds(paper.view.bounds.expand(-100));
      
       result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width/2.0, result.strokeBounds.height/2.0));
-      cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width * 2, result.strokeBounds.height * 2));
+      cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width, result.strokeBounds.height));
       // result.position.x -= 6;
       paper.view.update();
       bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, cut.x, cut.y );
