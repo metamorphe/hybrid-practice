@@ -29,7 +29,7 @@ Reflector.random = function(length){
 
 
 Reflector.interpolateParams = function(a, b, tau){
-    // console.log("Interpolating", a, b, tau);
+    console.log("Interpolating", a, b, tau);
     itau = 1 - tau;
 
     a.lens.width = a.lens.width * tau + b.lens.width * itau;
@@ -85,6 +85,11 @@ Reflector.fabricate = function(params, l){
       console.log("REFLECTOR DIMENSIONS", Ruler.pts2mm(reflector_group.bounds.width).toFixed(2), Ruler.pts2mm(reflector_group.bounds.height).toFixed(2), Ruler.pts2mm(total_ref_height.toFixed(2)));
           
     paper.view.update();
+}
+Reflector.getGradient = function(type){
+  if(type == "RFL"){
+    return Reflector.rampGradient(params);
+  }
 }
 Reflector.rampGradient = function(params){
     // REFLECTOR
@@ -171,10 +176,10 @@ Reflector.makeScene = function(box, params, diffuser){
     cpB.handleOut = new paper.Point( params.ramp.width * params.ramp.b.alpha,  params.ramp.height * params.ramp.b.beta);
     
     cpB.selected = true;
-    ramp2 = ramp.clone();
-    ramp2.scaling = new paper.Size(-1, 1);
-    ramp2.pivot = ramp2.bounds.bottomLeft;
-    ramp2.position = led_ref.bounds.bottomRight.clone(); 
+    // ramp2 = ramp.clone();
+    // ramp2.scaling = new paper.Size(-1, 1);
+    // ramp2.pivot = ramp2.bounds.bottomLeft;
+    // ramp2.position = led_ref.bounds.bottomRight.clone(); 
 
 
     
@@ -284,9 +289,9 @@ Reflector.makeScene = function(box, params, diffuser){
 
       var cuboid = new Path.Rectangle({
         parent: result, 
-        name: "IMG: Image Plane", 
+        name: "DIFF:_1.44", 
         size: new paper.Size(params.lens.width, Ruler.mm2pts(30)), 
-        strokeColor: "green", 
+        strokeColor: "blue", 
         strokeWidth: 1
       });
       cuboid.set({
@@ -294,6 +299,27 @@ Reflector.makeScene = function(box, params, diffuser){
         position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
       });
       cuboid.segments[3].remove();
+
+      var expanded  = cuboid.expand({
+          strokeAlignment: "exterior", 
+          strokeWidth: 1,
+          name: "IMG: Image Plane",
+          strokeOffset: Ruler.mm2pts(4), 
+          strokeColor: "green", 
+          fillColor: null, 
+          joinType: "miter", 
+          parent: result, 
+          closed: false
+      });
+      expanded.lastSegment.remove();
+      expanded.lastSegment.remove();
+      expanded.lastSegment.remove();
+      // expanded.firstSegment.selected = true;
+      // expanded.firstSegment.remove();
+      // expanded.firstSegment.remove();
+      // expanded.firstSegment.remove();
+      expanded.removeSegments(0, expanded.segments.length - 4)
+
       cuboid.closed = false;
     }
    

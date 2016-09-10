@@ -357,7 +357,8 @@ Pipeline.script = {
         Pipeline.set_visibility(invisible, false);
     },
     cones: function(display, e){
-         var ws = new WebStorage();
+         // var ws = new WebStorage();
+         var g = new Generator();
         var box = new paper.Path.Rectangle(paper.view.bounds);
         box.set({
               position: paper.view.center,
@@ -384,9 +385,10 @@ Pipeline.script = {
                 var slices = _.map(slices, function(slice){  
                     // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
                     var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                    CanvasUtil.call(removeable, "remove");    
-                    params = Splitter.getOptimal(ws, slice.length);
-                    var scene = Splitter.makeScene(box, params);
+                    CanvasUtil.call(removeable, "remove");  
+                    g.length = slice.length;
+                    g.random = false;
+                    var scene = g.generate();
                     paper.view.update();
                     coneStops = Splitter.coneGradient(params);
                     console.log(params);
@@ -426,7 +428,7 @@ Pipeline.script = {
         Pipeline.set_visibility(invisible, false);
     },
     reflector: function(display, e) {
-        var ws = new WebStorage();
+        var g = new Generator();
         var box = new paper.Path.Rectangle(paper.view.bounds);
        
         this.adjustLEDs(display, e);
@@ -446,12 +448,15 @@ Pipeline.script = {
             var lines = interpolation_lines(diff, dleds, visible=false);
 
             var ramp_lines = _.map(lines, function(l){
-                var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                CanvasUtil.call(removeable, "remove");    
-                params = Splitter.getOptimal(ws, l.length);
-                var scene = Splitter.makeScene(box, params);
+                // var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                // CanvasUtil.call(removeable, "remove"); 
+              
+                g.length = l.length;
+                g.random = false;
+                g.export = "RFL";
+              
                 paper.view.update();
-                return { ramp: Splitter.rampGradient(params), line: l};
+                return { ramp: g.getGradient(), line: l};
             }); 
             var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
             CanvasUtil.call(removeable, "remove"); 
