@@ -59,6 +59,40 @@ TIR.getGradient = function(type){
   if(type == "REFL"){
     return TIR.reflectorGradient(params);
   }
+  if(type == "MOLD"){
+    return TIR.reflectorGradient(params);
+  }
+}
+
+TIR.lensGradient = function(params){
+    // console.log("GETTING LENS");
+    // REFLECTOR
+    lens = CanvasUtil.queryPrefix('LENS')[0];
+    led = CanvasUtil.queryPrefix('LS')[0];
+
+    CanvasUtil.call(CanvasUtil.queryPrefix('REF'), "remove");
+    lens.bringToFront();
+    // lens.reverse();
+    tR = Splitter.closest(lens, "topRight");
+    tR = lens.segments[tR.index + 1];
+    tL = Splitter.closest(lens, "topLeft");
+
+    var sampling = _.flatten([_.range(tR.location.offset, lens.length, 0.1), _.range(0, tL.location.offset)]);
+    var segments = _.map(sampling, function(s){
+      return lens.getPointAt(s);
+    });
+
+    var profile = new paper.Path({
+      segments: segments, 
+      strokeColor: "yellow",
+      strokeWidth: 5, 
+      strokeScaling: false,
+      fillColor: null, 
+      closed: false
+    });
+  
+    stops = Generator.profileToGradient(params, profile);
+    return stops;
 }
 
 TIR.reflectorGradient = function(params){
@@ -170,7 +204,7 @@ TIR.makeScene = function(box, params, diffuser){
     // MAKING DOME
     var base = new Path.Rectangle({
         parent: result,
-        size: new paper.Size(params.lens.width, params.lens.height),
+        size: new paper.Size(params.lens.width - 1, params.lens.height),
         fillColor: "#87CEFA", 
         visible: true
     });
@@ -179,6 +213,7 @@ TIR.makeScene = function(box, params, diffuser){
         position: led_ref.bounds.topCenter.clone().add(new paper.Point(-0.1, -0.1))
     });
     ramp.bringToFront();
+
     var lens = Splitter.boolean(base, ramp.clone(), "subtract");
     lens.set({
       name: "LENS:_1.44"
@@ -194,7 +229,7 @@ TIR.makeScene = function(box, params, diffuser){
     
     if(params.dome.direction < 0) peakSegment.point.y += params.dome.concave * 2; 
     lens.segments[peakSegment.index].handleOut = new paper.Point(- 0.5 * params.dome.width, 0);
-    lens.segments[peakSegment.index].selected = true;
+    // lens.segments[peakSegment.index].selected = true;
     lens.segments[domeSegment.index].handleIn = new paper.Point(0, - 0.5 * params.dome.concave * params.dome.direction);
 
     ImagePlane.generate(diffuser, led_ref, ramp, result);

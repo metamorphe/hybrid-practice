@@ -30,7 +30,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  $('#view-list ul li button[name="reflector"]').click();
+  $('#view-list ul li button[name="tir_lens"]').click();
 });
 </script>
 </head>
@@ -54,13 +54,13 @@ $(function(){
             </li>
             <br>
             <li>
-                <span>CONE</span> <button name="cones" class="view btn-sm btn btn-danger">C</button>
+                <span>CONE</span> <button name="cones" class="view btn-sm btn btn-danger">S</button>
             </li>  
             <li>
-                <span>CONE LENS</span> <button name="cone_lens" class="view btn-sm btn btn-danger">CL</button>
+                <span>CONE LENS</span> <button name="cone_lens" class="view btn-sm btn btn-danger">SL</button>
             </li>
             <li>
-                <span>CONE REF</span> <button name="cone_reflector" class="view btn-sm btn btn-danger">CR</button>
+                <span>SIDE EMIT REFL</span> <button name="side_emit_reflector" class="view btn-sm btn btn-danger">SR</button>
             </li>
             <br>         
            <li>

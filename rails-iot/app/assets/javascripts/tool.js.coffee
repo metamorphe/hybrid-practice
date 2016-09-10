@@ -18,7 +18,6 @@
 //= require eld/CircuitEditBrush
 //= require eld/CircuitRouting
 //= require eld/PipeManager
-//= require eld/Sticher
 //= require eld/Pipeline
 //= require eld/graph
 //= require eld/ButtonExporter
@@ -30,6 +29,7 @@
 //= require eld/Reflector
 //= require eld/TIR
 //= require eld/noLens
+//= require eld/Sticher
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

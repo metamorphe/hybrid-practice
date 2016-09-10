@@ -1,9 +1,9 @@
 function Generator(){
         this.length = 72;
         this.ws = new WebStorage();
-        this.diffuser = "Hemisphere";
-        this.model = "Splitter";
-        this.export = "REFL";
+        this.diffuser = "Planar";
+        this.model = "TIR";
+        this.export = "MOLD";
        
         this.c_norm = 0.5;
         this.c_uni = 0.5;
@@ -286,7 +286,11 @@ function Generator(){
         }
       }
 
+
+const PROFILE_SAMPLING = 0.01;
+
 Generator.profileToGradient = function(params, profile, invert = false){
+  // console.log(profile);
     profile.scaling = new paper.Size(1/profile.bounds.width, 1/profile.bounds.height);
     var origin = profile.bounds.bottomRight.clone();
     var x_max = profile.bounds.bottomLeft.clone();
@@ -296,7 +300,7 @@ Generator.profileToGradient = function(params, profile, invert = false){
 
     // POINTS TO SAMPLE
     var segment_positions = _.map(profile.segments, function(seg){return profile.getOffsetOf(seg.point); });
-    var supersampled_positions = _.range(0, profile.length, 0.01);
+    var supersampled_positions = _.range(0, profile.length, PROFILE_SAMPLING);
     var samples = _.flatten([supersampled_positions, segment_positions]);
     
 
@@ -307,7 +311,7 @@ Generator.profileToGradient = function(params, profile, invert = false){
       var vec = pt.subtract(origin);
       x = vec.dot(x_axis);
       y = vec.dot(y_axis);
-      if(y < 0.05) y = Ruler.mm2pts(0.10) / total_ref_height; // stop holes 
+      if(y < 0.02) y = Ruler.mm2pts(0.10) / total_ref_height; // stop holes 
       if(x == 1) y = 1.0; // make sure it ends on white
       if(invert) y = 1.0 - y;
       return [new paper.Color(y), x]
@@ -316,7 +320,7 @@ Generator.profileToGradient = function(params, profile, invert = false){
     .value();
 
     profile.remove();
-
+    // return ['yellow', 'red', 'blue'];a
     // console.log(_.map(stops, function(s){ return s[1].toFixed(3) + "\t" + s[0].gray.toFixed(2)  }).join('\n'));
     return stops;
 }

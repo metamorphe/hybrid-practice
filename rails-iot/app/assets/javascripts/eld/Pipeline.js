@@ -328,12 +328,36 @@ Pipeline.script = {
         var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.leds]));
         Pipeline.set_visibility(invisible, false);
     },
+    side_emit_reflector: function(display, e){
+        var g = new Generator();
+        g.model = "Splitter";
+        g.export = "REFL";
+        this.makeFromProfile(display, e, g);
+    },
+    tir_reflector: function(display, e){
+        var g = new Generator();
+        g.model = "TIR";
+        g.export = "REFL";
+        this.makeFromProfile(display, e, g);
+    },
+    tir_lens: function(display, e){
+        var g = new Generator();
+        g.model = "TIR";
+        g.export = "MOLD";
+        this.makeFromProfile(display, e, g, chassis = false);
+    },
     reflector: function(display, e) {
         var g = new Generator();
-        // var box = new paper.Path.Rectangle(paper.view.bounds);
-       
+        g.model = "Reflector";
+        g.export = "REFL";
+        this.makeFromProfile(display, e, g);
+    },
+    makeFromProfile: function(display, e, g, chassis=true) {
         this.adjustLEDs(display, e);
-        var all = _.flatten([e.base, e.diff, e.leds]);
+        if(chassis)
+            var all = _.flatten([e.base, e.diff, e.leds]);
+        else
+            var all = _.flatten([e.diff]);
 
         // HARD_CODE_DIFFUSER ASSOCIATIONS
         var model = MODEL_TO_GENERATE;
@@ -342,7 +366,6 @@ Pipeline.script = {
         e.diff[2].diffuser = "Hemisphere";
         e.diff[3].diffuser = "Cuboid";
 
-        // all = []
         var result = new paper.Group(all);
         backgroundBox = new paper.Path.Rectangle({
             rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
@@ -350,33 +373,32 @@ Pipeline.script = {
             parent: result
         });
 
-        var mc = this.adjustMC(display, e, backgroundBox);
-        if(mc){ mc.parent = result; mc.bringToFront();}
+       
 
         ramps = _.map(e.diff, function(diff) {
+            // if(diff.diffuser != "Hemisphere") return new paper.Group();
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
             var ils = interpolation_lines(diff, dleds, visible=false);
-            var lines = _.map(ils, function(il){ return {line: il, roundedLength: parseInt(il.length)}});
+            var lines = _.map(ils, function(il){ return {line: il.line, roundedLength: parseInt(il.line.length)}});
 
             var cache_gradients = _.chain(lines)
                 .unique(function(l){ return l.roundedLength})
                 .map(function(l){
                   g.length = l.roundedLength;
                   g.random = false;
-                  g.export = "REFL";
                   g.diffuser = diff.diffuser;
                   return { roundedLength: l.roundedLength,  ramp: g.getGradient(), line: l.line};
                 })
                 .groupBy("roundedLength")
                 .value();
-            console.log(_.keys(cache_gradients));
+
 
             var ramp_lines = _.map(lines, function(l){
                 var length = l.roundedLength;
                 var gradient = cache_gradients[length][0].ramp;
-                return { ramp:gradient, line: l.line};
+                return { ramp: gradient, line: l.line};
             }); 
-  
+
             // MAKE RAMPS
             return rampify(ramp_lines);
             return new paper.Group();
@@ -384,21 +406,35 @@ Pipeline.script = {
 
 
         result.addChildren(ramps);
-        _.each(e.leds, function(led){
-            l = led.clone();
-            l.fillColor = "black";
-            l.strokeColor = "black";
-            l.strokeWidth = 2;
-            result.addChild(l);
-        });
-        _.each(e.diff, function(diffuser) {
-            diffuser.bringToFront();
-            diffuser.set({
-              strokeColor: "white", 
-              fillColor: null, 
-              strokeWidth: 5
-            })
-        });
+
+        if(chassis){
+            var mc = this.adjustMC(display, e, backgroundBox);
+            if(mc){ mc.parent = result; mc.bringToFront();}
+
+            _.each(e.leds, function(led){
+                l = led.clone();
+                l.fillColor = "black";
+                l.strokeColor = "black";
+                l.strokeWidth = 2;
+                result.addChild(l);
+            });
+            _.each(e.diff, function(diffuser) {
+                diffuser.bringToFront();
+                diffuser.set({
+                  strokeColor: "white", 
+                  fillColor: null, 
+                  strokeWidth: 5
+                })
+            });
+            var pegs = Pipeline.create_corner_pegs({ 
+             geometry: "circle",
+             bounds: backgroundBox.strokeBounds, 
+             radius: PEG_RADIUS, 
+             padding: PEG_PADDING, 
+             height: 'black', 
+             parent: result
+            });
+        }
 
         // var pegs = Pipeline.create_corner_pegs({ 
         //  geometry: "hex",
@@ -409,21 +445,13 @@ Pipeline.script = {
         //  parent: result
         // });
       
-        var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "circle",
-         bounds: backgroundBox.strokeBounds, 
-         radius: PEG_RADIUS, 
-         padding: PEG_PADDING, 
-         height: 'black', 
-         parent: result
-        });
-      
-
+       
         // INVISIBILITY
 
         var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
         CanvasUtil.call(removeable, "remove"); 
-        var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp, e.base]));
+        if(chassis) var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp, e.base]));
+        else var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp, e.base, e.mc]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: REFLECTOR";

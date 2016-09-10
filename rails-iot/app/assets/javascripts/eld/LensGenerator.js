@@ -398,54 +398,54 @@ LensGenerator.makeCDome = function(gradientArray, gradient, position) {
     }); 
 };
 
-function generateSlicedSegment(o, path, gradient, visible=false) {
-    // Generate both the inPoint and outPoint vectors.
-    var origin = path.position; 
+// function generateSlicedSegment(o, path, gradient, visible=false) {
+//     // Generate both the inPoint and outPoint vectors.
+//     var origin = path.position; 
 
-    var inPoint = origin.clone();
-    var outPoint = origin.clone();
-    var radiusPoint = origin.clone();
-    inPoint.length = 100;
-    outPoint.length = 100;
-    radiusPoint.length = o.radius;
-    inPoint.angle = o.angleIn;
-    outPoint.angle = o.angleOut;
-    radiusPoint.angle = o.angleIn;
+//     var inPoint = origin.clone();
+//     var outPoint = origin.clone();
+//     var radiusPoint = origin.clone();
+//     inPoint.length = 100;
+//     outPoint.length = 100;
+//     radiusPoint.length = o.radius;
+//     inPoint.angle = o.angleIn;
+//     outPoint.angle = o.angleOut;
+//     radiusPoint.angle = o.angleIn;
 
-    // // Translate the vectors to the origin
-    inPoint = inPoint.add(origin);
-    outPoint = outPoint.add(origin);
-    radiusPoint = radiusPoint.add(origin);
+//     // // Translate the vectors to the origin
+//     inPoint = inPoint.add(origin);
+//     outPoint = outPoint.add(origin);
+//     radiusPoint = radiusPoint.add(origin);
 
-    // // Define a circle to be the bounding box of the inputted Geometry.
-    var circle = new paper.Path.Circle({
-        radius: 300,
-        position: origin, 
-        strokeColor: "blue", 
-        strokeWidth: 0.5, 
-        visible: visible
-    });
+//     // // Define a circle to be the bounding box of the inputted Geometry.
+//     var circle = new paper.Path.Circle({
+//         radius: 300,
+//         position: origin, 
+//         strokeColor: "blue", 
+//         strokeWidth: 0.5, 
+//         visible: visible
+//     });
 
-    // // // Gets the closest points on the Circle to both the inPoint and outPoint.
-    var nearestInPoint = circle.getNearestPoint(inPoint);
-    var nearestOutPoint = circle.getNearestPoint(outPoint);
+//     // // // Gets the closest points on the Circle to both the inPoint and outPoint.
+//     var nearestInPoint = circle.getNearestPoint(inPoint);
+//     var nearestOutPoint = circle.getNearestPoint(outPoint);
 
-    // // // Define the intersecting path to consist of the inPoint, center, and outPoint.
-    var pieSlice = new paper.Path({
-        segments: [nearestInPoint, origin, nearestOutPoint],
-        // strokeWidth: 1,
-        // strokeColor: "red",
-        closed: true
-    });
-    var intersectingPath = pieSlice.intersect(path);
-    pieSlice.remove();
+//     // // // Define the intersecting path to consist of the inPoint, center, and outPoint.
+//     var pieSlice = new paper.Path({
+//         segments: [nearestInPoint, origin, nearestOutPoint],
+//         // strokeWidth: 1,
+//         // strokeColor: "red",
+//         closed: true
+//     });
+//     var intersectingPath = pieSlice.intersect(path);
+//     pieSlice.remove();
 
-    intersectingPath.fillColor = {
-        gradient: o[gradient],
-        origin: origin,
-        destination: radiusPoint,
-    }
-    return intersectingPath;
-}; 
+//     intersectingPath.fillColor = {
+//         gradient: o[gradient],
+//         origin: origin,
+//         destination: radiusPoint,
+//     }
+//     return intersectingPath;
+// }; 
 
 
