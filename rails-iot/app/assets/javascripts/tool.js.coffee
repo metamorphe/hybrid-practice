@@ -15,7 +15,10 @@
 //= require metamorphehalf/webcache
 //= require eld/ruler
 //= require eld/artwork
+//= require eld/CircuitEditBrush
 //= require eld/CircuitRouting
+//= require eld/PipeManager
+//= require eld/Sticher
 //= require eld/Pipeline
 //= require eld/graph
 //= require eld/ButtonExporter

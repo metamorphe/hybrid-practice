@@ -278,16 +278,10 @@ Splitter.makeScene = function(box, params, diffuser){
     topLeft.point.y = lens.bounds.topRight.y;    
     topRight.handleIn = new paper.Point(- ramp_width * params.ramp.a.alpha, - params.lens.height * params.ramp.a.beta);
     topLeft.handleOut = new paper.Point( ramp_width * params.ramp.b.alpha,  - diff * params.ramp.b.beta);
-  
-    // IMAGE PLANE
-    var img_plane = new Path.Line({
-        parent: result,
-        name: "IMG: Image Plane",
-        segments: [result.bounds.topLeft, result.bounds.topRight], 
-        // segments: [result.bounds.topLeft, ramp.bounds.topRight], 
-        strokeColor: "green", 
-        strokeWidth: 1
-    });
+    
+    
+
+    ImagePlane.generate(diffuser, led_ref, ramp, result);
    
 }
 

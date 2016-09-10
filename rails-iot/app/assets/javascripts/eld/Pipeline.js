@@ -57,7 +57,9 @@ const EPSILON = 10;
 const LED_WIDTH = 5;
 const LED_HEIGHT = 1.4;
 
-const MORPH_LINE_STEP = 3;
+
+// EVAL
+const MODEL_TO_GENERATE = "Reflector"
 
 function Pipeline() {
   
@@ -79,107 +81,6 @@ Pipeline.getElements = function(display) {
     }
 }
 Pipeline.script = {
-    raytrace: function(display, e){
-      this.adjustLEDs(display, e);
-        display.svg.position = display.svg.bounds.bottomLeft;
-         _.each(e.diff, function(diffuser) {
-            diffuser.set({
-                visible: true,
-                fillColor: "white",
-                strokeWidth: 1
-            });
-        });
-
-        var result = new paper.Group(e.diff);
-        backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: 'white',
-            parent: result
-        });
-       
-        _.each(e.leds, function(led) {
-            led.set({
-                visible: true,
-                fillColor: "#00A8E1",
-                strokeWidth: 0, 
-                parent: result
-            });
-        });
-
-       morphs = interpolation_lines(e.diff[0], e.leds);
-       morphs = _.compact(morphs);        
-
-      
-
-       // BEGIN TRACE
-       tracerBox = new paper.Path.Rectangle({
-            rectangle: result.bounds,
-            fillColor: 'black'
-        }); 
-       tracerBox.set({
-            pivot: tracerBox.bounds.leftCenter,
-            position: result.bounds.rightCenter
-       });
-       var width = result.bounds.width;
-       ip = new ImagePlane({
-        position: result.bounds.topRight.clone(), 
-        width: width, 
-        range: {x: {identity: "x", min: -width/2, max: width/2}, y: {identity: "y", min: -width/2, max:  width/2}}
-       });
-       var lg = new LensGenerator();
-       // var led = LensGenerator.generateScene(tracerBox, LensGenerator.DEFAULT_PARAMS);
-       // min is 30
-       // morphs = [morphs[200]]
-       morphs = morphs.slice(0, 10)
-       _.each(morphs, function(morph, i, arr){
-          console.log("I", i, arr.length)
-          morph.set({
-            visible: true, 
-            strokeColor: "yellow"
-           });
-           morph.bringToFront();
-
-           var scene = lg.generateW(tracerBox, morph.length, LensGenerator.DEFAULT_PARAMS);
-           scene.position = tracerBox.bounds.bottomRight.add(new paper.Point(-20, -20));
-           var led = CanvasUtil.queryPrefix("LS")[0];
-           var mediums = CanvasUtil.getMediums();
-           var ls = new PointLight({
-                  position: led.position, 
-                  mediums: mediums, 
-                  parent: tracerBox
-            });
-
-           ls.emmision(-60, 0, 1);
-          
-           pt = result.bounds.bottomLeft.subtract(morph.firstSegment.point)
-                                       .multiply(new paper.Point(-1, 1))
-                                       .subtract(new paper.Point(result.bounds.width/2.0, result.bounds.height/2.0))
-           boundary = result.bounds.bottomLeft.subtract(morph.lastSegment.point)
-                                       .multiply(new paper.Point(-1, 1))
-                                       .subtract(new paper.Point(result.bounds.width/2.0, result.bounds.height/2.0))                          
-                                       
-           rp = ip.graph.plotPoint(pt, {fillColor: "red"});
-           rp = ip.graph.plotPoint(boundary, {fillColor: "yellow"});
-
-           lr = ip.visualize();
-           pt2 = pt.multiply(new paper.Point(1, -1))
-           lr.position =  lr.position.add(pt2);
-           lr.pivot = ip.graph.graph.bounds.center.add(pt2);
-           lr.rotation = morph.firstSegment.point.subtract(morph.lastSegment.point).angle;
-            rp.bringToFront();
-           
-            if(i == morphs.length - 1) return;
-           _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
-            scene.remove();
-            ls.source.remove();
-       });
-       // END RAYTRACE
-
-       backgroundBox.sendToBack();
-       var invisible = _.compact(_.flatten([e.art, e.dds, e.cp, e.bo, e.bi]));
-       Pipeline.set_visibility(invisible, false);
-    },
-
     mold: function(display, e) {
         this.adjustLEDs(display, e);
 
@@ -429,10 +330,19 @@ Pipeline.script = {
     },
     reflector: function(display, e) {
         var g = new Generator();
-        var box = new paper.Path.Rectangle(paper.view.bounds);
+        // var box = new paper.Path.Rectangle(paper.view.bounds);
        
         this.adjustLEDs(display, e);
-        var all = _.flatten([e.diff, e.leds, e.base]);
+        var all = _.flatten([e.base, e.diff, e.leds]);
+
+        // HARD_CODE_DIFFUSER ASSOCIATIONS
+        var model = MODEL_TO_GENERATE;
+        e.diff[0].diffuser = "Planar";
+        e.diff[1].diffuser = "Planar";
+        e.diff[2].diffuser = "Hemisphere";
+        e.diff[3].diffuser = "Cuboid";
+
+        // all = []
         var result = new paper.Group(all);
         backgroundBox = new paper.Path.Rectangle({
             rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
@@ -443,26 +353,33 @@ Pipeline.script = {
         var mc = this.adjustMC(display, e, backgroundBox);
         if(mc){ mc.parent = result; mc.bringToFront();}
 
-         ramps = _.map(e.diff, function(diff) {
+        ramps = _.map(e.diff, function(diff) {
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
-            var lines = interpolation_lines(diff, dleds, visible=false);
+            var ils = interpolation_lines(diff, dleds, visible=false);
+            var lines = _.map(ils, function(il){ return {line: il, roundedLength: parseInt(il.length)}});
+
+            var cache_gradients = _.chain(lines)
+                .unique(function(l){ return l.roundedLength})
+                .map(function(l){
+                  g.length = l.roundedLength;
+                  g.random = false;
+                  g.export = "RFL";
+                  g.diffuser = diff.diffuser;
+                  return { roundedLength: l.roundedLength,  ramp: g.getGradient(), line: l.line};
+                })
+                .groupBy("roundedLength")
+                .value();
+            console.log(_.keys(cache_gradients));
 
             var ramp_lines = _.map(lines, function(l){
-                // var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                // CanvasUtil.call(removeable, "remove"); 
-              
-                g.length = l.length;
-                g.random = false;
-                g.export = "RFL";
-              
-                paper.view.update();
-                return { ramp: g.getGradient(), line: l};
+                var length = l.roundedLength;
+                var gradient = cache_gradients[length][0].ramp;
+                return { ramp:gradient, line: l.line};
             }); 
-            var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-            CanvasUtil.call(removeable, "remove"); 
-
+  
             // MAKE RAMPS
             return rampify(ramp_lines);
+            return new paper.Group();
         });
 
 
@@ -473,7 +390,15 @@ Pipeline.script = {
             l.strokeColor = "black";
             l.strokeWidth = 2;
             result.addChild(l);
-        })
+        });
+        _.each(e.diff, function(diffuser) {
+            diffuser.bringToFront();
+            diffuser.set({
+              strokeColor: "white", 
+              fillColor: null, 
+              strokeWidth: 5
+            })
+        });
 
         // var pegs = Pipeline.create_corner_pegs({ 
         //  geometry: "hex",
@@ -492,10 +417,13 @@ Pipeline.script = {
          height: 'black', 
          parent: result
         });
-
+      
 
         // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp]));
+
+        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+        CanvasUtil.call(removeable, "remove"); 
+        var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: REFLECTOR";
@@ -727,6 +655,15 @@ Pipeline.script = {
 }
 
 
+
+Pipeline.set_visibility = function(objects, is_visible) {
+    _.each(objects, function(object) {
+        object.visible = is_visible;
+    });
+    paper.view.update();
+}
+
+
 /* Function takes in bounds box, and creates the bounding holes */
 Pipeline.create_corner_pegs = function(o) {
     o.radius = Ruler.mm2pts(o.radius);
@@ -761,266 +698,4 @@ Pipeline.create_corner_pegs = function(o) {
         }
     });
     return corners;
-}
-
-
-
-Pipeline.set_visibility = function(objects, is_visible) {
-    _.each(objects, function(object) {
-        object.visible = is_visible;
-    });
-    paper.view.update();
-}
-
-
-
-function addTool(){
-    // CIRCUIT CLEANING TOOL
-    var hitOptions = {
-        segments: true,
-        stroke: true,
-        fill: true,
-        tolerance: 10
-    }
-
-    var t = new paper.Tool();
-    t.selected = [];
-
-    function addAnchorPoint(pathReceiver, point) {
-        var closestPoint = pathReceiver.getNearestPoint(point);
-        var location = pathReceiver.getLocationOf(closestPoint);
-        var index = location.curve.segment2.index;
-        console.log(index);
-        return pathReceiver.insert(index, closestPoint);
-    }
-
-    t.onMouseDown = function(event) {
-
-        var hitResult = project.hitTest(event.point, hitOptions);
-
-
-        if (!hitResult) {
-            console.log("No hits");
-            return;
-        } else {
-
-            if (hitResult.type == "stroke") {
-                console.log("Adding anchor");
-                var anchor = addAnchorPoint(hitResult.item, event.point);
-                var anchorBG = addAnchorPoint(bgPath, event.point);
-
-                t.selected.push(anchor);
-                t.selected.push(anchorBG);
-
-            } else if (hitResult.type == 'segment') {
-                console.log("hit segment")
-                anchor = hitResult.segment;
-                var anchorBG = addAnchorPoint(bgPath, event.point);
-                t.selected.push(anchor);
-                t.selected.push(anchorBG);
-            }
-        }
-    };
-
-    t.onMouseDrag = function(event) {
-        _.each(t.selected, function(anchor) {
-            anchor.selected = true;
-            anchor.point = anchor.point.add(event.delta);
-        });
-    };
-
-    t.onMouseUp = function(event) {
-        _.each(t.selected, function(anchor) {
-            anchor.selected = false;
-        });
-        t.selected = [];
-    }
-}
-
-
-function interpolation_lines(diffuser, leds, visible=false) {
-    var pts = _.range(0, diffuser.length, MORPH_LINE_STEP)
-    return _.map(pts, function(i) {
-        var pt = diffuser.getPointAt(i);
-        var candidates = _.map(leds, function(led) {
-            return led.position; // getNearestPoint(pt);
-        });
-        // console.log(candidates[0], pt);
-        closest = _.min(candidates, function(c) {
-            return c.getDistance(pt); 
-        });
-        // console.log(closest);
-        l =  new paper.Path.Line({
-            from: closest,
-            to: pt,
-            strokeColor: "blue",
-            strokeWidth: 2,
-            visible: visible
-        });
-        cross = l.getIntersections(diffuser);
-        if(cross.length >= 2){ l.lastSegment.point = cross[0].point; return l;}
-        return l;
-    });
-
-}
-
-DOME_DIFF_EPSILON = 10;
-
-function getSlices(ws, box, led,  diff, parent){
-  // MAKE A DOME FOR EVERY LED
-    var DOME_STEP = 5;
-    var angles = _.range(-184, 180 + DOME_STEP, DOME_STEP);
-
-    // angles = angles.slice(0, 1);
-    var angles = _.chain(angles).map(function(theta){
-      // RANGE OF VALID ANGLES
-      lower = theta - DOME_STEP/2.0;
-      upper = theta + DOME_STEP/2.0;  
-      
-      upper ++; // overlap for anti-aliasing
-      lower --; // overlap for anti-aliasing
-
-      upper = upper > 180 ? 180 : upper;
-      lower = lower < -180 ? -180 : lower;
-
-      return {angleIn: lower, center: theta, angleOut: upper}
-    })
-    .map(function(slice){
-      // FIND DISTANCE TO DIFFUSER
-      var to = led.position.clone();
-      to.angle = slice.center;
-      to.length = 10000;
-      var line = new paper.Path.Line({
-        visible: true,
-        strokeColor: "green", 
-        strokeWidth: 1, 
-        from: led.position, 
-        to: to, 
-        visible: false
-      });
-      var ixt = line.getIntersections(diff);
-      line.lastSegment.point = ixt[0].point;
-      return {angleIn: slice.angleIn, length: line.length, angleOut: slice.angleOut}
-    }).value();
-    // COMPACT SLICES
-    compact_angles = [];
-    var n = angles.length;
-    var current = angles[0];
-    for(var i = 1; i < angles.length; i++){
-      var slice = angles[i];
-      if(Math.abs(slice.length - current.length) < DOME_DIFF_EPSILON) current.angleOut = slice.angleOut;
-      else{
-        compact_angles.push(current);
-        current = slice;
-      }
-    }
-    // END COMPACT
-    return compact_angles;
-}
-
-function setMoldGradient(ws, box, diff, leds) {
-    if (leds.length == 0) { diff.fillColor = "black"; return; }
-  
-
-      var slices = getSlices(ws, box, leds, diff, geom);
-
-    //   _.each(leds, function(led){
-    //     led.fillColor = "black";
-    //     led.strokeWidth = 0;
-    //     var led_c = led.clone();
-    //     led_c.parent = geom;
-    //     led_c.bringToFront();
-    //   });
-    // }      
-    return geom;
-}
-
-
-function rampify(ramp_lines) {
-    levels = _.range(1, 0, -0.01);
-    levels = _.map(levels, function(level) {
-        return make_level(ramp_lines, level, new paper.Color(level));
-    });
-    var ramp = new paper.Group(levels);
-    ramp.sendToBack();
-    return ramp;
-}
-
-
-function make_level(ramp_lines, level, color) {
-    return new paper.Path({
-        segments: _.map(ramp_lines, function(rl) {
-            closestStop = _.min(rl.ramp, function(v){
-                return Math.abs(v[0].gray - level);
-            });
-            var offset = closestStop[1] * rl.line.length;
-            return rl.line.getPointAt(offset); 
-        }),
-        fillColor: color,
-        strokeWidth: 2,
-        closed: true
-    });
-}
-
-
-function PipeManager(container){
-  this.container = container;
-  this.state = true;
-  this.init();
-  this.view = "GLOBAL";
-}
-
-PipeManager.prototype = {
-   init: function(){
-    var scope = this;
-    $('#view-icon').click(function(){
-      if(scope.state) scope.hide();
-      else scope.show();
-    });
-    $('#view-list ul li').click(function(){
-      $('#view-icon').html($(this).children('button').html());
-      $('#view-list ul li').removeClass('active');
-      $(this).addClass('active');
-      $('#view-icon').attr('class', $(this).children('button').attr('class')).removeClass('view').removeClass("btn-sm").addClass('pull-right');
-      scope.view = $(this).children('button').attr('name');
-      scope.update();
-    });
-    // populate SELECT
-    var els = _.map(files.filenames, function(el, i, arr){
-      var dom =  $('<option></options>').html(el.title.toUpperCase())
-      .attr('value', files.path + el.filename);
-      if(el.filename == DEFAULT_PIPE_FILE) dom.attr('selected', true);
-      return dom;
-    });
-    $('#file-select').html(els);
-  },
-  getCurrentView: function(){
-    return this.view.toLowerCase();
-  },
-  update: function(){
-    var view = this.getCurrentView();  
-    paper.project.clear();
-    paper.view.zoom = 1;
-    paper.view.update();
-
-    console.log('RUNNING SCRIPT', view)  
-    display = new Artwork($('#file-select').val(), function(artwork){
-      var e = Pipeline.getElements(artwork);
-      Pipeline.script[view](artwork, e);
-    });
-
-    paper.view.update();
-  },
-  show: function(now){
-    if(this.state) return;
-    this.state = true;
-    if(now){$("#view-list").show(); return;}
-    $("#view-list").toggle("slide", { direction: "up" }, 300);
-  },
-  hide: function(now){
-    if(!this.state) return;
-    this.state = false;
-    if(now){$("#view-list").hide(); return;}
-    $("#view-list").toggle("slide", { direction: "up" }, 300);
-  }
 }

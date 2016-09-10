@@ -14,7 +14,12 @@
         var f0 = gui.addFolder('Model');
         f0.add(generator, "diffuser").options(["Planar", "Hemisphere", "Cuboid"]);
         f0.add(generator, "model").options(["noLens", "Reflector", "TIR", "Splitter"]);
-        f0.add(generator, "length").min(15).max(300).step(5).listen();
+        // f0.add(generator, "length").min(15).max(300).listen();
+        lengthController = f0.add(generator, "length").options(generator.get_eval_lengths());
+
+        lengthController.onFinishChange(function(value) {
+          generator.length = parseInt(value);
+        });
         f0.add(generator, "random");
         f0.add(generator, "generate");
         
@@ -49,6 +54,8 @@
         f0.open();
         // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
         $("#shade").fadeOut();
+        generator.generate();
+        // generator.fire();
 
       });
 

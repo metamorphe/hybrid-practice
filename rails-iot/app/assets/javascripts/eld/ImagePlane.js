@@ -1,3 +1,4 @@
+
 function ImagePlane(options){
 	var width = Ruler.pts2mm(options.width);
 
@@ -16,6 +17,125 @@ function ImagePlane(options){
 	});
 
 }
+
+ImagePlane.generate = function(diffuser, led_ref, ramp, result){
+	bottomReflector = new paper.Path({
+      parent: result,
+      name: "REF:_0.90", 
+      fillColor:  "#ED1C24",
+      segments: [ramp.bounds.bottomLeft, ramp.bounds.bottomRight, led_ref.bounds.topLeft, led_ref.bounds.bottomLeft, led_ref.bounds.bottomCenter, led_ref.bounds.bottomCenter.clone().add(new paper.Point(0, 3)), ramp.bounds.bottomLeft.clone().add(new paper.Point(0, 3 + led_ref.bounds.height))]
+    })
+    
+	if(diffuser == "Planar"){
+      var diff = new Path.Line({
+          parent: result,
+          name: "DIFF:_1.44",
+          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
+          strokeColor: "blue", 
+          strokeWidth: 1
+      });
+     
+      var img_plane = new Path.Line({
+          parent: result,
+          name: "IMG: Image Plane",
+          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
+          strokeColor: "green", 
+          strokeWidth: 1
+      });
+      img_plane.position.y -= Ruler.mm2pts(4);
+      img_plane.reverse();
+    }
+    if(diffuser == "Hemisphere"){
+       var cuboid = new Path.Rectangle({
+        parent: result, 
+        name: "DIFF:_1.44", 
+        size: new paper.Size(params.lens.width * 2, Ruler.mm2pts(30) * 2), 
+        strokeColor: "orange", 
+        strokeWidth: 1
+      });
+      cuboid.set({
+        pivot: cuboid.bounds.center,
+        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
+      });
+
+      var hemis = new paper.Path.Ellipse(cuboid.bounds);
+
+      hemis.set({
+        parent: result, 
+        strokeColor: "blue", 
+        strokeWidth: 1,
+        name: "DIFF:_1.44"
+      });
+
+      hemis.segments[0].handleIn = null;
+      hemis.segments[2].handleOut = null;
+      hemis.segments[3].remove();
+      hemis.segments[2].remove();
+      hemis.closed = false;
+
+       var expanded  = cuboid.expand({
+          strokeAlignment: "exterior", 
+          strokeWidth: 1,
+          name: "IMG: Image Plane",
+          strokeOffset: Ruler.mm2pts(4), 
+          strokeColor: "green", 
+          fillColor: null, 
+          joinType: "square", 
+          parent: result
+      });
+        cuboid.remove();
+
+      var hemis = new paper.Path.Ellipse(expanded.bounds);
+      hemis.set({
+        parent: result, 
+        strokeColor: "green", 
+        strokeWidth: 1,
+        name: "IMG: Image Plane"
+      });
+      hemis.segments[0].handleIn = null;
+      hemis.segments[2].handleOut = null;
+      hemis.segments[3].remove();
+      hemis.segments[2].remove();
+      hemis.closed = false;
+      expanded.remove();
+
+      
+    }
+    if(diffuser == "Cuboid"){
+      
+
+      var cuboid = new Path.Rectangle({
+        parent: result, 
+        name: "DIFF:_1.44", 
+        size: new paper.Size(params.lens.width, Ruler.mm2pts(30)), 
+        strokeColor: "blue", 
+        strokeWidth: 1
+      });
+      cuboid.set({
+        pivot: cuboid.bounds.bottomRight,
+        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
+      });
+
+      
+
+      var expanded  = cuboid.expand({
+          strokeAlignment: "exterior", 
+          strokeWidth: 1,
+          name: "IMG: Image Plane",
+          strokeOffset: Ruler.mm2pts(4), 
+          strokeColor: "green", 
+          fillColor: null, 
+          joinType: "miter", 
+          parent: result, 
+          closed: false
+      });
+      cuboid.segments[3].remove();
+      expanded.removeSegments(0, expanded.segments.length - 4)
+
+      cuboid.closed = false;
+    }
+}
+
 ImagePlane.prototype = {
 
 	visualize: function(){

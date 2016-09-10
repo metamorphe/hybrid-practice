@@ -29,7 +29,7 @@ Reflector.random = function(length){
 
 
 Reflector.interpolateParams = function(a, b, tau){
-    console.log("Interpolating", a, b, tau);
+    // console.log("Interpolating", a, b, tau);
     itau = 1 - tau;
 
     a.lens.width = a.lens.width * tau + b.lens.width * itau;
@@ -41,9 +41,6 @@ Reflector.interpolateParams = function(a, b, tau){
     return a;
 }
 
-Reflector.getOptimal = function(ws, key){
-  return noLens.random(l);
-}
 Reflector.fabricate = function(params, l){
     var gradient = noLens.rampGradient(params);
      var reflector_group = new paper.Group({
@@ -145,14 +142,15 @@ Reflector.makeScene = function(box, params, diffuser){
     var led_ref = new paper.Path.Rectangle({
         size: new paper.Size(params.led.width, params.led.height),
         name: "LS: APA102C",
-        fillColor: "white", 
-        applyMatrix: false
+        fillColor: "purple", 
+        // applyMatrix: false
     });
 
     led_ref.set({
         pivot: led_ref.bounds.topCenter.clone(), 
         position: box.position.clone()
     });
+    // led_ref.position = paper.view.center;
     // MAKING RAMP
     var ramp = new Path.Rectangle({
         size: new paper.Size(params.ramp.width, params.lens.height),
@@ -165,7 +163,7 @@ Reflector.makeScene = function(box, params, diffuser){
     ramp.set({
         name: "REF:_0.90",
         pivot: ramp.bounds.bottomRight.clone(),
-        position: led_ref.bounds.bottomLeft.clone()//.add(new paper.Point(- params.lens.width + (params.led.width/2), 0))
+        position: led_ref.bounds.topLeft.clone()//.add(new paper.Point(- params.lens.width + (params.led.width/2), 0))
     });
 
     var cpA = Splitter.closest(ramp, "bottomRight");
@@ -184,143 +182,7 @@ Reflector.makeScene = function(box, params, diffuser){
 
     
     // IMAGE PLANE
-    if(diffuser == "Planar"){
-      led_refl = led_ref.clone();
-      led_refl.set({
-        name: "REF:_0.90", 
-        fillColor:  "red",
-        parent: result
-      });
-      led_refl.position.y += led_refl.bounds.height;
-      var diff = new Path.Line({
-          parent: result,
-          name: "DIFF:_1.44",
-          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
-          strokeColor: "blue", 
-          strokeWidth: 1
-      });
-     
-      var img_plane = new Path.Line({
-          parent: result,
-          name: "IMG: Image Plane",
-          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
-          strokeColor: "green", 
-          strokeWidth: 1
-      });
-      img_plane.position.y -= Ruler.mm2pts(4);
-      img_plane.reverse();
-    }
-    if(diffuser == "Hemisphere"){
-      led_refl = led_ref.clone();
-      led_refl.set({
-        name: "REF:_0.90", 
-        fillColor:  "red",
-        parent: result
-      })
-      led_refl.position.y += led_refl.bounds.height;
-      
-
-      var hemis = new Path.Circle({
-        parent: result, 
-        name: "DIFF:_1.44", 
-        radius: Ruler.mm2pts(30), 
-        position: new paper.Point(led_ref.bounds.topCenter.x + Ruler.mm2pts(0), ramp.bounds.topRight.y), 
-        strokeColor: "blue", 
-        strokeWidth: 1
-      });
-      hemis.segments[0].handleIn = null;
-      hemis.segments[2].handleOut = null;
-      hemis.segments[3].remove();
-      // hemis.segments[2].remove();
-      hemis.closed = false;
-
-
-      var hemis = new Path.Circle({
-        parent: result, 
-        name: "DIFF:_1.44", 
-        radius: Ruler.mm2pts(30), 
-        position: new paper.Point(led_ref.bounds.topCenter.x + Ruler.mm2pts(0), ramp.bounds.topRight.y), 
-        strokeColor: "blue", 
-        strokeWidth: 1
-      });
-      hemis.segments[0].handleIn = null;
-      hemis.segments[1].handleOut = null;
-      hemis.segments[2].remove();
-      hemis.segments[2].remove();
-      hemis.closed = false;
-
-      var expanded  = hemis.expand({
-          strokeAlignment: "exterior", 
-          strokeWidth: 1,
-          name: "IMG: Image Plane",
-          strokeOffset: Ruler.mm2pts(4), 
-          strokeColor: "green", 
-          fillColor: null, 
-          joinType: "miter", 
-          parent: result, 
-          closed: false
-      });
-      hemis.bringToFront();
-      expanded.firstSegment.remove();
-      expanded.firstSegment.remove();
-      // hemis.remove();
-      // var hemis = new Path.Circle({
-      //   parent: result, 
-      //   name: "DIFF:_1.44", 
-      //   radius: Ruler.mm2pts(30), 
-      //   position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
-      //   strokeColor: "blue", 
-      //   strokeWidth: 1
-      // });
-      // hemis.segments[0].handleIn = null;
-      // hemis.segments[1].handleOut = null;
-      // hemis.segments[2].remove();
-      // hemis.segments[2].remove();
-      // hemis.closed = false;
-    }
-    if(diffuser == "Cuboid"){
-      led_refl = led_ref.clone();
-      led_refl.set({
-        name: "REF:_0.90", 
-        fillColor:  "red",
-        parent: result
-      })
-      led_refl.position.y += led_refl.bounds.height;
-
-      var cuboid = new Path.Rectangle({
-        parent: result, 
-        name: "DIFF:_1.44", 
-        size: new paper.Size(params.lens.width, Ruler.mm2pts(30)), 
-        strokeColor: "blue", 
-        strokeWidth: 1
-      });
-      cuboid.set({
-        pivot: cuboid.bounds.bottomRight,
-        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
-      });
-      cuboid.segments[3].remove();
-
-      var expanded  = cuboid.expand({
-          strokeAlignment: "exterior", 
-          strokeWidth: 1,
-          name: "IMG: Image Plane",
-          strokeOffset: Ruler.mm2pts(4), 
-          strokeColor: "green", 
-          fillColor: null, 
-          joinType: "miter", 
-          parent: result, 
-          closed: false
-      });
-      expanded.lastSegment.remove();
-      expanded.lastSegment.remove();
-      expanded.lastSegment.remove();
-      // expanded.firstSegment.selected = true;
-      // expanded.firstSegment.remove();
-      // expanded.firstSegment.remove();
-      // expanded.firstSegment.remove();
-      expanded.removeSegments(0, expanded.segments.length - 4)
-
-      cuboid.closed = false;
-    }
+   
+    ImagePlane.generate(diffuser, led_ref, ramp, result);
    
 }

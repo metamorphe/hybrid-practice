@@ -27,13 +27,10 @@ TIR.random = function(length){
     }
   }
 
-  // params.ramp.width = params.lens.width - (params.led.width/2.0);
   var ratio = Math.random();
   ratio = ratio > 0.5 ? 1 - ratio: ratio; 
-  // params.dome.width = (length - params.led.width / 2.0) * ratio;
   params.dome.width += params.led.width;
   params.dome.concave = params.dome.height * ratio;
-  // params.dome.concave += Ruler.mm2pts(2);
 
   params.ramp.width = (length - params.dome.width/2);
   params.dome.width = length - params.ramp.width;
@@ -57,6 +54,55 @@ TIR.interpolateParams = function(a, b, tau){
 
     return a;
 }
+
+TIR.getGradient = function(type){
+  if(type == "RFL"){
+    return TIR.rampGradient(params);
+  }
+}
+
+TIR.rampGradient = function(params){
+    // REFLECTOR
+    ref = CanvasUtil.queryPrefix('REF')[0];
+    led = CanvasUtil.queryPrefix('LS')[0];
+
+    var r_grad = new paper.Path({
+      segments: ref.segments.slice(1, 4), 
+      strokeColor: "yellow",
+      strokeWidth: 1, 
+      strokeScaling: false,
+      fillColor: null
+    });
+    r_grad.add(led.bounds.bottomCenter);
+    r_grad.reverse();
+     
+    r_grad.set({
+       pivot: r_grad.bounds.topRight.clone(),
+       position: new paper.Point(0, 0)
+    });
+
+    r_grad.scaling = new paper.Size(-1/(r_grad.bounds.width), -1/r_grad.bounds.height);
+    r_grad.position.y ++;
+    
+    var segment_positions = _.map(r_grad.segments, function(seg){return r_grad.getOffsetOf(seg.point); });
+    var samples = _.flatten([_.range(0, r_grad.length, 0.01), segment_positions]);
+  
+    var stops = _.chain(samples).map(function(sample){
+      var pt = r_grad.getPointAt(sample);
+      var x = pt.x;
+      if(x == 1) x = 0.99;
+      y = pt.y;
+      return [new paper.Color(y), x]
+    }).unique(function(g){ return g[1]; }).value();
+
+    total_ref_height = params.lens.height + Ruler.mm2pts(0.01); 
+    
+    stops.push([new paper.Color(Ruler.mm2pts(0.01) / total_ref_height), 0]); 
+    stops.push([new paper.Color(0, 0 , 0, 0), 1.0]); 
+    r_grad.remove();
+    return stops;
+}
+
 
 TIR.fabricate = function(params, l){
     var gradient = noLens.rampGradient(params);
@@ -100,60 +146,7 @@ TIR.fabricate = function(params, l){
           
     paper.view.update();
 }
-TIR.generateDome = function(params, reflector, parent, visible=true) {
-    // console.log(baseWidth, baseHeight, concaveHeight)
-    // Generating geometries
-    
-    var base = new Path.Rectangle({
-        parent: parent,
-        size: new paper.Size(params.lens.width, params.lens.height),
-        fillColor: "#87CEFA", 
-        visible: visible
-    });
-    reflector.bringToFront();
-    var lens = Splitter.boolean(base, reflector, "subtract");
-    return lens;
 
-    // return base;
-    // var lens = new Path.Ellipse({
-    //     rectangle: new Rectangle(new Point(0, 0), new Size(params.dome.width, params.dome.concave)), 
-    //     strokeColor: '#87CEFA',
-    //     strokeWidth: 1,
-    //     fillColor: "", 
-    //     // visible: true
-    // });
-
-    // lens.set({
-    //     position: base.bounds.topCenter
-    // });    
-
-    // var dome = lens.unite(base);
-    // dome.visible = true;
-    // dome.position = paper.view.center;
-    // lens.remove();
-    // base.remove();
-    // return dome;
-    
-    // var test = new paper.Group([lens, base]);
-    // test.position = paper.view.center;
-    // Extracting spline
-    var half_dome = _.filter(dome.segments, function(seg) {
-        return seg.point.subtract(dome.bounds.center).x <=0;
-    });
-    // return
-    // var spline = new paper.Path({
-    //     segments: half_dome,
-    //     strokeColor: '#87CEFA',
-    //     strokeWidth: 1,
-    //     strokeScaling: false,
-    //     fillColor: "yellow", 
-    //     visible: visible
-    // });
-    // dome.remove();
-
-    // spline.firstSegment.handleIn = new paper.Point(0, 0);
-    // return spline;
-}
 TIR.makeScene = function(box, params, diffuser){
     var result = new paper.Group({
       name: "RT: Ray Tracing Scene", 
@@ -175,19 +168,7 @@ TIR.makeScene = function(box, params, diffuser){
         pivot: led_ref.bounds.topCenter.clone(), 
         position: box.position.clone()
     });
-    
-    //  var dome = new Path.Rectangle({
-    //     size: new paper.Size(params.dome.width, params.dome.height),
-    //     fillColor: "#87CEFA", 
-    //     parent: result
-    // });
-
-    // dome.set({
-    //     name: "LENS:_1.44",
-    //     pivot: dome.bounds.bottomRight.clone(),
-    //     position: led_ref.bounds.bottomCenter.clone()
-    // });
-
+  
     // MAKING RAMP
     var ramp = new Path.Rectangle({
         size: new paper.Size(params.ramp.width, params.lens.height),
@@ -205,12 +186,8 @@ TIR.makeScene = function(box, params, diffuser){
 
     var cpA = Splitter.closest(ramp, "bottomRight");
     cpA.handleIn = new paper.Point(- params.ramp.width  * params.ramp.a.alpha, - params.ramp.height  * params.ramp.a.beta);
-    cpA.selected = true;
-
     var cpB = Splitter.closest(ramp, "topLeft");
     cpB.handleOut = new paper.Point( params.ramp.width * params.ramp.b.alpha,  params.ramp.height * params.ramp.b.beta);
-    
-    cpB.selected = true;
 
 
     // MAKING DOME
@@ -231,11 +208,9 @@ TIR.makeScene = function(box, params, diffuser){
     })
 
     var domeSegment = Splitter.closest(lens, "bottomRight");
-    domeSegment.selected = true;
     lens.segments[domeSegment.index].point.y -= params.dome.height - params.dome.concave; 
     lens.segments[domeSegment.index].point.x -= params.dome.width; 
-    lens.segments[domeSegment.index].selected = true;
-
+ 
     var peakSegment = Splitter.closest(lens, "topRight");
     var peakSegment = lens.insert(peakSegment.index + 1, peakSegment.point.clone());
     peakSegment.point.y += params.lens.height - params.dome.height;
@@ -245,75 +220,6 @@ TIR.makeScene = function(box, params, diffuser){
     lens.segments[peakSegment.index].selected = true;
     lens.segments[domeSegment.index].handleIn = new paper.Point(0, - 0.5 * params.dome.concave * params.dome.direction);
 
-    // IMAGE PLANE
-    if(diffuser == "Planar"){
-      // var img_plane = new Path.Line({
-      //     parent: result,
-      //     name: "IMG: Image Plane",
-      //     segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
-      //     strokeColor: "green", 
-      //     strokeWidth: 1
-      // });
-      // // img_plane.position.y += 0.5; 
-      // img_plane.reverse();
-      led_refl = led_ref.clone();
-      led_refl.set({
-        name: "REF:_0.90", 
-        fillColor:  "red",
-        parent: result
-      });
-      led_refl.position.y +=1; // led_refl.bounds.height;
-      led_refl.firstSegment.point.x -= 100;
-      led_refl.firstSegment.point.y -= 2;
-      led_refl.segments[1].point.x -= 100;
-      led_refl.segments[1].point.y -= 2;
-      var diff = new Path.Line({
-          parent: result,
-          name: "DIFF:_1.44",
-          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
-          strokeColor: "blue", 
-          strokeWidth: 1
-      });
-     
-      var img_plane = new Path.Line({
-          parent: result,
-          name: "IMG: Image Plane",
-          segments: [new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y) , ramp.bounds.topLeft], 
-          strokeColor: "green", 
-          strokeWidth: 1
-      });
-      img_plane.position.y -= Ruler.mm2pts(4);
-      img_plane.reverse();
-    }
-    if(diffuser == "Hemisphere"){
-      var hemis = new Path.Circle({
-        parent: result, 
-        name: "IMG: Image Plane", 
-        radius: Ruler.mm2pts(30), 
-        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
-        strokeColor: "green", 
-        strokeWidth: 1
-      });
-      hemis.segments[0].handleIn = null;
-      hemis.segments[1].handleOut = null;
-      hemis.segments[2].remove();
-      hemis.segments[2].remove();
-      hemis.closed = false;
-    }
-    if(diffuser == "Cuboid"){
-      var cuboid = new Path.Rectangle({
-        parent: result, 
-        name: "IMG: Image Plane", 
-        size: new paper.Size(params.lens.width, Ruler.mm2pts(30)), 
-        strokeColor: "green", 
-        strokeWidth: 1
-      });
-      cuboid.set({
-        pivot: cuboid.bounds.bottomRight,
-        position: new paper.Point(led_ref.bounds.topCenter.x, ramp.bounds.topRight.y), 
-      });
-      cuboid.segments[3].remove();
-      cuboid.closed = false;
-    }
+    ImagePlane.generate(diffuser, led_ref, ramp, result);
    
 }

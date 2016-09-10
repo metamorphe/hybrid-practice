@@ -154,10 +154,10 @@ Artwork.prototype = {
  			// metadata import
  			leds = scope.queryPrefix("NLED");
  			_.each(leds, function(led){
- 				console.log(led.name);
+ 				// console.log(led.name);
  				if(led.name.indexOf("{") != -1){
  					led = _.extend(led, JSON.parse(led.name.split("_")[1]));
- 					console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
+ 					// console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
  				}
  			});
 

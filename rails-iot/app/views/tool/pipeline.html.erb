@@ -30,7 +30,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  // $('#view-list ul li button[name="cones"]').click();
+  $('#view-list ul li button[name="reflector"]').click();
 });
 </script>
 </head>
@@ -43,9 +43,9 @@ $(function(){
         </select> <button id="view-icon" class="pull-right btn btn-primary">EL</button><br class="clearfix">
     <div id="view-list">
         <ul>
-           <li class="active">
+          <!--  <li class="active">
                 <span>RAYTRACE</span> <button name="raytrace" class="view btn-sm btn btn-info"> RT</button>
-            </li>
+            </li> -->
             <li>
                 <span>MOLD</span> <button name="mold" class="view btn-sm btn btn-info"> M</button>
             </li>
@@ -105,7 +105,7 @@ $(function(){
   z-index: 1000;
   top: 30px;
   left: 30px;
-  z-index: -1;
+  z-index: -100;
 }
 
 

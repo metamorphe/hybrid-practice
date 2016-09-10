@@ -1,4 +1,105 @@
- // _.each(e.diff, function(diffuser) {
+raytrace: function(display, e){
+      this.adjustLEDs(display, e);
+        display.svg.position = display.svg.bounds.bottomLeft;
+         _.each(e.diff, function(diffuser) {
+            diffuser.set({
+                visible: true,
+                fillColor: "white",
+                strokeWidth: 1
+            });
+        });
+
+        var result = new paper.Group(e.diff);
+        backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
+            fillColor: 'white',
+            parent: result
+        });
+       
+        _.each(e.leds, function(led) {
+            led.set({
+                visible: true,
+                fillColor: "#00A8E1",
+                strokeWidth: 0, 
+                parent: result
+            });
+        });
+
+       morphs = interpolation_lines(e.diff[0], e.leds);
+       morphs = _.compact(morphs);        
+
+      
+
+       // BEGIN TRACE
+       tracerBox = new paper.Path.Rectangle({
+            rectangle: result.bounds,
+            fillColor: 'black'
+        }); 
+       tracerBox.set({
+            pivot: tracerBox.bounds.leftCenter,
+            position: result.bounds.rightCenter
+       });
+       var width = result.bounds.width;
+       ip = new ImagePlane({
+        position: result.bounds.topRight.clone(), 
+        width: width, 
+        range: {x: {identity: "x", min: -width/2, max: width/2}, y: {identity: "y", min: -width/2, max:  width/2}}
+       });
+       var lg = new LensGenerator();
+       // var led = LensGenerator.generateScene(tracerBox, LensGenerator.DEFAULT_PARAMS);
+       // min is 30
+       // morphs = [morphs[200]]
+       morphs = morphs.slice(0, 10)
+       _.each(morphs, function(morph, i, arr){
+          console.log("I", i, arr.length)
+          morph.set({
+            visible: true, 
+            strokeColor: "yellow"
+           });
+           morph.bringToFront();
+
+           var scene = lg.generateW(tracerBox, morph.length, LensGenerator.DEFAULT_PARAMS);
+           scene.position = tracerBox.bounds.bottomRight.add(new paper.Point(-20, -20));
+           var led = CanvasUtil.queryPrefix("LS")[0];
+           var mediums = CanvasUtil.getMediums();
+           var ls = new PointLight({
+                  position: led.position, 
+                  mediums: mediums, 
+                  parent: tracerBox
+            });
+
+           ls.emmision(-60, 0, 1);
+          
+           pt = result.bounds.bottomLeft.subtract(morph.firstSegment.point)
+                                       .multiply(new paper.Point(-1, 1))
+                                       .subtract(new paper.Point(result.bounds.width/2.0, result.bounds.height/2.0))
+           boundary = result.bounds.bottomLeft.subtract(morph.lastSegment.point)
+                                       .multiply(new paper.Point(-1, 1))
+                                       .subtract(new paper.Point(result.bounds.width/2.0, result.bounds.height/2.0))                          
+                                       
+           rp = ip.graph.plotPoint(pt, {fillColor: "red"});
+           rp = ip.graph.plotPoint(boundary, {fillColor: "yellow"});
+
+           lr = ip.visualize();
+           pt2 = pt.multiply(new paper.Point(1, -1))
+           lr.position =  lr.position.add(pt2);
+           lr.pivot = ip.graph.graph.bounds.center.add(pt2);
+           lr.rotation = morph.firstSegment.point.subtract(morph.lastSegment.point).angle;
+            rp.bringToFront();
+           
+            if(i == morphs.length - 1) return;
+           _.each(CanvasUtil.queryPrefix("RAY"), function(r){ r.remove();});
+            scene.remove();
+            ls.source.remove();
+       });
+       // END RAYTRACE
+
+       backgroundBox.sendToBack();
+       var invisible = _.compact(_.flatten([e.art, e.dds, e.cp, e.bo, e.bi]));
+       Pipeline.set_visibility(invisible, false);
+    },
+
+     // _.each(e.diff, function(diffuser) {
         //     diffuser.set({
         //         visible: true,
         //         fillColor: "black",
