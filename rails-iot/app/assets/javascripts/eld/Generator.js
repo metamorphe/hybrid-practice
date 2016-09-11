@@ -1,9 +1,26 @@
+const NEARNESS_CRITERIA = 0.3;
+
+function normNeighbor(a){
+  var travelling_range = NEARNESS_CRITERIA;
+  var travel = travelling_range * Math.random();
+
+  var split = travelling_range / 2;
+  var upper_overflow = a + split;
+  var lower_overflow = a - split;
+  if(lower_overflow <= 0){ min = 0; max = upper_overflow - lower_overflow;}
+  else if(upper_overflow >= 1){ max = 1; min = lower_overflow - (upper_overflow - 1);}
+  else{ min = lower_overflow; max = upper_overflow;}
+  
+  return min + travel;
+}
+var generatorSolution = null;
+var generatorEnergy = 20;
 function Generator(){
         this.length = 72;
         this.ws = new WebStorage();
         this.diffuser = "Planar";
-        this.model = "Splitter";
-        this.export = "CONE";
+        this.model = "Reflector";
+        this.export = "REFL";
        
         this.c_norm = 0.5;
         this.c_uni = 0.5;
@@ -11,9 +28,21 @@ function Generator(){
         this.cost = 0.5;
         this.random = true;
 
+        this.system_temperature = 35.0;
+        this.system_energy = 1.0;
+        this.initial_temperature = 35.0;
+        this.initial_stabilizer = 5.0;
+        // this.initial_stabilizer = 35.0;
+        // this.cooling_factor = 0.05;
+        this.cooling_factor = 1;
+        this.stabilizing_factor = 1.005;
+        this.freezing_temperature = 0.0;
+
+
         this.init();
         // this.fabricate();
         this.sample_size = 300;
+        this.params = null;
       }
       Generator.prototype = {
         init: function(){
@@ -32,21 +61,61 @@ function Generator(){
             });
           }) 
         },
-        generate: function(){
+        generateNeighbor: function(){   
+          if(_.isNull(this.params)) return;
+
+          this.clear(["RT", "RAY", "PL", "LS", "DRAY"]);
+
+          var model = eval(this.model);   
+          this.params = model.neighbor(this.params);
+          paper.view.zoom = 2;
+          var scene = model.makeScene(this.box, this.params, this.diffuser);
+
+          paper.view.update();
+          return this.params;
+        },
+        generateRandom: function(){
             this.clear(["RT", "RAY", "PL", "LS", "DRAY"]);
             var model = eval(this.model);
             if(this.random || this.model == "noLens"){
-                params = model.random(this.length);
+                this.params = model.random(this.length);
             } else{
-              params = this.getOptimal();
+              this.params = this.getOptimal();
               // console.log("STORED COST", params.costs.cost);
             }
             paper.view.zoom = 2;
-            var scene = model.makeScene(this.box, params, this.diffuser);
+            var scene = model.makeScene(this.box, this.params, this.diffuser);
 
             // this.fire();
             paper.view.update();
-            return params;
+            return this.params;
+        }, 
+        generate: function(){
+            this.clear(["RT", "RAY", "PL", "LS", "DRAY"]);
+            var model = eval(this.model);
+            
+            paper.view.zoom = 2;
+            var scene = model.makeScene(this.box, this.params, this.diffuser);
+
+            // this.fire();
+            paper.view.update();
+            return this.params;
+        },
+        generateOptimal: function(){
+            this.clear(["RT", "RAY", "PL", "LS", "DRAY"]);
+            var model = eval(this.model);
+            if(this.random || this.model == "noLens"){
+                this.params = model.random(this.length);
+            } else{
+              this.params = this.getOptimal();
+              // console.log("STORED COST", params.costs.cost);
+            }
+            paper.view.zoom = 2;
+            var scene = model.makeScene(this.box, this.params, this.diffuser);
+
+            // this.fire();
+            paper.view.update();
+            return this.params;
         }, 
         resample: function(){
          var scope = this;
@@ -83,6 +152,51 @@ function Generator(){
           this.generate(false);
           return max.costs.cost;
         },
+        // ***** SIMULATED ANNEALING FUNCTIONS  ****** // 
+        
+        anneal: function(){
+          var scope = this;
+          var model = eval(this.model);
+          generatorSolution = this.generateRandom();
+
+          var options = {
+            initialTemperature:  this.initial_temperature,
+            initialStabilizer:   this.initial_stabilizer,
+            coolingFactor:       this.cooling_factor,
+            stabilizingFactor:   this.stabilizing_factor,
+            freezingTemperature: this.freezing_temperature, 
+          };
+          options.generateNewSolution = function(){
+            params = scope.generateRandom();
+            return scope.fire().cost;
+          }
+          options.generateNeighbor = function(){
+            params = scope.generateNeighbor();
+            return scope.fire().cost;
+          }
+          options.acceptNeighbor = function(){
+            generatorSolution = scope.params;
+            generatorEnergy = scope.fire().cost;
+          }
+          SimulatedAnnealing.Initialize(options);
+          console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", SimulatedAnnealing.GetCurrentEnergy().toFixed(2));
+            
+          scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
+          scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
+          
+          intervalId = setInterval(function(){
+            var done = SimulatedAnnealing.Step();
+            console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", SimulatedAnnealing.GetCurrentEnergy().toFixed(2));
+            scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
+            scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
+            
+            if(done == true)
+              clearInterval(intervalId);
+          }, 50);
+
+        },
+
+        // ***** END SIMULATED ANNEALING FUNCTIONS  ****** // 
         fire: function(){
            this.clear(["RAY", "PL", "DRAY"]);
            var mediums = CanvasUtil.getMediums();

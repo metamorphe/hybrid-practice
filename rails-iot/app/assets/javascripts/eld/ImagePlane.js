@@ -253,7 +253,7 @@ ImagePlane.getSignal = function(bins=100){
 	return {signal: numeric.div(signal, _.max(signal) + 0.01), hits: n};
 	
 }
-ImagePlane.calculateNormality = function(){
+ImagePlane.calculateNormality = function(visualize=false){
 	rays = CanvasUtil.queryPrefix("RAY");
 	image_plane = CanvasUtil.queryPrefix("IMG");
 
@@ -269,13 +269,15 @@ ImagePlane.calculateNormality = function(){
 		var normal = image_plane.getNormalAt(offset);
 		
 		normal.length = 30;
-		var c = new paper.Path.Line({
-			from: hit.point, 
-			to: hit.point.add(normal), 
-			strokeColor: "purple", 
-			strokeWidth: 0.5, 
-			name: "DRAY: Desired Ray"
-		});
+		if(visualize){
+			var c = new paper.Path.Line({
+				from: hit.point, 
+				to: hit.point.add(normal), 
+				strokeColor: "purple", 
+				strokeWidth: 0.5, 
+				name: "DRAY: Desired Ray"
+			});
+		}
 		test = hit.path.lastSegment.point.subtract(hit.point);
 		return sum + (Math.abs(normal.angle - test.angle) % 180);
 	}, 0);	

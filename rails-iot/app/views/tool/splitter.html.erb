@@ -22,6 +22,9 @@
         });
         f0.add(generator, "random");
         f0.add(generator, "generate");
+        // f0.add(generator, "generateRandom");
+        f0.add(generator, "generateNeighbor");
+        f0.add(generator, "generateOptimal");
         
         var f1 = gui.addFolder('Ray Tracing');
         f1.add(generator, "c_uni").min(0).max(1).listen();
@@ -32,12 +35,24 @@
         
         
 
-        var f2 = gui.addFolder('Sampling')
+        var f2 = gui.addFolder('Random Sampling')
         f2.add(generator, "sample_size").min(0).max(300).step(10);
         f2.add(generator, "resample");
         f2.add(generator, "batch_process");
         f2.add(generator, "batch_clear");
-        
+
+
+        var f5 = gui.addFolder('Simulated Annealing');
+        f5.add(generator, "system_temperature").min(0).max(320).listen();
+        f5.add(generator, "system_energy").min(0).max(2.0).listen();
+        f5.add(generator, "initial_temperature").min(0).max(320);
+        f5.add(generator, "initial_stabilizer").min(0).max(320);
+        f5.add(generator, "cooling_factor").min(0.0).max(1.0)
+        // f5.add(generator, "stabilizing_factor").max(2).min(1);
+        // f5.add(generator, "freezing_temperature").min(0).max(320);
+        f5.add(generator, "anneal");
+
+
         var f3 = gui.addFolder('Fabrication')
         f3.add(generator, "fabricate");
         f3.add(generator, "getGradient");
@@ -49,13 +64,14 @@
         f4.add(generator, 'download_data')
 
         f1.open();
-        f2.open();
+        f2.close();
         f3.open();
         f4.open();
         f0.open();
+        f5.open();
         // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
         $("#shade").fadeOut();
-        generator.generate();
+        generator.generateRandom();
         // generator.fire();
 
       });

@@ -8,7 +8,8 @@
            artwork.svg.position.y -= 60;
         
            vm = new ViewManager($('#views'));
-           $('img[tool="LEDPlacerBrush"]').click()
+           $('img[tool="LEDPlacerBrush"]').click();
+          CanvasUtil.call(CanvasUtil.queryPrefix("NP"), "remove");
         });
         displays.push(display);
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);

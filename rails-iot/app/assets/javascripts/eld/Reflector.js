@@ -1,5 +1,15 @@
 
 function Reflector(){}
+Reflector.neighbor = function(params){
+  // lens and led are fixed
+  params.ramp.a.alpha = normNeighbor(params.ramp.a.alpha);
+  params.ramp.a.beta = normNeighbor(params.ramp.a.beta);
+
+  params.ramp.b.alpha = normNeighbor(params.ramp.b.alpha);
+  params.ramp.b.beta = normNeighbor(params.ramp.b.beta);
+  return params;
+}
+
 Reflector.random = function(length){
   params = {
     lens: {
