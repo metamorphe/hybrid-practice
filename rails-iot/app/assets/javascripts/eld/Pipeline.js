@@ -537,7 +537,7 @@ Pipeline.script = {
                 l = led.clone();
                 l.fillColor = "black";
                 l.strokeColor = "black";
-                l.strokeWidth = 2;
+                l.strokeWidth = 4;
                 result.addChild(l);
             });
             _.each(e.diff, function(diffuser) {

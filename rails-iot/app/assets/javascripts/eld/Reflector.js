@@ -94,7 +94,7 @@ Reflector.fabricate = function(params, l){
           
     paper.view.update();
 }
-Reflector.getGradient = function(type){
+Reflector.getGradient = function(type, params){
   if(type == "REFL"){
     return Reflector.reflectorGradient(params);
   }
@@ -174,6 +174,6 @@ Reflector.makeScene = function(box, params, diffuser){
     
     // IMAGE PLANE
    
-    ImagePlane.generate(diffuser, led_ref, ramp, result);
+    ImagePlane.generate(diffuser, led_ref, ramp, result, params);
    
 }

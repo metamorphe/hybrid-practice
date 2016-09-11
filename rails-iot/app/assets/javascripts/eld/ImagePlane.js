@@ -18,7 +18,7 @@ function ImagePlane(options){
 
 }
 
-ImagePlane.generate = function(diffuser, led_ref, ramp, result){
+ImagePlane.generate = function(diffuser, led_ref, ramp, result, params){
 	bottomReflector = new paper.Path({
       parent: result,
       name: "REF:_0.90", 

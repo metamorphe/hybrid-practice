@@ -58,6 +58,7 @@ var SimulatedAnnealing = (function () {
             }
             currentSystemTemperature = currentSystemTemperature - coolingFactor;
             currentStabilizer = currentStabilizer * stabilizingFactor;
+            // coolingFactor = coolingFactor * cooling;
             return false;
         }
         currentSystemTemperature = freezingTemperature;

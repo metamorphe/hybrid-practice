@@ -55,7 +55,7 @@ TIR.interpolateParams = function(a, b, tau){
     return a;
 }
 
-TIR.getGradient = function(type){
+TIR.getGradient = function(type, params){
   if(type == "REFL"){
     return TIR.reflectorGradient(params);
   }
@@ -258,6 +258,6 @@ TIR.makeScene = function(box, params, diffuser){
     // lens.segments[peakSegment.index].selected = true;
     lens.segments[domeSegment.index].handleIn = new paper.Point(0, - 0.5 * params.dome.concave * params.dome.direction);
 
-    ImagePlane.generate(diffuser, led_ref, ramp, result);
+    ImagePlane.generate(diffuser, led_ref, ramp, result, params);
    
 }

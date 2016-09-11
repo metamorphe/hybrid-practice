@@ -49,7 +49,7 @@ Splitter.interpolateParams = function(a, b, tau){
 
     return a;
 }
-Splitter.getGradient = function(type){
+Splitter.getGradient = function(type, params){
   if(type == "REFL"){
     return Splitter.rampGradient(params);
   }
@@ -235,7 +235,7 @@ Splitter.makeScene = function(box, params, diffuser){
     
     
 
-    ImagePlane.generate(diffuser, led_ref, ramp, result);
+    ImagePlane.generate(diffuser, led_ref, ramp, result, params);
    
 }
 

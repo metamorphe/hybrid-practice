@@ -19,7 +19,7 @@ function Generator(){
         this.length = 72;
         this.ws = new WebStorage();
         this.diffuser = "Planar";
-        this.model = "Reflector";
+        this.model = "Splitter";
         this.export = "REFL";
        
         this.c_norm = 0.5;
@@ -30,11 +30,11 @@ function Generator(){
 
         
         this.initial_temperature = 10.0;
-        this.initial_stabilizer = 1.0;
-        // this.initial_stabilizer = 35.0;
+        // this.initial_stabilizer = 1.0;
+        this.initial_stabilizer = 5.0;
+        this.stabilizing_factor = 0.8;
         // this.cooling_factor = 0.05;
         this.cooling_factor = 0.25;
-        this.stabilizing_factor = 1.005;
         this.freezing_temperature = 0.0;
 
         this.system_temperature = this.initial_temperature;
@@ -124,7 +124,7 @@ function Generator(){
          var samples = _.range(0, this.sample_size, 1);
 
           samples = _.map(samples, function(s, i){
-            var params = scope.generate(random=true);
+            var params = scope.generateOptimal(random=true);
             costs = scope.fire();
 
             return {costs: costs, params: JSON.stringify(params)}
@@ -136,26 +136,26 @@ function Generator(){
 
           max_p = JSON.parse(max.params);
           max_p.costs = max.costs;
-          max.params = JSON.stringify(max_p);
+          // max.params = JSON.stringify(max_p);
           
-          var key = scope.generateKey(scope.length);
+          this.storeSolution(max_p);
+          // LOAD UP THE BEST ONE
+          this.generateOptimal(false);
+          return max.costs.cost;
+        },
+        storeSolution: function(solution){
+          var key = this.generateKey(this.length);
+
           if(this.ws.includes(key)){
             params = JSON.parse(this.ws.get(key));
-            console.log("PREVIOUSLY STORED", scope.length, params.costs.cost, "v", max.costs.cost);
-            if(!_.isUndefined(params.costs) && params.costs.cost > max.costs.cost){
-              // this.generate(random=false);
+            if(!_.isUndefined(params.costs) && params.costs.cost > solution.costs.cost){
+              console.log("PREVIOUSLY STORED WINS", this.length, params.costs.cost.toFixed(2), "v", solution.costs.cost.toFixed(2));
               return params.costs.cost;
             }
           }
-          console.log("REWRITING", scope.length, max.params);
-          this.ws.set(key, max.params);
-          
-          // LOAD UP THE BEST ONE
-          this.generate(false);
-          return max.costs.cost;
+          console.log("REWRITING", this.length, solution);
+          this.ws.set(key, JSON.stringify(solution));
         },
-        // ***** SIMULATED ANNEALING FUNCTIONS  ****** // 
-        
         anneal: function(){
           var scope = this;
           var model = eval(this.model);
@@ -187,24 +187,44 @@ function Generator(){
           scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
           scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
        
-          
-          intervalId = setInterval(function(){
+          steps = 0;
+          // intervalId = setInterval(function(){
+          done = false;
+          while(! done){
             var done = SimulatedAnnealing.Step();
-            // console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
+            steps ++; 
+            console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
             scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
             scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
-            
-            if(done == true){
-              scope.params = JSON.parse(generatorSolution);
-              scope.generate();
-              var energy = scope.fire().cost;
-              console.log("END ENERGY", energy);
-              clearInterval(intervalId);
-            }
-          }, 5);
+          }
+          if(done == true){
+            scope.params = JSON.parse(generatorSolution);
+            scope.generate();
+            scope.params.costs = scope.fire();
+            console.log("END ENERGY",  scope.params.costs.cost, "STEPS", steps);
+            scope.storeSolution(scope.params);
+            // clearInterval(intervalId);
+          }
+          // }, 5);
 
         },
-
+        batch_anneal: function(){
+          var d = new Date();
+          var t_start = d.getTime();
+          var scope = this;
+          // lengths = _.range(25, 200, 5);
+          lengths = this.get_eval_lengths();
+          console.log("STARTING BATCH ANNEAL PROCESS");
+          _.each(lengths, function(l, i){
+            scope.length = l;
+            console.log("PROCESSING", l, "(", i + 1, "out of", lengths.length, ")");
+            scope.anneal();
+          });
+          var d = new Date();
+          var t_end = d.getTime();
+          console.log("END BATCH PROCESS");
+          console.log("TIME:", ((t_end - t_start) / 1000).toFixed(2), "seconds");
+        }, 
         // ***** END SIMULATED ANNEALING FUNCTIONS  ****** // 
         fire: function(){
            this.clear(["RAY", "PL", "DRAY"]);
@@ -276,9 +296,12 @@ function Generator(){
           console.log("TIME:", ((t_end - t_start) / 1000).toFixed(2), "seconds");
         }, 
         getGradient: function(){
-          var params = this.generate();
+          var params = this.generateOptimal();
+          console.log(this.model);
           var model = eval(this.model);
+          console.log(params)
           result = {reflector: model.getGradient("REFL", params)}
+
           if(this.model == "TIR") _.extend(result, {dome: model.getGradient("DOME", params), domeWidth: params.dome.width})
           if(this.model == "Splitter") _.extend(result, 
             {
@@ -289,7 +312,7 @@ function Generator(){
           return result;
         },
         fabricate: function(){
-          var params = this.generate();
+          var params = this.generateOptimal();
           var model = eval(this.model);
           model.fabricate(params, this.length);
           paper.view.update();
