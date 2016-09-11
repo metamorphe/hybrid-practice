@@ -1,4 +1,4 @@
-const NEARNESS_CRITERIA = 0.3;
+var NEARNESS_CRITERIA = 0.5;
 
 function normNeighbor(a){
   var travelling_range = NEARNESS_CRITERIA;
@@ -28,15 +28,17 @@ function Generator(){
         this.cost = 0.5;
         this.random = true;
 
-        this.system_temperature = 35.0;
-        this.system_energy = 1.0;
-        this.initial_temperature = 35.0;
-        this.initial_stabilizer = 5.0;
+        
+        this.initial_temperature = 10.0;
+        this.initial_stabilizer = 1.0;
         // this.initial_stabilizer = 35.0;
         // this.cooling_factor = 0.05;
-        this.cooling_factor = 1;
+        this.cooling_factor = 0.25;
         this.stabilizing_factor = 1.005;
         this.freezing_temperature = 0.0;
+
+        this.system_temperature = this.initial_temperature;
+        this.system_energy = 1.0;
 
 
         this.init();
@@ -67,7 +69,7 @@ function Generator(){
           this.clear(["RT", "RAY", "PL", "LS", "DRAY"]);
 
           var model = eval(this.model);   
-          this.params = model.neighbor(this.params);
+          this.params = model.neighbor(JSON.parse(generatorSolution));
           paper.view.zoom = 2;
           var scene = model.makeScene(this.box, this.params, this.diffuser);
 
@@ -157,7 +159,8 @@ function Generator(){
         anneal: function(){
           var scope = this;
           var model = eval(this.model);
-          generatorSolution = this.generateRandom();
+          generatorSolution = JSON.stringify(this.generateRandom());
+          var SCALE = 1;
 
           var options = {
             initialTemperature:  this.initial_temperature,
@@ -168,31 +171,37 @@ function Generator(){
           };
           options.generateNewSolution = function(){
             params = scope.generateRandom();
-            return scope.fire().cost;
+            return (1 - scope.fire().cost) * SCALE;
           }
           options.generateNeighbor = function(){
             params = scope.generateNeighbor();
-            return scope.fire().cost;
+            return (1 - scope.fire().cost) * SCALE;
           }
           options.acceptNeighbor = function(){
-            generatorSolution = scope.params;
+            generatorSolution = JSON.stringify(scope.params);
             generatorEnergy = scope.fire().cost;
           }
           SimulatedAnnealing.Initialize(options);
-          console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", SimulatedAnnealing.GetCurrentEnergy().toFixed(2));
+          console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
             
           scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
           scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
+       
           
           intervalId = setInterval(function(){
             var done = SimulatedAnnealing.Step();
-            console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", SimulatedAnnealing.GetCurrentEnergy().toFixed(2));
+            // console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
             scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
             scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
             
-            if(done == true)
+            if(done == true){
+              scope.params = JSON.parse(generatorSolution);
+              scope.generate();
+              var energy = scope.fire().cost;
+              console.log("END ENERGY", energy);
               clearInterval(intervalId);
-          }, 50);
+            }
+          }, 5);
 
         },
 

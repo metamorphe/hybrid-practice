@@ -8,6 +8,7 @@ Reflector.neighbor = function(params){
   params.ramp.b.alpha = normNeighbor(params.ramp.b.alpha);
   params.ramp.b.beta = normNeighbor(params.ramp.b.beta);
   return params;
+  // return Reflector.random(params.lens.width);
 }
 
 Reflector.random = function(length){

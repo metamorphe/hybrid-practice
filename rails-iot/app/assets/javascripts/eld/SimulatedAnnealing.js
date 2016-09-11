@@ -22,31 +22,35 @@ var SimulatedAnnealing = (function () {
         acceptNeighbor           = options.acceptNeighbor;
 
         currentSystemEnergy      = generateNewSolution();
+        initialSystemTemperature = options.initialTemperature;
         currentSystemTemperature = options.initialTemperature;
         currentStabilizer        = options.initialStabilizer;
     }
 
     function _probabilityFunction (temperature, delta) {
         if (delta < 0) {
+            // console.log("BETTER SOLUTION");
             return true;
         }
-
-        var C = Math.exp(-delta / temperature);
-        var R = Math.random();
-
-        if (R < C) {
-            return true;
-        }
+  
+        // var C = Math.exp(-delta / temperature);
+        // var R = Math.random();
+        // // console.log('SIM ACCEPT', delta.toFixed(2), C.toFixed(2), R < C)
+        // if (R < C) {
+        //     return true;
+        // }
 
         return false;
     }
 
     function _doSimulationStep () {
+        var step = (currentSystemTemperature) / (initialSystemTemperature - freezingTemperature);
+        NEARNESS_CRITERIA = step;
         if (currentSystemTemperature > freezingTemperature) {
             for (var i = 0; i < currentStabilizer; i++) {
                 var newEnergy = generateNeighbor(),
                     energyDelta = newEnergy - currentSystemEnergy;
-
+                    // console.log("ENERGY DELTA", energyDelta.toFixed(2));
                 if (_probabilityFunction(currentSystemTemperature, energyDelta)) {
                     acceptNeighbor();
                     currentSystemEnergy = newEnergy;

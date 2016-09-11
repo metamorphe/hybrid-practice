@@ -44,10 +44,10 @@
 
         var f5 = gui.addFolder('Simulated Annealing');
         f5.add(generator, "system_temperature").min(0).max(320).listen();
-        f5.add(generator, "system_energy").min(0).max(2.0).listen();
+        f5.add(generator, "system_energy").min(0).max(200.0).listen();
         f5.add(generator, "initial_temperature").min(0).max(320);
         f5.add(generator, "initial_stabilizer").min(0).max(320);
-        f5.add(generator, "cooling_factor").min(0.0).max(1.0)
+        f5.add(generator, "cooling_factor").min(0.0).max(10.0)
         // f5.add(generator, "stabilizing_factor").max(2).min(1);
         // f5.add(generator, "freezing_temperature").min(0).max(320);
         f5.add(generator, "anneal");
