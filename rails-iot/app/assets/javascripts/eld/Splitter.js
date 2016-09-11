@@ -49,91 +49,59 @@ Splitter.interpolateParams = function(a, b, tau){
 
     return a;
 }
-
-Splitter.moldGradient = function(params){
-    lens = CanvasUtil.queryPrefix('LENS')[0]; 
-    var mold_gradient = new Path({
-      segments:  lens.segments.slice(2, 6), 
-      strokeColor: "yellow",
-      strokeWidth: 1
-      // position: paper.view.center
-    });
-    var mold_height = mold_gradient.bounds.height;
-    mold_gradient.reverse();
-    mold_gradient.set({
-       pivot: mold_gradient.bounds.topRight,
-       position: new paper.Point(0, 0), 
-    })
-    mold_gradient.scaling = new paper.Size(-1/mold_gradient.bounds.width, 1/mold_gradient.bounds.height);
-
-    var samples = _.range(0, mold_gradient.length, 0.01);
-
-    var stops = _.chain(samples).map(function(sample){
-      var pt = mold_gradient.getPointAt(sample);
-      var x = pt.x;
-      if(x == 1) x = 0.99;
-      var range_y = mold_height / params.lens.height;
-      y = (1 - pt.y);
-      y *= range_y;
-      return [new paper.Color(y), x]
-    }).unique(function(g){ return g[1]; }).value();
-
-    stops.push([new paper.Color(0, 0 , 0, 0), 1.0]); 
-    return stops;
-}
-Splitter.coneGradient = function(params){
-  lens = CanvasUtil.queryPrefix('LENS')[0]; 
-  var cone_assembly_height = params.prism.height + WING_HEIGHT;
- 
-
-    var cone_gradient = new Path.Line({
-      from: lens.segments[0].point, 
-      to: lens.segments[1].point, 
-      strokeColor: "yellow",
-      strokeWidth: 0.1
-    });
-    cone_gradient.set({
-       pivot: cone_gradient.bounds.topRight,
-       position: new paper.Point(0, 0), 
-    })
-    cone_gradient.scaling = new paper.Size(-1/cone_gradient.bounds.width, 1/cone_gradient.bounds.height);
-
-    var samples = _.range(0, cone_gradient.length, 0.01);
-    var stops = _.chain(samples).map(function(sample){
-      var pt = cone_gradient.getPointAt(sample);
-      var x = pt.x;
-      if(x == 1) x = 0.99;
-      var off_y = WING_HEIGHT / cone_assembly_height;
-      var range_y = 1 - off_y;
-      y = (pt.y * range_y) + off_y;
-      // console.log(pt.y, x);
-      return [new paper.Color(y), x]
-    }).unique(function(g){ return g[1]; }).value();
-    
-    stops.push([new paper.Color(0, 0 , 0, 0), 1.0]); 
-    cone_gradient.scaling = new paper.Size(-1, 1);
-    cone_gradient.remove();
-    return stops;
-}
 Splitter.getGradient = function(type){
   if(type == "REFL"){
     return Splitter.rampGradient(params);
   }
+  if(type == "MOLD")
+    return Splitter.moldGradient(params);
+  
+  if(type == "CONE")
+    return Splitter.coneGradient(params);
+  paper.view.update();
 }
+
+Splitter.moldGradient = function(params){
+  lens = CanvasUtil.queryPrefix('LENS')[0];
+  var profile = new Path({
+    segments:  lens.segments.slice(2, 6), 
+    strokeColor: "yellow",
+    strokeWidth: 3
+  });
+  profile.add(lens.bounds.topLeft.clone());
+  var stops = Generator.profileToGradient(params, profile);
+  return stops;
+}
+Splitter.coneGradient = function(params){
+    lens = CanvasUtil.queryPrefix('LENS')[0]; 
+    led_ref = CanvasUtil.queryPrefix('LS')[0];
+
+
+    var profile = new paper.Path({
+      segments: lens.segments.slice(0, 2),
+      strokeColor: "yellow",
+      strokeWidth: 1
+    });
+    // profile.add(led_ref.bounds.topCenter.clone());
+    // console.log(params);
+    stops = Generator.profileToGradient(params, profile, invert=true, offset=0.1); 
+    return stops; 
+}
+
 Splitter.rampGradient = function(params){
     // REFLECTOR
     ref = CanvasUtil.queryPrefix('REF')[0];
     led_ref = CanvasUtil.queryPrefix('LS')[0];
 
-    var reflector_gradient = new paper.Path({
+    var profile = new paper.Path({
       segments: ref.segments.slice(1, 4), 
       strokeColor: "yellow",
       strokeWidth: 1
     });
-    reflector_gradient.add(led_ref.bounds.topCenter.clone());
-    reflector_gradient.reverse();
+    profile.add(led_ref.bounds.topCenter.clone());
+    profile.reverse();
     
-    stops = Generator.profileToGradient(params, reflector_gradient, invert=false);
+    stops = Generator.profileToGradient(params, profile, invert=false);
     
     return stops;
 }

@@ -3,13 +3,14 @@
 const MORPH_LINE_STEP = 10;
 const TOPOGRAPHIC_STEP = PROFILE_SAMPLING;
 
-function rampify(ramp_lines) {
+function rampify(ramp_lines, parent) {
     levels = _.range(1, 0, -TOPOGRAPHIC_STEP);
     levels = _.map(levels, function(level) {
         return make_level(ramp_lines, level, new paper.Color(level));
     });
     var ramp = new paper.Group(levels);
-    ramp.sendToBack();
+    ramp.parent = parent;
+    // ramp.sendToBack();
     return ramp;
 }
 

@@ -62,8 +62,34 @@ TIR.getGradient = function(type){
   if(type == "MOLD"){
     return TIR.reflectorGradient(params);
   }
+  if(type == "DOME")
+    return TIR.domeGradient(params);
 }
 
+
+TIR.domeGradient = function(params){
+    lens = CanvasUtil.queryPrefix('LENS')[0];
+    led = CanvasUtil.queryPrefix('LS')[0];
+
+    CanvasUtil.call(CanvasUtil.queryPrefix('REF'), "remove");
+    lens.bringToFront();
+    tR = Splitter.closest(lens, "topRight");
+    segments = _.map(lens.segments.slice(tR.index,  lens.segments.length), function(s){return s.clone()});
+   
+    var profile = new paper.Path({
+      segments: segments, 
+      strokeColor: "yellow",
+      strokeWidth: 5, 
+      strokeScaling: false,
+      fillColor: null, 
+      closed: false
+    });
+  
+    stops = Generator.profileToGradient(params, profile);
+    return stops;
+}
+
+// DOME + REF
 TIR.lensGradient = function(params){
     // console.log("GETTING LENS");
     // REFLECTOR

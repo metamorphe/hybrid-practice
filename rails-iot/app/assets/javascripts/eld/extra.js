@@ -1,4 +1,74 @@
-raytrace: function(display, e){
+  cones: function(display, e){
+        // var ws = new WebStorage();
+        var g = new Generator();
+        var box = new paper.Path.Rectangle(paper.view.bounds);
+        box.set({
+              position: paper.view.center,
+              fillColor: '#111'
+        }); 
+        
+        this.adjustLEDs(display, e);
+
+        var result = new paper.Group({
+          name: "RESULT: LENS",
+          model_height: REFLECTOR_HEIGHT
+        });
+
+       
+        var lenses = new paper.Group({
+            parent: result
+        });
+        _.each(e.diff, function(diff) {
+            dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
+            if (dleds.length == 0) { diff.fillColor = "black"; return; }
+
+            _.each(dleds, function(led){
+                var slices = getSlices(ws, box, led, diff);
+                var slices = _.map(slices, function(slice){  
+                    // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
+                    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                    CanvasUtil.call(removeable, "remove");  
+                    g.length = slice.length;
+                    g.random = false;
+                    var scene = g.generate();
+                    paper.view.update();
+                    coneStops = Splitter.coneGradient(params);
+                    console.log(params);
+                    // GENERATE GRADIENT
+                    return {  angleIn: slice.angleIn, 
+                            angleOut: slice.angleOut, 
+                            radius: params.prism.width,
+                            height: params.prism.height,
+                            cone_gradient: {
+                              stops: coneStops, 
+                              radial: true
+                            }
+                         };
+                });
+                 var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+                CanvasUtil.call(removeable, "remove");  
+                max_height = _.chain(slices).pluck("height").max().value();
+
+                c = LensGenerator.makeCDome(slices, "cone_gradient", led.position);  
+                c = new paper.Group({
+                  name: "COLLIMATOR: Custom Lens",
+                  children: c, 
+                  parent: lenses
+                });    
+                var cone_assembly_height = max_height + WING_HEIGHT;
+                result.model_height = Ruler.pts2mm(cone_assembly_height);
+                Splitter.makeWings(c, lenses, new paper.Color(WING_HEIGHT / cone_assembly_height));
+
+                c.bringToFront();            
+            });
+        }); 
+
+        
+        box.remove();
+        // INVISIBILITY
+        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.leds]));
+        Pipeline.set_visibility(invisible, false);
+        raytrace: function(display, e){
       this.adjustLEDs(display, e);
         display.svg.position = display.svg.bounds.bottomLeft;
          _.each(e.diff, function(diffuser) {

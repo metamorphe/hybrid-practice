@@ -2,8 +2,8 @@ function Generator(){
         this.length = 72;
         this.ws = new WebStorage();
         this.diffuser = "Planar";
-        this.model = "TIR";
-        this.export = "MOLD";
+        this.model = "Splitter";
+        this.export = "CONE";
        
         this.c_norm = 0.5;
         this.c_uni = 0.5;
@@ -155,7 +155,15 @@ function Generator(){
         getGradient: function(){
           var params = this.generate();
           var model = eval(this.model);
-          return model.getGradient(this.export, params);
+          result = {reflector: model.getGradient("REFL", params)}
+          if(this.model == "TIR") _.extend(result, {dome: model.getGradient("DOME", params), domeWidth: params.dome.width})
+          if(this.model == "Splitter") _.extend(result, 
+            {
+              mold: model.getGradient("MOLD", params), 
+              cone: model.getGradient("CONE", params),
+              prism: params.prism
+          })
+          return result;
         },
         fabricate: function(){
           var params = this.generate();
@@ -289,7 +297,7 @@ function Generator(){
 
 const PROFILE_SAMPLING = 0.01;
 
-Generator.profileToGradient = function(params, profile, invert = false){
+Generator.profileToGradient = function(params, profile, invert = false, offset){
   // console.log(profile);
     profile.scaling = new paper.Size(1/profile.bounds.width, 1/profile.bounds.height);
     var origin = profile.bounds.bottomRight.clone();
@@ -314,6 +322,7 @@ Generator.profileToGradient = function(params, profile, invert = false){
       if(y < 0.02) y = Ruler.mm2pts(0.10) / total_ref_height; // stop holes 
       if(x == 1) y = 1.0; // make sure it ends on white
       if(invert) y = 1.0 - y;
+      if(offset) y = y + offset < 1 ? y + offset : 1.0;
       return [new paper.Color(y), x]
     }).sortBy(function(g){ return g[1]; })
     .unique(function(g){ return g[1]; })

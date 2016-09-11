@@ -173,160 +173,240 @@ Pipeline.script = {
         result.model_height = DIFUSSER_HEIGHT;
     },
     cone_lens: function(display, e) {
-        var ws = new WebStorage();
-        var box = new paper.Path.Rectangle(paper.view.bounds);
-        box.set({
-              position: paper.view.center,
-              fillColor: '#111'
-        }); 
-        
-        this.adjustLEDs(display, e);
+        var g = new Generator();
+        g.model = "Splitter";
 
-        var result = new paper.Group({
-          name: "RESULT: LENS",
-          model_height: REFLECTOR_HEIGHT
-        });
+        var result = new paper.Group();
+        // this.makeFromProfile(display, e, g);
 
-       
-        var lenses = new paper.Group({
-            parent: result
-        });
-       
-        _.each(e.diff, function(diff) {
+        // HARD_CODE_DIFFUSER ASSOCIATIONS
+        e.diff[0].diffuser = "Planar";
+        e.diff[1].diffuser = "Planar";
+        e.diff[2].diffuser = "Hemisphere";
+        e.diff[3].diffuser = "Cuboid";
+
+
+        cones = _.map(e.diff, function(diff) {
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
-            if (dleds.length == 0) { diff.fillColor = "black"; return; }
 
-            _.each(dleds, function(led){
-                var slices = getSlices(ws, box, led, diff);
-                var slices = _.map(slices, function(slice){  
-                    // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
-                    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                    CanvasUtil.call(removeable, "remove");    
-                    params = Splitter.getOptimal(ws, slice.length);
-                    var scene = Splitter.makeScene(box, params);
-                    paper.view.update();
-                    moldStops = Splitter.moldGradient(params);
-                   
-                    // GENERATE GRADIENT
-                    return {  angleIn: slice.angleIn, 
-                            angleOut: slice.angleOut, 
-                            radius: params.prism.width,
-                            mold_gradient: {
-                              stops: moldStops, 
-                              radial: true
-                            }
-                         };
-                });
-                 var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                CanvasUtil.call(removeable, "remove");  
+            var ils = interpolation_lines(diff, dleds, visible=false);
+            var lines = _.map(ils, function(il){ return {line: il.line, led: il.led, roundedLength: parseInt(il.line.length)}});
+            
 
-                m = LensGenerator.makeCDome(slices, "mold_gradient", led.position);
+            var cache_gradients = _.chain(lines)
+                .unique(function(l){ return l.roundedLength})
+                .map(function(l){
+                  g.length = l.roundedLength;
+                  g.random = false;
+                  g.diffuser = diff.diffuser;
+                  return { roundedLength: l.roundedLength,  gradients: g.getGradient(), line: l.line};
+                })
+                .groupBy("roundedLength")
+                .value();
 
-                m = new paper.Group({
-                  name: "COLLIMATOR: Custom Lens",
-                  children: m, 
-                  parent: lenses
-                });  
-                 var c = new paper.Path.Circle({
-                    radius: _.chain(slices).pluck("radius").max().value(), 
-                    position: led.position, 
-                    strokeWidth: Ruler.mm2pts(MOLD_WALL), 
-                    strokeColor: "white",
-                    strokeScaling: true,
-                    // parent: m,
-                });
-
-                  wall = c.expand({
-                     strokeAlignment: "exterior", 
-                     strokeWidth: 0.1,
-                     strokeOffset: Ruler.mm2pts(MOLD_WALL), 
-                     fillColor: "white", 
-                     joinType: "miter", 
-                     parent: m
-                  });
-                  wall.sendToBack();
-                  c.remove();
-                Splitter.makeWings(m, lenses, "white");
-                m.bringToFront();
+            var average_cone = _.reduce(lines, function(memo, l){
+                var length = l.roundedLength;
+                var cache = cache_gradients[length][0];
+                return memo + cache.gradients.prism.width;
+            }, 0); 
+            var max_cone_height = _.max(lines, function(l){
+                var length = l.roundedLength;
+                var cache = cache_gradients[length][0];
+                l.max =  cache.gradients.prism.height;
+                return cache.gradients.prism.height;
             });
-        }); 
-
-        
-        box.remove();
-        // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.diff, e.leds]));
-        Pipeline.set_visibility(invisible, false);
-    },
-    cones: function(display, e){
-         // var ws = new WebStorage();
-         var g = new Generator();
-        var box = new paper.Path.Rectangle(paper.view.bounds);
-        box.set({
-              position: paper.view.center,
-              fillColor: '#111'
-        }); 
-        
-        this.adjustLEDs(display, e);
-
-        var result = new paper.Group({
-          name: "RESULT: LENS",
-          model_height: REFLECTOR_HEIGHT
+            // console.log("MAX HEIGHT", max_cone_height.max) 
+            average_cone /= lines.length;
+            // console.log("AVG", average_cone)
+            average_cone_line = _.min(lines, function(l){
+                var length = l.roundedLength;
+                var cache = cache_gradients[length][0];
+                return Math.abs(average_cone - cache.gradients.prism.width);
+            });
+            average_gradient = cache_gradients[average_cone_line.roundedLength][0].gradients.mold;
+                var base = new paper.Path.Circle({
+                    parent: result,
+                    radius: average_cone + 5, 
+                    fillColor: new paper.Color(1.0), 
+                    position: lines[0].led.position, 
+                });
+                var cone = new paper.Path.Circle({
+                    parent: result,
+                    radius: average_cone, 
+                    fillColor: "yellow", 
+                    position: lines[0].led.position, 
+                });
+                cone.fillColor = {
+                    gradient: {
+                        stops: average_gradient,
+                        radial: true
+                    },
+                    origin: cone.bounds.center,
+                    destination: cone.bounds.topCenter.clone()
+                }
+                assembly = new paper.Group({
+                    parent: result, 
+                    children: [base, cone]
+                })
+            return {cone: assembly, height: max_cone_height.max};
         });
-
+        // PACKING
+        geoms = _.pluck(cones, "cone");
        
-        var lenses = new paper.Group({
+        // one row
+        var w =  _.max(_.map(geoms, function(g){  return g.bounds.width}));
+        var h =  _.max(_.map(geoms, function(g){  return g.bounds.height}));
+        w *= 1.1;
+        h *= 1.1;
+        var pack = new paper.Group({
             parent: result
+        })
+        _.each(geoms, function(g, i){
+            reshape_x = i % 2;
+            reshape_y = parseInt(i / 2);
+            g.position.x = paper.view.center.x + (w * reshape_x);
+            g.position.y = paper.view.center.y + (h * reshape_y);
+            g.parent = pack; 
         });
-        _.each(e.diff, function(diff) {
-            dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
-            if (dleds.length == 0) { diff.fillColor = "black"; return; }
+        pack.position = paper.view.center;
 
-            _.each(dleds, function(led){
-                var slices = getSlices(ws, box, led, diff);
-                var slices = _.map(slices, function(slice){  
-                    // OBTAIN OPTIMIZED DOME SLICE FOR GIVEN DISTANCE
-                    var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                    CanvasUtil.call(removeable, "remove");  
-                    g.length = slice.length;
-                    g.random = false;
-                    var scene = g.generate();
-                    paper.view.update();
-                    coneStops = Splitter.coneGradient(params);
-                    console.log(params);
-                    // GENERATE GRADIENT
-                    return {  angleIn: slice.angleIn, 
-                            angleOut: slice.angleOut, 
-                            radius: params.prism.width,
-                            height: params.prism.height,
-                            cone_gradient: {
-                              stops: coneStops, 
-                              radial: true
-                            }
-                         };
-                });
-                 var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
-                CanvasUtil.call(removeable, "remove");  
-                max_height = _.chain(slices).pluck("height").max().value();
-
-                c = LensGenerator.makeCDome(slices, "cone_gradient", led.position);  
-                c = new paper.Group({
-                  name: "COLLIMATOR: Custom Lens",
-                  children: c, 
-                  parent: lenses
-                });    
-                var cone_assembly_height = max_height + WING_HEIGHT;
-                result.model_height = Ruler.pts2mm(cone_assembly_height);
-                Splitter.makeWings(c, lenses, new paper.Color(WING_HEIGHT / cone_assembly_height));
-
-                c.bringToFront();            
-            });
+        var backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds, 
+            parent: result,
+            fillColor: "black"
         }); 
+        backgroundBox.sendToBack();
 
-        
-        box.remove();
+
+        // END PACKING
+        var MAX_HEIGHT = Ruler.mm2pts(10);//_.max(_.pluck(cones, 'height'));
+        // MAX_HEIGHT /= 0.90; //adding the base
+        console.log("CONES", MAX_HEIGHT);
         // INVISIBILITY
         var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.leds]));
         Pipeline.set_visibility(invisible, false);
+        result.name = "RESULT: CONES LENSES";
+        result.model_height = Ruler.pts2mm(MAX_HEIGHT);
+        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+        CanvasUtil.call(removeable, "remove"); 
+    },
+    cones: function(display, e){
+        var g = new Generator();
+        g.model = "Splitter";
+
+        var result = new paper.Group();
+        // this.makeFromProfile(display, e, g);
+
+        // HARD_CODE_DIFFUSER ASSOCIATIONS
+        e.diff[0].diffuser = "Planar";
+        e.diff[1].diffuser = "Planar";
+        e.diff[2].diffuser = "Hemisphere";
+        e.diff[3].diffuser = "Cuboid";
+
+
+        cones = _.map(e.diff, function(diff) {
+            dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
+
+            var ils = interpolation_lines(diff, dleds, visible=false);
+            var lines = _.map(ils, function(il){ return {line: il.line, led: il.led, roundedLength: parseInt(il.line.length)}});
+            
+
+            var cache_gradients = _.chain(lines)
+                .unique(function(l){ return l.roundedLength})
+                .map(function(l){
+                  g.length = l.roundedLength;
+                  g.random = false;
+                  g.diffuser = diff.diffuser;
+                  return { roundedLength: l.roundedLength,  gradients: g.getGradient(), line: l.line};
+                })
+                .groupBy("roundedLength")
+                .value();
+
+            var average_cone = _.reduce(lines, function(memo, l){
+                var length = l.roundedLength;
+                var cache = cache_gradients[length][0];
+                return memo + cache.gradients.prism.width;
+            }, 0); 
+            var max_cone_height = _.max(lines, function(l){
+                var length = l.roundedLength;
+                var cache = cache_gradients[length][0];
+                l.max =  cache.gradients.prism.height;
+                return cache.gradients.prism.height;
+            });
+            // console.log("MAX HEIGHT", max_cone_height.max) 
+            average_cone /= lines.length;
+            // console.log("AVG", average_cone)
+            average_cone_line = _.min(lines, function(l){
+                var length = l.roundedLength;
+                var cache = cache_gradients[length][0];
+                return Math.abs(average_cone - cache.gradients.prism.width);
+            });
+            average_gradient = cache_gradients[average_cone_line.roundedLength][0].gradients.cone;
+                var base = new paper.Path.Circle({
+                    parent: result,
+                    radius: average_cone + 10, 
+                    fillColor: new paper.Color(0.1), 
+                    position: lines[0].led.position, 
+                });
+                var cone = new paper.Path.Circle({
+                    parent: result,
+                    radius: average_cone, 
+                    fillColor: "yellow", 
+                    position: lines[0].led.position, 
+                });
+                cone.fillColor = {
+                    gradient: {
+                        stops: average_gradient,
+                        radial: true
+                    },
+                    origin: cone.bounds.center,
+                    destination: cone.bounds.topCenter.clone()
+                }
+                assembly = new paper.Group({
+                    parent: result, 
+                    children: [base, cone]
+                })
+            return {cone: assembly, height: max_cone_height.max};
+        });
+        // PACKING
+        geoms = _.pluck(cones, "cone");
+       
+        // one row
+        var w =  _.max(_.map(geoms, function(g){  return g.bounds.width}));
+        var h =  _.max(_.map(geoms, function(g){  return g.bounds.height}));
+        w *= 1.1;
+        h *= 1.1;
+        var pack = new paper.Group({
+            parent: result
+        })
+        _.each(geoms, function(g, i){
+            reshape_x = i % 2;
+            reshape_y = parseInt(i / 2);
+            g.position.x = paper.view.center.x + (w * reshape_x);
+            g.position.y = paper.view.center.y + (h * reshape_y);
+            g.parent = pack; 
+        });
+        pack.position = paper.view.center;
+
+        var backgroundBox = new paper.Path.Rectangle({
+            rectangle: result.bounds, 
+            parent: result,
+            fillColor: "black"
+        }); 
+        backgroundBox.sendToBack();
+
+
+        // END PACKING
+        var MAX_HEIGHT = _.max(_.pluck(cones, 'height'));
+        MAX_HEIGHT /= 0.90; //adding the base
+        console.log("CONES", MAX_HEIGHT);
+        // INVISIBILITY
+        var invisible = _.compact(_.flatten([e.diff, e.art, e.dds, e.bo, e.bi, e.cp, e.base, e.mc, e.wires, e.leds]));
+        Pipeline.set_visibility(invisible, false);
+        result.name = "RESULT: CONES";
+        result.model_height = Ruler.pts2mm(MAX_HEIGHT);
+        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+        CanvasUtil.call(removeable, "remove"); 
     },
     side_emit_reflector: function(display, e){
         var g = new Generator();
@@ -344,7 +424,7 @@ Pipeline.script = {
         var g = new Generator();
         g.model = "TIR";
         g.export = "MOLD";
-        this.makeFromProfile(display, e, g, chassis = false);
+        this.makeFromProfile(display, e, g, chassis = false, dome=true);
     },
     reflector: function(display, e) {
         var g = new Generator();
@@ -352,7 +432,7 @@ Pipeline.script = {
         g.export = "REFL";
         this.makeFromProfile(display, e, g);
     },
-    makeFromProfile: function(display, e, g, chassis=true) {
+    makeFromProfile: function(display, e, g, chassis=true, dome=false) {
         this.adjustLEDs(display, e);
         if(chassis)
             var all = _.flatten([e.base, e.diff, e.leds]);
@@ -379,7 +459,7 @@ Pipeline.script = {
             // if(diff.diffuser != "Hemisphere") return new paper.Group();
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
             var ils = interpolation_lines(diff, dleds, visible=false);
-            var lines = _.map(ils, function(il){ return {line: il.line, roundedLength: parseInt(il.line.length)}});
+            var lines = _.map(ils, function(il){ return {line: il.line, led: il.led, roundedLength: parseInt(il.line.length)}});
 
             var cache_gradients = _.chain(lines)
                 .unique(function(l){ return l.roundedLength})
@@ -387,25 +467,67 @@ Pipeline.script = {
                   g.length = l.roundedLength;
                   g.random = false;
                   g.diffuser = diff.diffuser;
-                  return { roundedLength: l.roundedLength,  ramp: g.getGradient(), line: l.line};
+                  return { roundedLength: l.roundedLength,  gradients: g.getGradient(), line: l.line};
                 })
                 .groupBy("roundedLength")
                 .value();
 
-
+            // // MAKE RAMPS
             var ramp_lines = _.map(lines, function(l){
                 var length = l.roundedLength;
-                var gradient = cache_gradients[length][0].ramp;
+                var gradient = cache_gradients[length][0].gradients.reflector;
                 return { ramp: gradient, line: l.line};
-            }); 
+            });             
+            ramps = rampify(ramp_lines, result);
+//  
+            if(dome){
+                // MAKE DOMES
+                var average_dome = _.reduce(lines, function(memo, l){
+                    var length = l.roundedLength;
+                    var cache = cache_gradients[length][0];
+                    return memo + cache.gradients.domeWidth;
+                }, 0); 
+                average_dome /= lines.length;
 
-            // MAKE RAMPS
-            return rampify(ramp_lines);
-            return new paper.Group();
+                average_dome_line = _.min(lines, function(l){
+                    var length = l.roundedLength;
+                    var cache = cache_gradients[length][0];
+                    return Math.abs(average_dome - cache.gradients.domeWidth);
+                });
+                average_gradient = cache_gradients[average_dome_line.roundedLength][0].gradients.dome;
+                var dome = new paper.Path.Circle({
+                    parent: result,
+                    radius: average_dome, 
+                    fillColor: "yellow", 
+                    position: lines[0].led.position, 
+                });
+                dome.fillColor = {
+                    gradient: {
+                        stops: average_gradient,
+                        radial: true
+                    },
+                    origin: dome.bounds.center,
+                    destination: dome.bounds.topCenter.clone()
+                }
+            }
+            // var dome_lines = _.map(lines, function(l){
+
+            // var length = l.roundedLength;
+            // var cache = cache_gradients[length][0];
+            // console.log(cache.gradients.domeWidth);
+            // // var domelength = cache.gradients.domeWidth;
+            // // l.line.lastSegment.point = l.line.getPointAt(domelength);
+            // // var gradient = cache.gradients.dome;
+            // // return { ramp: gradient, line: l.line};
+            // }); 
+            
+            
+            // domes = rampify(dome_lines);
+           return ramps;
+           return new paper.Group();
         });
 
 
-        result.addChildren(ramps);
 
         if(chassis){
             var mc = this.adjustMC(display, e, backgroundBox);
