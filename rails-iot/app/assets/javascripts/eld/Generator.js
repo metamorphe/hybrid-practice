@@ -158,6 +158,14 @@ function Generator(){
         },
         anneal: function(){
           var scope = this;
+          if(this.model == "noLens"){
+            scope.params = this.generateOptimal();
+            scope.params.costs = scope.fire();
+            console.log("COST", scope.params.costs);
+            return scope.storeSolution(scope.params);
+          }
+         
+
           var model = eval(this.model);
           generatorSolution = JSON.stringify(this.generateRandom());
           var SCALE = 1;
@@ -214,7 +222,7 @@ function Generator(){
           var scope = this;
           // lengths = _.range(25, 200, 5);
           // lengths = this.get_eval_lengths();
-           lengths = _.range(200, 800, 20);
+           lengths = _.range(0, 800, 5);
           console.log("STARTING BATCH ANNEAL PROCESS");
           _.each(lengths, function(l, i){
             scope.length = l;
@@ -325,9 +333,23 @@ function Generator(){
             var info = scope.decodeKey(k);
             if(_.isNull(info)) return null;
 
-            var costs = JSON.parse(scope.ws.get(k)).costs;
-            for(var key in costs) info[key] = costs[key];
-            return info;
+            var data = JSON.parse(scope.ws.get(k));
+            for(var key in data.costs) info[key] = data.costs[key];
+            if(info.model == "noLens"){
+              // console.log(data);
+              // info["rampAA"] = 1;
+              // info["rampAB"] = 1;
+              // info["rampBA"] = 0;
+              // info["rampBB"] = 0;
+              // console.log("INFO", info)
+              return info;
+            } else{
+              info["rampAA"] = data.ramp.a.alpha;
+              info["rampAB"] = data.ramp.a.beta;
+              info["rampBA"] = data.ramp.b.alpha;
+              info["rampBB"] = data.ramp.b.beta;
+              return info;
+            }
           })
           .compact()
           .filter(function(entry){ return entry.diffuser == "Planar"})
@@ -336,7 +358,7 @@ function Generator(){
           })
           .value().join('\n');
 
-          saveAs(new Blob(["Model,Diffuser,Length,Uniformity,Normality,Cost\n" + entries], {type:"text/csv"}), "simulation_results" + ".csv")
+          saveAs(new Blob(["Model,Diffuser,Length,Coverage,Directionality,Cost,Efficiency,RampAA, RampAB, RampBA, RampBB\n" + entries], {type:"text/csv"}), "simulation_results" + ".csv")
 
           // .groupBy(function(e){
           //   return e.model
@@ -379,9 +401,11 @@ function Generator(){
           return [this.model, this.diffuser, this.length].join("_"); 
         },
         decodeKey: function(k){
+
           if(k.split("_").length <= 1) return null;
           else{
             d = k.split("_");
+            if(_.isNaN(parseFloat(d[2]))) return null;
             return {model: d[0], diffuser: d[1], length: parseFloat(d[2])}
           }
         }, 

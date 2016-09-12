@@ -2,7 +2,7 @@
 var zb, cp, bb, vm, pm, gui, displays = []; 
 var p = Pipeline;
 var files = <%= @files.to_json.html_safe %>;
-var DEFAULT_PIPE_FILE = "Texas.svg";
+var DEFAULT_PIPE_FILE = "user303_cp.svg";
 
 $(function(){
   Utility.paperSetup($('#myCanvas'));
@@ -30,7 +30,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  $('#view-list ul li button[name="reflector"]').click();
+  $('#view-list ul li button[name="diffuser"]').click();
 });
 </script>
 </head>
@@ -87,6 +87,11 @@ $(function(){
             </li>
             <li>
                 <span>BASE</span> <button name="base" class="view btn btn-sm btn-warning">B</button>
+            </li>
+              <br> 
+
+            <li>
+                <span>CODE</span> <button name="code" class="view btn-sm btn btn-warning">C</button>
             </li>
         </ul>
     </div>

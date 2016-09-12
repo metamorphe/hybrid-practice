@@ -3,7 +3,8 @@
 
       $(function(){
         paperSetup();
-        var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
+        var display = new Artwork("/userstudy/user303.svg", function(artwork){
+        // var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
            CanvasUtil.call(CanvasUtil.queryPrefix("NP"), "remove");
           
            artwork.svg.position = paper.view.center;

@@ -90,23 +90,22 @@ Pipeline.script = {
         var result = new paper.Group({name: "RESULT: MOLD"});
 
         _.each(e.diff, function(diffuser) {
-            diffuser.set({
-                visible: true,
-                fillColor: "black",
-                strokeWidth: 0, 
-                parent: result
-            });
-
-            var expanded  = diffuser.expand({
+             var expanded  = diffuser.expand({
                 strokeAlignment: "exterior", 
                 strokeWidth: 0.1,
-                strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+                strokeOffset: 4,//Ruler.mm2pts(MOLD_WALL), 
                 strokeColor: "black", 
                 fillColor: "white", 
                 joinType: "miter", 
                 parent: result
             });
-            expanded.sendToBack();
+            diffuser.set({
+                visible: true,
+                fillColor: "black",
+                strokeWidth: 0,
+                strokeColor: "white",
+                parent: result
+            });
         });
 
         
@@ -128,15 +127,46 @@ Pipeline.script = {
     },
     diffuser: function(display, e) {
         this.adjustLEDs(display, e);
-        _.each(e.diff, function(diffuser) {
+
+        var all = _.flatten([e.base, e.diff]);
+        var result = new paper.Group(all);
+
+        _.each(e.diff, function(diffuser, i) {
+           if(i == 0) {
+            diffuser.sendToBack();
             diffuser.set({
                 visible: true,
                 fillColor: "black",
-                strokeWidth: 0
+                strokeWidth: 2, 
+                strokeColor: "white", 
+                // opacity: 0.5
             });
+        }else{
+             var expanded  = diffuser.expand({
+                strokeAlignment: "exterior", 
+                // strokeWidth: 4,
+                // strokeWidth: 0.1,
+                strokeOffset: 4, 
+                // strokeColor: "white", 
+                fillColor: "white", 
+                joinType: "square", 
+                name: "EXP: expd",
+                parent: result
+            });
+            
+            diffuser.set({
+                visible: true,
+                fillColor: "black",
+                // strokeWidth: 2, 
+                // strokeColor: "green"
+            });
+            diffuser.bringToFront();
+        }
+        e.diff[0].sendToBack();
+        
+       
         });
-        var all = _.flatten([e.base, e.diff]);
-        var result = new paper.Group(all);
+        
 
         //Creating a bounding box
         backgroundBox = new paper.Path.Rectangle({
@@ -164,9 +194,10 @@ Pipeline.script = {
          height: 'black', 
          parent: result
         });
-        _.each(e.diff, function(diffuser) {
-            diffuser.bringToFront();
-        });
+        
+        // _.each(e.diff, function(diffuser) {
+        //     diffuser.bringToFront();
+        // });
         //Make non-molding objects invisible
         var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base]));
         Pipeline.set_visibility(invisible, false);
@@ -471,6 +502,7 @@ Pipeline.script = {
 
         ramps = _.map(e.diff, function(diff) {
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
+            if(dleds.length == 0) return;
             var ils = interpolation_lines(diff, dleds, visible=false);
             var lines = _.map(ils, function(il){ return {line: il.line, led: il.led, roundedLength: parseInt(il.line.length)}});
 
@@ -533,14 +565,6 @@ Pipeline.script = {
         if(chassis){
             var mc = this.adjustMC(display, e, backgroundBox);
             if(mc){ mc.parent = result; mc.bringToFront();}
-
-            _.each(e.leds, function(led){
-                l = led.clone();
-                l.fillColor = "black";
-                l.strokeColor = "black";
-                l.strokeWidth = 4;
-                result.addChild(l);
-            });
             _.each(e.diff, function(diffuser) {
                 diffuser.bringToFront();
                 diffuser.set({
@@ -549,6 +573,15 @@ Pipeline.script = {
                   strokeWidth: 5
                 })
             });
+            _.each(e.leds, function(led){
+                l = led.clone();
+                l.fillColor = "black";
+                l.strokeColor = "black";
+                l.strokeWidth = 4;
+                result.addChild(l);
+                l.bringToFront();
+            });
+            
             var pegs = Pipeline.create_corner_pegs({ 
              geometry: "circle",
              bounds: backgroundBox.strokeBounds, 
@@ -805,6 +838,14 @@ Pipeline.script = {
                 rotation: rotation
             });
         });
+    }, 
+    code: function(display, e){
+        _.each(e.leds, function(led){
+            if(led.colorID)
+                console.log(led.lid, rgb2hex(led.colorID.toCanvasStyle()));
+            else
+                console.log(led.lid, rgb2hex(led.fillColor.toCanvasStyle()));
+        })
     }
 }
 

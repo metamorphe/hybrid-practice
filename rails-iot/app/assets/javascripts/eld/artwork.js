@@ -157,7 +157,7 @@ Artwork.prototype = {
  				// console.log(led.name);
  				if(led.name.indexOf("{") != -1){
  					led = _.extend(led, JSON.parse(led.name.split("_")[1]));
- 					// console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
+ 					console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
  				}
  			});
 
