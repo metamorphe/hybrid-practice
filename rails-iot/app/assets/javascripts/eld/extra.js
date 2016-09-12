@@ -1,4 +1,17 @@
-  cones: function(display, e){
+ // var dome_lines = _.map(lines, function(l){
+
+            // var length = l.roundedLength;
+            // var cache = cache_gradients[length][0];
+            // console.log(cache.gradients.domeWidth);
+            // // var domelength = cache.gradients.domeWidth;
+            // // l.line.lastSegment.point = l.line.getPointAt(domelength);
+            // // var gradient = cache.gradients.dome;
+            // // return { ramp: gradient, line: l.line};
+            // }); 
+            
+            
+            // domes = rampify(dome_lines);
+              cones: function(display, e){
         // var ws = new WebStorage();
         var g = new Generator();
         var box = new paper.Path.Rectangle(paper.view.bounds);

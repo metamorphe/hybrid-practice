@@ -1,5 +1,20 @@
 
 function Splitter(){}
+Splitter.neighbor = function(params){
+  // lens and led are fixed
+  params.ramp.a.alpha = normNeighbor(params.ramp.a.alpha);
+  params.ramp.a.beta = normNeighbor(params.ramp.a.beta);
+
+  params.ramp.b.alpha = normNeighbor(params.ramp.b.alpha);
+  params.ramp.b.beta = normNeighbor(params.ramp.b.beta);
+
+  var ratio = params.prism.height / Ruler.mm2pts(8);
+  var nratio = normNeighbor(ratio);  
+  params.prism.height = Ruler.mm2pts(8) * nratio;
+  params.collimator.height = (Ruler.mm2pts(10) - params.prism.height) / 2.0 * Math.random(); 
+  return params;
+}
+
 Splitter.random = function(length){
   params = {
     lens: {
@@ -8,7 +23,7 @@ Splitter.random = function(length){
     }, 
     collimator: {
       width: Ruler.mm2pts(4), // fixed
-      gap: Ruler.mm2pts(1) // above the LED
+      gap: Ruler.mm2pts(1) // fixed, above the LED
     }, 
     led: {
       width: Ruler.mm2pts(5), //fixed

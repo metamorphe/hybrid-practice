@@ -213,7 +213,8 @@ function Generator(){
           var t_start = d.getTime();
           var scope = this;
           // lengths = _.range(25, 200, 5);
-          lengths = this.get_eval_lengths();
+          // lengths = this.get_eval_lengths();
+           lengths = _.range(200, 800, 20);
           console.log("STARTING BATCH ANNEAL PROCESS");
           _.each(lengths, function(l, i){
             scope.length = l;
@@ -282,7 +283,7 @@ function Generator(){
           var d = new Date();
           var t_start = d.getTime();
           var scope = this;
-          // lengths = _.range(25, 200, 5);
+          lengths = _.range(15, 30, 5);
           lengths = this.get_eval_lengths();
           console.log("STARTING BATCH PROCESS");
           _.each(lengths, function(l, i){
@@ -297,9 +298,9 @@ function Generator(){
         }, 
         getGradient: function(){
           var params = this.generateOptimal();
-          console.log(this.model);
+          // console.log(this.model);
           var model = eval(this.model);
-          console.log(params)
+          // console.log(params)
           result = {reflector: model.getGradient("REFL", params)}
 
           if(this.model == "TIR") _.extend(result, {dome: model.getGradient("DOME", params), domeWidth: params.dome.width})

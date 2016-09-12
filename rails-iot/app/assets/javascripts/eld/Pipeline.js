@@ -1,3 +1,6 @@
+const SWATCH_ON = false;
+
+// 
 const WING_HEIGHT = Ruler.mm2pts(1.5); 
 const WING_OFFSET = Ruler.mm2pts(2);
      
@@ -179,12 +182,15 @@ Pipeline.script = {
         var result = new paper.Group();
         // this.makeFromProfile(display, e, g);
 
-        // HARD_CODE_DIFFUSER ASSOCIATIONS
-        e.diff[0].diffuser = "Planar";
-        e.diff[1].diffuser = "Planar";
-        e.diff[2].diffuser = "Hemisphere";
-        e.diff[3].diffuser = "Cuboid";
-
+        if(SWATCH_ON){
+            var model = MODEL_TO_GENERATE;
+            e.diff[0].diffuser = "Planar";
+            e.diff[1].diffuser = "Planar";
+            e.diff[2].diffuser = "Hemisphere";
+            e.diff[3].diffuser = "Cuboid";
+        }else{
+             _.each(e.diff, function(d){ d.diffuser = "Planar"}); 
+        }
 
         cones = _.map(e.diff, function(diff) {
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
@@ -297,11 +303,15 @@ Pipeline.script = {
         var result = new paper.Group();
         // this.makeFromProfile(display, e, g);
 
-        // HARD_CODE_DIFFUSER ASSOCIATIONS
-        e.diff[0].diffuser = "Planar";
-        e.diff[1].diffuser = "Planar";
-        e.diff[2].diffuser = "Hemisphere";
-        e.diff[3].diffuser = "Cuboid";
+       if(SWATCH_ON){
+            var model = MODEL_TO_GENERATE;
+            e.diff[0].diffuser = "Planar";
+            e.diff[1].diffuser = "Planar";
+            e.diff[2].diffuser = "Hemisphere";
+            e.diff[3].diffuser = "Cuboid";
+        }else{
+             _.each(e.diff, function(d){ d.diffuser = "Planar"}); 
+        }
 
 
         cones = _.map(e.diff, function(diff) {
@@ -440,12 +450,16 @@ Pipeline.script = {
             var all = _.flatten([e.diff]);
 
         // HARD_CODE_DIFFUSER ASSOCIATIONS
-        var model = MODEL_TO_GENERATE;
-        e.diff[0].diffuser = "Planar";
-        e.diff[1].diffuser = "Planar";
-        e.diff[2].diffuser = "Hemisphere";
-        e.diff[3].diffuser = "Cuboid";
-
+        if(SWATCH_ON){
+            var model = MODEL_TO_GENERATE;
+            e.diff[0].diffuser = "Planar";
+            e.diff[1].diffuser = "Planar";
+            e.diff[2].diffuser = "Hemisphere";
+            e.diff[3].diffuser = "Cuboid";
+        }else{
+             _.each(e.diff, function(d){ d.diffuser = "Planar"}); 
+        }
+       
         var result = new paper.Group(all);
         backgroundBox = new paper.Path.Rectangle({
             rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
@@ -456,7 +470,6 @@ Pipeline.script = {
        
 
         ramps = _.map(e.diff, function(diff) {
-            // if(diff.diffuser != "Hemisphere") return new paper.Group();
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
             var ils = interpolation_lines(diff, dleds, visible=false);
             var lines = _.map(ils, function(il){ return {line: il.line, led: il.led, roundedLength: parseInt(il.line.length)}});
@@ -479,7 +492,7 @@ Pipeline.script = {
                 return { ramp: gradient, line: l.line};
             });             
             ramps = rampify(ramp_lines, result);
-//  
+// //  
             if(dome){
                 // MAKE DOMES
                 var average_dome = _.reduce(lines, function(memo, l){
@@ -510,19 +523,7 @@ Pipeline.script = {
                     destination: dome.bounds.topCenter.clone()
                 }
             }
-            // var dome_lines = _.map(lines, function(l){
-
-            // var length = l.roundedLength;
-            // var cache = cache_gradients[length][0];
-            // console.log(cache.gradients.domeWidth);
-            // // var domelength = cache.gradients.domeWidth;
-            // // l.line.lastSegment.point = l.line.getPointAt(domelength);
-            // // var gradient = cache.gradients.dome;
-            // // return { ramp: gradient, line: l.line};
-            // }); 
-            
-            
-            // domes = rampify(dome_lines);
+           
            return ramps;
            return new paper.Group();
         });
@@ -796,7 +797,10 @@ Pipeline.script = {
 
         _.each(e.leds, function(led) {
             if(_.isUndefined(config)) rotation = 0;
-            else rotation = _.findWhere(config, {id: led.lid}).theta;
+            else{
+                rotation = _.findWhere(config, {id: led.lid});
+                if(rotation) rotation = rotation.theta
+            }
             led.set({
                 rotation: rotation
             });

@@ -46,7 +46,7 @@ function interpolation_lines(diffuser, leds, visible=false) {
             visible: visible
         });
         cross = l.getIntersections(diffuser);
-        if(cross.length >= 2){ l.lastSegment.point = cross[0].point; return l;}
+        if(cross.length >= 2){ l.lastSegment.point = cross[0].point; return {line: l, led: closest};}
         return {line: l, led: closest};
     });
 }

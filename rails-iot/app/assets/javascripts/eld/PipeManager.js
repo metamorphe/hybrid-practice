@@ -23,9 +23,9 @@ PipeManager.prototype = {
       scope.update();
     });
     // populate SELECT
-    var els = _.map(files.filenames, function(el, i, arr){
+    var els = _.map(files, function(el, i, arr){
       var dom =  $('<option></options>').html(el.title.toUpperCase())
-      .attr('value', files.path + el.filename);
+      .attr('value', el.path + el.filename);
       if(el.filename == DEFAULT_PIPE_FILE) dom.attr('selected', true);
       return dom;
     });

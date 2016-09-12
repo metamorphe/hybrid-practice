@@ -18,12 +18,12 @@
   }
 
   function loadFiles2(){
-    var els = _.map(files.filenames, function(el, i, arr){
+    var els = _.map(files, function(el, i, arr){
         var dom = $('<div class="file-option responsive-container col-xs-3 no-select">' +
               '<div class="dummy"></div>' +
               '<div class="img-container no-select">' + '</div>' +
           '</div>');
-        var img = $('<img src="' + (files.path + el.filename) + '" alt="'+ el.title + '" title="' + el.title + '"/>');
+        var img = $('<img src="' + (el.path + el.filename) + '" alt="'+ el.title + '" title="' + el.title + '"/>');
         var name = $('<p></p>').addClass('').html(el.title);
         var br = $('<br>').addClass('clearfix');
         dom.click(function(){
