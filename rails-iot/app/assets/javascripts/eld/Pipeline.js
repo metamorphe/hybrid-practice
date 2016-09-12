@@ -840,12 +840,13 @@ Pipeline.script = {
         });
     }, 
     code: function(display, e){
-        _.each(e.leds, function(led){
+        console.log(_.map(e.leds, function(led){
             if(led.colorID)
-                console.log(led.lid, rgb2hex(led.colorID.toCanvasStyle()));
+                return "strip.setPixelColor(" + led.lid+ "," + rgb2hex2(led.colorID.toCanvasStyle()) +");";
             else
-                console.log(led.lid, rgb2hex(led.fillColor.toCanvasStyle()));
-        })
+
+               return "strip.setPixelColor(" + led.lid+ "," + rgb2hex2(led.fillColor.toCanvasStyle()) +");";
+        }).join('\n'));
     }
 }
 
