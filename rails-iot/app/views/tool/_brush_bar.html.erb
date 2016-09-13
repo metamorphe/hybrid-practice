@@ -82,7 +82,13 @@ function BrushBar(container){
         });
         
         $('#cache-clear').click(function(){
-          CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "remove");
+          var leds = CanvasUtil.queryPrefix("NLED");
+          _.each(leds, function(led){
+            var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: led.id});
+            CanvasUtil.call(rays, "remove");
+            led.remove();
+          })
+          paper.view.update();
           $('#cache-save').click();
         });
         $('#cache-reload').click(function(){
