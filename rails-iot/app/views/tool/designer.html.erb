@@ -1,6 +1,6 @@
    <script type="text/javascript">
       var zb, cp, bb, vm, sm, displays = [];
-
+       
       $(function(){
         paperSetup();
         // var display = new Artwork("/userstudy/user303.svg", function(artwork){
@@ -12,7 +12,7 @@
         
            vm = new ViewManager($('#views'));
            $('img[tool="LEDPlacerBrush"]').click();
-
+           $('#cache-reload').click();
         });
         displays.push(display);
         sm = new SelectionManager();
@@ -22,6 +22,13 @@
         bb = new BrushBar($('#brush-bar'));
 
         $("#shade").fadeOut("slow");
+
+        var confirmOnPageExit = function (e) 
+        {
+          $('#cache-save').click();
+          // return "Make sure you save!";
+        };
+        window.onbeforeunload = confirmOnPageExit;
       });
 
       function paperSetup(){
@@ -45,11 +52,14 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="/"><b id='logo'>ELD </b></a>
+      
     </div>
+
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
+      
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -64,7 +74,23 @@
             <li><a href="#" data-toggle="modal" data-target="#about">About ELD</a></li>
           </ul>
         </li>
+        <li>
+           <a id="cache-save" class=" pull-left navbar-link btn btn-xs btn-transparent">
+          <span class="glyphicon glyphicon-floppy-disk"></span>
+              SAVE
+          </a>
+          <a id="cache-reload" class="pull-left navbar-link btn btn-xs btn-transparent">
+            <span class="glyphicon glyphicon-refresh"></span>
+              RELOAD
+          </a>
+          <a id="cache-clear" class=" pull-left navbar-link btn btn-xs btn-transparent">
+            <span class="glyphicon glyphicon-ban-circle"></span>
+              CLEAR LEDS
+          </a>
+         
+      </li>
       </ul>
+
 
       <!-- USER DROPDOWN -->
       <ul class="nav navbar-nav navbar-right">
