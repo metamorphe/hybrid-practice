@@ -5,6 +5,7 @@
 		this.container = container;
 		this.state = true;
 		this.view = "NORMAL";
+		this.last_view = "NORMAL"
 		this.init();
 		this.show();
 	}
@@ -36,6 +37,11 @@
 		},
 		update: function(){
 			var view = this.getCurrentView();
+			if(this.last_view != view){ 
+				this.last_view = view; 
+				sm.selection = []; 
+				sm.update();
+			}
 			console.log("VIEW", view);
 			
 					
@@ -49,11 +55,13 @@
 						var show = [e.art, e.diff, e.leds, e.dds, e.base, e.wires];
 						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi];
 
-						CanvasUtil.set(e.leds, {
-							fillColor: "#FFFFFF", 
-							strokeColor: "black",
-							strokeWidth: 1, 
-							opacity: 1.0
+						_.each(e.leds, function(led){
+							led.set({
+								fillColor: led.colorID ? led.colorID : "#FFFFFF", 
+								strokeColor: "black",
+								strokeWidth: 1, 
+								opacity: 1.0
+							});
 						});
 						CanvasUtil.set(e.diff, {
 								fillColor: "#DFDFDF", 
@@ -142,6 +150,7 @@
 					default:
 						break;
 				}
+				
 				CanvasUtil.set(_.flatten(show), "visible", true);
 				CanvasUtil.set(_.flatten(hide), "visible", false);
 

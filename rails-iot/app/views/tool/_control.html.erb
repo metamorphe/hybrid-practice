@@ -15,15 +15,30 @@
   ControlCenter.prototype = {
     init: function(){
       // this.hide(true);
+       colors = _.range(0, 361, 10);
+      _.each(colors, function(hue){
+        console.log("CREATING", hue);
+        var c = new paper.Color("red");
+        c.saturation = 0.8;
+        c.hue = hue;
+        var hex = rgb2hex(c.toCanvasStyle());
+        var cDOM = $('<span class="mini-color-swatch"></span>').attr('name', hex);
+        $("#mini-color-palette").append(cDOM);
+      });
+
       var scope = this;
       _.each($('.mini-color-swatch'), function(swatch){
         $(swatch).css('background', $(swatch).attr('name'));
         $(swatch).click(function(){
           var clickedColor = $(swatch).attr('name');
           $("#led-color").val(clickedColor);
-          scope.led.colorID = new paper.Color(clickedColor);
-          scope.led.fillColor = scope.led.colorID;
-          vm.update();
+          _.each(sm.currentSelectedLEDs(), function(led){
+            led.colorID = new paper.Color(clickedColor);
+            led.fillColor = led.colorID;
+            led.strokeColor = led.colorID;
+          });
+          paper.view.update();
+          // vm.update();
           bb.update();
           if(scope.getCurrentColor() != clickedColor){
             $(".color-swatch").not(this)
@@ -37,10 +52,14 @@
 
       $('#led-color').on('input', function() {
         clickedColor = $("#led-color").val();
-        scope.led.colorID = new paper.Color(clickedColor);
-        scope.led.fillColor = scope.led.colorID;
-        vm.update();
-        bb.update();
+        _.each(sm.currentSelectedLEDs(), function(led){
+            led.colorID = new paper.Color(clickedColor);
+            led.fillColor = led.colorID;
+            led.strokeColor = led.colorID;
+        });
+        paper.view.update();
+        // vm.update();
+        // bb.update();
       });
 
       $('#select-target').click(function(){
@@ -136,7 +155,7 @@
   <div id="control-palette">
 
     <ul class="list-group">
-      <li class="list-group-item">
+     <!--  <li class="list-group-item">
         <label> LED </label>
         <em class="badge"> 1 </em> 
       </li>
@@ -155,18 +174,20 @@
             </button>
           </div>
           <br class="clearfix">
-      </li>
-      <li class="list-group-item">
-         <label> APPEARANCE </label>
+      </li> -->
+      <li class="list-group-item" >
+         <!-- <label> APPEARANCE </label> -->
       <br>
         <input id="led-color" type="color" class="form-control color-picker" value="#E74C3C">
         <br class="clearfix">
-        <span class="color-swatch mini-color-swatch" name="#fe6e4b"></span>
-        <span class="color-swatch mini-color-swatch" name="#eeb84b"></span>
-        <span class="color-swatch mini-color-swatch" name="#6ebda7"></span>
-        <span class="color-swatch mini-color-swatch" name="#00A8E1"></span>
-        <span class="color-swatch mini-color-swatch" name="#FFFFFF"></span>
-        <span class="color-swatch mini-color-swatch" name="#000000"></span>
+        <div id="mini-color-palette">
+          <!-- <span class="color-swatch mini-color-swatch" name="#fe6e4b"></span> -->
+          <!-- <span class="color-swatch mini-color-swatch" name="#eeb84b"></span> -->
+          <!-- <span class="color-swatch mini-color-swatch" name="#6ebda7"></span> -->
+          <!-- <span class="color-swatch mini-color-swatch" name="#00A8E1"></span> -->
+          <span class="color-swatch mini-color-swatch" name="#FFFFFF"></span>
+          <!-- <span class="color-swatch mini-color-swatch" name="#000000"></span> -->
+        </div>
         <br class="clearfix">
         <br>
         <!--   <button class="btn btn-sm btn-default"> 

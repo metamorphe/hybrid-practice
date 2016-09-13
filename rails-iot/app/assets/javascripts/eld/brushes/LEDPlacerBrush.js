@@ -1,3 +1,43 @@
+// Using the property s_selected to keep track of element styling
+function SelectionManager(){
+	this.history = {};
+	this.selection = [];
+}
+SelectionManager.prototype = {
+	update: function(){
+		var scope = this;
+		var leds = CanvasUtil.queryPrefix("NLED");
+		var diff = [CanvasUtil.queryPrefix("DIF"), CanvasUtil.queryPrefix("DDS")];
+		var elements = _.flatten([diff, leds]);
+		var selectedElements = _.filter(elements, function(el){ return el.s_selected; });
+		// console.log('SELECTED ELEMENTS')
+		_.each(selectedElements, function(el){
+			scope.select(el, false);
+			el.s_selected = false;
+		})
+		_.each(this.selection, function(el){
+			scope.select(el, true);
+			el.s_selected = true;
+		})
+	}, 
+	select: function(path, set){
+		if(set){
+			this.history[path.id] = {strokeColor: path.strokeColor, dashArray: path.dashArray, strokeWidth: path.strokeWidth};
+			name = Artwork.getPrefix(path);
+			if(name == "NLED")
+				path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
+			else
+				path.set({strokeWidth: 2, dashArray: [], strokeColor: "yellow"})
+		} else{
+			path.set(this.history[path.id]);
+			delete this.history[path.id];
+		}
+	}, 
+	currentSelectedLEDs: function(){
+		var leds = CanvasUtil.queryPrefix("NLED");
+		return _.filter(leds, function(el){ return el.s_selected; });;
+	}
+}
 // LEDPlacerBrush
 function LEDPlacerBrush(paper){
 	var hitOptions = {
@@ -20,107 +60,136 @@ function LEDPlacerBrush(paper){
 	this.target_selection_mode = false;
 	this.prev_style = {}
 
+
+	this.history = {}
+	
+	this.makeLED = function(point, diffs){
+		var led = new paper.Path.Rectangle({
+					name: "NLED: APA102C", 
+					size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
+					position: point, 
+					fillColor: cp.getCurrentColor(), 
+					strokeColor: "black",
+					strokeWidth: 1, 
+					opacity: 1.0,
+					parent: CanvasUtil.queryPrefix("ELD")[0]
+				});
+		var target  = _.filter(diffs, function(diff){ return diff.contains(led.position);});
+		target = _.min(target, function(t){ return t.position.getDistance(led.position)});
+		led.target = target.id;
+		sm.selection.push(target);
+		scope.addRays(diffs, led);
+		vm.update();
+		return led;
+	}
+	this.removeLED = function(led){
+		var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: path.id});
+		CanvasUtil.call(rays, "remove");
+		path.remove();
+	}	
+
 	this.tool.onMouseDown = function(event){
 		var diffs = CanvasUtil.queryPrefix('DIF');
+		// NO SELECTION LOGIC
 		var hitResult = project.hitTest(event.point, hitOptions);
-		if (!hitResult)
+		if (!hitResult){
+			sm.selection = [];
+			sm.update();
 			return;
-
+		} 
 		path = hitResult.item;
 		name = Artwork.getPrefix(path);
-		// console.log("TSM", scope.target_selection_mode)
-	
-		if(scope.target_selection_mode || event.modifiers.shift){
-			if(["DDS", "DIF"].indexOf(name) != -1){
-				this.selected_stroke = path.id;
-				path.strokeColor = "yellow";
-				path.strokeWidth = 2;
-				scope.target_selection_mode = false;
-
-				var led_id = parseInt($(".badge").attr('cid'));
-				if(! _.isNaN(led_id)){
-					var led = CanvasUtil.getIDs([led_id])[0];
-					led.forceTarget = path.id;
-					// $('#select-target').removeClass('btn-primary');
-					$('#select-target').addClass('btn-success');
-					$("#target-view").attr("data-target", led.forceTarget);
-				}
+		
+		// NO SELECTION LOGIC
+		if(!event.modifiers.shift && !event.event.metaKey && ["NLED"].indexOf(name) == -1){
+			sm.selection = [];
+			sm.update();
+			return;
+		}
+		// ADD/REMOVE LED LOGIC
+		if(event.event.metaKey){
+			if(name == "NLED"){
+				scope.removeLED(path);
+				sm.selection = [];
+				sm.update();
+			} else{
+				sm.selection = [];
+				led = scope.makeLED(event.point, diffs);
+				sm.selection.push(led);
+				sm.update();
 			}
+
+			return;
+		}
+
+		// TARGET MODE
+		if(scope.target_selection_mode || event.modifiers.shift){
+			console.log("TARGET MODE", name);
+			if(sm.currentSelectedLEDs().length == 0) return;
+			if(["DDS", "DIF"].indexOf(name) != -1){
+				scope.target_selection_mode = false;
+				var leds = sm.currentSelectedLEDs();
+				sm.selection = [];
+				_.each(leds, function(led){
+					sm.selection.push(led);
+					led.forceTarget = path.id;
+				});
+				
+				sm.selection.push(path);
+				sm.update();
+			}
+			return;
 		}
 
 		if(name == "NLED"){
-			scope.selection.push(path.id);
-			scope.led_prev_style = {strokeColor: path.strokeColor, strokeWidth: path.strokeWidth};
-			path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
-
-			cc.updatePanel(path.id);
+			sm.selection = [];
+			sm.selection.push(path);
 			if(path.forceTarget){
 				var forced_diff = CanvasUtil.getIDs([path.forceTarget])[0];
-				scope.prev_style = {strokeColor: forced_diff.strokeColor, strokeWidth: forced_diff.strokeWidth};
-				forced_diff.set({strokeWidth: 2, strokeColor: "yellow"})
+				sm.selection.push(forced_diff);
 			} else{
 				var norm_diff = CanvasUtil.getIDs([path.target])[0];
-				scope.prev_style = {strokeColor: norm_diff.strokeColor, strokeWidth: norm_diff.strokeWidth};
-				norm_diff.set({strokeWidth: 2, strokeColor: "yellow"})
+				sm.selection.push(norm_diff);
 			}
-		}
-		else{
-			if(event.event.metaKey){
-				// ADD LED
-				var led = new paper.Path.Rectangle({
-					name: "NLED: APA102C", 
-					size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
-					position: event.point, 
-					fillColor: "white", 
-					parent: CanvasUtil.queryPrefix("ELD")[0]
-				});
-
-				scope.addRays(diffs, led);
-				scope.selection.push(led.id);
-				return;
-			}
-		}
-		// REMOVE LED
-		if(event.event.metaKey){
-			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: path.id});
-			_.each(rays, function(r){ r.remove(); });
-			path.remove();
-			scope.selection = [];
+			sm.update();
+			cc.updatePanel(path.id);
+			return;
 		}
 	}
 	this.tool.onMouseMove = function(event){
-		var hitResult = project.hitTest(event.point, hitOptions);
-		if (hitResult){
-			path = hitResult.item;
-			name = Artwork.getPrefix(path);
+		// var hitResult = project.hitTest(event.point, hitOptions);
+		
+		// if (hitResult){
+		// 	path = hitResult.item;
+		// 	name = Artwork.getPrefix(path);
 
 
-			if(name == "NLED"){
-				if(event.event.metaKey){
-					$('#myCanvas').css('cursor', 'not-allowed');
-					return;
-				}else{
-					$('#myCanvas').css('cursor', 'move');
-					return;
-				}
-			}
-		}
-		if(event.event.metaKey){
-			$('#myCanvas').css('cursor', 'copy');
+		// 	if(name == "NLED"){
+		// 		if(event.event.metaKey){
+		// 			$('#myCanvas').css('cursor', 'not-allowed');
+		// 			return;
+		// 		}else{
+		// 			$('#myCanvas').css('cursor', 'move');
+		// 			return;
+		// 		}
+		// 	}
+		// }
+
+		// if(event.event.metaKey){
+		// 	$('#myCanvas').css('cursor', 'copy');
 			
-			if (hitResult){
-				path = hitResult.item;
-				name = Artwork.getPrefix(path);
-				if(name == "NLED") $('#myCanvas').css('cursor', 'alias');
-			}
-
-			// console.log("CURSOR SET TO", $('#myCanvas').css('cursor'));
-		}else{
-			$('#myCanvas').css('cursor', 'pointer');
-		}
+		// 	if (hitResult){
+		// 		path = hitResult.item;
+		// 		name = Artwork.getPrefix(path);
+		// 		if(name == "NLED") $('#myCanvas').css('cursor', 'alias');
+		// 	}
+		// }else{
+		// 	$('#myCanvas').css('cursor', 'pointer');
+		// }
 	}
+
 	this.tool.onMouseDrag = function(event){
-		var drags = CanvasUtil.getIDs(scope.selection);
+		var drags = sm.currentSelectedLEDs();
 		var diffs = CanvasUtil.queryPrefix("DIF");
 		_.each(drags, function(drag){
 			drag.position = drag.position.add(event.delta);
@@ -142,7 +211,7 @@ function LEDPlacerBrush(paper){
 				} else{
 					var cdiffs = _.flatten([CanvasUtil.queryPrefix("DIF")]);
 					diffusers_in_force_target = _.filter(cdiffs, function(diff){ return  forced_diff.id != diff.id && !diff.contains(forced_diff.position) && forced_diff.contains(diff.position);});
-					console.log("DIFF IN FT", forced_diff.id, _.map(diffusers_in_force_target, function(d){return d.id}));
+					// console.log("DIFF IN FT", forced_diff.id, _.map(diffusers_in_force_target, function(d){return d.id}));
 					
 					in_another_diffuser = _.compact(_.map(diffusers_in_force_target, function(diff){ return diff.contains(drag.position);})).length > 0;
 					
@@ -172,13 +241,13 @@ function LEDPlacerBrush(paper){
 				
 				
 			}
-			// diffs = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
-			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: drag.id});
+
+
+			diffs = _.filter(diffs, function(diff){ return diff.contains(drag.position);});
 			
 			// UPDATE RAYS
-			console.log("DIFF?", _.map(diffs, function(o){return o.name; }));
-				
-			_.each(rays, function(r){
+			var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: drag.id});		
+				_.each(rays, function(r){
 				r.position = r.position.add(event.delta);
 				if(diffs.length == 0) r.opacity = 0;
 				else{
@@ -197,23 +266,26 @@ function LEDPlacerBrush(paper){
 					}
 				}
 			})
+			// END UPDATE RAYS
 		})
 	
 	}
 	this.tool.onMouseUp = function(event){
-		bb.update();
+
+		// _.each(scope.selection, function(el){
+		// 	cc.updatePanel(path.id);
+			
+		// 	var rays = CanvasUtil.queryPrefix("RAY");
+		// 	_.each(rays, function(r){
+		// 		if(r.opacity == 0) return;
+		// 		r.opacity = 0.2;
+		// 	});
+		// 	path.strokeColor = "#00A8E1"
+		// })
+		// scope.selection = [];
+		// bb.update();
 		vm.update();
-		_.each(scope.selection, function(el){
-			cc.updatePanel(path.id);
-			path.set(scope.prev_style);
-			var rays = CanvasUtil.queryPrefix("RAY");
-			_.each(rays, function(r){
-				if(r.opacity == 0) return;
-				r.opacity = 0.2;
-			});
-			path.strokeColor = "#00A8E1"
-		})
-		scope.selection = [];
+		sm.update();
 	}
 }
 
@@ -264,16 +336,10 @@ LEDPlacerBrush.prototype = {
 		} else{
 			// CREATE RAYS
 			var rays = _.range(-180, 180, 1);
-			var color = new paper.Color("red");
-
-			scope.hue = (scope.hue + scope.hue_step) % 360;
-			color.hue = scope.hue;
-
-			color.saturation = 0.8;
-			color.brightness = 0.8;
-
-			var led_color = color.clone();
-			led_color.brightness = 1;
+			
+			
+			led_color = new paper.Color(cp.getCurrentColor());
+			
 			var was_white = CanvasUtil.queryPrefix("NLED");
 			was_white = was_white.length > 0 && was_white[0].fillColor.equals("#FFFFFF");
 			var fill = vm.getCurrentView() == "WHITE_RAYS" || was_white  ? "#FFFFFF" : led_color
@@ -281,7 +347,7 @@ LEDPlacerBrush.prototype = {
 				fillColor: fill, 
 				strokeColor: fill, 
 				strokeWidth: 1, 
-				colorID: led_color
+				colorID: led.colorID ? led.colorID : led_color
 			})
 
 			rays = _.map(rays, function(theta){
@@ -292,7 +358,7 @@ LEDPlacerBrush.prototype = {
 					name: "RAY: Cast",
 					from: led.position.clone(), 
 					to: led.position.clone().add(point), 
-					strokeColor: color, 
+					strokeColor: led_color, 
 					strokeWidth: 1,
 					opacity: 0.2, 
 					parent: CanvasUtil.queryPrefix("ELD")[0], 

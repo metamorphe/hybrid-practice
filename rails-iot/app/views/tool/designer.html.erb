@@ -1,10 +1,10 @@
    <script type="text/javascript">
-      var zb, cp, bb, vm, displays = [];
+      var zb, cp, bb, vm, sm, displays = [];
 
       $(function(){
         paperSetup();
-        var display = new Artwork("/userstudy/user303.svg", function(artwork){
-        // var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
+        // var display = new Artwork("/userstudy/user303.svg", function(artwork){
+        var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
            CanvasUtil.call(CanvasUtil.queryPrefix("NP"), "remove");
           
            artwork.svg.position = paper.view.center;
@@ -15,6 +15,7 @@
 
         });
         displays.push(display);
+        sm = new SelectionManager();
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
         cp = new ColorPalette($('#sidebar-left'));
         cc = new ControlCenter($('#sidebar-left-control'));
