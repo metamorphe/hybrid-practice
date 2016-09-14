@@ -2,7 +2,7 @@
 var zb, cp, bb, vm, pm, gui, displays = []; 
 var p = Pipeline;
 var files = <%= @files.to_json.html_safe %>;
-var DEFAULT_PIPE_FILE = "user165.svg";
+var DEFAULT_PIPE_FILE = "gecko.svg";
 
 $(function(){
   Utility.paperSetup($('#myCanvas'));
@@ -30,7 +30,7 @@ $(function(){
     var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
     ButtonExporter.exportSVG(fn);           
   });
-  $('#view-list ul li button[name="diffuser"]').click();
+  // $('#view-list ul li button[name="reflector"]').click();
 });
 </script>
 </head>

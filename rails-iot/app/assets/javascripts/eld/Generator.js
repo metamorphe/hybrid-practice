@@ -19,7 +19,7 @@ function Generator(){
         this.length = 72;
         this.ws = new WebStorage();
         this.diffuser = "Planar";
-        this.model = "Splitter";
+        this.model = "Reflector";
         this.export = "REFL";
        
         this.c_norm = 0.5;
@@ -50,6 +50,7 @@ function Generator(){
         init: function(){
           this.box = new paper.Path.Rectangle(paper.view.bounds);
           this.box.set({
+              name: "NP: not useful",
               position: paper.view.center,
               fillColor: '#111'
           }); 
@@ -222,7 +223,7 @@ function Generator(){
           var scope = this;
           // lengths = _.range(25, 200, 5);
           // lengths = this.get_eval_lengths();
-           lengths = _.range(0, 800, 5);
+          lengths = _.range(5, 10, 1);
           console.log("STARTING BATCH ANNEAL PROCESS");
           _.each(lengths, function(l, i){
             scope.length = l;
@@ -439,7 +440,7 @@ function Generator(){
                       .value();
             // console.log(keys);
               if(keys.length == 0){
-                console.log("SAMPLING ERROR", this.length, "HAS NO DATA");  
+                console.log("SAMPLING ERROR", this.length, this.model, this.diffuser, "HAS NO DATA");  
                 return model.random(this.length);
               }
 
@@ -454,6 +455,7 @@ function Generator(){
               a = keys_below[keys_below.length - 1]; // last element of keys below
               b = keys_above[0];
               tau = (b-scope.length)/(b-a);
+              console.log("KEYS", scope.length, a, b, tau);
 
               // console.log("KEYS", a, b, tau);
 

@@ -1,3 +1,4 @@
+const BIAS = 1;
 function ButtonExporter(dom, type, preFN, postFN){
     this.type = type;
     this.dom = dom;
@@ -59,7 +60,7 @@ function ButtonExporter(dom, type, preFN, postFN){
       result.fitBounds(paper.view.bounds.expand(-100));
      
       result.position =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width/2.0, result.strokeBounds.height/2.0));
-      cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width, result.strokeBounds.height));
+      cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width * BIAS, result.strokeBounds.height * BIAS));
       // result.position.x -= 6;
       paper.view.update();
       bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, cut.x, cut.y );
