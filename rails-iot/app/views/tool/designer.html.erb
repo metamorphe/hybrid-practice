@@ -9,8 +9,8 @@
         vm = new ViewManager($('#views'));
         $('img[tool="LEDPlacerBrush"]').click();
         // var display = new Artwork("/userstudy/user160.svg", function(artwork){
-        var display = new Artwork("/artwork/gecko.svg", function(artwork){
-        // var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
+        // var display = new Artwork("/artwork/gecko.svg", function(artwork){
+        var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
            CanvasUtil.call(CanvasUtil.queryPrefix("NP"), "remove");
           
            artwork.svg.position = paper.view.center;

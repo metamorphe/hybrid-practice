@@ -9,6 +9,17 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
+CanvasUtil.printNames = function(){
+	var elements = ["NLED", "DIFF", "NLED"]
+	_.each(elements, function(element){
+		var arr = CanvasUtil.queryPrefix(element);
+		_.each(arr, function(el){
+			console.log(el.name, el.id);
+			if(el.forceTarget) console.log("ft:", el.forceTarget);
+			else if(el.target) console.log("t:", el.target);
+		})
+	});
+}
 CanvasUtil.fitToViewWithZoom = function(element, bounds){
 	var scaleX = element.bounds.width / bounds.width;
 	var scaleY = element.bounds.height / bounds.height;

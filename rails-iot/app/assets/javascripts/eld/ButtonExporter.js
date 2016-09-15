@@ -1,4 +1,4 @@
-const BIAS = 1;
+const BIAS = 2;
 function ButtonExporter(dom, type, preFN, postFN){
     this.type = type;
     this.dom = dom;
