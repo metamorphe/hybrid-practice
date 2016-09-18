@@ -1,6 +1,7 @@
 <script type="text/javascript">
 function BrushBar(container){
     this.container = container;
+    this.ws = new WebStorage();
     this.toolbox = {};
     this.state = true;
     this.brush = null;
@@ -58,7 +59,72 @@ function BrushBar(container){
 
           $(this).attr('active', 'active');
         });
+        var scope = this;
+        $('#cache-save').click(function(){
+            // saveLED information
+            var name =  displays[0].svgPath;
+            var led_data = CanvasUtil.queryPrefix("NLED");
+            var led_data = _.map(led_data, function(led){ 
+              data =  {
+                position: [led.position.x, led.position.y], 
+                colorID: rgb2hex(led.colorID.toCanvasStyle()), 
+                target: led.target
+              }
+              if(led.forceTarget)
+                data.forceTarget = led.forceTarget;
+              return data;
+            });
 
+            var key = ["led", name].join("_")
+           
+            console.log("STORING", led_data);
+            scope.ws.set(key, JSON.stringify(led_data));
+        });
+        
+        $('#cache-clear').click(function(){
+          var leds = CanvasUtil.queryPrefix("NLED");
+          _.each(leds, function(led){
+            var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: led.id});
+            CanvasUtil.call(rays, "remove");
+            led.remove();
+          })
+          paper.view.update();
+          $('#cache-save').click();
+        });
+        $('#cache-reload').click(function(){
+          CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "remove");
+          var diffs = CanvasUtil.queryPrefix('DIF');
+          var name =  displays[0].svgPath;
+          var key = ["led", name].join("_");
+          if(scope.ws.includes(key)){
+            var led_data = JSON.parse(scope.ws.get(key));
+             
+
+             console.log("FETCHING",led_data);
+             _.map(led_data, function(data){
+                console.log(data);
+                var led =  new paper.Path.Rectangle({
+                  name: "NLED: APA102C", 
+                  size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
+                  strokeColor: "black",
+                  strokeWidth: 1, 
+                  opacity: 1.0,
+                  parent: CanvasUtil.queryPrefix("ELD")[0], 
+                  position: paper.view.center
+                });
+                led.fillColor = new paper.Color(data.colorID)
+                led.colorID = new paper.Color(data.colorID)
+                led.position = new paper.Point(data.position)
+                led.target = data.target;
+                if(data.forceTarget) led.forceTarget = data.forceTarget;
+                paper.tool.holder.addRays(diffs, led);
+                return led;
+             });  
+             
+             vm.update();
+             paper.view.update();
+          }
+        });
     },
     getCurrentBrush: function(){
       return this.brush;
@@ -111,14 +177,14 @@ function BrushBar(container){
 <!-- BRUSH BAR -->
 <div id="brush-bar">
 <div class="task-bar">
-  <button class="pull-left btn btn-xs btn-transparent">
-    <span class="glyphicon glyphicon-backward">
-  </button>
-  <button class="pull-left btn btn-xs btn-transparent">
+  <!-- <button class="pull-left btn btn-xs btn-transparent"> -->
+    <!-- <span class="glyphicon glyphicon-backward"> -->
+  <!-- </button> -->
+  <button id="cache-save" class="pull-left btn btn-xs btn-transparent">
     <span class="glyphicon glyphicon-floppy-disk">
   </button>
-  <button class="pull-left btn btn-xs btn-transparent">
-    <span class="glyphicon glyphicon-forward">
+  <button id="cache-reload" class="pull-right btn btn-xs btn-transparent">
+    <span class="glyphicon glyphicon-refresh">
   </button>
   <button id="visibility-button" class="pull-right btn btn-xs btn-transparent">
    HIDE

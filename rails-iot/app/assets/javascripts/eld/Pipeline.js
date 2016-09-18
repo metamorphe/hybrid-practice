@@ -10,7 +10,7 @@ const HEAD_HEIGHT = 2.76;//mm
 const BOLT_HEIGHT = 21.17; //mm
 const THREAD_HEIGHT = BOLT_HEIGHT - NUT_HEIGHT - HEAD_HEIGHT;//mm
 
-const HEAD_RADIUS = 5.58 * 1.3 / 2.0; //mm
+const HEAD_RADIUS = 5.58 * 1.1 / 2.0; //mm
 const PEG_RADIUS = 3.0 * 1.3 / 2.0; //mm
 const HEX_RADIUS = 7.6 / 2.0; //mm
 
@@ -18,6 +18,7 @@ const END_GAP = 1.4125;//mm
 
 // NAMESPACE FOR ELD PIPEPLINE
 const DIFUSSER_HEIGHT = END_GAP + HEAD_HEIGHT;//mm
+const DIFFUSER_MOLD_HEIGHT = 3.00;
 const REFLECTOR_HEIGHT = 10;//mm
 const SPACER_HEIGHT = 3.1;
 const BASE_HEIGHT = END_GAP + NUT_HEIGHT;
@@ -47,9 +48,10 @@ const LED_TOLERANCE = 3; //mm
 
 // MOLDS
 const MOLD_WALL = 5; // mm
+const MOLD_WALL_SPECIAL = 3.5; // mm
 
 // PCB
-const POINT_OFFSET = 10; //pts
+const POINT_OFFSET = 5; //pts
 const POINT_INNER_OFFSET = 1; //pts
 const THETA_STEP = 1; //pts
 const THETA_OFFSET = 0.5; //pts
@@ -80,7 +82,8 @@ Pipeline.getElements = function(display) {
         mc: CanvasUtil.queryPrefix("MC"),
         base: CanvasUtil.queryPrefix("BASE"),
         wires: CanvasUtil.queryPrefix("WIRE"), 
-        rays: CanvasUtil.queryPrefix("RAY") 
+        rays: CanvasUtil.queryPrefix("RAY"), 
+        nuts: CanvasUtil.queryPrefix("NUT") 
     }
 }
 Pipeline.script = {
@@ -92,8 +95,8 @@ Pipeline.script = {
         _.each(e.diff, function(diffuser) {
              var expanded  = diffuser.expand({
                 strokeAlignment: "exterior", 
-                strokeWidth: 0.1,
-                strokeOffset: 4,//Ruler.mm2pts(MOLD_WALL), 
+                strokeWidth: 1,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL_SPECIAL), 
                 strokeColor: "black", 
                 fillColor: "white", 
                 joinType: "miter", 
@@ -108,98 +111,74 @@ Pipeline.script = {
             });
         });
 
-        
-        // //Creating a bounding box
-        // backgroundBox = new paper.Path.Rectangle({
-        //     rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-        //     fillColor: 'white',
-        //     parent: result
-        // });
-        // backgroundBox.sendToBack();
-
         //Make non-molding objects invisible
-        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
+        var invisible = _.compact(_.flatten([e.nuts, e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
         Pipeline.set_visibility(invisible, false);
 
         result.scaling = new paper.Size(-1, 1);
         result.name = "RESULT: DIFFUSER";
-        result.model_height = DIFUSSER_HEIGHT;
+        result.model_height = DIFFUSER_MOLD_HEIGHT;
     },
     diffuser: function(display, e) {
         this.adjustLEDs(display, e);
 
-        var all = _.flatten([e.base, e.diff]);
+        var all = _.flatten([e.leds, e.diff, e.mc, e.base]);
         var result = new paper.Group(all);
 
-        _.each(e.diff, function(diffuser, i) {
-           if(i == 0) {
-            diffuser.sendToBack();
-            diffuser.set({
-                visible: true,
-                fillColor: "black",
-                strokeWidth: 2, 
-                strokeColor: "white", 
-                // opacity: 0.5
-            });
-        }else{
+
+        
+        _.each(e.diff, function(diffuser) {
              var expanded  = diffuser.expand({
                 strokeAlignment: "exterior", 
-                // strokeWidth: 4,
-                // strokeWidth: 0.1,
-                strokeOffset: 4, 
-                // strokeColor: "white", 
+                strokeWidth: 0,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL_SPECIAL), 
+                strokeColor: "black", 
                 fillColor: "white", 
-                joinType: "square", 
-                name: "EXP: expd",
+                joinType: "miter", 
                 parent: result
             });
-            
             diffuser.set({
                 visible: true,
                 fillColor: "black",
-                // strokeWidth: 2, 
-                // strokeColor: "green"
+                strokeWidth: 0,
+                strokeColor: "white",
+                parent: result
             });
-            diffuser.bringToFront();
-        }
-        e.diff[0].sendToBack();
+        });
+
+
+        
+        _.each(e.base, function(base){
+            base.strokeWidth =  0;
+            base.fillColor =  'white';
+        });
+        var pegs = _.map(e.nuts, function(nut){
+             var bolt_head =  Pipeline.create({ 
+             geometry: "circle",
+             position: nut.position,
+             radius: HEAD_RADIUS, 
+             height: (DIFUSSER_HEIGHT - HEAD_HEIGHT)/ DIFUSSER_HEIGHT, 
+             parent: result
+            });
+            var bolt =  Pipeline.create({ 
+             geometry: "circle",
+             position: nut.position,
+             radius: PEG_RADIUS, 
+             height: 'black', 
+             parent: result
+            });
+           
+        });
+
+        CanvasUtil.call(e.base, "sendToBack");
         
        
-        });
-        
 
-        //Creating a bounding box
-        backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: 'white',
-            parent: result
-        });
-        _.each(e.base, function(b){ b.fillColor = "white";});
-        backgroundBox.sendToBack();
 
-       var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "circle",
-         bounds: backgroundBox.strokeBounds.expand(Ruler.mm2pts(HEAD_RADIUS)), 
-         radius: HEAD_RADIUS, 
-         padding: PEG_PADDING, 
-         height: (DIFUSSER_HEIGHT - HEAD_HEIGHT)/ DIFUSSER_HEIGHT, 
-         parent: result
-        });
 
-        var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "circle",
-         bounds: backgroundBox.strokeBounds, 
-         radius: PEG_RADIUS, 
-         padding: PEG_PADDING, 
-         height: 'black', 
-         parent: result
-        });
-        
-        // _.each(e.diff, function(diffuser) {
-        //     diffuser.bringToFront();
-        // });
-        //Make non-molding objects invisible
-        var invisible = _.compact(_.flatten([e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base]));
+
+
+        var invisible = _.compact(_.flatten([e.nuts, e.mc, e.art, e.dds, e.leds, e.cp, e.bi, e.bo]));
         Pipeline.set_visibility(invisible, false);
 
         // result.scaling = new paper.Size(-1, 1);
@@ -446,7 +425,7 @@ Pipeline.script = {
         Pipeline.set_visibility(invisible, false);
         result.name = "RESULT: CONES";
         result.model_height = Ruler.pts2mm(MAX_HEIGHT);
-        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS", "NP"]});
         CanvasUtil.call(removeable, "remove"); 
     },
     side_emit_reflector: function(display, e){
@@ -489,18 +468,40 @@ Pipeline.script = {
             e.diff[3].diffuser = "Cuboid";
         }else{
              _.each(e.diff, function(d){ d.diffuser = "Planar"}); 
+             _.each(e.dds, function(d){ d.diffuser = "Planar"}); 
         }
        
         var result = new paper.Group(all);
-        backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: "white",
-            parent: result
+        
+        _.each(e.base, function(base){
+            base.strokeWidth =  0.01;
+            base.strokeColor = "black";
+            base.fillColor =  "white";
         });
 
+
+
+        _.each(e.diff, function(diffuser) {
+             var expanded  = diffuser.expand({
+                strokeAlignment: "exterior", 
+                strokeWidth: 0,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL_SPECIAL), 
+                strokeColor: "black", 
+                fillColor: "white", 
+                joinType: "miter", 
+                parent: result
+            });
+            diffuser.set({
+                visible: true,
+                fillColor: "black",
+                strokeWidth: 0,
+                strokeColor: "white",
+                parent: result
+            });
+        });
        
 
-        ramps = _.map(e.diff, function(diff) {
+        ramps = _.map(e.dds, function(diff) {
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
             if(dleds.length == 0) return;
             var ils = interpolation_lines(diff, dleds, visible=false);
@@ -563,7 +564,7 @@ Pipeline.script = {
 
 
         if(chassis){
-            var mc = this.adjustMC(display, e, backgroundBox);
+            var mc = this.adjustMC(display, e, e.base[0]);
             if(mc){ mc.parent = result; mc.bringToFront();}
             _.each(e.diff, function(diffuser) {
                 diffuser.bringToFront();
@@ -582,14 +583,16 @@ Pipeline.script = {
                 l.bringToFront();
             });
             
-            var pegs = Pipeline.create_corner_pegs({ 
-             geometry: "circle",
-             bounds: backgroundBox.strokeBounds, 
-             radius: PEG_RADIUS, 
-             padding: PEG_PADDING, 
-             height: 'black', 
-             parent: result
+            var pegs = _.map(e.nuts, function(nut){
+                var bolt =  Pipeline.create({ 
+                 geometry: "circle",
+                 position: nut.position,
+                 radius: PEG_RADIUS, 
+                 height: 'black', 
+                 parent: result
+                });
             });
+
         }
 
         // var pegs = Pipeline.create_corner_pegs({ 
@@ -604,10 +607,10 @@ Pipeline.script = {
        
         // INVISIBILITY
 
-        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS"]});
+        var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS", "NP"]});
         CanvasUtil.call(removeable, "remove"); 
-        if(chassis) var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp, e.base]));
-        else var invisible = _.compact(_.flatten([ e.art, e.bo, e.bi, e.cp, e.base, e.mc]));
+        if(chassis) var invisible = _.compact(_.flatten([e.nuts,  e.art, e.bo, e.bi, e.cp]));
+        else var invisible = _.compact(_.flatten([ e.nuts, e.art, e.bo, e.bi, e.cp, e.mc]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: REFLECTOR";
@@ -658,7 +661,7 @@ Pipeline.script = {
         backgroundBox.sendToBack();
 
         // INVISIBILITY
-        var invisible = _.compact(_.flatten([e.art, e.base, e.dds, e.bo, e.bi, e.cp, e.leds]));
+        var invisible = _.compact(_.flatten([e.nuts, e.art, e.base, e.dds, e.bo, e.bi, e.cp, e.leds]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: NO LENS";
@@ -668,56 +671,58 @@ Pipeline.script = {
         var ws = new WebStorage();
         
         this.adjustLEDs(display, e);
-       
-        _.each(e.leds, function(led) {
-            led.set({
-                fillColor: "black",
-                strokeColor: 'black',
-                strokeWidth: Ruler.mm2pts(LED_TOLERANCE)
+    
+        var all = _.flatten([e.leds, e.diff, e.mc, e.base]);
+        var result = new paper.Group(all);
+
+        _.each(e.base, function(base){
+            base.strokeWidth =  0.01;
+            base.strokeColor = "black";
+            base.fillColor =  "white";
+        });
+
+
+        var expanded  = e.base[0].expand({
+                strokeAlignment: "interior", 
+                strokeWidth: 0.1,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL), 
+                strokeColor: "black", 
+                fillColor: new paper.Color(PCB_HEIGHT/SPACER_HEIGHT), 
+                joinType: "miter", 
+                parent: result
+        });
+
+
+
+        var pegs = _.map(e.nuts, function(nut){
+
+            var bolt =  Pipeline.create({ 
+             geometry: "circle",
+             position: nut.position,
+             radius: PEG_RADIUS, 
+             height: 'black', 
+             parent: result
             });
         });
 
-        var all = _.flatten([e.base, e.leds, e.diff]);
-        var result = new paper.Group(all);
-        result.applyMatrix = false;
-
-        // // BACKGROUND
-        var backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL) - Ruler.mm2pts(WALL_WIDTH)),
-            fillColor: new paper.Color(PCB_HEIGHT/SPACER_HEIGHT),
-            strokeColor: 'white',
-            strokeWidth: Ruler.mm2pts(WALL_WIDTH),
-            // strokeScaling: false,
-            parent: result
-        });
-        backgroundBox.sendToBack();
-        var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "circle",
-         bounds: backgroundBox.strokeBounds, 
-         radius: PEG_RADIUS, 
-         padding: PEG_PADDING, 
-         height: 'black', 
-         // strokeScaling: false,
-         parent: result
-        });
-
-       
-        // ADD CORNER PEGS
-        // var pegs = Pipeline.create_corner_pegs({ 
-        //  geometry: "hex",
-        //  bounds: backgroundBox.strokeBounds, 
-        //  radius: HEX_RADIUS, 
-        //  padding: PEG_PADDING, 
-        //  height: 'yellow', 
-        //  parent: result
-        // });
-
-        var mc = this.adjustMC(display, e, backgroundBox);
+        
+        var mc = this.adjustMC(display, e, e.base[0]);
         if(mc){ mc.parent = result; mc.bringToFront();}
 
      
-        var invisible = _.compact(_.flatten([e.art, e.dds, e.diff, e.cp, e.bo, e.base, e.bi, e.wires]));
+        var invisible = _.compact(_.flatten([e.nuts, e.art, e.cp, e.bo, e.bi, e.wires]));
         Pipeline.set_visibility(invisible, false);
+        CanvasUtil.call(e.base, "sendToBack");
+
+         _.each(e.leds, function(led) {
+            led.set({
+                fillColor: "black",
+                strokeColor: 'black',
+                strokeWidth: Ruler.mm2pts(LED_TOLERANCE), 
+                parent: result
+            });
+        });
+
 
         // /* Reflect Object */
         result.scaling = new paper.Size(-1, 1);
@@ -765,38 +770,35 @@ Pipeline.script = {
        
         var all = _.flatten([e.leds, e.diff, e.mc, e.base]);
         var result = new paper.Group(all);
-    
-       
-        var backgroundBox = new paper.Path.Rectangle({
-            rectangle: result.bounds.expand(Ruler.mm2pts(MOLD_WALL)),
-            fillColor: 'white',
-            parent: result
-        });
-        backgroundBox.sendToBack();        
-        // // ADD CORNER PEGS
-        var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "hex",
-         bounds: backgroundBox.bounds, 
-         radius: HEX_RADIUS, 
-         padding: PEG_PADDING, 
-         height: END_GAP / BASE_HEIGHT, 
-         parent: result
-        });
-        var pegs = Pipeline.create_corner_pegs({ 
-         geometry: "circle",
-         bounds: backgroundBox.bounds, 
-         radius: PEG_RADIUS, 
-         padding: PEG_PADDING, 
-         height: 'black', 
-         parent: result
-        });
-        backgroundBox.sendToBack();
 
+        _.each(e.base, function(base){
+            base.strokeWidth =  0;
+            base.fillColor =  'white';
+        });
+        var pegs = _.map(e.nuts, function(nut){
+            var nut =  Pipeline.create({ 
+             geometry: "hex",
+             position: nut.position,
+             radius: HEX_RADIUS, 
+             height: END_GAP / BASE_HEIGHT, 
+             parent: result
+            });
+            var bolt =  Pipeline.create({ 
+             geometry: "circle",
+             position: nut.position,
+             radius: PEG_RADIUS, 
+             height: 'black', 
+             parent: result
+            });
+        });
 
-        var invisible = _.compact(_.flatten([e.art, e.mc, e.leds, e.dds, e.diff, e.cp, e.bo, e.bi, e.base]));
+        CanvasUtil.call(e.base, "sendToBack");
+
+        var invisible = _.compact(_.flatten([e.art, e.nuts, e.mc, e.leds, e.dds, e.diff, e.cp, e.bo, e.bi]));
         Pipeline.set_visibility(invisible, false);
         result.name = "RESULT: BASE";
         result.model_height = BASE_HEIGHT;
+     
     }, 
     adjustMC: function(display, e, backgroundBox, result){
       if(e.mc.length ==  0) return;
@@ -840,12 +842,13 @@ Pipeline.script = {
         });
     }, 
     code: function(display, e){
-        _.each(e.leds, function(led){
+        console.log(_.map(e.leds, function(led){
             if(led.colorID)
-                console.log(led.lid, rgb2hex(led.colorID.toCanvasStyle()));
+                return "strip.setPixelColor(" + led.lid+ "," + rgb2hex2(led.colorID.toCanvasStyle()) +");";
             else
-                console.log(led.lid, rgb2hex(led.fillColor.toCanvasStyle()));
-        })
+
+               return "strip.setPixelColor(" + led.lid+ "," + rgb2hex2(led.fillColor.toCanvasStyle()) +");";
+        }).join('\n'));
     }
 }
 
@@ -858,7 +861,27 @@ Pipeline.set_visibility = function(objects, is_visible) {
     paper.view.update();
 }
 
+Pipeline.create = function(o){
+    o.radius = Ruler.mm2pts(o.radius);
 
+    if(o.geometry == "hex"){
+        return new Path.RegularPolygon({
+            parent: o.parent,
+            position: o.position,
+            center: [50, 50],
+            sides: 6,
+            fillColor: o.height,
+            radius: o.radius
+        });
+    }else{
+        return new paper.Path.Circle({
+            parent: o.parent,
+            position: o.position,
+            fillColor: o.height,
+            radius: o.radius
+        });
+    }
+}
 /* Function takes in bounds box, and creates the bounding holes */
 Pipeline.create_corner_pegs = function(o) {
     o.radius = Ruler.mm2pts(o.radius);

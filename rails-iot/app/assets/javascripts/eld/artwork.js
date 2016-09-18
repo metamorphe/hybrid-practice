@@ -9,6 +9,17 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
+CanvasUtil.printNames = function(){
+	var elements = ["NLED", "DIFF", "NLED"]
+	_.each(elements, function(element){
+		var arr = CanvasUtil.queryPrefix(element);
+		_.each(arr, function(el){
+			console.log(el.name, el.id);
+			if(el.forceTarget) console.log("ft:", el.forceTarget);
+			else if(el.target) console.log("t:", el.target);
+		})
+	});
+}
 CanvasUtil.fitToViewWithZoom = function(element, bounds){
 	var scaleX = element.bounds.width / bounds.width;
 	var scaleY = element.bounds.height / bounds.height;
@@ -155,12 +166,38 @@ Artwork.prototype = {
  			leds = scope.queryPrefix("NLED");
  			_.each(leds, function(led){
  				// console.log(led.name);
- 				if(led.name.indexOf("{") != -1){
- 					led = _.extend(led, JSON.parse(led.name.split("_")[1]));
- 					console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
- 				}
- 			});
+ 				// if(led.name.indexOf("{") != -1){
+ 					// data = JSON.parse(led.name.split("_")[1]);
+ 					// led.target = 7;//data.target;
+ 					// if(data.forceTarget) led.forceTarget = 7;//data.forceTarget;
+ 					// led.colorID = new paper.Color(data.colorID[0], data.colorID[1], data.colorID[2]);
+ 					// led.fillColor = new paper.Color(data.colorID[0], data.colorID[1], data.colorID[2]);
+ 					// // led = _.extend(led, data);
+ 					// console.log("EXTEND", JSON.parse(led.name.split("_")[1]));
+ 					if(!paper.tool || !paper.tool.holder) return;
+ 					paper.tool.holder.makeLED(led.position, CanvasUtil.queryPrefix("DIF"));
+ 					// var nled =  new paper.Path.Rectangle({
+	     //              name: "NLED: APA102C", 
+	     //              size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
+	     //              strokeColor: "black",
+	     //              strokeWidth: 1, 
+	     //              opacity: 1.0,
+	     //              parent: CanvasUtil.queryPrefix("ELD")[0], 
+	     //              position: led.position
+	     //            });
 
+	                led.remove();
+	                // nled.fillColor = new paper.Color(data.colorID)
+	                // nled.colorID = new paper.Color(data.colorID)
+	                // nled.position = new paper.Point(data.position)
+	                // nled.target = data.target;
+	                // if(data.forceTarget) led.forceTarget = data.forceTarget;
+	                // paper.tool.holder.addRays(diffs, led);
+
+ 				// }
+ 			});
+			if(vm)
+			vm.update();
 
 	 		var ledLists = scope.orderLeds();
 				if(!_.isNull(ledLists)){
@@ -258,6 +295,8 @@ Artwork.prototype = {
 
 Artwork.getPrefix = function(item){
 	if(_.isUndefined(item)) return "";
+	if(_.isUndefined(item.name)) return "";
+	// if(item.name.split(":").length < 2) return "";
 	if(item.name.split(":").length < 2) return "";
 	return item.name.split(":")[0].trim();
 }

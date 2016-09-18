@@ -15,7 +15,7 @@
         f0.add(generator, "diffuser").options(["Planar", "Hemisphere", "Cuboid"]);
         f0.add(generator, "model").options(["noLens", "Reflector", "TIR", "Splitter"]);
         // f0.add(generator, "length").min(15).max(300).listen();
-        lengthController = f0.add(generator, "length").options(generator.get_eval_lengths());
+        lengthController = f0.add(generator, "length");//.options(generator.get_eval_lengths());
 
         lengthController.onFinishChange(function(value) {
           generator.length = parseInt(value);

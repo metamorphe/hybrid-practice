@@ -159,12 +159,12 @@ Reflector.makeScene = function(box, params, diffuser){
 
     var cpA = Splitter.closest(ramp, "bottomRight");
     cpA.handleIn = new paper.Point(- params.ramp.width  * params.ramp.a.alpha, - params.ramp.height  * params.ramp.a.beta);
-    cpA.selected = true;
+    // cpA.selected = true;
 
     var cpB = Splitter.closest(ramp, "topLeft");
     cpB.handleOut = new paper.Point( params.ramp.width * params.ramp.b.alpha,  params.ramp.height * params.ramp.b.beta);
     
-    cpB.selected = true;
+    // cpB.selected = true;
     // ramp2 = ramp.clone();
     // ramp2.scaling = new paper.Size(-1, 1);
     // ramp2.pivot = ramp2.bounds.bottomLeft;
