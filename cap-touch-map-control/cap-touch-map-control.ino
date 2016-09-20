@@ -17,12 +17,21 @@ BSD license, all text above must be included in any redistribution
 
 #include <Wire.h>
 #include "Adafruit_MPR121.h"
+#include <Adafruit_DotStar.h>
+
+#define NUMPIXELS 3 // Number of LEDs in strip
+
+// Here's how to control the LEDs from any two pins:
+#define DATAPIN    3
+#define CLOCKPIN   4 
+Adafruit_DotStar strip = Adafruit_DotStar(
+  NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
+
+const int numButtons = 3;
 
 // You can have up to 4 on one i2c bus but one is enough for testing!
 Adafruit_MPR121 cap = Adafruit_MPR121();
-
 const int numReadings = 10;
-
 int readIndex = 0;              // the index of the current reading
  
 uint16_t readingsZero[numReadings];      // the readings from the analog input
@@ -39,6 +48,11 @@ uint16_t readingsTwo[numReadings];      // the readings from the analog input
 int totalTwo = 0;                  // the running total
 int averageTwo = 0;                // the average
 int startAverageTwo = 0;
+
+uint32_t red = 0xe63b19;
+uint32_t lightBlue = 0x19e5e6;
+uint32_t darkBlue = 0x3b19e6;
+uint32_t green = 0x19e65d;
 
 void setup() {
   while (!Serial);        // needed to keep leonardo/micro from starting too fast!
@@ -58,36 +72,13 @@ void setup() {
   memset(readingsZero,0,sizeof(readingsZero));
   memset(readingsOne,0,sizeof(readingsOne));
   memset(readingsTwo,0,sizeof(readingsTwo));
+
+  // LED control
+  strip.begin(); // Initialize pins for output
+  strip.show();  // Turn all LEDs off ASAP
 }
 
 void loop() {
-  /*
-  int i = 2;
-
-  totals[i] = totals[i] - readingsMatrix[i][readIndex];
-  readingsMatrix[i][readIndex] = cap.filteredData(i);
-  totals[i] = totals[i] + readingsMatrix[i][readIndex];
-  readIndex++;
-
-  // if we're at the end of the array...
-  if (readIndex >= numReadings) {
-    // ...wrap around to the beginning:
-    readIndex = 0;
-    compareAverages[i] = average;
-  }
-
-  // calculate the average:
-  averages[i] = totals[i] / numReadings;
-
-  //uint16_t comp = compareAverages[i] - averages[i];
-  //if ( abs(comp) > 10) {
-  if (compareAverages[i] - averages[i] > 5) {
-    Serial.println("triggered***************************************");
-    compareAverages[i] = averages[i];
-  }
-  */
-
-  
   // subtract the last reading:
   totalZero = totalZero - readingsZero[readIndex];
   totalOne = totalOne - readingsOne[readIndex];
@@ -119,16 +110,19 @@ void loop() {
 
   if ( (startAverageZero - averageZero) > 5) {
     Serial.println("triggered000000000000000000000000000000000000000000");
+    lightUpButton(0, red);
     startAverageZero = averageZero;
   }
 
   if ( (startAverageOne - averageOne) > 5) {
     Serial.println("triggered1111111111111111111111111111111111111111111");
+    lightUpButton(1, darkBlue);
     startAverageOne = averageOne;
   }
 
   if ( (startAverageTwo - averageTwo) > 5) {
     Serial.println("triggered222222222222222222222222222222222222222222");
+    lightUpButton(2, green);
     startAverageTwo = averageTwo;
   }
 
@@ -140,3 +134,15 @@ void loop() {
   // put a delay so it isn't overwhelming
   //delay(100);
 }
+
+void lightUpButton(int led, uint32_t color) {
+  for (int i = 0; i < numButtons; i++) {
+    if (i == led) {
+      strip.setPixelColor(i, color); // set the specified LED to this color
+    } else {
+      strip.setPixelColor(i, 0); // turn the rest off.
+    }
+  }
+  strip.show();
+}
+
