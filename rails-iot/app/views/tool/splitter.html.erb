@@ -43,7 +43,7 @@
 
 
         var f5 = gui.addFolder('Simulated Annealing');
-        f5.add(generator, "system_temperature").min(0).max(320).listen();
+        f5.add(generator, "system_temperature").min(0).max(20).listen();
         f5.add(generator, "system_energy").min(0).max(200.0).listen();
         // f5.add(generator, "initial_temperature").min(0).max(320);
         // f5.add(generator, "initial_stabilizer").min(0).max(320);

@@ -197,24 +197,24 @@ function Generator(){
           scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
        
           steps = 0;
-          // intervalId = setInterval(function(){
-          done = false;
-          while(! done){
-            var done = SimulatedAnnealing.Step();
-            steps ++; 
-            console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
-            scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
-            scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
-          }
-          if(done == true){
-            scope.params = JSON.parse(generatorSolution);
-            scope.generate();
-            scope.params.costs = scope.fire();
-            console.log("END ENERGY",  scope.params.costs.cost, "STEPS", steps);
-            scope.storeSolution(scope.params);
-            // clearInterval(intervalId);
-          }
-          // }, 5);
+          intervalId = setInterval(function(){
+            done = false;
+              // while(! done){
+                var done = SimulatedAnnealing.Step();
+                steps ++; 
+                console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
+                scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
+                scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
+              // }
+              if(done == true){
+                scope.params = JSON.parse(generatorSolution);
+                scope.generate();
+                scope.params.costs = scope.fire();
+                console.log("END ENERGY",  scope.params.costs.cost, "STEPS", steps);
+                scope.storeSolution(scope.params);
+              clearInterval(intervalId);
+            }
+          }, 20);
 
         },
         batch_anneal: function(){

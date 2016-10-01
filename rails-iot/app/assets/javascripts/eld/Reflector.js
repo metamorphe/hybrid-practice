@@ -133,7 +133,7 @@ Reflector.makeScene = function(box, params, diffuser){
     var led_ref = new paper.Path.Rectangle({
         size: new paper.Size(params.led.width, params.led.height),
         name: "LS: APA102C",
-        fillColor: "purple", 
+        fillColor: "white", 
         // applyMatrix: false
     });
 
@@ -170,10 +170,61 @@ Reflector.makeScene = function(box, params, diffuser){
     // ramp2.pivot = ramp2.bounds.bottomLeft;
     // ramp2.position = led_ref.bounds.bottomRight.clone(); 
 
-
-    
     // IMAGE PLANE
    
     ImagePlane.generate(diffuser, led_ref, ramp, result, params);
+
+
+    var text = new PointText({
+      point: CanvasUtil.queryPrefix("REF")[0].bounds.expand(10).leftCenter,
+      content: 'Reflector',
+      fillColor: CanvasUtil.queryPrefix("REF")[0].fillColor,
+      fontFamily: 'Futura',
+      justification: 'right',
+      // fontWeight: 'bold',
+      fontSize: 10, 
+      parent: result
+    });
+
+    var text = new PointText({
+      point: CanvasUtil.queryPrefix("DIFF")[0].bounds.expand(10).leftCenter,
+      content: 'Diffuser',
+      fillColor: CanvasUtil.queryPrefix("DIFF")[0].strokeColor,
+      fontFamily: 'Futura',
+      justification: 'right',
+      // fontWeight: 'bold',
+      fontSize: 10, 
+      parent: result
+    });
+    var text = new PointText({
+      point: CanvasUtil.queryPrefix("IMG")[0].bounds.expand(10).leftCenter,
+      content: 'Beam Plane',
+      fillColor: CanvasUtil.queryPrefix("IMG")[0].strokeColor,
+      fontFamily: 'Futura',
+      justification: 'right',
+      // fontWeight: 'bold',
+      fontSize: 10, 
+      parent: result
+    });
+    var text = new PointText({
+      point: CanvasUtil.queryPrefix("LS")[0].bounds.expand(10).rightCenter,
+      content: 'Light Source',
+      fillColor:  CanvasUtil.queryPrefix("LS")[0].fillColor,
+      fontFamily: 'Futura',
+      justification: 'left',
+      // fontWeight: 'bold',
+      fontSize: 10, 
+      parent: result
+    });
+
+    // var r = new paper.Path.Rectangle({
+    //   fillColor: '#111', 
+    //   size: new paper.Size(10000, 10000)
+    // });
+    // r.set({
+    //   pivot: r.bounds.leftCenter,
+    //   position: CanvasUtil.queryPrefix("LS")[0].bounds.rightCenter
+    // })
+
    
 }

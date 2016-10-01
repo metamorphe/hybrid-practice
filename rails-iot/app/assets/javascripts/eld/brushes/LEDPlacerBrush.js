@@ -335,7 +335,7 @@ LEDPlacerBrush.prototype = {
 			CanvasUtil.set(rays, "strokeColor", led.fillColor);
 		} else{
 			// CREATE RAYS
-			var rays = _.range(-180, 180, 1);
+			var rays = _.range(-180, 180, 5);
 			
 			
 			led_color = new paper.Color(cp.getCurrentColor());

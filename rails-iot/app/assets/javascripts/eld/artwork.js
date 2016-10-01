@@ -200,10 +200,10 @@ Artwork.prototype = {
 			vm.update();
 
 	 		var ledLists = scope.orderLeds();
-				if(!_.isNull(ledLists)){
-					scope.allLeds = ledLists[0];
-					scope.iLeds = ledLists[1];
-				}
+				// if(!_.isNull(ledLists)){
+				// 	scope.allLeds = ledLists[0];
+				// 	scope.iLeds = ledLists[1];
+				// }
 				// scope.setLedsOff();
 		    loadFN(scope);
 		});

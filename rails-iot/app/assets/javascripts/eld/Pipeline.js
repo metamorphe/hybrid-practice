@@ -1,5 +1,6 @@
+const GRAY_ON = true; 
 const SWATCH_ON = false;
-
+const MC_MOVE = false;
 // 
 const WING_HEIGHT = Ruler.mm2pts(1.5); 
 const WING_OFFSET = Ruler.mm2pts(2);
@@ -43,7 +44,7 @@ const WALL_EXPANISION = BASE_EXPANSION; //mm
 const PCB_HEIGHT = 1.7; // relative 1.7 (base) /3.1 (wall) mm
 const CHANGE_IN_X_DIR = 8; //pts
 const CHANGE_IN_Y_DIR = 8; //pts
-const LED_TOLERANCE = 3; //mm
+const LED_TOLERANCE = 4.5; //mm
 
 
 // MOLDS
@@ -51,11 +52,11 @@ const MOLD_WALL = 5; // mm
 const MOLD_WALL_SPECIAL = 3.5; // mm
 
 // PCB
-const POINT_OFFSET = 5; //pts
+const POINT_OFFSET = 4; //pts
 const POINT_INNER_OFFSET = 1; //pts
 const THETA_STEP = 1; //pts
 const THETA_OFFSET = 0.5; //pts
-const OPT_MAX_ITERS = 20;
+const OPT_MAX_ITERS = 90;
 const EPSILON = 10;
 
 
@@ -83,7 +84,8 @@ Pipeline.getElements = function(display) {
         base: CanvasUtil.queryPrefix("BASE"),
         wires: CanvasUtil.queryPrefix("WIRE"), 
         rays: CanvasUtil.queryPrefix("RAY"), 
-        nuts: CanvasUtil.queryPrefix("NUT") 
+        nuts: CanvasUtil.queryPrefix("NUT"), 
+        gray: CanvasUtil.queryPrefix("DD") 
     }
 }
 Pipeline.script = {
@@ -110,6 +112,33 @@ Pipeline.script = {
                 parent: result
             });
         });
+
+        if(GRAY_ON){
+            console.log("GRAY DETECTED", e.gray.length)
+      
+            _.each(e.diff, function(diffuser) {
+                var inverse = diffuser.fillColor.clone();
+                inverse.brightness = 0.6;
+                diffuser.set({
+                    visible: true,
+                    fillColor: inverse,
+                    strokeWidth: 2,
+                    strokeColor: "white",
+                    parent: result
+                });
+            });
+            _.each(e.gray, function(diffuser) {
+                var inverse = diffuser.fillColor.clone();
+                inverse.brightness = 1 - inverse.brightness - 0.1;
+                diffuser.set({
+                    visible: true,
+                    fillColor: inverse,
+                    strokeWidth: 0,
+                    strokeColor: "white",
+                    parent: result
+                });
+            });
+        }
 
         //Make non-molding objects invisible
         var invisible = _.compact(_.flatten([e.nuts, e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
@@ -450,7 +479,30 @@ Pipeline.script = {
         var g = new Generator();
         g.model = "Reflector";
         g.export = "REFL";
-        this.makeFromProfile(display, e, g);
+        result = this.makeFromProfile(display, e, g);
+        // _.each(e.dds, function(diffuser){
+        //     diffuser.expand({
+        //         strokeAlignment: "exterior", 
+        //         strokeWidth: 0.1,
+        //         strokeOffset: 0, 
+        //         // strokeColor: "orange", 
+        //         fillColor: "black", 
+        //         joinType: "miter", 
+        //         opacity: 0.5,
+        //         parent: result
+        //     });
+        //     two = diffuser.expand({
+        //         strokeAlignment: "exterior", 
+        //         strokeWidth: 0,
+        //         strokeOffset: 4, 
+        //         strokeColor: "orange", 
+        //         fillColor: "white", 
+        //         joinType: "miter", 
+        //         opacity: 1.0,
+        //         parent: result
+        //     });
+        //     two.sendToBack();
+        // }); 
     },
     makeFromProfile: function(display, e, g, chassis=true, dome=false) {
         this.adjustLEDs(display, e);
@@ -482,6 +534,7 @@ Pipeline.script = {
 
 
         _.each(e.diff, function(diffuser) {
+            if(diffuser.className == "Group") return;
              var expanded  = diffuser.expand({
                 strokeAlignment: "exterior", 
                 strokeWidth: 0,
@@ -564,8 +617,18 @@ Pipeline.script = {
 
 
         if(chassis){
-            var mc = this.adjustMC(display, e, e.base[0]);
-            if(mc){ mc.parent = result; mc.bringToFront();}
+           if(MC_MOVE){
+                var mc = this.adjustMC(display, e, e.base[0]);
+                if(mc){ 
+                    mc.parent = result; 
+                    mc.bringToFront();
+                }
+            }
+            else{
+                e.mc[0].parent = result; 
+                e.mc[0].bringToFront();
+                e.mc[0].fillColor = "black";
+            }
             _.each(e.diff, function(diffuser) {
                 diffuser.bringToFront();
                 diffuser.set({
@@ -574,14 +637,29 @@ Pipeline.script = {
                   strokeWidth: 5
                 })
             });
-            _.each(e.leds, function(led){
-                l = led.clone();
-                l.fillColor = "black";
-                l.strokeColor = "black";
-                l.strokeWidth = 4;
-                result.addChild(l);
-                l.bringToFront();
-            });
+            // _.each(e.leds, function(led){
+            //     l = led.clone();
+            //     l.fillColor = "black";
+            //     l.strokeColor = "black";
+            //     l.strokeWidth = 4;
+            //     result.addChild(l);
+            //     l.bringToFront();
+            // });
+            
+            // _.each(e.diff, function(diff) {
+            //    diff.set({
+            //         fillColor: "white",
+            //         opacity: 1,
+            //         strokeWidth: 0, 
+            //         // strokeColor: 'black',
+            //         // radius: Ruler.mm2pts(5), 
+            //         // position: led.position, 
+            //         // strokeWidth: Ruler.mm2pts(LED_TOLERANCE), 
+            //         parent: result
+            //     })
+            //    diff.bringToFront();
+            //     // led.remove();
+            // });
             
             var pegs = _.map(e.nuts, function(nut){
                 var bolt =  Pipeline.create({ 
@@ -591,6 +669,18 @@ Pipeline.script = {
                  height: 'black', 
                  parent: result
                 });
+            });
+            _.each(e.leds, function(led) {
+                var led_hole = new paper.Path.Circle({
+                    fillColor: "black",
+                    strokeColor: 'black',
+                    radius: Ruler.mm2pts(5) / 2, 
+                    position: led.position, 
+                    strokeWidth: Ruler.mm2pts(LED_TOLERANCE)/2, 
+                    parent: result
+                });
+                led_hole.bringToFront();
+                led.remove();
             });
 
         }
@@ -615,6 +705,7 @@ Pipeline.script = {
 
         result.name = "RESULT: REFLECTOR";
         result.model_height = REFLECTOR_HEIGHT;
+        return result;
     },
     no_lens: function(display, e) {
         var ws = new WebStorage();
@@ -705,22 +796,35 @@ Pipeline.script = {
             });
         });
 
-        
-        var mc = this.adjustMC(display, e, e.base[0]);
-        if(mc){ mc.parent = result; mc.bringToFront();}
-
+        if(MC_MOVE){
+            var mc = this.adjustMC(display, e, e.base[0]);
+            if(mc){ mc.parent = result; mc.bringToFront();}
+        }
+        else{
+            e.mc[0].fillColor = "black";
+            e.mc[0].parent = result; e.mc[0].bringToFront();
+        }
      
-        var invisible = _.compact(_.flatten([e.nuts, e.art, e.cp, e.bo, e.bi, e.wires]));
+        var invisible = _.compact(_.flatten([e.nuts, e.art, e.cp, e.dds, e.bo, e.bi, e.wires]));
         Pipeline.set_visibility(invisible, false);
         CanvasUtil.call(e.base, "sendToBack");
 
          _.each(e.leds, function(led) {
-            led.set({
+            var led_hole = new paper.Path.Circle({
                 fillColor: "black",
                 strokeColor: 'black',
-                strokeWidth: Ruler.mm2pts(LED_TOLERANCE), 
+                radius: Ruler.mm2pts(5) / 2, 
+                position: led.position, 
+                strokeWidth: Ruler.mm2pts(LED_TOLERANCE) / 2, 
                 parent: result
-            });
+            })
+            // led.set({
+            //     fillColor: "black",
+            //     strokeColor: 'black',
+            //     strokeWidth: Ruler.mm2pts(LED_TOLERANCE), 
+            //     parent: result
+            // });
+            led.remove();
         });
 
 
@@ -739,8 +843,13 @@ Pipeline.script = {
             strokeColor: 'white',
             strokeWidth: Ruler.mm2pts(WALL_WIDTH), 
         });
-        var mc = this.adjustMC(display, e, backgroundBox);
-        if(mc){ mc.parent = result; mc.bringToFront();}
+        if(MC_MOVE){
+            var mc = this.adjustMC(display, e, e.base[0]);
+            if(mc){ mc.parent = result; mc.bringToFront();}
+        }
+        else{
+            e.mc[0].parent = result; e.mc[0].bringToFront();
+        }
         backgroundBox.remove();
         // Function that initializes the routing process.
         leds = _.sortBy(e.leds, function(led) {
@@ -761,10 +870,12 @@ Pipeline.script = {
             CircuitRouting.connect_the_dots(nodes);
             CircuitRouting.cleanup(nodes, e);
             paper.view.update();
+             paper.view.zoom = 1;
         });
         addTool();
         var invisible = _.compact(_.flatten([e.base, e.cp]));
         Pipeline.set_visibility(invisible, false);
+        paper.view.zoom = 1;
     },
     base: function(display, e) {
        
@@ -774,6 +885,7 @@ Pipeline.script = {
         _.each(e.base, function(base){
             base.strokeWidth =  0;
             base.fillColor =  'white';
+            base.parent = result;
         });
         var pegs = _.map(e.nuts, function(nut){
             var nut =  Pipeline.create({ 
@@ -796,6 +908,7 @@ Pipeline.script = {
 
         var invisible = _.compact(_.flatten([e.art, e.nuts, e.mc, e.leds, e.dds, e.diff, e.cp, e.bo, e.bi]));
         Pipeline.set_visibility(invisible, false);
+        result.scaling = new paper.Size(-1, 1);
         result.name = "RESULT: BASE";
         result.model_height = BASE_HEIGHT;
      
