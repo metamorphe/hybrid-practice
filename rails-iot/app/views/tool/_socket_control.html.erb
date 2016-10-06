@@ -55,6 +55,7 @@ SocketControl.prototype = {
    * No ACK-checking, UDP style.
    */
   sendMessage: function(msgString) {
+    console.log("TO ARD", msgString);
     this.ws.send(msgString);
   },
   /**

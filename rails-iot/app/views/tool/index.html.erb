@@ -1,11 +1,36 @@
    <script type="text/javascript">
-      var zb, cp, bb, vm, displays = [];
+      var zb, cp, bb, vm, sc, displays = [];
 
       $(function(){
         paperSetup();
-        var nineSegment = new Artwork("/artwork/nine-segment.svg", function(artwork){
-           artwork.svg.position.y -= 100;
+        var nineSegment = new Artwork("/userstudy/map.svg", function(artwork){
+           // artwork.svg.position.y -= 100;
+           CanvasUtil.fitToViewWithZoom(artwork.svg, paper.view.bounds);
+           artwork.svg.position.y -= 50;
            vm = new ViewManager($('#views'));
+           CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+           CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+
+           leds = CanvasUtil.queryPrefix("NLED");
+           _.each(leds,  function(led){
+              led.onMouseEnter = function(event) {
+                console.log(this.lid, this.is_on)
+                  if(this.is_on){
+                    this.is_on = false;
+                    this.fillColor = "red";
+                    var msg = 'c,'+ this.lid + ',255,0,0\n';
+                   
+                    sc.sendMessage(msg);
+                  }
+                  else{
+                    this.is_on = true;
+                    this.fillColor = "blue";
+                    var msg = 'c,'+ this.lid + ',255,255,255\n';
+                  
+                    sc.sendMessage(msg);
+                  }
+              }
+           });
         });
         displays.push(nineSegment);
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
@@ -17,7 +42,6 @@
       });
 
       function paperSetup(){
-
         $('#myCanvas').attr('height', $(window).height());
         $('#myCanvas').attr('width', $(window).width());
         paper.install(window);
