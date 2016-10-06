@@ -24,8 +24,8 @@
 					console.log("Exporting file as SVG");
 					paper.view.zoom = 1;
 					paper.view.update();
-		
-					exp = paper.project.exportSVG({ 
+
+					exp = paper.project.exportSVG({
 						asString: true,
 						precision: 5
 					});
@@ -33,37 +33,37 @@
 				});
 				$('#myCanvas').attr('height', $(window).height());
 				$('#myCanvas').attr('width', $(window).width());
-	
+
 				paper.install(window);
 				paper.setup('myCanvas');
 				paper.view.zoom = 1;
 				nineSegment = new Artwork("img/nine-segment.svg", function(display){
 					runScript(display);
 				});
-				
+
 			});
 			function runScript(display){
 				display.remove();
 
 				var testRectangle = new paper.Path.Rectangle({
 					size: new paper.Size(30, 40),
-					point: paper.view.center, 
-					strokeColor: "black", 
+					point: paper.view.center,
+					strokeColor: "black",
 					strokeWidth: 1
 				});
 
 				var corner = testRectangle.segments[0];
 				var gCorner = new paper.Path.Circle({
-					radius: 4, 
+					radius: 4,
 					position: corner.point,
-					fillColor: "red", 
+					fillColor: "red",
 				});
 
 				var corner2 = testRectangle.segments[1];
 				var gCorner2 = new paper.Path.Circle({
-					radius: 4, 
+					radius: 4,
 					position: corner2.point,
-					fillColor: "green", 
+					fillColor: "green",
 				});
 
 
@@ -72,16 +72,16 @@
 				corner2.point = vectorToMove.add(corner2.point);
 
 				var gCorner = new paper.Path.Circle({
-					radius: 4, 
+					radius: 4,
 					position: corner.point,
-					fillColor: "green", 
+					fillColor: "green",
 					strokeColor: "black",
 					strokeWidth: 1
 				});
 				var gCorner2 = new paper.Path.Circle({
-					radius: 4, 
+					radius: 4,
 					position: corner2.point,
-					fillColor: "green", 
+					fillColor: "green",
 					strokeColor: "black",
 					strokeWidth: 1
 				});
@@ -98,7 +98,7 @@
 	</body>
 </html>
 
-<style> 
+<style>
 	#downloadButtonPNG{
 		position: absolute;
 		top: 20px;

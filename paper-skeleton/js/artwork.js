@@ -77,11 +77,11 @@ Artwork.prototype = {
 	 		 // console.log("Processing", item.name);
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
-	 		var ledLists = scope.orderLeds();
-				if(!_.isNull(ledLists)){
-					scope.allLeds = ledLists[0];
-					scope.iLeds = ledLists[1];
-				}
+			// 	var ledLists = scope.orderLeds();
+			// 	if(!_.isNull(ledLists)){
+			// 		scope.allLeds = ledLists[0];
+			// 		scope.iLeds = ledLists[1];
+			// 	}
 				// scope.setLedsOff();
 		    loadFN(scope);
 		});
@@ -116,7 +116,7 @@ Artwork.prototype = {
 		// Determine the 'polarity' of the path, i.e. ensure
 		// that if the start of the path begins near the breakout
 		// (prefix: 'bo'), then we account for it in the offsetting
-		
+
 		if(_.isEmpty(cp)) return null;
 
 		var bo = this.queryPrefix('BO');
