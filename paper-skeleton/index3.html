@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<script type="text/javascript" src="js/dat.gui.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+		 	var map;
+			$(function(){
+				// MAIN FUNCTION
+
+
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.view.zoom = 1;
+
+
+				map = new Artwork("img/map.svg", function(display){
+					runScript(display);
+				});
+
+				var allLEDs = CanvasUtil.queryPrefix("NLED");
+				console.log(allLEDs);
+
+				/*ADD DAT GUI */
+
+				var Expression = function() {
+					this.brightness = 0.0;
+					this.lightUp = lightUp();
+				}
+
+				var expression = new Expression();
+				var gui = new dat.GUI();
+				// var led = /*get led*/
+
+				// _.each(allLEDS, function(led){
+				// 	console.log(led);
+				// }
+				gui.add(expression, 'brightness', 0, 1);
+
+
+			});
+
+			function runScript(display){
+				display.remove();
+
+			}
+
+			function lightUp(){
+				// var allLEDs = CanvasUtil.queryPrefix("NLED");
+				// console.log(allLEDs[0]);
+
+
+				// console.log(tempLed[0]);
+			}
+
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<canvas id="myCanvas"></canvas>
+		</div>
+	</body>
+</html>
+
+<style>
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>
