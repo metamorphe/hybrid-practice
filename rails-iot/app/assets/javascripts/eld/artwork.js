@@ -68,6 +68,14 @@ CanvasUtil.getIntersections = function(el, collection){
 	hits = _.flatten(hits);
 	return hits;
 }
+CanvasUtil.getInsides = function(el, collection){
+	var hits = _.filter(collection, function(c){
+		return el.contains(c.position);
+	});
+	hits = _.compact(hits);
+	hits = _.flatten(hits);
+	return hits;
+}
 CanvasUtil.query = function(container, selector){
 	// Prefix extension
 	if ("prefix" in selector){

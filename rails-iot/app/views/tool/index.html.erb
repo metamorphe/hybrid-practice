@@ -1,6 +1,16 @@
    <script type="text/javascript">
       var zb, cp, bb, vm, sc, displays = [];
-
+      function allWhite(){
+          leds = CanvasUtil.queryPrefix("NLED");
+           _.each(leds,  function(led){
+              led.is_on = true;
+              led.fillColor = "white";
+              var msg = 'c,'+ led.lid + ',255,255,255\n';
+              console.log(msg);
+              sc.sendMessage(msg);
+           });
+           paper.view.update();
+      }
       $(function(){
         paperSetup();
         var nineSegment = new Artwork("/userstudy/map.svg", function(artwork){
@@ -14,30 +24,48 @@
            leds = CanvasUtil.queryPrefix("NLED");
            _.each(leds,  function(led){
               led.onMouseEnter = function(event) {
-                console.log(this.lid, this.is_on)
-                  if(this.is_on){
-                    this.is_on = false;
-                    this.fillColor = "red";
-                    var msg = 'c,'+ this.lid + ',255,0,0\n';
-                   
+                    var color = new paper.Color(cp.getCurrentColor());
+                    this.fillColor = color;
+                    var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
+                    var msg = 'c,'+ this.lid + ','+ color_msg.join(',')+'\n';
+                    
                     sc.sendMessage(msg);
-                  }
-                  else{
-                    this.is_on = true;
-                    this.fillColor = "blue";
-                    var msg = 'c,'+ this.lid + ',255,255,255\n';
-                  
+               
+              }
+              led.onMouseDown = function(event){
+                var color = new paper.Color(cp.getCurrentColor());
+                // this.fillColor = color;
+                var leds = CanvasUtil.queryPrefix("NLED");
+                var c = new paper.Path.Circle({
+                  position: this.position, 
+                  radius: 90, 
+                  strokeWidth: 5, 
+                  strokeColor: color
+                });
+                var ixts = CanvasUtil.getInsides(c, leds);
+                console.log(ixts);
+                _.each(ixts, function(ixt){
+                    var path = ixt;
+                   var color = new paper.Color(cp.getCurrentColor());
+                    path.fillColor = color;
+                    var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
+                    var msg = 'c,'+ path.lid + ','+ color_msg.join(',')+'\n';
+                    console.log("msg", msg);
                     sc.sendMessage(msg);
-                  }
+                });
               }
            });
         });
         displays.push(nineSegment);
         zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
-        cp = new ColorPalette($('#sidebar-left'));
+        cp = new ControlCenter($('#sidebar-left-control'));
+
+        // cp = new ColorPalette($('#sidebar-left'));
         bb = new BrushBar($('#brush-bar'));
         sc = new SocketControl($('#socket-button'));
 
+        sm = new SelectionManager();
+        
         $("#shade").fadeOut("slow");
       });
 
@@ -125,6 +153,7 @@
       <%= render :partial => "views"%>
       <%= render :partial => "color_palette"%>
       <%= render :partial => "brush_bar"%>
+       <%= render :partial => "control"%>
       <%= render :partial => "zoom_bar"%>
   </body>
 

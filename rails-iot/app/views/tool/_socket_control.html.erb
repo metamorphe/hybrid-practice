@@ -15,9 +15,10 @@ SocketControl.prototype = {
       if (!scope.isConnected) {
         scope.connect();
       } else {
-        scope.sendMessage('hi');
+        // scope.sendMessage('hi');
       }
     });
+    $('#all-white').click(allWhite);
   },
   connect: function() {
     // $.get("/tool/start_server", function(json){
@@ -30,6 +31,7 @@ SocketControl.prototype = {
       scope.container.text('SEND');
       scope.container.removeClass('btn-danger');
       scope.container.addClass('btn-success');
+
     };
     this.ws.onclose = function() {
       scope.isConnected = false;
@@ -55,6 +57,7 @@ SocketControl.prototype = {
    * No ACK-checking, UDP style.
    */
   sendMessage: function(msgString) {
+    if(!this.isConnected) return;
     console.log("TO ARD", msgString);
     this.ws.send(msgString);
   },
@@ -93,13 +96,16 @@ SocketControl.prototype = {
 }
 
 </script>
-
-<button id="socket-button" class="btn btn-lg btn-danger">
+<div class="socket-btns btn-group">
+<button id="socket-button" class="btn btn btn-danger">
   CONNECT
 </button>
-
+<button id="all-white" class="btn btn btn-default">
+  ALL WHITE
+</button>
+</div>
 <style>
-#socket-button {
+#socket-btns {
   margin: 15% 0;
 }
 </style>
