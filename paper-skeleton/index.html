@@ -9,159 +9,111 @@
 		<script type="text/javascript" src="libs/saveas.min.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
-		<script type="text/javascript" src="js/dat.gui.js"></script>
-
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
-
-
-
-
+		 	var nineSegment;
 			$(function(){
 				// MAIN FUNCTION
+				$('#downloadButtonPNG').click(function(){
+					console.log("clicked");
+					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
+				});
+				$('#downloadButtonSVG').click(function(){
+					console.log("clicked");
+					console.log("Exporting file as SVG");
+					paper.view.zoom = 1;
+					paper.view.update();
 
-
+					exp = paper.project.exportSVG({
+						asString: true,
+						precision: 5
+					});
+					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
+				});
 				$('#myCanvas').attr('height', $(window).height());
 				$('#myCanvas').attr('width', $(window).width());
 
 				paper.install(window);
 				paper.setup('myCanvas');
 				paper.view.zoom = 1;
-
-				function Halo(clone, waves, scale){
-
-					this.path = clone;
-					this.scale = scale;
-					this.waves = waves;
-					this.halo_waves = [];
-					// this.strokeColor;
-					this.init();
-					// debugger;
-				}
-
-				Halo.prototype = {
-					init: function(){
-						console.log("initiate halo")
-
-						debugger;
-						this.path.scaling.x = this.scale;
-						this.path.scaling.y = this.scale;
-
-						this.path.strokeColor = "gold"						//for now
-						if (this.path.strokeColor == undefined){
-								this.path.strokeColor = "blue"
-						}
-						// debugger;
-						this.path.strokeColor.alpha = 0;
-
-						if (this.waves > 1){
-							this.createWaves(this.waves, this.scale);
-						}
-
-
-
-					},
-					createWaves: function(waves, scale){
-						debugger;
-						for (var i = 0; i < waves; i++){
-							scale = scale - 0.2;
-							this.halo_waves.push(new Halo(this.path.clone(), 1, scale));
-						}
-
-					}
-				}
-
-				/*ADD DAT GUI */
-				// class
-				// what is the difference between the top function and the prototype?
-				function AnimatedLight(path){
-					this.path = path;
-					this.express = 0; //[ 0 - 0.5]// attached to alpha fillcolor, [0.5, 1] there is a halo rendering around it
-					// this.halo = new Halo(this.path.clone().scale(2));
-					this.halo = new Halo(this.path.clone(), 3, 2);
-					this.init();
-				}
-				AnimatedLight.prototype = {
-					init: function(){
-						// make sure it has a fillColor
-						// debugger;
-						if (this.path.fillColor == undefined){
-								this.path.fillColor = "yellow";
-								this.path.fillColor.alpha = 0;
-						}
-						// making your Halo here.
-					},
-					// action: function(){
-					//
-					// }
-					revealHalo: function(val){ //[0, 1]
-						// debugger;
-						//reveal halo's gradientm which is just showing one outer box once.
-						console.log("reveal halo")
-						// console.log(this.halo)
-						this.halo.path.strokeColor.alpha = (val-0.5)/(0.5);
-						debugger;
-						console.log(this.halo.halo_waves[0] == this.halo.halo_waves[1]);
-						_.each(this.halo.halo_waves, function(wave){
-							debugger;
-
-							wave.path.strokeColor.alpha = (val-0.5)/(0.5);
-						})
-					},
-					hideHalo: function(){
-						console.log("hide halo")
-						this.halo.path.strokeColor.alpha = 0;
-					},
-					update: function(){
-						console.log("HANDLING LOGIC ON", this.path.id);
-						// handles the logic of what to do with the express property
-						if(this.express >= 0 && this.express < 0.5){
-							// debugger;
-							this.path.fillColor.alpha = this.express/0.5;
-							// fillColor = "blue";
-							this.hideHalo();
-
-						} else {
-							this.revealHalo(this.express);
-						}
-						// 	// fillColor = asdasldk;al;
-						// if(asdlkjaskfj)
-						// aslkdlkajsdlkjas;sd
-						// this.setHalo(this.express - 0.5);
-
-					}
-				}
-
-
-				var map = new Artwork("img/map.svg", function(display){
-					var gui = new dat.GUI();
-
-					_.each(CanvasUtil.queryPrefix("NLED"), function(nled){
-							console.log(nled._id);
-						  var eled = new AnimatedLight(nled);
-							controller = gui.add(eled, 'express', 0.0, 1.0);
-							controller.onChange(function(value) {
-							  this.object.update();
-							});
-					});
+				nineSegment = new Artwork("img/nine-segment.svg", function(display){
+					runScript(display);
 				});
-				console.log("1");
-
-
 
 			});
+			function runScript(display){
+				display.remove();
 
+				var testRectangle = new paper.Path.Rectangle({
+					size: new paper.Size(30, 40),
+					point: paper.view.center,
+					strokeColor: "black",
+					strokeWidth: 1
+				});
+
+				var corner = testRectangle.segments[0];
+				var gCorner = new paper.Path.Circle({
+					radius: 4,
+					position: corner.point,
+					fillColor: "red",
+				});
+
+				var corner2 = testRectangle.segments[1];
+				var gCorner2 = new paper.Path.Circle({
+					radius: 4,
+					position: corner2.point,
+					fillColor: "green",
+				});
+
+
+				var vectorToMove = new paper.Point(-50, 0);
+				corner.point = vectorToMove.add(corner.point);
+				corner2.point = vectorToMove.add(corner2.point);
+
+				var gCorner = new paper.Path.Circle({
+					radius: 4,
+					position: corner.point,
+					fillColor: "green",
+					strokeColor: "black",
+					strokeWidth: 1
+				});
+				var gCorner2 = new paper.Path.Circle({
+					radius: 4,
+					position: corner2.point,
+					fillColor: "green",
+					strokeColor: "black",
+					strokeWidth: 1
+				});
+
+			}
 		</script>
 	</head>
 	<body>
 		<div class="container">
 			<canvas id="myCanvas"></canvas>
+			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
+			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
 		</div>
 	</body>
 </html>
 
 <style>
+	#downloadButtonPNG{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+	#downloadButtonSVG{
+		position: absolute;
+		top: 80px;
+		left: 20px;
+	}
+	#myCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
 	body, html{
 		margin: 0;
 		padding: 0;
