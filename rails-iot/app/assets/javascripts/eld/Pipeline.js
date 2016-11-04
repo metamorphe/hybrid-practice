@@ -554,7 +554,7 @@ Pipeline.script = {
         });
        
 
-        ramps = _.map(e.dds, function(diff) {
+        ramps = _.map(e.diff, function(diff) {
             dleds = _.filter(e.leds, function(l) { return diff.contains(l.bounds.center); });
             if(dleds.length == 0) return;
             var ils = interpolation_lines(diff, dleds, visible=false);
