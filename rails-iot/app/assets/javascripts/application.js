@@ -109,8 +109,8 @@ function norm(arr){
 
 function Utility(){}
 Utility.paperSetup = function(dom){
-        dom.attr('height', $(window).height());
-        dom.attr('width', $(window).width());
-        paper.install(window);
-        paper.setup('myCanvas');
-      }
+  dom.attr('height', $(window).height());
+  dom.attr('width', $(window).width());
+  paper.install(window);
+  paper.setup('myCanvas');
+}

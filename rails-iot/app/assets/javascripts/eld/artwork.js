@@ -5,55 +5,46 @@
 //    Breakin --> obj.query({prefix:['BI']});
 //    Breakin --> obj.queryPrefix("BI");
 
-function CanvasUtil() {
+function CanvasUtil() {}
+CanvasUtil.import = function(filename, options){
+	var extension = filename.split('.');
+	extension = extension[extension.length - 1];
+
+	if(extension == "svg"){
+	 	paper.project.importSVG(filename, function(item) {
+	 		item.set(options);
+		});
+	}
+ 	else{
+		console.log("IMPLEMENTATION JSON IMPORT");
+	}
 }
 
-CanvasUtil.prototype = {}
-CanvasUtil.printNames = function(){
-	var elements = ["NLED", "DIFF", "NLED"]
-	_.each(elements, function(element){
-		var arr = CanvasUtil.queryPrefix(element);
-		_.each(arr, function(el){
-			console.log(el.name, el.id);
-			if(el.forceTarget) console.log("ft:", el.forceTarget);
-			else if(el.target) console.log("t:", el.target);
-		})
-	});
+CanvasUtil.export = function(filename){
+	console.log("Exporting SVG...", filename);
+    var prev_zoom = paper.view.zoom;
+    paper.view.zoom = 1;
+    paper.view.update();
+
+    exp = paper.project.exportSVG({ 
+      asString: true,
+      precision: 5
+    });
+    saveAs(new Blob([exp], {type:"application/svg+xml"}), filename + ".svg");
+
+    paper.view.zoom = prev_zoom;
+    paper.view.update();
 }
-CanvasUtil.fitToViewWithZoom = function(element, bounds){
+
+CanvasUtil.fitToViewWithZoom = function(element, bounds, position){
+	position = position || paper.view.center;
 	var scaleX = element.bounds.width / bounds.width;
 	var scaleY = element.bounds.height / bounds.height;
 	var scale = _.max([scaleX, scaleY]);
 	console.log("SET ZOOM TO", scale);
 	paper.view.zoom = 1.0/scale;
+	paper.view.center = position;
 }
-CanvasUtil.getMediums =  function(){
-	var reflectors = CanvasUtil.queryPrefix("REF");
-    var lenses = CanvasUtil.queryPrefix("LENS");
-    var diffusers = CanvasUtil.queryPrefix("DIFF");
-    
-    _.each(diffusers, function(el){
-    	el.optic_type = "diffuser" 
-    	el.reflectance = 0.3;
-    	el.refraction = 0.8;
-    	// el.probability = 0.5;
-    	name = Artwork.getName(el).split("_")[1];
-        name = name.split("_")[0];
-        el.n = parseFloat(name);
-    });
-    _.each(reflectors, function(el){ 
-    	el.optic_type = "reflector" 
-    	el.reflectance = 0.9;
-    });
-    _.each(lenses, function(el){
-    	el.optic_type = "lens" 
-        el.refraction = 0.80;
-        name = Artwork.getName(el).split("_")[1];
-        name = name.split("_")[0];
-        el.n = parseFloat(name);
-    });
- 	return  _.flatten([lenses,reflectors,diffusers]);
- }
 
 CanvasUtil.getIDs = function(arr){
 	return _.chain(arr).map(function(el){
@@ -68,25 +59,31 @@ CanvasUtil.getIntersections = function(el, collection){
 	hits = _.flatten(hits);
 	return hits;
 }
-CanvasUtil.getInsides = function(el, collection){
-	var hits = _.filter(collection, function(c){
-		return el.contains(c.position);
-	});
-	hits = _.compact(hits);
-	hits = _.flatten(hits);
-	return hits;
-}
+
+
+
 CanvasUtil.query = function(container, selector){
 	// Prefix extension
 	if ("prefix" in selector){
 		var prefixes = selector["prefix"];
 
 		selector["name"] = function(item){
-			var p = Artwork.getPrefixItem(item);
+			var p = CanvasUtil.getPrefixItem(item);
 			return prefixes.indexOf(p) != -1;
 		}
 		delete selector["prefix"];
 	}
+	else if ("pname" in selector){
+		var prefixes = selector["pname"];
+
+		selector["name"] = function(item){
+			var p = CanvasUtil.getNameItem(item);
+			return prefixes.indexOf(p) != -1;
+		}
+		delete selector["pname"];
+	}
+
+
 	var elements = container.getItems(selector);
 	elements = _.map(elements, function(el, i, arr){
 		if(el.className == "Shape"){
@@ -97,15 +94,26 @@ CanvasUtil.query = function(container, selector){
 			
 		else return el;
 	});
-	if ("lid" in selector) {
-		return _.where(elements, {lid: selector["lid"]})
-	} else {
-		return elements;
-	}
+	return elements;
+}
+
+CanvasUtil.queryName = function(selector){
+   return CanvasUtil.query(paper.project, {pname: [selector]});
 }
 
 CanvasUtil.queryPrefix = function(selector) {
 	return CanvasUtil.query(paper.project, {prefix: [selector]});
+}
+
+CanvasUtil.queryIDs = function(selector) {
+	return _.map(selector, function(id){
+		return CanvasUtil.queryID(id);
+	})
+}
+
+CanvasUtil.queryID = function(selector) {
+	var result = CanvasUtil.query(paper.project, {id: selector})
+	return result.length == 0 ? null : result[0];
 }
 
 CanvasUtil.queryPrefixWithId = function(selector, id) {
@@ -134,6 +142,38 @@ CanvasUtil.call = function(collection, calling){
 	  rt[calling]();
 	});
 }
+        
+
+
+
+CanvasUtil.getPrefix = function(item){
+	if(_.isUndefined(item)) return "";
+	if(_.isUndefined(item.name)) return "";
+	// if(item.name.split(":").length < 2) return "";
+	if(item.name.split(":").length < 2) return "";
+	return item.name.split(":")[0].trim();
+}
+
+CanvasUtil.getPrefixItem = function(item){
+	if(_.isUndefined(item)) return "";
+	if(item.split(":").length < 2) return "";
+	return item.split(":")[0].trim();
+}
+
+
+CanvasUtil.getName = function(item){
+	if(_.isUndefined(item)) return "";
+	if(_.isUndefined(item.name)) return "";
+	if(item.name.split(":").length < 2) return "";
+  	return item.name.split(":")[1].trim();
+}
+
+CanvasUtil.getNameItem = function(item){
+	if(_.isUndefined(item)) return "";
+	if(item.split(":").length < 2) return "";
+  	return item.split(":")[1].trim();
+}
+
         
 function Artwork(svgPath, loadFN, cloned){
 	this.svgPath = svgPath;
@@ -168,7 +208,7 @@ Artwork.prototype = {
 	 	
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
- 			CanvasUtil.fitToViewWithZoom(scope.svg, paper.view.bounds.expand(-280))
+ 			// CanvasUtil.fitToViewWithZoom(scope.svg, paper.view.bounds.expand(-280))
         	
  			// metadata import
  			leds = scope.queryPrefix("NLED");

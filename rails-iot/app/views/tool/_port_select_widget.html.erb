@@ -1,0 +1,28 @@
+<script>
+$(function(){
+	var els = _.map(ports, function(el, i, arr){
+	  var name = el.split('/');
+	  name = name[name.length-1];
+      var dom =  $('<option></options>').html(name.toUpperCase())
+      	.attr('value', el);
+      return dom;
+    });
+    $('#port-selector').html(els);
+})
+</script>
+
+<div id="port-select" class="widget status">
+	<label class="widget-title" name="Port Select"></label>
+	<div class="widget-body">
+		
+	  <select id="port-selector" class="form-control-special  col-xs-9">
+	  </select> 
+
+	  <div class="socket-btns btn-group col-xs-3 nopadding">
+		<button id="socket-button" class="btn btn btn-success btn-block">
+		  <%= glyph "send" %>
+	    </button>
+	  </div>
+	  <br class="clearfix">
+	</div>
+</div>

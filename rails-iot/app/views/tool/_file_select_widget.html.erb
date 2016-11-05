@@ -1,0 +1,19 @@
+<script>
+$(function(){
+	var els = _.map(files, function(el, i, arr){
+      var dom =  $('<option></options>').html(el.title.toUpperCase())
+      	.attr('value', el.path + el.filename);
+      if(el.filename == DEFAULT_PIPE_FILE) dom.attr('selected', true);
+      return dom;
+    });
+    $('#file-selector').html(els);
+})
+</script>
+
+<div id="file-select" class="widget status">
+	<label class="widget-title" name="File Select"></label>
+	<div class="widget-body">
+	  <select id="file-selector" class="form-control">
+	  </select> 
+	</div>
+</div>

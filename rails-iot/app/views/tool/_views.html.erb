@@ -45,8 +45,7 @@
 			console.log("VIEW", view);
 			
 					
-			_.each(displays, function(display){
-				e = Pipeline.getElements(display);
+				e = Pipeline.getElements();
 				var all = [e.art, e.diff, e.leds, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
 		
 				switch(view){
@@ -154,7 +153,6 @@
 				CanvasUtil.set(_.flatten(show), "visible", true);
 				CanvasUtil.set(_.flatten(hide), "visible", false);
 
-			});
 			paper.view.update();
 		},
 		show: function(now){

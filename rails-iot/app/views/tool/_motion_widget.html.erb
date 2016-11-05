@@ -1,0 +1,49 @@
+<script type="text/javascript">
+var miniVM, miniPaper; 
+$(function(){
+    miniPaper = paperSetup('myMotionCanvas');
+    paper = miniPaper;
+    var display = new Artwork("/userstudy/map.svg", function(artwork){ 
+       var leds = CanvasUtil.queryPrefix("DDS");
+       CanvasUtil.fitToViewWithZoom(leds[0], paper.view.bounds, leds[0].position);
+
+       CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+       CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+       var leds = CanvasUtil.queryPrefix("NLED");
+       var options = _.map(leds, function(led){
+        return $('<option></option>').html(led.id).attr("value", led.id);
+       });
+       $('#element-selector').append(options);
+       $('#motion-select').click(function(){
+         var id = parseInt($('#element-selector').val());
+         paper = miniPaper;
+         paper.view.zoom = 1;
+         var element = CanvasUtil.queryID(id);
+         
+         CanvasUtil.fitToViewWithZoom(element, paper.view.bounds.expand(-150), element.position);
+       })
+    });
+})
+
+</script>
+
+<div id="motion" class="widget status">
+	<label class="widget-title" name="motion"></label>
+	<div class="widget-body">
+        <select id="element-selector" class="form-control-special col-xs-9">
+        </select> 
+        <div class="col-xs-3 nopadding">
+          <button id="motion-select" class="btn btn-danger btn-block">
+             <%= glyph "screenshot" %>
+          </button>
+        </div>
+        <br class="clearfix">
+        <br class="">
+	 	<canvas id="myMotionCanvas" class="paper"></canvas>
+	</div>
+</div>
+<style type="text/css">
+#myMotionCanvas{
+    border: 2px solid #666;
+}
+</style>

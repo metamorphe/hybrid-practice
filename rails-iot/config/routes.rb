@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   get 'tool/dope'
   get 'tool/refract'
   get 'tool/designer'
+  get 'tool/system_control'
 
 
   get 'devices/index'
