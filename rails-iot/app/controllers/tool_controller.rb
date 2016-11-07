@@ -63,7 +63,7 @@ class ToolController < ApplicationController
     [files[:filenames], files2[:filenames]].flatten
   end
   def get_ports
-    ports = ["/dev/tty.HC*", "/dev/tty.usbmodem*"]
+    ports = ["/dev/tty.usbmodem*"] #"/dev/tty.HC*", 
     ports.map!{|p| Dir[p]}
     ports.flatten!
   end

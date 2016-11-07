@@ -1,5 +1,4 @@
    <script type="text/javascript">
-
       var files = <%= @files.to_json.html_safe %>;
       var ports = <%= @ports.to_json.html_safe %>;
       var papers = [];
@@ -13,6 +12,7 @@
         // TEMPLATE UPDATE
         var widgets = $("#status .widget-title");
         var template = $('#widget-title');
+
         _.each(widgets, function(widget){
           var t = template.clone();
           var name = $(widget).attr('name');
@@ -39,10 +39,10 @@
         dom.attr('height', dom.parent().height());
         dom.attr('width', dom.parent().width());
         // paper.install(window);
-         var myPaper = new paper.PaperScope();
-         myPaper.setup(id);
-         papers.push(myPaper);
-         return myPaper;
+        var myPaper = new paper.PaperScope();
+        myPaper.setup(id);
+        papers.push(myPaper);
+        return myPaper;
       }
     </script>
   </head>
@@ -64,6 +64,7 @@
          <%= render :partial => "motion_widget" %>
          <%= render :partial => "graph_widget" %>
          <%= render :partial => "stream_widget" %>
+         <%= render :partial => "quick_behaviors_widget" %>
         </div>
         <!-- END STATUS BAR -->
 
@@ -85,8 +86,9 @@
    	body, html{
    		width: 100%;
    		height: 100%;
-   		overflow: hidden;
+   		
       background: #f5f4f0;
+      overflow: hidden;
    	}
     #control-container{
       position: absolute;
@@ -95,17 +97,23 @@
       width: 100%;
       overflow: none;
       cursor: pointer;
+      overflow: hidden;
     }
 
     #view-container{
       height: 80%;
+      overflow: hidden;
     }
     #ui-container{
+      /*position: absolute;*/
+      /*bottom: 0;*/
+      /*z-index: 10000;*/
       height: 20%;
+      overflow: hidden;
     }
       #main, #status, #ui{
         height: 100%;
-        overflow: scroll;
+        /*overflow: scroll;*/
       }
         #main{
           /*background: red;*/
@@ -127,6 +135,7 @@
           -webkit-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
           -moz-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
           box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+          overflow-y: scroll;
 
         }
         #ui{

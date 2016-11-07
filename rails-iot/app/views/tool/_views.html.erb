@@ -51,8 +51,8 @@
 				switch(view){
 					case "NORMAL":
 						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
-						var show = [e.art, e.diff, e.leds, e.dds, e.base, e.wires];
-						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi];
+						var show = [e.art, e.diff, e.leds, e.dds, e.base];
+						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi, e.nuts, e.wires];
 
 						_.each(e.leds, function(led){
 							led.set({

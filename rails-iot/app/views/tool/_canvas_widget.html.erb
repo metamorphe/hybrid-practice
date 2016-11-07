@@ -1,14 +1,8 @@
 <script type="text/javascript">
-var mainVM;
+var mainVM, mainPaper;
 $(function(){
-	var mainPaper = paperSetup('myCanvas');
-    paper = mainPaper;
-   	var display = new Artwork("/userstudy/map.svg", function(artwork){
-       CanvasUtil.fitToViewWithZoom(artwork.svg, paper.view.bounds.expand(-100));
-       CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
-       CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
-       vm = new ViewManager($('#views'));
-    });
+	mainPaper = paperSetup('myCanvas');
+	mainPaper.name = "mainPaper";
 });
 </script>
 
@@ -31,6 +25,7 @@ $(function(){
 	  position: relative;
 	  height: calc(100% - 40px);
 	  width: 100%;
+	  overflow: hidden;
 	}
 	.paper{
 	  background: #f5f4f0;
