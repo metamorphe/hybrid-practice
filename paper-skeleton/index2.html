@@ -135,7 +135,7 @@
 				this.center = new Point(this.path.bounds.x + this.path.bounds.width/2,
 					this.path.bounds.y + this.path.bounds.height/2);
 				this.arrows = [];
-				this.radius = 100;
+				this.radius = this.path.bounds.width/2.0;
 				return this.init();
 			}
 			ArrowGroup.prototype = {
@@ -143,13 +143,48 @@
 					console.log("initiate arrowgroup");
 					var boundingCircle = new Path.Circle(this.center, this.radius);
 					boundingCircle.style = {
-						strokeColor: 'black'
+						strokeColor: 'black', 
+						strokeWidth: 6
 					};
-						boundingCircle.removeSegment(0);
+					boundingCircle.removeSegment(0);
 					boundingCircle.removeSegment(2);
 					boundingCircle.closed = false
-					var arrows = new Group([boundingCircle, boundingCircle.clone().rotate(120, this.center),
-														boundingCircle.clone().rotate(-120, this.center)]);
+
+					// adding arrow heads
+					var arrow = new paper.Group({
+						children: [boundingCircle]
+					});
+					var normal = boundingCircle.getNormalAt(boundingCircle.length);
+					normal.length = 20;
+					// normal.rotation += 45;
+
+					var center = boundingCircle.lastSegment.point;
+					console.log(center, normal);
+					var leftArrowHead = new paper.Path.Line({
+						from: center, 
+						to: center.add(normal),
+						strokeColor: "black", 
+						strokeWidth: 6, 
+						parent: arrow, 
+						pivot: center
+					});
+
+					leftArrowHead.rotate(-45);
+
+					var rightArrowHead = new paper.Path.Line({
+						from: center, 
+						to: center.subtract(normal),
+						strokeColor: "black", 
+						strokeWidth: 6, 
+						parent: arrow, 
+						pivot: center
+					});
+
+					rightArrowHead.rotate(45);
+
+
+					var arrows = new Group([arrow, arrow.clone().rotate(120, this.center),
+														arrow.clone().rotate(-120, this.center)]);
 
 					return arrows;
 				}
@@ -174,7 +209,8 @@
 				},
 				generateVisual: function(){
 					this.arrows = new ArrowGroup(this.path);
-					this.arrows.parent = this.path
+					this.arrows.parent = this.path.parent;
+					// this.arrows.parent = this.path
 				},
 				update: function(){
 					// debugger;
@@ -185,7 +221,7 @@
 					this.path.rotation = this.degrees;
 					//spin arrows
 					console.log("this.arrows.rotation", this.arrows.rotation);
-					this.arrows.rotation = this.degrees;
+					this.arrows.rotation = this.degrees * 3;
 					this.arrows.opacity = 1;
 				}
 
