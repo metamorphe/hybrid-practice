@@ -1,0 +1,119 @@
+<script type="text/javascript">
+var qb; 
+$(function(){
+  qb = new QuickBehavior();  
+})
+
+function QuickBehavior(){
+  var scope = this;
+
+  $('#rainbowFlash').click(function(){
+    scope.allRainbowFlash();
+  });
+  $('#allOn').click(function(){
+    scope.allOn();
+  });
+  $('#allOff').click(function(){
+    scope.allOff();
+  });
+}
+QuickBehavior.prototype = {
+  all: function(){
+    paper = mainPaper;
+    leds = CanvasUtil.queryPrefix("NLED");
+    leds = _.sortBy(leds, function(led){
+      return led.position.getDistance(paper.view.center);
+    });
+    return leds;
+  },
+  allBehave: function(fn, params){
+    _.each(this.all(), function(led){
+      fn(led, params);
+    });
+  },
+  allOn: function(){
+    this.allBehave(this.turnOn);
+  },
+  allOff: function(){
+    this.allBehave(this.turnOff);
+  },
+  allRainbowFlash: function(){
+    var scope = this;
+    this.allBehave(this.rainbowFlash, {delay: 1000});
+  },
+  rainbowFlash: function(led, params){
+    var scope = this;
+    hues = _.range(0, 360, 20);
+    _.each(hues, function(hue, step){
+      setTimeout(function(){
+        var color = new paper.Color('red');
+        color.hue = hue;
+        var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
+        color_msg = _.map(color_msg, function(msg){return parseInt(msg)})
+        var msg = 'c,'+ led.lid + ','+ color_msg.join(',')+'\n';
+        diffs = CanvasUtil.getDiffusers(led);
+        _.each(diffs, function(diff){diff.fillColor = color;})
+        led.fillColor = color;
+        paper.view.update();
+        if(sc) sc.sendMessage(msg);
+      }, params.delay * step);
+    })
+  },
+  turnOn: function(led){
+    var diffs = CanvasUtil.getDiffusers(led);
+    _.each(diffs, function(diff){
+      diff.fillColor = "white";
+    });
+    msg =  'c,'+ led.lid + ',255,255,255\n';
+    led.fillColor = "white";
+    paper.view.update();
+    if(sc) sc.sendMessage(msg);
+  },
+  turnOff: function(led){
+   var diffs = CanvasUtil.getDiffusers(led);
+    _.each(diffs, function(diff){
+      diff.fillColor = new paper.Color(0, 0, 0, 0);
+    });
+    msg = 'c,'+ led.lid + ',0,0,0\n';
+    led.fillColor = new paper.Color(0, 0, 0, 0);
+    paper.view.update();
+    
+    if(sc) sc.sendMessage(msg);
+  },
+  flash: function(led, params){
+    var scope = this;
+    params.times *= 2;
+    steps = _.range(0, params.times, 1);
+    var t = 0; 
+    _.each(steps, function(step){
+      if(step % 2 == 0) var fn = scope.turnOn;
+      else var fn = scope.turnOff;
+      setTimeout(function(){
+        fn(led)
+      }, t + (step * params.delay));
+    });
+  },
+  focus: function(){
+    paper = miniPaper;
+    paper.view.zoom = 1;     
+    var element = this.selectedElement();
+    CanvasUtil.fitToViewWithZoom(element, paper.view.bounds.expand(0), element.position);
+  }
+}
+</script>
+
+<div id="motion" class="widget status">
+	<label class="widget-title" name="quick behaviors"></label>
+	<div class="widget-body">
+    <div class="btn-group btn-block">
+      <button id="allOn" class="btn  btn-default"> allOn </button>
+      <button id="allOff" class="btn btn-default"> allOff </button>
+    </div>
+    <button id="rainbowFlash" class="btn btn-block btn-default"> rainbow </button>
+	</div>
+</div>
+<style type="text/css">
+#myMotionCanvas{
+    border: 2px solid #666;
+}
+</style>

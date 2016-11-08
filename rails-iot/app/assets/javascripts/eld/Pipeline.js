@@ -71,7 +71,7 @@ function Pipeline() {
   
 }
 
-Pipeline.getElements = function(display) {
+Pipeline.getElements = function() {
     return {
         art: CanvasUtil.queryPrefix('ART'),
         diff: CanvasUtil.queryPrefix('DIF'),
