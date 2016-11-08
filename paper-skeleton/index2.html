@@ -16,7 +16,7 @@
 		<script type="text/javascript">
 
 
-
+		var gui;
 		$(function(){
 			// MAIN FUNCTION
 			$('#myCanvas').attr('height', $(window).height());
@@ -24,6 +24,7 @@
 			paper.install(window);
 			paper.setup('myCanvas');
 			paper.view.zoom = 1;
+			gui = new dat.GUI();
 
 
 
@@ -46,7 +47,7 @@
 				this.dom;
 				this.variables = {};	///"brightness", "degrees"
 				this.behaviors = [];	//new Halo, new Scaling
-				this.gui = new dat.GUI();
+				
 
 				this.init();
 			}
@@ -55,7 +56,7 @@
 						//sets brightness to 0, then pushes Halo behavior to behaviors.
 						this.variables[behavior.variable_name] = 0;
 						this.behaviors.push(behavior);
-						var guiController = this.gui.add(behavior, behavior.variable_name, 0, behavior.upper_bound);
+						var guiController = gui.add(behavior, behavior.variable_name, 0, behavior.upper_bound);
 						behavior.controller = guiController;
 						this.update();
 				},
@@ -195,14 +196,7 @@
 		</script>
 	</head>
 	<body>
-		<div class="container">
-			<div class="row">
-					<canvas id="myCanvas"></canvas>
-			</div>
-
-
-
-		</div>
+		<canvas id="myCanvas"></canvas>		
 	</body>
 </html>
 

@@ -19,7 +19,13 @@ CanvasUtil.import = function(filename, options){
 		console.log("IMPLEMENTATION JSON IMPORT");
 	}
 }
-
+CanvasUtil.getDiffusers = function(led){
+    var diffs = CanvasUtil.queryPrefix('DDS');
+    diffs = _.filter(diffs, function(diff){
+      return diff.contains(led.position);
+    });
+    return diffs;
+}
 CanvasUtil.export = function(filename){
 	console.log("Exporting SVG...", filename);
     var prev_zoom = paper.view.zoom;

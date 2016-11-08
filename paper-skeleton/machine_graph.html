@@ -20,6 +20,7 @@
 						<body>
 							<script type="text/javascript">
 								
+								
 								var margin = {top: 30, right: 20, bottom: 30, left: 50},
 								    width = 700 - margin.left - margin.right,
 								    height = 400 - margin.top - margin.bottom;
@@ -41,7 +42,8 @@
 								// Define the line
 								var valueline = d3.svg.line()
 								    .x(function(d) { return x(d.date); })
-								    .y(function(d) { return y(d.close); });
+								    .y(function(d) { return y(d.close); })
+								    .attr('class', 'line');
 								    
 								// Adds the svg canvas
 								var svg = d3.select('#viz')
@@ -55,18 +57,20 @@
 								// Get the data
 								d3.csv("data.csv", function(error, data) {
 								    data.forEach(function(d) {
-								        d.date = d.date;
-								        d.close = +d.close;
+								        d.time = d.time;
+								        d.voltage = +d.voltage;
 								    });
 
 								    // Scale the range of the data
-								    x.domain(d3.extent(data, function(d) { return d.date; }));
-								    y.domain([0, d3.max(data, function(d) { return d.close; })]);
+								    x.domain(d3.extent(data, function(d) { return d.time; }));
+								    y.domain([0, d3.max(data, function(d) { return d.voltage; })]);
 
 								    // Add the valueline path.
 								    svg.append("path")
 								        .attr("class", "line")
 								        .attr("d", valueline(data));
+
+
 
 								    // Add the X Axis
 								    svg.append("g")
@@ -148,6 +152,8 @@
 				height: 300px;
 				border: 2px solid black;
 			}
+			
+
 		</style>
 	</body>
 </html>

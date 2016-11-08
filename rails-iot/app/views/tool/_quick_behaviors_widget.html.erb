@@ -38,9 +38,11 @@ QuickBehavior.prototype = {
     this.allBehave(this.turnOff);
   },
   allRainbowFlash: function(){
+    var scope = this;
     this.allBehave(this.rainbowFlash, {delay: 1000});
   },
   rainbowFlash: function(led, params){
+    var scope = this;
     hues = _.range(0, 360, 20);
     _.each(hues, function(hue, step){
       setTimeout(function(){
@@ -49,16 +51,33 @@ QuickBehavior.prototype = {
         var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
         color_msg = _.map(color_msg, function(msg){return parseInt(msg)})
         var msg = 'c,'+ led.lid + ','+ color_msg.join(',')+'\n';
+        diffs = CanvasUtil.getDiffusers(led);
+        _.each(diffs, function(diff){diff.fillColor = color;})
+        led.fillColor = color;
+        paper.view.update();
         if(sc) sc.sendMessage(msg);
       }, params.delay * step);
     })
   },
   turnOn: function(led){
+    var diffs = CanvasUtil.getDiffusers(led);
+    _.each(diffs, function(diff){
+      diff.fillColor = "white";
+    });
     msg =  'c,'+ led.lid + ',255,255,255\n';
+    led.fillColor = "white";
+    paper.view.update();
     if(sc) sc.sendMessage(msg);
   },
   turnOff: function(led){
+   var diffs = CanvasUtil.getDiffusers(led);
+    _.each(diffs, function(diff){
+      diff.fillColor = new paper.Color(0, 0, 0, 0);
+    });
     msg = 'c,'+ led.lid + ',0,0,0\n';
+    led.fillColor = new paper.Color(0, 0, 0, 0);
+    paper.view.update();
+    
     if(sc) sc.sendMessage(msg);
   },
   flash: function(led, params){
@@ -84,7 +103,7 @@ QuickBehavior.prototype = {
 </script>
 
 <div id="motion" class="widget status">
-	<label class="widget-title" name="inspector"></label>
+	<label class="widget-title" name="quick behaviors"></label>
 	<div class="widget-body">
     <div class="btn-group btn-block">
       <button id="allOn" class="btn  btn-default"> allOn </button>
