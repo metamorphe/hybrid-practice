@@ -34,7 +34,7 @@
 				var base = CanvasUtil.queryPrefix("MAP")[0]
 				var animatedSLight = new Actuator("AnimatedLight", nled);
 				var rotateBase = new Actuator("RotateBase", base);
-				var newhalo = new Halo("brightness", nled, 3);
+				var newhalo = new Halo("brightness", nled, 1024);
 				var newrotation = new RotatedBehavior("degrees", base, 360);
 				animatedSLight.set(newhalo);
 				animatedSLight.set(newrotation);
@@ -111,8 +111,9 @@
 					this.path.parent = this.visual
 				},
 				update: function(value){
+					var ratio = value/this.upper_bound;
 					var numChildren = this.visual.children.length;
-					var mark = numChildren * value;
+					var mark = numChildren * ratio;
 					console.log("updating halo");
 					this.path.fillColor.alpha = this.var_num;	//brightness
 					_.each(this.visual.children, function(child, i) {
