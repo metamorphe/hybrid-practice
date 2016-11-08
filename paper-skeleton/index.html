@@ -9,111 +9,295 @@
 		<script type="text/javascript" src="libs/saveas.min.js"></script>
 		<script type="text/javascript" src="js/artwork.js"></script>
 		<script type="text/javascript" src="js/ruler.js"></script>
+		<script type="text/javascript" src="js/dat.gui.js"></script>
+
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
 
 		<script type="text/javascript">
-		 	var nineSegment;
-			$(function(){
-				// MAIN FUNCTION
-				$('#downloadButtonPNG').click(function(){
-					console.log("clicked");
-					$(this).attr('href', $('#myCanvas')[0].toDataURL("image/png") ).attr('download', 'mymodel.png');
-				});
-				$('#downloadButtonSVG').click(function(){
-					console.log("clicked");
-					console.log("Exporting file as SVG");
-					paper.view.zoom = 1;
-					paper.view.update();
 
-					exp = paper.project.exportSVG({
-						asString: true,
-						precision: 5
-					});
-					saveAs(new Blob([exp], {type:"application/svg+xml"}), "mymodel.svg")
-				});
-				$('#myCanvas').attr('height', $(window).height());
-				$('#myCanvas').attr('width', $(window).width());
 
-				paper.install(window);
-				paper.setup('myCanvas');
-				paper.view.zoom = 1;
-				nineSegment = new Artwork("img/nine-segment.svg", function(display){
-					runScript(display);
-				});
+		var gui;
+		$(function(){
+			// MAIN FUNCTION
+			$('#myCanvas').attr('height', $(window).height());
+			$('#myCanvas').attr('width', $(window).width());
+			paper.install(window);
+			paper.setup('myCanvas');
+			paper.view.zoom = 1;
+			gui = new dat.GUI();
+			var curr_val = 0;
+			var prev_val = 0;
 
+
+
+
+			var map = new Artwork("img/map.svg", function(display){
+				var nled = CanvasUtil.queryPrefix("NLED")[0];
+				var base = CanvasUtil.queryPrefix("MAP")[0]
+				var animatedSLight = new Actuator("AnimatedLight", nled);
+				var rotateBase = new Actuator("RotateBase", base);
+				var newhalo = new Halo("brightness", nled, 1024);
+				var newrotation = new RotatedBehavior("degrees", base, 360);
+				animatedSLight.set(newhalo);
+				animatedSLight.set(newrotation);
 			});
-			function runScript(display){
-				display.remove();
-
-				var testRectangle = new paper.Path.Rectangle({
-					size: new paper.Size(30, 40),
-					point: paper.view.center,
-					strokeColor: "black",
-					strokeWidth: 1
-				});
-
-				var corner = testRectangle.segments[0];
-				var gCorner = new paper.Path.Circle({
-					radius: 4,
-					position: corner.point,
-					fillColor: "red",
-				});
-
-				var corner2 = testRectangle.segments[1];
-				var gCorner2 = new paper.Path.Circle({
-					radius: 4,
-					position: corner2.point,
-					fillColor: "green",
-				});
 
 
-				var vectorToMove = new paper.Point(-50, 0);
-				corner.point = vectorToMove.add(corner.point);
-				corner2.point = vectorToMove.add(corner2.point);
+			function Actuator(name, path){
+				this.name = name;
+				this.path = path;
+				this.dom;
+				this.variables = {};	///"brightness", "degrees"
+				this.behaviors = [];	//new Halo, new Scaling
 
-				var gCorner = new paper.Path.Circle({
-					radius: 4,
-					position: corner.point,
-					fillColor: "green",
-					strokeColor: "black",
-					strokeWidth: 1
-				});
-				var gCorner2 = new paper.Path.Circle({
-					radius: 4,
-					position: corner2.point,
-					fillColor: "green",
-					strokeColor: "black",
-					strokeWidth: 1
-				});
+
+				this.init();
+			}
+			Actuator.prototype = {
+				set: function(behavior){
+						//sets brightness to 0, then pushes Halo behavior to behaviors.
+						this.variables[behavior.variable_name] = 0;
+						this.behaviors.push(behavior);
+						var guiController = gui.add(behavior, behavior.variable_name, 0, behavior.upper_bound);
+
+						behavior.controller = guiController;
+						this.update();
+				},
+				init: function(){
+					var scope = this;
+					this.dom = new Group({
+						parent: this.path.parent
+					});
+					this.path.parent = this.dom;
+
+				},
+				update: function(){
+					var scope = this;
+					_.each(this.behaviors, function(behavior){
+						behavior.controller.onChange(function(val){
+								prev_val = curr_val;
+								curr_val = val;
+								this.object.update(val)
+						});
+						behavior.controller.onFinishChange(function(val){
+								this.object.updateFinal(val)
+						});
+					});
+				}
+			}
+
+			/*Halo for LEDs*/
+			function Halo(variable_name, path, upper_bound){
+				this.path = path;
+				this.variable_name = "brightness";
+				this.brightness = 0;
+				this.upper_bound = upper_bound;
+				this.visual;
+				this.init();
+			}
+			Halo.prototype = {
+				init: function(){
+					console.log("initiate halo")
+					this.generateVisual();
+					if (this.path.fillColor == undefined){
+							this.path.fillColor = "yellow";
+							this.path.fillColor.alpha = 0;
+					}
+					for(var i = 1; i < 4; i+=0.5){ // 6 rings
+						var ring = this.path.clone();
+						ring.scaling = new paper.Size(i, i);
+						ring.strokeColor = "gold";
+						this.visual.addChild(ring);
+						ring.strokeColor.alpha = 0;
+					}
+
+				},
+				generateVisual: function(){
+					this.visual = new paper.Group({
+						parent: this.path.parent
+					});
+					this.path.parent = this.visual
+				},
+				update: function(value){
+					var ratio = value/this.upper_bound;
+					var numChildren = this.visual.children.length;
+					var mark = numChildren * ratio;
+					console.log("updating halo");
+					this.path.fillColor.alpha = this.var_num;	//brightness
+					_.each(this.visual.children, function(child, i) {
+
+						if(i > 0 && i < mark){
+							child.strokeColor.alpha = 1;
+						}
+						else if(i > mark){
+							child.strokeColor.alpha = 0;
+						}
+					});
+					paper.view.update();
+				}
+			}
+
+			/*Arrows for Rotating Motors*/
+			function ArrowGroup(path, direction){
+				this.path = path;
+				this.center = new Point(this.path.bounds.x + this.path.bounds.width/2,
+					this.path.bounds.y + this.path.bounds.height/2);
+				this.stem = new Group();
+				this.CWArrows;
+				this.CCWArrows;
+				this.radius = this.path.bounds.width/2.0;
+				this.direction = direction;
+				this.init();
+			}
+			ArrowGroup.prototype = {
+				init: function(){
+					var scope = this;
+					console.log("initiate arrowgroup");
+					var boundingCircle = new Path.Circle(this.center, this.radius);
+					boundingCircle.style = {
+						strokeColor: 'black',
+						strokeWidth: 6,
+					};
+					boundingCircle.removeSegment(0);
+					boundingCircle.removeSegment(2);
+					boundingCircle.closed = false
+
+					// adding arrow heads
+					var stem1 = new paper.Group({
+						children: [boundingCircle]
+					});
+
+					//clockwise
+					var normal = boundingCircle.getNormalAt(boundingCircle.length);
+					var cwCenter = boundingCircle.lastSegment.point;
+					//counterclockwise
+					var tangent = boundingCircle.getTangentAt(boundingCircle.length);
+					var ccwCenter = boundingCircle.firstSegment.point;
+
+					var dx = [
+						{"direction": normal,
+						"center": cwCenter},
+						{"direction": tangent,
+						"center": ccwCenter}
+					];
+
+					_.each(dx, function(x){
+						x.direction.length = 20;
+						var leftArrowHead = new paper.Path.Line({
+							from: x.center,
+							to: x.center.add(x.direction),
+							strokeColor: "black",
+							strokeWidth: 6,
+							parent: stem1,
+							pivot: x.center,
+							strokeCap: 'round'
+						});
+
+						leftArrowHead.rotate(-45);
+
+						var rightArrowHead = new paper.Path.Line({
+							from: x.center,
+							to: x.center.subtract(x.direction),
+							strokeColor: "black",
+							strokeWidth: 6,
+							parent: stem1,
+							pivot: x.center,
+							strokeCap: 'round'
+						});
+
+						rightArrowHead.rotate(45);
+
+						var arrows = new Group({
+							children: [leftArrowHead, rightArrowHead],
+							parent: stem1
+						});
+						});
+
+						var stem2 = stem1.clone().rotate(120, this.center);
+						var stem3 = stem1.clone().rotate(-120, this.center);
+
+						this.stem = new Group([stem1, stem2, stem3]);
+						this.CWArrows = [stem1.children[1], stem2.children[1], stem3.children[1]];
+						this.CCWArrows = [stem1.children[2], stem2.children[2], stem3.children[2]];
+
+				},
+				activateCW: function(){
+					_.each(this.CWArrows, function(arrow){
+						arrow.opacity = 1;
+					});
+					_.each(this.CCWArrows, function(arrow){
+						arrow.opacity = 0;
+					});
+				},
+				activateCCW: function(){
+					_.each(this.CWArrows, function(arrow){
+						arrow.opacity = 0;
+					});
+					_.each(this.CCWArrows, function(arrow){
+						arrow.opacity = 1;
+					});
+				}
 
 			}
+
+			/*Rotating Motors*/
+			function RotatedBehavior(variable_name, path, upper_bound){
+
+				this.path = path;
+				this.variable_name = "degrees";
+				this.degrees = 0;
+				this.upper_bound = upper_bound;
+				this.arrows;
+				this.direction = 0;
+				this.init();
+			}
+			RotatedBehavior.prototype = {
+				init: function(){
+					console.log("init animated rotation");
+					//hide arrows upon initiation
+					this.generateVisual();
+				},
+				generateVisual: function(){
+					this.arrows = new ArrowGroup(this.path, this.direction);
+					this.arrows.parent = this.path.parent;
+					this.arrows.stem.opacity = 0;
+				},
+				update: function(){
+					console.log("updating rotated behavior");
+					this.arrows.stem.opacity = 1;
+					if (curr_val > prev_val){
+						this.direction = 1;
+						this.arrows.activateCW();
+
+					} else if (curr_val < prev_val){
+						this.direction = -1;
+						this.arrows.activateCCW();
+					} else {
+						this.direction = 0;
+					}
+					//spin map object
+					this.path.rotation = this.degrees;
+					//spin arrows
+					console.log("this.arrows.rotation", this.arrows.rotation);
+					this.arrows.stem.rotation = this.degrees * 3;
+				},
+				updateFinal: function(){
+					this.arrows.stem.opacity = 0;
+				}
+
+			}
+
+
+		});
+
 		</script>
 	</head>
 	<body>
-		<div class="container">
-			<canvas id="myCanvas"></canvas>
-			<a id="downloadButtonPNG" class='btn btn-default'> DOWNLOAD PNG</a>
-			<a id="downloadButtonSVG" class='btn btn-default'> DOWNLOAD SVG </a>
-		</div>
+		<canvas id="myCanvas"></canvas>
 	</body>
 </html>
 
 <style>
-	#downloadButtonPNG{
-		position: absolute;
-		top: 20px;
-		left: 20px;
-	}
-	#downloadButtonSVG{
-		position: absolute;
-		top: 80px;
-		left: 20px;
-	}
-	#myCanvas{
-		position: absolute;
-		left: 0;
-		top: 0;
-	}
 	body, html{
 		margin: 0;
 		padding: 0;

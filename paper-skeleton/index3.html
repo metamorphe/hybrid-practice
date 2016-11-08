@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Ship</title>
+		<script type="text/javascript" src="libs/jquery.min.js"></script>
+		<script type="text/javascript" src="libs/paper-full.min.js"></script>
+		<script type="text/javascript" src="libs/bootstrap.min.js"></script>
+		<script type="text/javascript" src="libs/underscore.js"></script>
+		<script type="text/javascript" src="libs/saveas.min.js"></script>
+		<script type="text/javascript" src="js/artwork.js"></script>
+		<script type="text/javascript" src="js/ruler.js"></script>
+		<script type="text/javascript" src="js/dat.gui.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css"></style>
+
+		<script type="text/javascript">
+
+
+
+			$(function(){
+				// MAIN FUNCTION
+				$('#myCanvas').attr('height', $(window).height());
+				$('#myCanvas').attr('width', $(window).width());
+				paper.install(window);
+				paper.setup('myCanvas');
+				paper.view.zoom = 1;
+
+				var gui = new dat.GUI();
+				var curr_val = 0;
+				var prev_val = 0;
+
+
+				var map = new Artwork("img/map.svg", function(display){
+
+					// MAIN
+					// var clickedPath = //from user interaction
+					var nled = CanvasUtil.queryPrefix("NLED")[0];
+					var nled2 = CanvasUtil.queryPrefix("NLED")[1]
+					var base = CanvasUtil.queryPrefix("MAP")[0]
+					var animatedSLight = new Actuator("AnimatedLight", nled);
+					var animatedSLight2 = new Actuator("AnimatedLight", nled2);
+					var rotateBase = new Actuator("RotateBase", base);
+					var newhalo = new Halo("brightness", nled, 3);
+					var newrotation = new RotatedBehavior("degrees", base, 360);
+					animatedSLight.set(newhalo);
+					animatedSLight.set(newrotation);
+
+				});
+
+
+				function Actuator(name, path){
+					this.name = name;
+					this.path = path;
+					this.dom;
+					this.variables = {};	///"brightness", "degrees"
+					this.behaviors = [];	//new Halo, new Scaling
+					this.init();
+				}
+				Actuator.prototype = {
+					set: function(behavior){
+							//sets brightness to 0, then pushes Halo behavior to behaviors.
+							this.variables[behavior.variable_str] = 0;
+							this.behaviors.push(behavior);
+							this.update();
+					},
+					init: function(){
+						var scope = this;
+						this.dom = new Group({
+							parent: this.path.parent
+						});
+						this.path.parent = this.dom;
+
+					},
+					update: function(){
+						var scope = this;
+						console.log("gui", gui);
+						_.each(this.behaviors, function(behavior){
+							console.log("1", behavior.variable_str)
+							gui.add(behavior, behavior.variable_str, 0, behavior.upper_bound).onChange(function(val){
+								console.log("added on change, ", behavior)
+								prev_val = curr_val;
+								curr_val = val;
+								this.object.update(val)
+							})
+						});
+					}
+				}
+
+				/*Halo for LEDs*/
+				function Halo(variable_str, path, upper_bound){
+					this.path = path;
+					this.variable_str = "brightness";
+					this.brightness = 0;
+					this.upper_bound = upper_bound;
+					this.visual;
+					this.init();
+				}
+				Halo.prototype = {
+					init: function(){
+						console.log("initiate halo")
+						this.generateVisual();
+						if (this.path.fillColor == undefined){
+								this.path.fillColor = "yellow";
+								this.path.fillColor.alpha = 0;
+						}
+						for(var i = 1; i < 4; i+=0.5){ // 6 rings
+							var ring = this.path.clone();
+							ring.scaling = new paper.Size(i, i);
+							ring.strokeColor = "gold";
+							this.visual.addChild(ring);
+							ring.strokeColor.alpha = 0;
+						}
+
+					},
+					generateVisual: function(){
+						this.visual = new paper.Group({
+							parent: this.path.parent
+						});
+						this.path.parent = this.visual
+					},
+					update: function(value){
+						var numChildren = this.visual.children.length;
+						var mark = numChildren * value;
+						console.log("updating halo");
+						this.path.fillColor.alpha = this.var_num;	//brightness
+						_.each(this.visual.children, function(child, i) {
+
+							if(i > 0 && i < mark){
+								child.strokeColor.alpha = 1;
+							}
+							else if(i > mark){
+								child.strokeColor.alpha = 0;
+							}
+						});
+						paper.view.update();
+					}
+				}
+
+				/*Arrows for Rotating Motors*/
+				function ArrowGroup(path){
+					this.path = path;
+					this.center = new Point(this.path.bounds.x + this.path.bounds.width/2,
+						this.path.bounds.y + this.path.bounds.height/2);
+					this.stem = new Group();
+					this.direction;
+					this.arrowheads_counterCW;
+					this.arrowheads_CW;
+					this.radius = 300;
+					this.init();
+				}
+				ArrowGroup.prototype = {
+					init: function(){
+						console.log("init arrowgroup");
+						var scope = this;
+						var boundingCircle = new Path.Circle(this.center, this.radius);
+						boundingCircle.style = {
+							strokeColor: 'red',
+							strokeWidth: 5,
+							closed: false
+						};
+ 						boundingCircle.removeSegment(0);
+						boundingCircle.removeSegment(2);
+						boundingCircle.closed = false;
+						this.stem = new Group([boundingCircle, boundingCircle.clone().rotate(120, this.center),
+															boundingCircle.clone().rotate(-120, this.center)]);
+
+						_.each(this.stem.children, function(child){
+							//counterclockwise: normal, -50, 50
+							//clockwise: tangent, 50, -50
+							var normal = child.getNormalAt(0).multiply(60);				//
+							var tangent = child.getTangentAt(0).multiply(60);
+							var offsets = [0, child.length];
+							_.each(offsets, function(offset){
+								var dx;
+								var rotation;
+								if (offset == 0){
+									dx = normal;
+									rotation = [50, -50];
+								} else {
+									dx = tangent;
+									rotation = [-50, 50];
+								}
+								endpoint = child.getPointAt(offset);
+								var arrowhead1 = new Path({
+									segments: [endpoint, endpoint.add(dx)],
+									strokeColor: 'red',
+									strokeWidth: 5
+								});
+								var arrowhead2 = new Path({
+									segments: [endpoint, endpoint.subtract(dx)],
+									strokeColor: 'red',
+									strokeWidth: 5
+								});
+								arrowhead1.rotate(rotation[0], endpoint);
+								arrowhead2.rotate(rotation[1], endpoint);
+
+								if (offset == 0){
+
+								} else {
+
+								}
+								scope.arrowheads = new Group([arrowhead1, arrowhead2]);
+								scope.arrowheads.parent = scope.stem;
+								scope.arrowheads.selected = true;
+							})
+
+						});
+					},
+					hideLeft: function(){
+						debugger;
+						this.stem.children[4].opacity = 0;
+					},
+					hideRight: function(){
+
+					}
+				}
+
+				/*Rotating Motors*/
+				function RotatedBehavior(variable_str, path, upper_bound){
+
+					this.path = path;
+					this.variable_str = "degrees";
+					this.degrees = 0;
+					this.upper_bound = upper_bound;
+					this.visual;
+					this.init();
+				}
+				RotatedBehavior.prototype = {
+					init: function(){
+						console.log("init animated rotation");
+						//hide arrows upon initiation
+						this.generateVisual();
+						this.visual.opacity = 0;
+					},
+					generateVisual: function(){
+						this.visual = new ArrowGroup(this.path);
+						this.visual.parent = this.path;
+					},
+					updateArrows: function(){
+						if(curr_val > prev_val){
+							direction = 1	//clockwise
+							this.visual.hideLeft();
+						}	else if (curr_val < prev_val){
+							direction = -1	//counterclockwise
+							this.visual.hideRight();
+						} else {
+							direction = 0;	//stable
+						}
+					},
+					update: function(){
+						// debugger;
+						console.log(this);
+						this.updateArrows();
+						//spin object
+						this.path.rotation = this.degrees;
+						//spin arrows
+						this.visual.stem.rotation = this.degrees;
+						this.visual.opacity = 1;
+					}
+
+				}
+
+
+			});
+
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+					<canvas id="myCanvas"></canvas>
+			</div>
+
+
+
+		</div>
+	</body>
+</html>
+
+<style>
+	body, html{
+		margin: 0;
+		padding: 0;
+		background: white;
+	}
+</style>
