@@ -15,7 +15,13 @@
  */
 
  @import "bootstrap";
-
+ *{
+ 	font-family: "Avenir", sans-serif;
+ }
+ 	.nopadding {
+	   padding: 0 !important;
+	   margin: 0 !important;
+	}
 	.btn-transparent{
 	  background: none;
 	  border: none;

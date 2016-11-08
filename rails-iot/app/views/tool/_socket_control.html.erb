@@ -1,109 +1,15 @@
 <script type="text/javascript">
-function SocketControl(container) {
-  this.container = container;
-  this.ws = null;
-  this.isConnected = false;
-  this.onMirrorMode = true;
-  this.init();
-}
 
-SocketControl.prototype = {
-  init: function() {
-    //TODO
-    var scope = this;
-    this.container.on('click', function() {
-      if (!scope.isConnected) {
-        scope.connect();
-      } else {
-        // scope.sendMessage('hi');
-      }
-    });
-    $('#all-white').click(allWhite);
-  },
-  connect: function() {
-    // $.get("/tool/start_server", function(json){
-    //   console.log(json.debug)
-    //   });
-    var scope = this;
-    this.ws = new WebSocket("ws://localhost:3015");
-    this.ws.onopen = function() {
-      scope.isConnected = true;
-      scope.container.text('SEND');
-      scope.container.removeClass('btn-danger');
-      scope.container.addClass('btn-success');
-
-    };
-    this.ws.onclose = function() {
-      scope.isConnected = false;
-      scope.container.text('CONNECT');
-      scope.container.removeClass('btn-success');
-      scope.container.addClass('btn-danger');
-    };
-    this.ws.onmessage = function(evt) {
-        if(evt.data){
-          try{
-            console.log(evt.data);
-            if (scope.onMirrorMode) {
-              scope._processDeviceCommand(evt.data);
-            }
-          }
-          catch(e){
-            console.log("ERROR", e, evt.data);
-          }
-        }
-    }
-  },
-  /**
-   * No ACK-checking, UDP style.
-   */
-  sendMessage: function(msgString) {
-    if(!this.isConnected) return;
-    console.log("TO ARD", msgString);
-    this.ws.send(msgString);
-  },
-  /**
-   * By default, mirror mode is off, meaning that the socket
-   * will not process input from the serial device. If mirror
-   * mode is on, the socket will process sensor inputs from
-   * the device and update the digital representation accordingly
-   */
-  toggleMirrorMode: function() {
-    this.onMirrorMode = !this.onMirrorMode;
-  },
-  /**
-   * Processes a command from the device with syntax:
-   * >>> s,<ID>,<STATE>
-   * where STATE is 0 or 1 for off and on, respecively.
-   * Updates the digital representation accordingly.
-   */
-   _processDeviceCommand: function(commandString) {
-     console.log('Processing: ' + commandString);
-     var tokens = commandString.replace(':', ',')
-                    .split(',');
-     if (tokens[0] != 's' || tokens.length != 3) {
-       return;
-     }
-     var id = parseInt(tokens[1]);
-     var state = tokens[2];
-     var stateText = state == 0 ? '↓' : '↑';
-     var stateFillColor = state == 0 ? '#b7b3aa' : '#ffffff';
-     var contentHash = {
-       content: stateText,
-       fillColor: stateFillColor
-     };
-     ViewManager.updateLabel('STA', id, contentHash);
-   }
-}
 
 </script>
-<div class="socket-btns btn-group">
+<!-- <div class="socket-btns btn-group">
 <button id="socket-button" class="btn btn btn-danger">
   CONNECT
 </button>
 <button id="all-white" class="btn btn btn-default">
   ALL WHITE
 </button>
-</div>
+</div> -->
 <style>
 #socket-btns {
   margin: 15% 0;

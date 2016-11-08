@@ -1,4 +1,10 @@
 class ToolController < ApplicationController
+  def system_control
+    @files = get_displays()
+    @ports = get_ports()
+    # render :json => @ports
+    render :layout => "full_screen"
+  end
   def designer
     @files = get_displays()
     # render :json => @files
@@ -55,5 +61,10 @@ class ToolController < ApplicationController
     files2[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/userstudy/", :filename => f, :title => f.split(".")[0].titlecase}}
     
     [files[:filenames], files2[:filenames]].flatten
+  end
+  def get_ports
+    ports = ["/dev/tty.usbmodem*"] #"/dev/tty.HC*", 
+    ports.map!{|p| Dir[p]}
+    ports.flatten!
   end
 end
