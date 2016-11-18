@@ -15,6 +15,9 @@ $(function(){
     });
 
     $('#file-selector').val(DEFAULT_FILE);
+    var file = $("#file-selector").val();
+    console.log(file);
+    loadFile(file);
 })
 
 var loadFile = function(file){
@@ -33,27 +36,27 @@ var loadFile = function(file){
     });
    
    	// motion widget
-   	paper = miniPaper;
-   	paper.project.clear();
-    paper.view.zoom = 1;
-    paper.view.update();
+   	// paper = miniPaper;
+   	// paper.project.clear();
+    // paper.view.zoom = 1;
+    // paper.view.update();
 
-    var display = new Artwork(file, function(artwork){ 
-       var leds = CanvasUtil.queryPrefix("DDS");
-       if(leds.length > 0)
-	       CanvasUtil.fitToViewWithZoom(leds[0], paper.view.bounds, leds[0].position);
+    // var display = new Artwork(file, function(artwork){ 
+    //    var leds = CanvasUtil.queryPrefix("DDS");
+    //    if(leds.length > 0)
+	   //     CanvasUtil.fitToViewWithZoom(leds[0], paper.view.bounds, leds[0].position);
 
-       CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
-       CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
-       var leds = CanvasUtil.queryPrefix("DDS");
-       var options = _.map(leds, function(led){
-        return $('<option></option>').html(led.id).attr("value", led.id);
-       });
-       $('#element-selector').html('').append(options);
-       $('#motion-select').click(function(){
-         ai.focus();
-       })
-    });
+    //    CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+    //    CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+    //    var leds = CanvasUtil.queryPrefix("DDS");
+    //    var options = _.map(leds, function(led){
+    //     return $('<option></option>').html(led.id).attr("value", led.id);
+    //    });
+    //    $('#element-selector').html('').append(options);
+    //    $('#motion-select').click(function(){
+    //      ai.focus();
+    //    })
+    // });
 
     paper.view.update();
 }

@@ -4,6 +4,7 @@
       data = _.map(data, function(datum){
         return _.values(datum).join(',');
       });
+      data.unshift("id,type,time,voltage");
       $('#streamer').val(data.join('\n'));
     });
   });

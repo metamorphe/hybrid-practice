@@ -210,6 +210,7 @@
 				generateVisual: function(){
 					this.arrows = new ArrowGroup(this.path);
 					this.arrows.parent = this.path.parent;
+					this.arrows.position = this.arrows.parent.bounds.center;
 					// this.arrows.parent = this.path
 				},
 				update: function(){

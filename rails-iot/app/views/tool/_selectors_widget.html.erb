@@ -1,0 +1,100 @@
+<script type="text/javascript">
+var qb; 
+$(function(){
+  sl = new SelectorLibrary();
+  $('.library-block').draggable({
+    cancel: "a.ui-icon", // clicking an icon won't initiate dragging
+    revert: "valid", // when not dropped, the item will revert back to its initial position
+    containment: 'window',
+    helper: "clone",
+    cursor: "move"
+  });  
+
+})
+
+function SelectorLibrary(){
+  var scope = this;
+  this.current = "all";
+
+  $('div.selector.library-block').click(function(){
+    var fn = $(this).data('fn');
+    var collection = scope[fn]();
+    scope.select(collection);
+  });
+}
+
+SelectorLibrary.prototype = {
+  getCurrent: function(){
+    return this[this.current]();
+  },
+  select: function(fn){
+    sm.clear();
+    _.each(fn, function(led){
+      sm.ledAdd(led);
+    });
+    sm.update();
+  }, 
+  none: function(){
+    return [];
+  },
+  all: function(){
+    paper = mainPaper;
+    leds = CanvasUtil.queryPrefix("NLED");
+    leds = _.sortBy(leds, function(led){
+      return led.position.getDistance(paper.view.center);
+    });
+    return leds;
+  }, 
+  center: function(){
+    var leds = this.all();
+    leds = _.filter(leds, function(led){
+      return led.position.getDistance(paper.view.center) < 100;
+    });
+    return leds;
+  },
+  not_center: function(){
+    var leds = this.all();
+    leds = _.reject(leds, function(led){
+      return led.position.getDistance(paper.view.center) < 100;
+    });
+    return leds;
+  }
+}
+</script>
+
+<div id="behavior-library" class="widget status">
+	<label class="widget-title" name="quick behaviors"></label>
+	<div class="widget-body flex-container-hoz flex-wrapper">
+    
+    <div  data-fn="all" class="selector library-block"> 
+      <%= image_tag "/all.png", :width => "100%" %>
+      <div class="title">
+        all
+      </div> 
+    </div>
+
+     <div  data-fn="center" class="selector library-block"> 
+      <%= image_tag "/center.png", :width => "100%" %>
+      <div class="title">
+        center
+      </div> 
+    </div>
+
+     <div  data-fn="not_center" class="selector library-block"> 
+      <%= image_tag "/not_center.png", :width => "100%" %>
+      <div class="title">
+        not-center
+      </div> 
+    </div>
+     <div  data-fn="none" class="selector library-block"> 
+      <%= image_tag "/none.png", :width => "100%" %>
+      <div class="title">
+        none
+      </div> 
+    </div>
+
+	</div>
+</div>
+<style type="text/css">
+
+</style>

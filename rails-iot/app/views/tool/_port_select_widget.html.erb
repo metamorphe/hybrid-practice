@@ -47,7 +47,6 @@ SocketControl.prototype = {
   init: function() {
   	var scope = this;
   	this._properties.trigger.click(function(){
-  		console.log("CLICKED", scope.state);
   		switch(scope.state){
 			case SocketControl.DISCONNECTED:
 				scope.connect();
@@ -103,7 +102,7 @@ SocketControl.prototype = {
     this.ws.onmessage = function(evt) {
         if(evt.data){
           try{
-            console.log('↑', evt.data);
+            console.log('↑');//, evt.data);
           }
           catch(e){
             console.log("ERROR", e, evt.data);
@@ -113,10 +112,14 @@ SocketControl.prototype = {
     	scope.update();
     }
   },
+  sendUpdateMsg: function(delay=0){
+    this.sendMessageAt('u\n', delay);
+  },
   /**
    * No ACK-checking, UDP style.
    */
   sendMessage: function(msgString) {
+    if(this.state != SocketControl.CONNECTED) return;
 	    try{
 	    	this.ws.send(msgString);
 		    console.log('↓', msgString);
@@ -125,8 +128,16 @@ SocketControl.prototype = {
 	    		console.error('ERROR SENSING', msgString);
 	    	}
     	return true;
-    } 
-  
+  }, 
+  sendMessageAt: function(msgString, timeFromNow, updateFN){
+    if(_.isUndefined(updateFN)) var updateFN = function(){};
+    if(timeFromNow == 0){ this.sendMessage(msgString); updateFN(); return; }
+    var scope = this;
+    setTimeout(function(){
+      scope.sendMessage(msgString);
+      updateFN();
+    }, timeFromNow);
+  }
 }
 
 </script>
