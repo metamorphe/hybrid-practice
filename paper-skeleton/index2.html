@@ -16,7 +16,7 @@
 		<script type="text/javascript">
 
 
-
+		var gui;
 		$(function(){
 			// MAIN FUNCTION
 			$('#myCanvas').attr('height', $(window).height());
@@ -24,6 +24,7 @@
 			paper.install(window);
 			paper.setup('myCanvas');
 			paper.view.zoom = 1;
+			gui = new dat.GUI();
 
 
 
@@ -33,7 +34,7 @@
 				var base = CanvasUtil.queryPrefix("MAP")[0]
 				var animatedSLight = new Actuator("AnimatedLight", nled);
 				var rotateBase = new Actuator("RotateBase", base);
-				var newhalo = new Halo("brightness", nled, 3);
+				var newhalo = new Halo("brightness", nled, 1024);
 				var newrotation = new RotatedBehavior("degrees", base, 360);
 				animatedSLight.set(newhalo);
 				animatedSLight.set(newrotation);
@@ -46,7 +47,7 @@
 				this.dom;
 				this.variables = {};	///"brightness", "degrees"
 				this.behaviors = [];	//new Halo, new Scaling
-				this.gui = new dat.GUI();
+				
 
 				this.init();
 			}
@@ -55,7 +56,7 @@
 						//sets brightness to 0, then pushes Halo behavior to behaviors.
 						this.variables[behavior.variable_name] = 0;
 						this.behaviors.push(behavior);
-						var guiController = this.gui.add(behavior, behavior.variable_name, 0, behavior.upper_bound);
+						var guiController = gui.add(behavior, behavior.variable_name, 0, behavior.upper_bound);
 						behavior.controller = guiController;
 						this.update();
 				},
@@ -110,8 +111,9 @@
 					this.path.parent = this.visual
 				},
 				update: function(value){
+					var ratio = value/this.upper_bound;
 					var numChildren = this.visual.children.length;
-					var mark = numChildren * value;
+					var mark = numChildren * ratio;
 					console.log("updating halo");
 					this.path.fillColor.alpha = this.var_num;	//brightness
 					_.each(this.visual.children, function(child, i) {
@@ -133,7 +135,7 @@
 				this.center = new Point(this.path.bounds.x + this.path.bounds.width/2,
 					this.path.bounds.y + this.path.bounds.height/2);
 				this.arrows = [];
-				this.radius = 100;
+				this.radius = this.path.bounds.width/2.0;
 				return this.init();
 			}
 			ArrowGroup.prototype = {
@@ -141,13 +143,48 @@
 					console.log("initiate arrowgroup");
 					var boundingCircle = new Path.Circle(this.center, this.radius);
 					boundingCircle.style = {
-						strokeColor: 'black'
+						strokeColor: 'black', 
+						strokeWidth: 6
 					};
-						boundingCircle.removeSegment(0);
+					boundingCircle.removeSegment(0);
 					boundingCircle.removeSegment(2);
 					boundingCircle.closed = false
-					var arrows = new Group([boundingCircle, boundingCircle.clone().rotate(120, this.center),
-														boundingCircle.clone().rotate(-120, this.center)]);
+
+					// adding arrow heads
+					var arrow = new paper.Group({
+						children: [boundingCircle]
+					});
+					var normal = boundingCircle.getNormalAt(boundingCircle.length);
+					normal.length = 20;
+					// normal.rotation += 45;
+
+					var center = boundingCircle.lastSegment.point;
+					console.log(center, normal);
+					var leftArrowHead = new paper.Path.Line({
+						from: center, 
+						to: center.add(normal),
+						strokeColor: "black", 
+						strokeWidth: 6, 
+						parent: arrow, 
+						pivot: center
+					});
+
+					leftArrowHead.rotate(-45);
+
+					var rightArrowHead = new paper.Path.Line({
+						from: center, 
+						to: center.subtract(normal),
+						strokeColor: "black", 
+						strokeWidth: 6, 
+						parent: arrow, 
+						pivot: center
+					});
+
+					rightArrowHead.rotate(45);
+
+
+					var arrows = new Group([arrow, arrow.clone().rotate(120, this.center),
+														arrow.clone().rotate(-120, this.center)]);
 
 					return arrows;
 				}
@@ -172,7 +209,8 @@
 				},
 				generateVisual: function(){
 					this.arrows = new ArrowGroup(this.path);
-					this.arrows.parent = this.path
+					this.arrows.parent = this.path.parent;
+					// this.arrows.parent = this.path
 				},
 				update: function(){
 					// debugger;
@@ -183,7 +221,7 @@
 					this.path.rotation = this.degrees;
 					//spin arrows
 					console.log("this.arrows.rotation", this.arrows.rotation);
-					this.arrows.rotation = this.degrees;
+					this.arrows.rotation = this.degrees * 3;
 					this.arrows.opacity = 1;
 				}
 
@@ -195,14 +233,7 @@
 		</script>
 	</head>
 	<body>
-		<div class="container">
-			<div class="row">
-					<canvas id="myCanvas"></canvas>
-			</div>
-
-
-
-		</div>
+		<canvas id="myCanvas"></canvas>		
 	</body>
 </html>
 

@@ -9,6 +9,13 @@ function CanvasUtil() {
 }
 
 CanvasUtil.prototype = {}
+CanvasUtil.getDiffusers = function(led){
+    var diffs = CanvasUtil.queryPrefix('DDS');
+    diffs = _.filter(diffs, function(diff){
+      return diff.contains(led.position);
+    });
+    return diffs;
+}
 CanvasUtil.getIntersections = function(el, collection){
 	var hits = _.map(collection, function(c){
 		return c.getIntersections(el);

@@ -23,6 +23,10 @@
 								var machineData = [];
 								var timeData = [];
 								var actionData = [];
+								
+								var margin = {top: 30, right: 20, bottom: 30, left: 50},
+								    width = 700 - margin.left - margin.right,
+								    height = 400 - margin.top - margin.bottom;
 
 								var actionVals;
 								var step;
@@ -72,6 +76,11 @@
 								}
 								
 								d3.csv("machine_data.csv", function(error, data) {
+
+								// Define the line
+								var valueline = d3.svg.line()
+								    .x(function(d) { return x(d.time); })
+								    .y(function(d) { return y(d.action); });
 								    
 								    data.forEach(function(d) {
 								    	machineData.push(d.machine);
@@ -150,6 +159,8 @@
 								    svg.append("path")
 								        .attr("class", "line")
 								        .attr("d", valueline(data));
+
+
 
 								    // Add the X Axis
 								    svg.append("g")
@@ -263,6 +274,8 @@
 				height: 300px;
 				border: 2px solid black;
 			}
+			
+
 		</style>
 	</body>
 </html>
