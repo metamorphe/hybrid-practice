@@ -20,50 +20,140 @@
 						<body>
 							<script type="text/javascript">
 								
+								var machineData = [];
+								var timeData = [];
+								var actionData = [];
 								
 								var margin = {top: 30, right: 20, bottom: 30, left: 50},
 								    width = 700 - margin.left - margin.right,
 								    height = 400 - margin.top - margin.bottom;
 
-								// Parse the date / time
-								var parseDate = d3.time.format("%d-%b-%y").parse;
+								var actionVals;
+								var step;
 
-								// Set the ranges
-								var x = d3.scale.linear().range([0, width]);
-								var y = d3.scale.linear().range([height, 0]);
+								function averageValues(val1, val2) {
+									return (val1 + val2) / 2.0;
+								}
 
-								// Define the axes
-								var xAxis = d3.svg.axis().scale(x)
-								    .orient("bottom").ticks(11);
+								function setActionValues(values) {
+										actionVals = values;
+								}
 
-								var yAxis = d3.svg.axis().scale(y)
-								    .orient("left").ticks(5);
+								function getActionValues() {
+									return actionVals;
+								}
+
+								function getStepSize() {
+									return step;
+								}
+
+								function setStepSize(val) {
+									step = val;
+								}
+
+								function getCorrespondingStepValue(values, curVal, stepSize) {
+										var bucket = curVal / (stepSize * 2);
+
+										if (Number.isInteger(bucket)) {
+											return values[bucket];
+										}
+
+										else {
+											var above = parseInt(values[Math.ceil(bucket)]);
+											var below = parseInt(values[Math.floor(bucket)]);
+
+											// console.log("above: " + above);
+											// console.log("below: " + below);
+											var toReturn = (above + below)/2;
+
+											if (Math.ceil(bucket) >= values.length) {
+												toReturn = below;
+											}
+											// console.log("to return: " + toReturn);
+
+											return toReturn;
+										}
+								}
+								
+								d3.csv("machine_data.csv", function(error, data) {
 
 								// Define the line
 								var valueline = d3.svg.line()
-								    .x(function(d) { return x(d.date); })
-								    .y(function(d) { return y(d.close); })
-								    .attr('class', 'line');
+								    .x(function(d) { return x(d.time); })
+								    .y(function(d) { return y(d.action); });
 								    
-								// Adds the svg canvas
-								var svg = d3.select('#viz')
-								    .append("svg")
-								        .attr("width", width + margin.left + margin.right)
-								        .attr("height", height + margin.top + margin.bottom + 20)
-								    .append("g")
-								        .attr("transform", 
-								              "translate(" + margin.left + "," + margin.top + ")");
-
-								// Get the data
-								d3.csv("data.csv", function(error, data) {
 								    data.forEach(function(d) {
-								        d.time = d.time;
-								        d.voltage = +d.voltage;
+								    	machineData.push(d.machine);
+								    	timeData.push(d.time);
+								    	actionData.push(d.action);
 								    });
 
+									function getMinOfValues(values) {
+										return Math.min.apply(Math, values);
+									}
+
+									function getMaxOfValues(values) {
+										return Math.max.apply(Math, values);
+									}
+
+							
+									function calculateStepSize(values) {
+										var length = getNumberOfValues(values);
+										var step = (getMaxOfValues(values) - getMinOfValues(values)) /(2*length);
+										return step;
+									}
+
+									function getNumberOfValues(values) {
+										return values.length;
+									}
+
+									var numValues = getNumberOfValues(timeData);
+									var stepSize = calculateStepSize(timeData);
+									var minTime = getMinOfValues(timeData);
+									var maxTime = getMaxOfValues(timeData);
+									var minActionVal = getMinOfValues(actionData);
+									var maxActionVal = getMaxOfValues(actionData);
+
+									setActionValues(actionData);
+									setStepSize(stepSize);
+
+									var margin = {top: 30, right: 20, bottom: 30, left: 50},
+									    width = 700 - margin.left - margin.right,
+									    height = 400 - margin.top - margin.bottom;
+
+									// Parse the date / time
+									var parseDate = d3.time.format("%d-%b-%y").parse;
+
+									// Set the ranges
+									var x = d3.scale.linear().range([0, width]);
+									var y = d3.scale.linear().range([height, 0]);
+
+									var ticks = numValues / 2;
+									// Define the axes
+									var xAxis = d3.svg.axis().scale(x)
+									    .orient("bottom").ticks(ticks);
+
+									var yAxis = d3.svg.axis().scale(y)
+									    .orient("left").ticks(ticks);
+
+									// Define the line
+									var valueline = d3.svg.line()
+									    .x(function(d) { return x(d.time); })
+									    .y(function(d) { return y(d.action); });
+									    
+									// Adds the svg canvas
+									var svg = d3.select('#viz')
+									    .append("svg")
+									        .attr("width", width + margin.left + margin.right)
+									        .attr("height", height + margin.top + margin.bottom + 20)
+									    .append("g")
+									        .attr("transform", 
+									              "translate(" + margin.left + "," + margin.top + ")");
+
+									var machine = machineData[0];
 								    // Scale the range of the data
 								    x.domain(d3.extent(data, function(d) { return d.time; }));
-								    y.domain([0, d3.max(data, function(d) { return d.voltage; })]);
+								    y.domain([0, d3.max(data, function(d) { return d.action; })]);
 
 								    // Add the valueline path.
 								    svg.append("path")
@@ -91,19 +181,34 @@
 
 									svg.append("text")
 										.attr("x",0)
-										.attr("y",-2)
+										.attr("y",-10)
 										.style("text-anchor","middle")
-										.text("Value of A");	
+										.text("Value of " + machine);	
 
 
 									svg.append("text")
 										.attr("x",width/2 - 20)
-										.attr("y", -10)
+										.attr("y", -30)
 										.style("text-anchor","middle")
 										.style("font-size","20px")
-										.text("Machine A");	
+										.text("Machine " + machine);	
+
+
+									$(function(){
+										// MAIN
+										document.getElementById("min").innerHTML = minTime;
+										document.getElementById("max").innerHTML = maxTime;
+
+										//Set range's min,max,step, and current value
+										document.getElementById("slider1").max = maxTime;
+										document.getElementById("slider1").min = minTime;
+										document.getElementById("slider1").step = stepSize;
+										document.getElementById("slider1").value = minTime;
+										
+						 			});
 
 								});
+
 							</script>
 						</body>
 					</div>
@@ -114,12 +219,16 @@
 							<script type="text/javascript">
 								$(function(){
 									// MAIN
-									document.getElementById("header").innerHTML = $('#slider1').val();
+
+									document.getElementById("header").innerHTML = $('#slider1').val() + " Degrees";
 									$('#slider1').on('input', function(){
-										document.getElementById("header").innerHTML = $('#slider1').val();
-										$('#output').text(function (d) {
-											return $('#slider1').val();
-										});
+										var actionVals = getActionValues();
+										var stepSize = getStepSize();
+										// console.log("cur step: " + $('#slider1').val());
+										var newVal = getCorrespondingStepValue(actionVals,$('#slider1').val(),stepSize);
+
+										// document.getElementById("header").innerHTML = $('#slider1').val() + " Degrees";
+										document.getElementById("header").innerHTML = newVal + " Degrees"; 
 									});
 								});
 
@@ -131,6 +240,19 @@
 					<div id="range" class="col-xs-12"> 
 						<h1> Range </h1>
 						 <input class="form-control" id="slider1" type="range" min="0" max="100" step="10" value = "0" onchange=""getSlideValue();""/>
+
+						 <h3 id="min" style="text-align:left;float:left;">min</h2>
+						 <h3 id="max" style="text-align:right;float:right;">max</h2>
+						 <hr style="clear:both;"/>
+						 <script type="text/javascript">
+
+						 $(function(){
+									// MAIN
+									document.getElementById("min").innerHTML = 0;
+									document.getElementById("max").innerHTML = 0;
+						 });
+
+						 </script>
 					</div>
 				</div>
 			</div>
