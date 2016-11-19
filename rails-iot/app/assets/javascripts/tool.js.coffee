@@ -32,6 +32,7 @@
 //= require eld/TIR
 //= require eld/noLens
 //= require eld/Sticher
+//= require eld/brushes/SelectionManager
 //= require eld/brushes/CircuitBrush
 //= require eld/brushes/HeatBrush
 //= require eld/brushes/MagicWandBrush

@@ -7,7 +7,7 @@
       var vm;
       $(function(){ 
         $("#shade").fadeOut("slow");
-
+        
 
         // TEMPLATE UPDATE
         var widgets = $("#status .widget-title");
@@ -31,7 +31,7 @@
            
         })
       });
-
+           sm = new SelectionManager();
       papers = [];
       function paperSetup(id){
         var dom = $("#" + id);
@@ -44,6 +44,7 @@
         papers.push(myPaper);
         return myPaper;
       }
+      
     </script>
   </head>
   <body>
@@ -61,16 +62,20 @@
         
          <%= render :partial => "file_select_widget" %>
          <%= render :partial => "port_select_widget" %>
-         <%= render :partial => "motion_widget" %>
-         <%= render :partial => "graph_widget" %>
-         <%= render :partial => "stream_widget" %>
+         <% render :partial => "motion_widget" %>
+         <% render :partial => "graph_widget" %>
+         <% render :partial => "stream_widget" %>
          <%= render :partial => "quick_behaviors_widget" %>
+         <%= render :partial => "selectors_widget" %>
         </div>
         <!-- END STATUS BAR -->
 
       </div>
       <div id="ui-container">
-         <div id="ui" class=""></div>
+        <div id="ui" class="">
+          <%= render :partial => "interaction_ui"%>
+        </div>
+      </div>
       </div>
     </div>
       <% render :partial => "modals"%>
@@ -82,13 +87,12 @@
   </body>
 
   <style>
-
    	body, html{
    		width: 100%;
    		height: 100%;
    		
       background: #f5f4f0;
-      overflow: hidden;
+      /*overflow: hidden;*/
    	}
     #control-container{
       position: absolute;
@@ -97,19 +101,19 @@
       width: 100%;
       overflow: none;
       cursor: pointer;
-      overflow: hidden;
+      /*overflow: hidden;*/
     }
 
     #view-container{
-      height: 80%;
-      overflow: hidden;
+      height: 70%;
+      /*overflow: hidden;*/
     }
     #ui-container{
       /*position: absolute;*/
       /*bottom: 0;*/
       /*z-index: 10000;*/
-      height: 20%;
-      overflow: hidden;
+      height: 30%;
+      /*overflow: hidden;*/
     }
       #main, #status, #ui{
         height: 100%;
@@ -135,10 +139,11 @@
           -webkit-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
           -moz-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
           box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-          overflow-y: scroll;
-
+          /*overflow-y: scroll;*/
         }
         #ui{
+          height: 100%;
+          /*overflow: scroll;*/
           position: relative;
           /*  -webkit-box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);
           -moz-box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);

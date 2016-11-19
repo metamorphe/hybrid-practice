@@ -1,96 +1,102 @@
 <script type="text/javascript">
 var qb; 
 $(function(){
-  qb = new QuickBehavior();  
+  qb = new QuickBehavior();
+  $('.library-block').draggable({
+    cancel: "a.ui-icon", // clicking an icon won't initiate dragging
+    revert: "valid", // when not dropped, the item will revert back to its initial position
+    containment: 'window',
+    helper: "clone",
+    cursor: "move"
+  });  
+
 })
 
 function QuickBehavior(){
   var scope = this;
-
-  $('#rainbowFlash').click(function(){
-    scope.allRainbowFlash();
-  });
-  $('#allOn').click(function(){
-    scope.allOn();
-  });
-  $('#allOff').click(function(){
-    scope.allOff();
+  $('div.library-block.behavior').click(function(){
+    var fn = $(this).data('fn');
+    scope[fn]();
   });
 }
+
 QuickBehavior.prototype = {
-  all: function(){
-    paper = mainPaper;
-    leds = CanvasUtil.queryPrefix("NLED");
-    leds = _.sortBy(leds, function(led){
-      return led.position.getDistance(paper.view.center);
-    });
-    return leds;
-  },
-  allBehave: function(fn, params){
-    _.each(this.all(), function(led){
-      fn(led, params);
-    });
-  },
-  allOn: function(){
-    this.allBehave(this.turnOn);
-  },
-  allOff: function(){
-    this.allBehave(this.turnOff);
-  },
-  allRainbowFlash: function(){
+  allBehave: function(collection, fn, params){
+    if(_.isUndefined(collection)) collection = sl.getCurrent();
     var scope = this;
-    this.allBehave(this.rainbowFlash, {delay: 1000});
+    var fn = fn;
+    _.each(collection, function(led){
+      fn(scope, led, params);
+    });
+    if(sc) sc.sendUpdateMsg(params.delay); // UPDATE 
   },
-  rainbowFlash: function(led, params){
+  allBlink: function(collection){
+    console.log("ALL BLINK");
     var scope = this;
+    var freq = 10; //hz;
+    var duration = 1000;
+    var step = duration / freq;
+    var cycles = _.range(0, 1000, step);
+    console.log("CYCLES", cycles)
+    _.each(cycles, function(cycle){
+       scope.allBehave(collection, scope.changeToColor, {color: new paper.Color(1), delay: cycle});
+       scope.allBehave(collection, scope.changeToColor, {color: new paper.Color(0), delay: cycle + (step/2.0)});
+    });
+  },
+  allRamp: function(collection){
+    var scope = this;
+    var duration = 600;
+    
+    time_steps = _.range(0, duration + 1, 100);
+    _.each(time_steps, function(timeFromNow){
+      var ratio = (timeFromNow / duration);      
+      scope.allBehave(collection, scope.changeToColor, {color: new paper.Color(ratio), delay: ratio});
+    });
+  },
+  allOn: function(collection){
+    var scope = this;
+    this.allBehave(collection, this.turnOn, {delay: 0});
+  },
+  allOff: function(collection){
+    this.allBehave(collection, this.turnOff, {delay: 0});
+  },
+  allRainbowFlash: function(collection){
+    var delay = 100;
+    var scope = this;
+    
     hues = _.range(0, 360, 20);
+    var time = 0; 
+
     _.each(hues, function(hue, step){
-      setTimeout(function(){
-        var color = new paper.Color('red');
-        color.hue = hue;
-        var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
-        color_msg = _.map(color_msg, function(msg){return parseInt(msg)})
-        var msg = 'c,'+ led.lid + ','+ color_msg.join(',')+'\n';
-        diffs = CanvasUtil.getDiffusers(led);
+      var color = new paper.Color('red');
+      color.hue = hue;
+      scope.allBehave(collection, scope.changeToColor, {color: color, delay: time});
+      time += delay;
+    });
+  },
+  allChangeColor: function(collection){
+    var scope = this;
+    this.allBehave(collection, this.changeToColor, {color: new paper.Color("red")});
+  },
+  turnOn: function(scope, led){
+    scope.changeToColor(scope, led, {color: new paper.Color(1)});
+  },
+  turnOff: function(scope, led){
+    scope.changeToColor(scope, led, {color: new paper.Color(0)});
+  },
+  changeToColor: function(scope, led, params){
+    var scope = this;
+    var diffs = CanvasUtil.getDiffusers(led);
+    var color = params.color;
+    var msg = ['c', led.lid, parseInt(color.red * 255), parseInt(color.green * 255), parseInt(color.blue * 255)];
+    msg =  msg.join(',') + '\n';
+
+  
+    delay = _.isUndefined(params.delay) ? 0: params.delay;
+    if(sc) sc.sendMessageAt(msg, delay, function(){
         _.each(diffs, function(diff){diff.fillColor = color;})
         led.fillColor = color;
         paper.view.update();
-        if(sc) sc.sendMessage(msg);
-      }, params.delay * step);
-    })
-  },
-  turnOn: function(led){
-    var diffs = CanvasUtil.getDiffusers(led);
-    _.each(diffs, function(diff){
-      diff.fillColor = "white";
-    });
-    msg =  'c,'+ led.lid + ',255,255,255\n';
-    led.fillColor = "white";
-    paper.view.update();
-    if(sc) sc.sendMessage(msg);
-  },
-  turnOff: function(led){
-   var diffs = CanvasUtil.getDiffusers(led);
-    _.each(diffs, function(diff){
-      diff.fillColor = new paper.Color(0, 0, 0, 0);
-    });
-    msg = 'c,'+ led.lid + ',0,0,0\n';
-    led.fillColor = new paper.Color(0, 0, 0, 0);
-    paper.view.update();
-    
-    if(sc) sc.sendMessage(msg);
-  },
-  flash: function(led, params){
-    var scope = this;
-    params.times *= 2;
-    steps = _.range(0, params.times, 1);
-    var t = 0; 
-    _.each(steps, function(step){
-      if(step % 2 == 0) var fn = scope.turnOn;
-      else var fn = scope.turnOff;
-      setTimeout(function(){
-        fn(led)
-      }, t + (step * params.delay));
     });
   },
   focus: function(){
@@ -102,18 +108,72 @@ QuickBehavior.prototype = {
 }
 </script>
 
-<div id="motion" class="widget status">
+<div id="behavior-library" class="widget status">
 	<label class="widget-title" name="quick behaviors"></label>
-	<div class="widget-body">
-    <div class="btn-group btn-block">
-      <button id="allOn" class="btn  btn-default"> allOn </button>
-      <button id="allOff" class="btn btn-default"> allOff </button>
+	<div class="widget-body flex-container-hoz flex-wrapper">
+    <div id="all-on" data-fn="allOn" class="behavior library-block"> 
+      <%= image_tag "/on.png", :width => "100%" %>
+      <div class="title">
+        allOn
+      </div> 
     </div>
-    <button id="rainbowFlash" class="btn btn-block btn-default"> rainbow </button>
+    <div id="all-off" data-fn="allOff" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/off.png", :width => "100%" %>
+      <div class="title">
+        allOff
+      </div> 
+    </div>
+    <div id="rainbow-flash" data-fn="allRainbowFlash" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/rainbow.png", :width => "100%" %>
+      <div class="title">
+        rainbow
+      </div> 
+    </div>
+    <div id="ramp" data-fn="allRamp" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/ramp.png", :width => "100%" %>
+      <div class="title">
+        ramp
+      </div> 
+    </div>
+    <div id="red" data-fn="allChangeColor" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/red.png", :width => "100%" %>
+      <div class="title">
+        red
+      </div> 
+    </div>
+    <div id="all-blink" data-fn="allBlink" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/flash.png", :width => "100%" %>
+      <div class="title">
+        blink
+      </div> 
+    </div>
+
 	</div>
 </div>
 <style type="text/css">
+.flex-wrapper{
+  flex-wrap: wrap !important;
+}
 #myMotionCanvas{
     border: 2px solid #666;
 }
+.library-block{
+  width: 60px; 
+  height: 70px;
+  border-radius: 0px;
+  z-index: 10000000;
+}
+.library-block:hover{
+   border-radius: 0px;
+}
+.library-block img{
+  height: 50px;
+  padding: 3px;
+}
+.library-block div.title{
+  height: 20px;
+  text-align: center;
+}
+
+
 </style>

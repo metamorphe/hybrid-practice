@@ -140,105 +140,105 @@ TransformTool2.prototype = {
 }
 
 
-function SelectionManager(paper){
-	this.paper = paper;
-	this.collection = {};
-	var s = createSelectionRectangle([]);
-	this.selection_rectangle = s.rect;
-	this.selection_group = s.group;
-}
-SelectionManager.prototype = {
-	add: function(cluster, shiftKey){
-		var inCollection = _.includes(_.keys(this.collection), cluster.canvasItem.guid);
-		if(shiftKey && inCollection){
-			this.remove(cluster);
-			this.update();
-		}
-		else{
-			if(!shiftKey && !inCollection) this.clear();
-			this.collection[cluster.canvasItem.guid] = cluster;
-			this.update();
-		}
-	},
-	rotate_each: function(){
+// function SelectionManager(paper){
+// 	this.paper = paper;
+// 	this.collection = {};
+// 	// var s = createSelectionRectangle([]);
+// 	// this.selection_rectangle = s.rect;
+// 	// this.selection_group = s.group;
+// }
+// SelectionManager.prototype = {
+// 	add: function(cluster, shiftKey){
+// 		var inCollection = _.includes(_.keys(this.collection), cluster.canvasItem.guid);
+// 		if(shiftKey && inCollection){
+// 			this.remove(cluster);
+// 			this.update();
+// 		}
+// 		else{
+// 			if(!shiftKey && !inCollection) this.clear();
+// 			this.collection[cluster.canvasItem.guid] = cluster;
+// 			this.update();
+// 		}
+// 	},
+	// rotate_each: function(){
 
-	},
-	rotate: function(angle){
-		this.selection_rectangle.rotation = angle;
-		_.each(this.selection_group, function(el, i, arr){
-			el.rotation = angle;
-		});
-	},
-	translate: function(delta){
-		this.selection_rectangle.position.x += delta.x;
-		this.selection_rectangle.position.y += delta.y;
-		_.each(this.selection_group, function(el, i, arr){
-			el.position.x += delta.x;
-			el.position.y += delta.y;
-		});
-	},
-	scale: function(sx, sy){
-		this.selection_rectangle.scaling.x = sx;
-		this.selection_rectangle.scaling.y = sy;
-		_.each(this.selection_group, function(el, i, arr){
-			el.scaling.x = sx;
-			el.scaling.y = sy;
-		});
-	},
-	update: function(){
-		this.selection_rectangle.remove();
-		var s = createSelectionRectangle(_.values(this.collection));
-		this.selection_rectangle = s.rect;
-		this.selection_group = s.group;
-		this.paper.project.activeLayer.addChild(this.selection_rectangle);
-	},
-	remove: function(cluster){
-		cluster.canvasItem.selection_rectangle.remove();
-		cluster.canvasItem.path.selected = false;
-		delete this.collection[cluster.canvasItem.guid];
-	}, 
-	clear: function(){
-		var scope = this;
-		_.each(this.collection, function(el, i, arr){
-			scope.remove(el);
-		});
-		this.collection = {};
-		this.update();
-	}
-}
+	// },
+	// rotate: function(angle){
+	// 	this.selection_rectangle.rotation = angle;
+	// 	_.each(this.selection_group, function(el, i, arr){
+	// 		el.rotation = angle;
+	// 	});
+	// },
+	// translate: function(delta){
+	// 	this.selection_rectangle.position.x += delta.x;
+	// 	this.selection_rectangle.position.y += delta.y;
+	// 	_.each(this.selection_group, function(el, i, arr){
+	// 		el.position.x += delta.x;
+	// 		el.position.y += delta.y;
+	// 	});
+	// },
+	// scale: function(sx, sy){
+	// 	this.selection_rectangle.scaling.x = sx;
+	// 	this.selection_rectangle.scaling.y = sy;
+	// 	_.each(this.selection_group, function(el, i, arr){
+	// 		el.scaling.x = sx;
+	// 		el.scaling.y = sy;
+	// 	});
+	// // },
+	// update: function(){
+	// 	this.selection_rectangle.remove();
+	// 	var s = createSelectionRectangle(_.values(this.collection));
+	// 	this.selection_rectangle = s.rect;
+	// 	this.selection_group = s.group;
+	// 	this.paper.project.activeLayer.addChild(this.selection_rectangle);
+	// },
+	// remove: function(cluster){
+	// 	cluster.canvasItem.selection_rectangle.remove();
+	// 	cluster.canvasItem.path.selected = false;
+	// 	delete this.collection[cluster.canvasItem.guid];
+	// }, 
+	// clear: function(){
+	// 	var scope = this;
+	// 	_.each(this.collection, function(el, i, arr){
+	// 		scope.remove(el);
+	// 	});
+	// 	this.collection = {};
+	// 	this.update();
+	// }
+// }
 
-function createSelectionRectangle(items){
-	var group = new paper.Group();
+// function createSelectionRectangle(items){
+// 	var group = new paper.Group();
 
-	var children = _.map(items, function(el, i, arr){
-		el.canvasItem.path.selected = true;
-		var r = new paper.Path.Rectangle(el.canvasItem.path.bounds);
-		return r;
-	});
-	group.addChildren(children);
-	group.remove();
+// 	var children = _.map(items, function(el, i, arr){
+// 		el.canvasItem.path.selected = true;
+// 		var r = new paper.Path.Rectangle(el.canvasItem.path.bounds);
+// 		return r;
+// 	});
+// 	group.addChildren(children);
+// 	group.remove();
 
-	var b = group.bounds.clone().expand(10, 10);
-	var sum = new paper.Path.Rectangle(b);
-	sum.style = {
+// 	var b = group.bounds.clone().expand(10, 10);
+// 	var sum = new paper.Path.Rectangle(b);
+// 	sum.style = {
 	    
-	    selected: true, 
-	    strokeWidth: 1,
-	    strokeColor:  "#00A8E1", 
-	};
-	sum.name =  "selection rectangle";
-   	sum.position = b.center.clone();	 
-    sum.pivot = sum.position;
-    sum.insert(2, new paper.Point(b.center.x, b.top));
-    sum.insert(2, new paper.Point(b.center.x, b.top-25));
-    sum.insert(2, new paper.Point(b.center.x, b.top));
-    sum.selected = true;
-    sum.applyMatrix = true;
-    sum.group = group;
-    sum.init_size = new paper.Point(b.left, b.bottom).subtract(b.center).length;
+// 	    selected: true, 
+// 	    strokeWidth: 1,
+// 	    strokeColor:  "#00A8E1", 
+// 	};
+// 	sum.name =  "selection rectangle";
+//    	sum.position = b.center.clone();	 
+//     sum.pivot = sum.position;
+//     sum.insert(2, new paper.Point(b.center.x, b.top));
+//     sum.insert(2, new paper.Point(b.center.x, b.top-25));
+//     sum.insert(2, new paper.Point(b.center.x, b.top));
+//     sum.selected = true;
+//     sum.applyMatrix = true;
+//     sum.group = group;
+//     sum.init_size = new paper.Point(b.left, b.bottom).subtract(b.center).length;
        
-  	sum.remove();
+//   	sum.remove();
 
 
-  return {rect:sum, group: items}; 
-}
+//   return {rect:sum, group: items}; 
+// }

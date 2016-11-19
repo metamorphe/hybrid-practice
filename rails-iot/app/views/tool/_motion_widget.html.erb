@@ -3,12 +3,12 @@ var miniVM, miniPaper, ai;
 $(function(){
     miniPaper = paperSetup('myMotionCanvas');
     miniPaper.name = "miniPaper";
+    
     var file = $("#file-selector").val();
 
     ai = new ActuatorInspector();
     loadFile(file);
-    
-})
+});
 
 function ActuatorInspector(){
   var scope = this;
