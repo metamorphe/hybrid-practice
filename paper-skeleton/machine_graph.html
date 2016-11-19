@@ -1,5 +1,22 @@
 <!-- SENSOR AND ACTUATION INTERFACE -->
 <html>
+	<style>
+	body { font: 12px Arial;}
+
+	path { 
+	    stroke: steelblue;
+	    stroke-width: 2;
+	    fill: none;
+	}
+
+	.axis path,
+	.axis line {
+	    fill: none;
+	    stroke: grey;
+	    stroke-width: 1;
+	    shape-rendering: crispEdges;
+	}
+	</style>
 	<body background="background2.png" bgcolor="#333333">
 		<head>
 				<title>Sensor and Actuation Interface</title>
@@ -79,6 +96,7 @@
 
 								// Define the line
 								var valueline = d3.svg.line()
+									.interpolate("cardinal") 
 								    .x(function(d) { return x(d.time); })
 								    .y(function(d) { return y(d.action); });
 								    
@@ -86,6 +104,9 @@
 								    	machineData.push(d.machine);
 								    	timeData.push(d.time);
 								    	actionData.push(d.action);
+
+								    	d.time = d.time;
+								    	d.action = d.action;
 								    });
 
 									function getMinOfValues(values) {
@@ -117,12 +138,8 @@
 									setActionValues(actionData);
 									setStepSize(stepSize);
 
-									var margin = {top: 30, right: 20, bottom: 30, left: 50},
-									    width = 700 - margin.left - margin.right,
-									    height = 400 - margin.top - margin.bottom;
-
 									// Parse the date / time
-									var parseDate = d3.time.format("%d-%b-%y").parse;
+									// var parseDate = d3.time.format("%d-%b-%y").parse;
 
 									// Set the ranges
 									var x = d3.scale.linear().range([0, width]);
@@ -152,15 +169,15 @@
 
 									var machine = machineData[0];
 								    // Scale the range of the data
-								    x.domain(d3.extent(data, function(d) { return d.time; }));
-								    y.domain([0, d3.max(data, function(d) { return d.action; })]);
+								    // x.domain(d3.extent(data, function(d) { return d.time; }));
+								    x.domain([minTime,maxTime]);
+
+								    y.domain([0, d3.max(data, function(d) { return maxActionVal; })]);
 
 								    // Add the valueline path.
 								    svg.append("path")
 								        .attr("class", "line")
 								        .attr("d", valueline(data));
-
-
 
 								    // Add the X Axis
 								    svg.append("g")
@@ -183,12 +200,11 @@
 										.attr("x",0)
 										.attr("y",-10)
 										.style("text-anchor","middle")
-										.text("Value of " + machine);	
-
+										.text("Value of " + machine);
 
 									svg.append("text")
 										.attr("x",width/2 - 20)
-										.attr("y", -30)
+										.attr("y", -10)
 										.style("text-anchor","middle")
 										.style("font-size","20px")
 										.text("Machine " + machine);	
@@ -198,6 +214,7 @@
 										// MAIN
 										document.getElementById("min").innerHTML = minTime;
 										document.getElementById("max").innerHTML = maxTime;
+										document.getElementById("time").innerHTML = "Time: " + minTime;
 
 										//Set range's min,max,step, and current value
 										document.getElementById("slider1").max = maxTime;
@@ -228,7 +245,8 @@
 										var newVal = getCorrespondingStepValue(actionVals,$('#slider1').val(),stepSize);
 
 										// document.getElementById("header").innerHTML = $('#slider1').val() + " Degrees";
-										document.getElementById("header").innerHTML = newVal + " Degrees"; 
+										document.getElementById("time").innerHTML = "Time: " + $('#slider1').val();
+									    document.getElementById("header").innerHTML = newVal + " Degrees"; 
 									});
 								});
 
@@ -244,6 +262,7 @@
 						 <h3 id="min" style="text-align:left;float:left;">min</h2>
 						 <h3 id="max" style="text-align:right;float:right;">max</h2>
 						 <hr style="clear:both;"/>
+						 <h3 id="time" style="text-align:center;float:center;">Time:</h2>
 						 <script type="text/javascript">
 
 						 $(function(){
