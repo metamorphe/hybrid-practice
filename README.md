@@ -18,6 +18,12 @@
   ```
 3. To stop the server, type ```ctrl-c``` in the window where you started the server.
 
+## Navigate to "Light as Material" light design tool
+1. Open a browser, and navigate to
+```
+http://localhost:3000/tool/designer
+```
+
 #Troubleshooting
 1. Error message:
 
