@@ -45,15 +45,14 @@
 			console.log("VIEW", view);
 			
 					
-			_.each(displays, function(display){
-				e = Pipeline.getElements(display);
+				e = Pipeline.getElements();
 				var all = [e.art, e.diff, e.leds, e.bo, e.bi, e.cp, e.dds, e.mc, e.base, e.wires];
 		
 				switch(view){
 					case "NORMAL":
 						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
-						var show = [e.art, e.diff, e.leds, e.dds, e.base, e.wires];
-						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi];
+						var show = [e.art, e.diff, e.leds, e.dds, e.base];
+						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi, e.nuts, e.wires];
 
 						_.each(e.leds, function(led){
 							led.set({
@@ -154,7 +153,6 @@
 				CanvasUtil.set(_.flatten(show), "visible", true);
 				CanvasUtil.set(_.flatten(hide), "visible", false);
 
-			});
 			paper.view.update();
 		},
 		show: function(now){

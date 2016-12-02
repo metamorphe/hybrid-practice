@@ -1,0 +1,40 @@
+<script type="text/javascript">
+var mainVM, mainPaper;
+$(function(){
+	mainPaper = paperSetup('myCanvas');
+	mainPaper.name = "mainPaper";	
+});
+</script>
+
+<div id="main-canvas" class="widget status">
+<label class="widget-title"> CANVAS VIEW 
+  <button class="btn btn-transparent btn-sm pull-right">
+    <span class="glyphicon glyphicon-resize-small"></span>
+  </button>
+</label>
+<div id="main-canvas-container">
+  <canvas id="myCanvas" class="paper"></canvas>
+</div>
+</div>
+
+<style type="text/css">
+	#main-canvas{
+		height: 100%;
+	}
+	#main-canvas-container{
+	  position: relative;
+	  height: calc(100% - 40px);
+	  width: 100%;
+	  overflow: hidden;
+	}
+	.paper{
+	  background: #f5f4f0;
+	  position: relative;
+	  top: 0px;
+	  z-index: 0;
+	  cursor: pointer;
+	  -webkit-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+		-moz-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+		box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+	}
+</style>

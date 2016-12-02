@@ -1,0 +1,97 @@
+<script type="text/javascript">
+var miniVM, miniPaper, ai; 
+$(function(){
+    miniPaper = paperSetup('myMotionCanvas');
+    miniPaper.name = "miniPaper";
+    
+    var file = $("#file-selector").val();
+
+    ai = new ActuatorInspector();
+    loadFile(file);
+});
+
+function ActuatorInspector(){
+  var scope = this;
+
+  $('#poke').click(function(){
+    scope.poke();
+  });
+}
+ActuatorInspector.prototype = {
+  selectedElement: function(){
+     paper = miniPaper;
+     var id = parseInt($('#element-selector').val());
+     return CanvasUtil.queryID(id);
+  },
+  poke: function(){
+    var scope = this;
+    paper = miniPaper;
+    var element = this.selectedElement();
+    var leds = CanvasUtil.queryPrefix("NLED");
+    leds = _.chain(leds).filter(function(led){
+      return element.contains(led.position)
+    }).each(function(led){
+      scope.flash(led, 50, 5);
+      // if(led.poke){
+      //   var msg = scope.turnOn(led);
+      //   led.poke = false;
+      // }
+      // else{
+      //   var msg = scope.turnOff(led);
+      //   led.poke = true;
+      // }
+    });
+  }, 
+  turnOn: function(led){
+    msg =  'c,'+ led.lid + ',255,255,255\n';
+    if(sc) sc.sendMessage(msg);
+  },
+  turnOff: function(led){
+    msg = 'c,'+ led.lid + ',0,0,0\n';
+    if(sc) sc.sendMessage(msg);
+  },
+  flash: function(led, delay, times){
+    var scope = this;
+    times *= 2;
+    steps = _.range(0, times, 1);
+    var t = 0; 
+    _.each(steps, function(step){
+      console.log(step);
+      if(step % 2 == 0) var fn = scope.turnOn;
+      else var fn = scope.turnOff;
+      console.log("t",  t + (step * delay), fn);
+      setTimeout(function(){
+        fn(led)
+      }, t + (step * delay));
+    });
+  },
+  focus: function(){
+    paper = miniPaper;
+    paper.view.zoom = 1;     
+    var element = this.selectedElement();
+    CanvasUtil.fitToViewWithZoom(element, paper.view.bounds.expand(0), element.position);
+  }
+}
+</script>
+
+<div id="motion" class="widget status">
+	<label class="widget-title" name="inspector"></label>
+	<div class="widget-body">
+        <select id="element-selector" class="form-control-special col-xs-9">
+        </select> 
+        <div class="col-xs-3 nopadding">
+          <button id="motion-select" class="btn btn-danger btn-block">
+             <%= glyph "screenshot" %>
+          </button>
+        </div>
+        <br class="clearfix">
+        <br class="">
+	 	<canvas id="myMotionCanvas" class="paper"></canvas>
+    <button id="poke" class="btn btn-block btn-danger"> POKE </button>
+	</div>
+</div>
+<style type="text/css">
+#myMotionCanvas{
+    border: 2px solid #666;
+}
+</style>

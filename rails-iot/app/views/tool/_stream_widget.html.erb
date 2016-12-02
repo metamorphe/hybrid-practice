@@ -1,0 +1,37 @@
+<script>
+  $(function(){
+    d3.csv("/data.csv", function(error, data) {
+      data = _.map(data, function(datum){
+        return _.values(datum).join(',');
+      });
+      data.unshift("id,type,time,voltage");
+      $('#streamer').val(data.join('\n'));
+    });
+  });
+</script>
+<div id="stream" class="widget status">
+  <label class="widget-title" name="stream"></label>              
+  <div class="widget-body">
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Search for...">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="button">
+          <span class="glyphicon glyphicon-filter">
+          </span>
+        </button>
+
+      </span>
+    </div><!-- /input-group -->
+    <br>
+
+    <textarea id="streamer" rows="10">
+      <!-- DUMMY DATA -->
+      C, 0, 120, 120, 120
+      C, 5, 120, 120, 120
+      C, 12, 120, 120, 120
+      M, 50
+      C, 12, 120, 120, 120
+      C, 12, 120, 120, 120
+    </textarea>
+  </div>
+</div>

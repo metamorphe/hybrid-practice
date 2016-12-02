@@ -1,0 +1,71 @@
+<script>
+var DEFAULT_FILE = "/userstudy/map.svg";
+$(function(){
+	var els = _.map(files, function(el, i, arr){
+      var dom =  $('<option></options>').html(el.title.toUpperCase())
+      	.attr('value', el.path + el.filename);
+      if(el.filename == DEFAULT_PIPE_FILE) dom.attr('selected', true);
+      return dom;
+    });
+    $('#file-selector').html(els);
+
+    $('#file-selector').on('change', function(){
+    	var file = $(this).val();
+    	loadFile(file);
+    });
+
+    $('#file-selector').val(DEFAULT_FILE);
+    var file = $("#file-selector").val();
+    console.log(file);
+    loadFile(file);
+})
+
+var loadFile = function(file){
+	console.log("LOADING FILE:", file)
+	// canvas widget
+	paper = mainPaper;
+    paper.project.clear();
+    paper.view.zoom = 1;
+    paper.view.update();
+
+   	var display = new Artwork(file, function(artwork){
+       CanvasUtil.fitToViewWithZoom(artwork.svg, paper.view.bounds.expand(-100));
+       CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+       CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+       vm = new ViewManager($('#views'));
+    });
+   
+   	// motion widget
+   	// paper = miniPaper;
+   	// paper.project.clear();
+    // paper.view.zoom = 1;
+    // paper.view.update();
+
+    // var display = new Artwork(file, function(artwork){ 
+    //    var leds = CanvasUtil.queryPrefix("DDS");
+    //    if(leds.length > 0)
+	   //     CanvasUtil.fitToViewWithZoom(leds[0], paper.view.bounds, leds[0].position);
+
+    //    CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+    //    CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+    //    var leds = CanvasUtil.queryPrefix("DDS");
+    //    var options = _.map(leds, function(led){
+    //     return $('<option></option>').html(led.id).attr("value", led.id);
+    //    });
+    //    $('#element-selector').html('').append(options);
+    //    $('#motion-select').click(function(){
+    //      ai.focus();
+    //    })
+    // });
+
+    paper.view.update();
+}
+</script>
+
+<div id="file-select" class="widget status">
+	<label class="widget-title" name="File Select"></label>
+	<div class="widget-body">
+	  <select id="file-selector" class="form-control">
+	  </select> 
+	</div>
+</div>

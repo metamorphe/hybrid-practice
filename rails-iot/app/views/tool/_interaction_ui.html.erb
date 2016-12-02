@@ -1,0 +1,518 @@
+<script type="text/javascript">
+  $(function(){
+    $( ".drag-hoz" ).draggable({ axis: "x", snap: "keyframe, transition, button.trigger", snapMode: "outer" });
+    
+    $( ".resizable-hoz" ).resizable({
+      handles: "n, e, s, w"
+    });
+    $('.hold-state li').click(function(){
+      $(this).addClass('active').siblings().removeClass('active');
+      var parents = $(this).parents('transition, .trigger, keyframe');
+      console.log("PARENTS", parents);
+      parents.data('value', $(this).data('value'));
+    });
+
+    $('.trigger').click(function(){
+      var keyframes = $(this).siblings('keyframe');
+      console.log('Running', $(this).html());
+
+      _.each(keyframes, function(keyframe){
+        var selectors = $(keyframe).find("optiongroup.selectors").children('selector');
+        var behaviors = $(keyframe).find("optiongroup.behaviors").children('behavior');
+        selectors = _.map(selectors, function(selector){ return $(selector).attr('data-fn'); })
+        behaviors = _.map(behaviors, function(behavior){ return $(behavior).attr('data-fn'); })
+        console.log(selectors, behaviors);
+
+        var collection = _.chain(selectors).map(function(selector){
+          return sl[selector]();
+        }).flatten().value();
+
+    
+        console.log(collection, behaviors);
+
+        _.each(behaviors, function(behavior){
+          qb[behavior](collection);
+        });
+
+      });
+    });
+    $(".add-big").click(function(){
+       var dom = $('keyframe.template').clone().removeClass('template');
+       dom.insertBefore($(this));//.parent().append(dom);
+       enableDirectManipulation();
+    });
+
+    enableDirectManipulation();
+  });
+
+function enableDirectManipulation(){
+   // console.log("BEHAVIORS", $('behavior'));  
+    $('behavior').droppable({
+      accept: "div.library-block.behavior",
+      classes: {
+        "ui-droppable-active": "ui-state-highlight"
+      },
+      drop: function( event, ui ) {
+        console.log($(ui.draggable).attr('id'));
+        $(this).attr('data-name', $(ui.draggable).attr('id'));
+        $(this).attr('data-fn', $(ui.draggable).attr('data-fn'));
+        $(this).html($(ui.draggable).find('img').clone());
+        console.log(ui);
+      }
+    });
+
+    $('selector').droppable({
+      accept: "div.library-block.selector",
+      classes: {
+        "ui-droppable-active": "ui-state-highlight"
+      },
+      drop: function( event, ui ) {
+        console.log($(ui.draggable).attr('id'));
+        $(this).attr('data-name', $(ui.draggable).attr('id'));
+        $(this).attr('data-fn', $(ui.draggable).attr('data-fn'));
+        $(this).html($(ui.draggable).find('img').clone());
+        console.log(ui);
+      }
+    });
+}
+
+function Transition(){
+  this.init();
+}
+Transition.prototype = {
+  init: function(){
+    this.dom = $('#transition-template').clone().attr('id', '').removeClass('template');
+    this.dom.find('.hold-state li').click(function(){
+      $(this).addClass('active').siblings().removeClass('active');
+      var parents = $(this).parents('transition, .trigger, keyframe');
+      console.log("PARENTS", parents);
+      parents.data('value', $(this).data('value'));
+    });
+    this.dom.data('value', 'no-transition'); // default value
+    this.dom.data('duration', '20'); // default value
+  }, 
+  val: function(){
+    return this.dom.data('value');
+  }, 
+  duration: function(){
+    return parseInt(this.dom.data('duration'));
+  }
+}
+
+function Event(){
+  this.init();
+}
+Event.prototype = {
+  init: function(){
+    this.dom = $('#event-template').clone().attr('id', '').removeClass('template');
+  }, 
+  add: function(){
+
+  }
+}
+
+
+</script>
+
+<transition id="transition-template" class="template flex-item flex-container-vert-space">
+  <options class="short flex-item flex-container-hoz"> 
+    <option> 20ms </option>
+  </options>
+  <options class="tall flex-item flex-container-hoz"> 
+    <div class="dropdown">  
+      <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
+        <span class="glyphicon glyphicon-random"></span>
+      </button>
+      <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
+        <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
+        <li data-value="delay" ><a href="#">Delay</a></li> 
+        <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
+        <li data-value="fade-on"><a href="#">Fade to On</a></li>
+        <li data-value="fade-off"><a href="#">Fade to Off</a></li>
+      </ul>
+    </div>
+  </options>
+</transition>
+
+<keyframe class="template flex-item flex-container-vert drag-hoz resizable-hoz">
+        <options class="short flex-item flex-container-hoz"> 
+          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
+          <option class="flex-item"> 
+              <span class="glyphicon glyphicon-repeat"></span>
+          </option>
+        </options>
+        <options class="tall flex-item flex-container-hoz"> 
+          <optiongroup class="selectors flex-item flex-container-vert">
+              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
+              <button class="btn btn-xxs btn-primary">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </optiongroup>
+          <optiongroup  class="behaviors flex-item flex-container-vert">
+              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
+              <button class="btn btn-xxs btn-primary">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </optiongroup>
+        </options>
+      </keyframe>
+
+
+
+<group class="flex-container-vert">
+  <event class="flex-item flex-container-hoz">
+      <button type="trigger" class="btn-primary trigger">
+        onShutdown
+      </button>
+
+      <transition class="flex-item flex-container-vert-space drag-hoz">
+        <options class="short flex-item flex-container-hoz"> 
+          <option> 20ms </option>
+        </options>
+        <options class="tall flex-item flex-container-hoz"> 
+          <div class="dropdown">  
+            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
+              <span class="glyphicon glyphicon-random"></span>
+            </button>
+            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
+              <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
+              <li data-value="delay" ><a href="#">Delay</a></li> 
+              <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
+              <li data-value="fade-on"><a href="#">Fade to On</a></li>
+              <li data-value="fade-off"><a href="#">Fade to Off</a></li>
+            </ul>
+          </div>
+        </options>
+      </transition>
+
+
+
+
+
+
+
+      <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
+        <options class="short flex-item flex-container-hoz"> 
+          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
+          <option class="flex-item"> 
+              <span class="glyphicon glyphicon-repeat"></span>
+          </option>
+        </options>
+        <options class="tall flex-item flex-container-hoz"> 
+          <optiongroup class="selectors flex-item flex-container-vert">
+              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
+              <button class="btn btn-xxs btn-primary">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </optiongroup>
+          <optiongroup  class="behaviors flex-item flex-container-vert">
+              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
+              <button class="btn btn-xxs btn-primary">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </optiongroup>
+        </options>
+      </keyframe>
+      <button class="add-big btn btn-xs btn-primary">
+          <span class="glyphicon glyphicon-plus"></span>
+      </button>
+  </event>
+
+  <event class="flex-item flex-container-hoz">
+      <button type="trigger" class="btn-primary trigger">
+        onPower
+      </button>
+
+      <transition class="flex-item flex-container-vert-space drag-hoz">
+        <options class="short flex-item flex-container-hoz"> 
+          <option> 20ms </option>
+        </options>
+        <options class="tall flex-item flex-container-hoz"> 
+          <div class="dropdown">  
+            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
+              <span class="glyphicon glyphicon-random"></span>
+            </button>
+            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
+              <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
+              <li data-value="delay" ><a href="#">Delay</a></li> 
+              <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
+              <li data-value="fade-on"><a href="#">Fade to On</a></li>
+              <li data-value="fade-off"><a href="#">Fade to Off</a></li>
+            </ul>
+          </div>
+        </options>
+      </transition>
+
+
+
+
+
+
+
+      <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
+        <options class="short flex-item flex-container-hoz"> 
+          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
+          <option class="flex-item"> 
+              <span class="glyphicon glyphicon-repeat"></span>
+          </option>
+        </options>
+        <options class="tall flex-item flex-container-hoz"> 
+          <optiongroup class="selectors flex-item flex-container-vert">
+              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
+              <button class="btn btn-xxs btn-primary">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </optiongroup>
+          <optiongroup  class="behaviors flex-item flex-container-vert">
+              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
+              <button class="btn btn-xxs btn-primary">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </optiongroup>
+        </options>
+      </keyframe>
+      <button id="keyframe-adder" class="add-big btn btn-xs btn-primary">
+          <span class="glyphicon glyphicon-plus"></span>
+      </button>
+  </event>
+ 
+
+</group>
+
+<script type="text/javascript">
+$(function(){
+
+});
+</script>
+
+<style>
+li.active{
+  background: #00A8E1;
+}
+group{
+  height: 300px;
+  /*overflow: scroll;*/
+}
+.flex-container-vert-space {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  
+  -webkit-flex-flow: column wrap;
+  justify-content: center;
+  /*align-items: center;*/
+}
+.flex-container-vert {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  
+  -webkit-flex-flow: column wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flex-container-hoz {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  
+  -webkit-flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flex-item {
+  padding: 5px;
+  color: white;
+  font-weight: bold;
+  font-size: 3em;
+  text-align: center;
+}
+
+
+
+event.flex-item{
+  background: #151515;
+  padding: 0px;
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 0px;
+
+  height: 100px;
+  line-height: 150px;
+  color: white;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+
+}       
+      keyframe.flex-item{
+        background: #00A8e1;
+        padding: 0px;
+        width: 100px;
+        margin-top: 0px;
+
+
+        height: 90%;
+        line-height: 50px;
+        color: white;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
+      }
+                    options.flex-item.short{
+                      /*background: #252120;*/
+                      padding: 0px;
+                      width: 100%;
+                      margin-top: 0px;
+
+
+                      height: 15%;
+                      line-height: 28px;
+                      color: white;
+                      font-weight: bold;
+                      font-size: 0.8em;
+                      text-align: center;
+                    }
+                          option.flex-item{
+                            background: #252120;
+                            padding: 4px;
+                            flex-grow: 1;
+                            margin-top: 0px;
+
+
+                            height: 100%;
+                            line-height: 12px;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 0.8em;
+                            text-align: center;
+
+                          }
+
+                    options.flex-item.tall{
+                      /*background: brown;*/
+                      padding: 0px;
+                      width: 100%;
+                      margin-top: 0px;
+
+
+                      height: 85%;
+                      line-height: 30px;
+                      color: white;
+                      font-weight: bold;
+                      font-size: 1em;
+                      text-align: center;
+
+                    }
+                            optiongroup.flex-item{
+                              background: #555;
+                              padding: 5px;
+                              /*flex-grow: 1;*/
+                              width: 50%;
+                              margin-top: 0px;
+
+
+                              height: 100%;
+                              line-height: 100%;
+                              color: white;
+                              font-weight: bold;
+                              font-size: 1em;
+                              text-align: center;
+                            }
+                            optiongroup.flex-item.selectors{
+                              background: #444;
+                            }
+
+
+                                  behavior.flex-item, selector.flex-item{
+                                    background: #222;
+                                    padding: 0px;
+                                    width: 100%;
+                                    margin: 0;
+                                    margin-bottom: 5px;
+
+                                    flex-grow: 1;
+                                    line-height: 50px;
+                                    color: white;
+                                    font-weight: bold;
+                                    font-size: 1em;
+                                    text-align: center;
+
+                                  }    
+                                  
+                                  .btn-xxs{
+                                    padding: 1px 2px;
+                                    font-size: 8px;
+                                    line-height: 1.2;
+                                    border-radius: 3px;
+                                  }
+                                  button.add-big{
+                                    /*font-size: 1.2em;
+                                    padding: 8px;
+                                    width: auto;*/
+                                    margin-left: 5px;
+                                    margin-right: 5px;
+                                  }            
+
+
+
+      transition.flex-item{
+        background: #006f95;
+        padding: 5px 3px;
+        width: 25px;
+        margin-top: 0px;
+
+        height: 80%;
+        line-height: 50px;
+        color: white;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
+
+      }
+
+      .trigger{
+        background: #111;
+        border: 1px solid #555;
+        padding: 5px;
+        width: 50px;
+        height: 50px;
+        margin-top: 0px;
+        border-radius: 30px;
+        margin-left: 5px;
+        margin-right: 5px;
+        line-height: 40px;
+        color: white;
+        font-weight: bold;
+        font-size: 0.6em;
+        text-align: center;
+      }
+      .trigger:focus{
+        outline: none;
+        /*box-shadow: 0 0 5px #00A8e1;*/
+      }
+      img{
+        background: white;
+      }
+
+</style>

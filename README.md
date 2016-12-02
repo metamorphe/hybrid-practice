@@ -1,4 +1,7 @@
 # Hybrid Practice
+## Paper Skeleton
+You'll need to be running this path as a server. 
+``` python -m SimpleHTTPServer ```
 
 ## Prerequisites
 1. Install rails and configure github 4.2.6 by following [these instructions.](https://gorails.com/setup/osx/10.11-el-capitan)

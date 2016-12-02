@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<!-- Generator: Adobe Illustrator 20.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="MAP:_hi" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 908 671" style="enable-background:new 0 0 908 671;" xml:space="preserve">
 <style type="text/css">
 	.st0{fill:none;stroke:#000000;stroke-miterlimit:10;}
@@ -63,7 +63,7 @@
 	556,374.9 556,360.7 570.2,360.7 570.2,374.9 "/>
 <polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.90196_x2C_0.23137_x2C_0.09804_x5D__x2C__x22_target_x22_:43_x2C__x22_forceTarget_x22_:38_x7D_" class="st0" points="
 	423.4,248.2 423.4,234 437.6,234 437.6,248.2 "/>
-<polyline id="CP:_circuit_x5F_path" class="st0" points="577,478.7 577,394.9 557.7,334.4 577,282.7 533.1,174 349.7,189.9 
+<polyline id="CP:_circuit_x5F_path" class="st0" points="577,452.7 577,394.9 557.7,334.4 577,282.7 533.1,174 349.7,189.9 
 	363.5,255.6 337.8,314.7 345.3,408.6 422.5,408.6 540.3,411.8 503.1,328 466.2,235.6 415.4,241.1 407.8,349.9 497.2,379 "/>
 <rect id="MC:_microcontroller" x="446.5" y="446.7" class="st0" width="10.5" height="6"/>
 <rect id="DIF:_diff" x="312.6" y="154.1" class="st0" width="283.6" height="283.6"/>

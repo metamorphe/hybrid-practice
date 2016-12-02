@@ -1,0 +1,179 @@
+<script type="text/javascript">
+var qb; 
+$(function(){
+  qb = new QuickBehavior();
+  $('.library-block').draggable({
+    cancel: "a.ui-icon", // clicking an icon won't initiate dragging
+    revert: "valid", // when not dropped, the item will revert back to its initial position
+    containment: 'window',
+    helper: "clone",
+    cursor: "move"
+  });  
+
+})
+
+function QuickBehavior(){
+  var scope = this;
+  $('div.library-block.behavior').click(function(){
+    var fn = $(this).data('fn');
+    scope[fn]();
+  });
+}
+
+QuickBehavior.prototype = {
+  allBehave: function(collection, fn, params){
+    if(_.isUndefined(collection)) collection = sl.getCurrent();
+    var scope = this;
+    var fn = fn;
+    _.each(collection, function(led){
+      fn(scope, led, params);
+    });
+    if(sc) sc.sendUpdateMsg(params.delay); // UPDATE 
+  },
+  allBlink: function(collection){
+    console.log("ALL BLINK");
+    var scope = this;
+    var freq = 10; //hz;
+    var duration = 1000;
+    var step = duration / freq;
+    var cycles = _.range(0, 1000, step);
+    console.log("CYCLES", cycles)
+    _.each(cycles, function(cycle){
+       scope.allBehave(collection, scope.changeToColor, {color: new paper.Color(1), delay: cycle});
+       scope.allBehave(collection, scope.changeToColor, {color: new paper.Color(0), delay: cycle + (step/2.0)});
+    });
+  },
+  allRamp: function(collection){
+    var scope = this;
+    var duration = 600;
+    
+    time_steps = _.range(0, duration + 1, 100);
+    _.each(time_steps, function(timeFromNow){
+      var ratio = (timeFromNow / duration);      
+      scope.allBehave(collection, scope.changeToColor, {color: new paper.Color(ratio), delay: ratio});
+    });
+  },
+  allOn: function(collection){
+    var scope = this;
+    this.allBehave(collection, this.turnOn, {delay: 0});
+  },
+  allOff: function(collection){
+    this.allBehave(collection, this.turnOff, {delay: 0});
+  },
+  allRainbowFlash: function(collection){
+    var delay = 100;
+    var scope = this;
+    
+    hues = _.range(0, 360, 20);
+    var time = 0; 
+
+    _.each(hues, function(hue, step){
+      var color = new paper.Color('red');
+      color.hue = hue;
+      scope.allBehave(collection, scope.changeToColor, {color: color, delay: time});
+      time += delay;
+    });
+  },
+  allChangeColor: function(collection){
+    var scope = this;
+    this.allBehave(collection, this.changeToColor, {color: new paper.Color("red")});
+  },
+  turnOn: function(scope, led){
+    scope.changeToColor(scope, led, {color: new paper.Color(1)});
+  },
+  turnOff: function(scope, led){
+    scope.changeToColor(scope, led, {color: new paper.Color(0)});
+  },
+  changeToColor: function(scope, led, params){
+    var scope = this;
+    var diffs = CanvasUtil.getDiffusers(led);
+    var color = params.color;
+    var msg = ['c', led.lid, parseInt(color.red * 255), parseInt(color.green * 255), parseInt(color.blue * 255)];
+    msg =  msg.join(',') + '\n';
+
+  
+    delay = _.isUndefined(params.delay) ? 0: params.delay;
+    if(sc) sc.sendMessageAt(msg, delay, function(){
+        _.each(diffs, function(diff){diff.fillColor = color;})
+        led.fillColor = color;
+        paper.view.update();
+    });
+  },
+  focus: function(){
+    paper = miniPaper;
+    paper.view.zoom = 1;     
+    var element = this.selectedElement();
+    CanvasUtil.fitToViewWithZoom(element, paper.view.bounds.expand(0), element.position);
+  }
+}
+</script>
+
+<div id="behavior-library" class="widget status">
+	<label class="widget-title" name="quick behaviors"></label>
+	<div class="widget-body flex-container-hoz flex-wrapper">
+    <div id="all-on" data-fn="allOn" class="behavior library-block"> 
+      <%= image_tag "/on.png", :width => "100%" %>
+      <div class="title">
+        allOn
+      </div> 
+    </div>
+    <div id="all-off" data-fn="allOff" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/off.png", :width => "100%" %>
+      <div class="title">
+        allOff
+      </div> 
+    </div>
+    <div id="rainbow-flash" data-fn="allRainbowFlash" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/rainbow.png", :width => "100%" %>
+      <div class="title">
+        rainbow
+      </div> 
+    </div>
+    <div id="ramp" data-fn="allRamp" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/ramp.png", :width => "100%" %>
+      <div class="title">
+        ramp
+      </div> 
+    </div>
+    <div id="red" data-fn="allChangeColor" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/red.png", :width => "100%" %>
+      <div class="title">
+        red
+      </div> 
+    </div>
+    <div id="all-blink" data-fn="allBlink" class="behavior library-block btn btn-default"> 
+      <%= image_tag "/flash.png", :width => "100%" %>
+      <div class="title">
+        blink
+      </div> 
+    </div>
+
+	</div>
+</div>
+<style type="text/css">
+.flex-wrapper{
+  flex-wrap: wrap !important;
+}
+#myMotionCanvas{
+    border: 2px solid #666;
+}
+.library-block{
+  width: 60px; 
+  height: 70px;
+  border-radius: 0px;
+  z-index: 10000000;
+}
+.library-block:hover{
+   border-radius: 0px;
+}
+.library-block img{
+  height: 50px;
+  padding: 3px;
+}
+.library-block div.title{
+  height: 20px;
+  text-align: center;
+}
+
+
+</style>

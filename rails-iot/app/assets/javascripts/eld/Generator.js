@@ -197,33 +197,33 @@ function Generator(){
           scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
        
           steps = 0;
-          intervalId = setInterval(function(){
+          // intervalId = setInterval(function(){
             done = false;
-              // while(! done){
+              while(! done){
                 var done = SimulatedAnnealing.Step();
                 steps ++; 
                 console.log("System – T:", SimulatedAnnealing.GetCurrentTemperature().toFixed(2), "E:", (1 - SimulatedAnnealing.GetCurrentEnergy()).toFixed(2));
                 scope.system_energy = SimulatedAnnealing.GetCurrentEnergy();
                 scope.system_temperature = SimulatedAnnealing.GetCurrentTemperature();
-              // }
+              }
               if(done == true){
                 scope.params = JSON.parse(generatorSolution);
                 scope.generate();
                 scope.params.costs = scope.fire();
                 console.log("END ENERGY",  scope.params.costs.cost, "STEPS", steps);
                 scope.storeSolution(scope.params);
-              clearInterval(intervalId);
+              // clearInterval(intervalId);
             }
-          }, 20);
+          // }, 20);
 
         },
         batch_anneal: function(){
           var d = new Date();
           var t_start = d.getTime();
           var scope = this;
-          // lengths = _.range(25, 200, 5);
+          lengths = _.range(5, 200, 5);
           // lengths = this.get_eval_lengths();
-          lengths = _.range(5, 10, 1);
+          // lengths = _.range(5, 10, 1);
           console.log("STARTING BATCH ANNEAL PROCESS");
           _.each(lengths, function(l, i){
             scope.length = l;
