@@ -92,7 +92,7 @@ function ButtonExporter(dom, type, preFN, postFN){
   }
 
 function copyCanvasRegionToBuffer( canvas, x, y, w, h, bufferCanvas ){
-  console.log("CREATING CANVAS", bufferCanvas);
+  // console.log("CREATING CANVAS", bufferCanvas);
   if (!bufferCanvas) bufferCanvas = document.createElement('canvas');
   bufferCanvas.width  = w;
   bufferCanvas.height = h;

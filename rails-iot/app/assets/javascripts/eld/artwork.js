@@ -26,6 +26,33 @@ CanvasUtil.getDiffusers = function(led){
     });
     return diffs;
 }
+CanvasUtil.getMediums =  function(){
+	var reflectors = CanvasUtil.queryPrefix("REF");
+    var lenses = CanvasUtil.queryPrefix("LENS");
+    var diffusers = CanvasUtil.queryPrefix("DIFF");
+    
+    _.each(diffusers, function(el){
+    	el.optic_type = "diffuser" 
+    	el.reflectance = 0.3;
+    	el.refraction = 0.8;
+    	// el.probability = 0.5;
+    	name = Artwork.getName(el).split("_")[1];
+        name = name.split("_")[0];
+        el.n = parseFloat(name);
+    });
+    _.each(reflectors, function(el){ 
+    	el.optic_type = "reflector" 
+    	el.reflectance = 0.9;
+    });
+    _.each(lenses, function(el){
+    	el.optic_type = "lens" 
+        el.refraction = 0.80;
+        name = Artwork.getName(el).split("_")[1];
+        name = name.split("_")[0];
+        el.n = parseFloat(name);
+    });
+ 	return  _.flatten([lenses,reflectors,diffusers]);
+ }
 CanvasUtil.export = function(filename){
 	console.log("Exporting SVG...", filename);
     var prev_zoom = paper.view.zoom;

@@ -699,8 +699,8 @@ Pipeline.script = {
 
         var removeable = CanvasUtil.query(paper.project, { prefix: ["RT", "RAY", "PL", "LS", "NP"]});
         CanvasUtil.call(removeable, "remove"); 
-        if(chassis) var invisible = _.compact(_.flatten([e.nuts,  e.art, e.bo, e.bi, e.cp]));
-        else var invisible = _.compact(_.flatten([ e.nuts, e.art, e.bo, e.bi, e.cp, e.mc]));
+        if(chassis) var invisible = _.compact(_.flatten([e.nuts,  e.art, e.bo, e.bi, e.cp, e.dds]));
+        else var invisible = _.compact(_.flatten([ e.nuts, e.art, e.bo, e.bi, e.cp, e.mc, e.dds]));
         Pipeline.set_visibility(invisible, false);
 
         result.name = "RESULT: REFLECTOR";

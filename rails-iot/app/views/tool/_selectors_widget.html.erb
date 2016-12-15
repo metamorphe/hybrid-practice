@@ -14,7 +14,7 @@ $(function(){
 
 function SelectorLibrary(){
   var scope = this;
-  this.current = "all";
+  this.current = "burst";
 
   $('div.selector.library-block').click(function(){
     var fn = $(this).data('fn');
@@ -36,6 +36,14 @@ SelectorLibrary.prototype = {
   }, 
   none: function(){
     return [];
+  },
+  burst: function(){
+    leds = CanvasUtil.queryPrefix("NLED");
+    leds = _.sortBy(leds, function(led){
+      led.delay = led.position.getDistance(paper.view.center);
+      return led.position.getDistance(paper.view.center);
+    });
+    return leds;
   },
   all: function(){
     paper = mainPaper;

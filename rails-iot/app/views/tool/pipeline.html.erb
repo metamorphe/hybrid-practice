@@ -21,8 +21,8 @@ $(function(){
         result.model_height.toFixed(2), "mm"
       );
       result.fitBounds(paper.view.bounds.expand(-5))
-      
-      var fn =$("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
+      var file = $('#file-select :selected').text();
+      var fn = file.toLowerCase() + "_" + pm.getCurrentView();
       ButtonExporter.exportPNG(result, fn, $(this));
   });
   $('#svg-download').click(function(){

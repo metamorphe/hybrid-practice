@@ -1,10 +1,10 @@
 // Using the property s_selected to keep track of element styling
 var NORMAL_SELECT = function(path){
 	name = Artwork.getPrefix(path);
-	// if(name == "NLED")
-		path.set({strokeWidth: 2, strokeColor: "blue", fillColor: "blue"});
-	// else
-		// path.set({strokeWidth: 2, dashArray: [], strokeColor: "yellow"})
+	if(name == "NLED")
+		path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
+	else
+		path.set({strokeWidth: 2, dashArray: [], strokeColor: "yellow"})
 }
 
 function SelectionManager(){

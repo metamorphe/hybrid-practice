@@ -26,7 +26,11 @@ QuickBehavior.prototype = {
     var scope = this;
     var fn = fn;
     _.each(collection, function(led){
-      fn(scope, led, params);
+      params2 = _.clone(params);
+      if(led.delay) params2.delay += led.delay;
+      console.log(params2.delay);
+      fn(scope, led, params2);
+      if(led.delay && sc) sc.sendUpdateMsg(params2.delay);
     });
     if(sc) sc.sendUpdateMsg(params.delay); // UPDATE 
   },
@@ -78,8 +82,9 @@ QuickBehavior.prototype = {
     var scope = this;
     this.allBehave(collection, this.changeToColor, {color: new paper.Color("red")});
   },
-  turnOn: function(scope, led){
-    scope.changeToColor(scope, led, {color: new paper.Color(1)});
+  turnOn: function(scope, led, params){
+    params = _.extend(params, {color: new paper.Color(1)})
+    scope.changeToColor(scope, led, params);
   },
   turnOff: function(scope, led){
     scope.changeToColor(scope, led, {color: new paper.Color(0)});
