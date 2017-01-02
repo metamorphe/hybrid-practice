@@ -6,8 +6,8 @@
 #define NUMPIXELS 25 // Number of LEDs in strip
 
 // Here's how to control the LEDs from any two pins:
-#define DATAPIN    3
-#define CLOCKPIN   4 
+#define DATAPIN    4
+#define CLOCKPIN   3 
 Adafruit_DotStar strip = Adafruit_DotStar(
   NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
 
@@ -40,24 +40,7 @@ void setup() {
   clock_prescale_set(clock_div_1); // Enable 16 MHz on Trinket
 #endif
   strip.begin(); // Initialize pins for output
-  //strip.show();  // Turn all LEDs off ASAP
-
-  setMoon();
-  fadeIn();
-  delay(5000);
-  turnOffMoon();
-
-  setSun();
-  fadeIn();
-  delay(5000);
-  turnOffSun();
-
-  setMoon();
-  setSun();
-  fadeIn();
-  delay(5000);
-  //turnOffMoon();
-  //turnOffSun();
+  strip.show();  // Turn all LEDs off ASAP
 }
 
 void fadeIn() {
@@ -135,6 +118,27 @@ void setSun() {
 
 int delay_time = 100;
 void loop() {
+  setMoon();
+  fadeIn();
+  delay(10000);
+  turnOffMoon();
+
+  delay(10000);
+
+  setSun();
+  fadeIn();
+  delay(10000);
+  turnOffSun();
+
+  delay(5000);
+
+  setMoon();
+  setSun();
+  fadeIn();
+  delay(10000);
+  turnOffMoon();
+  turnOffSun();
   Serial.println("looping");
-  strip.show();
+
+  delay(5000);
 }
