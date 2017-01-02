@@ -36,7 +36,6 @@ void setup() {
   // Dotstar setup
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  strip.setBrightness(50);
 }
 
 void loop() {
@@ -102,11 +101,11 @@ void neopixel_plasma() {
   byte row, col;
   
   // For each row...
-  for( row=0; row<8; row++ ) {
+  for( row=0; row<10; row++ ) {
     float row_f = float(row);  // Optimization: Keep a floating point value of the row number, instead of recasting it repeatedly.
     
     // For each column...
-    for( col=0; col<8; col++ ) {
+    for( col=0; col<10; col++ ) {
       float col_f = float(col);  // Optimization.
       
       // Calculate the distance between this LED, and p1.
