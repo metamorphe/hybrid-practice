@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
     files = {filenames: Dir.glob("public/artwork/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
     files[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/artwork/", :filename => f, :title => f.split(".")[0].titlecase}}
     
-    files2 = {filenames: Dir.glob("public/userstudy/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
+    files2 = {filenames: Dir.glob("public/userstudy/examples/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
     files2[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/userstudy/", :filename => f, :title => f.split(".")[0].titlecase}}
     
     [files[:filenames], files2[:filenames]].flatten

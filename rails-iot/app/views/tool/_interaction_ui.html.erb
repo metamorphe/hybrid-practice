@@ -114,6 +114,7 @@ Event.prototype = {
 
 </script>
 
+<!-- TEMPLATES -->
 <transition id="transition-template" class="template flex-item flex-container-vert-space">
   <options class="short flex-item flex-container-hoz"> 
     <option> 20ms </option>
@@ -135,89 +136,32 @@ Event.prototype = {
 </transition>
 
 <keyframe class="template flex-item flex-container-vert drag-hoz resizable-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
-          <option class="flex-item"> 
-              <span class="glyphicon glyphicon-repeat"></span>
-          </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <optiongroup class="selectors flex-item flex-container-vert">
-              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-          <optiongroup  class="behaviors flex-item flex-container-vert">
-              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-        </options>
-      </keyframe>
+  <options class="short flex-item flex-container-hoz"> 
+    <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
+    <option class="flex-item"> 
+        <span class="glyphicon glyphicon-repeat"></span>
+    </option>
+  </options>
+  <options class="tall flex-item flex-container-hoz"> 
+    <optiongroup class="selectors flex-item flex-container-vert">
+        <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
+        <button class="btn btn-xxs btn-primary">
+          <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    </optiongroup>
+    <optiongroup  class="behaviors flex-item flex-container-vert">
+        <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
+        <button class="btn btn-xxs btn-primary">
+          <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    </optiongroup>
+  </options>
+</keyframe>
+<!-- END TEMPLATES -->
 
 
 
 <group class="flex-container-vert">
-  <event class="flex-item flex-container-hoz">
-      <button type="trigger" class="btn-primary trigger">
-        onHere
-      </button>
-
-      <transition class="flex-item flex-container-vert-space drag-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option> 20ms </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <div class="dropdown">  
-            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
-              <span class="glyphicon glyphicon-random"></span>
-            </button>
-            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
-              <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
-              <li data-value="delay" ><a href="#">Delay</a></li> 
-              <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
-              <li data-value="fade-on"><a href="#">Fade to On</a></li>
-              <li data-value="fade-off"><a href="#">Fade to Off</a></li>
-            </ul>
-          </div>
-        </options>
-      </transition>
-
-
-
-
-
-
-
-      <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
-          <option class="flex-item"> 
-              <span class="glyphicon glyphicon-repeat"></span>
-          </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <optiongroup class="selectors flex-item flex-container-vert">
-              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-          <optiongroup  class="behaviors flex-item flex-container-vert">
-              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-        </options>
-      </keyframe>
-      <button class="add-big btn btn-xs btn-primary">
-          <span class="glyphicon glyphicon-plus"></span>
-      </button>
-  </event>
-
   <event class="flex-item flex-container-hoz">
       <button type="trigger" class="btn-primary trigger">
         onStation
@@ -243,12 +187,6 @@ Event.prototype = {
         </options>
       </transition>
 
-
-
-
-
-
-
       <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
         <options class="short flex-item flex-container-hoz"> 
           <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
@@ -258,13 +196,13 @@ Event.prototype = {
         </options>
         <options class="tall flex-item flex-container-hoz"> 
           <optiongroup class="selectors flex-item flex-container-vert">
-              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
+              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/actuation/selectors/all.png", :width => "100%" %></selector>
               <button class="btn btn-xxs btn-primary">
                 <span class="glyphicon glyphicon-plus"></span>
               </button>
           </optiongroup>
           <optiongroup  class="behaviors flex-item flex-container-vert">
-              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
+              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/actuation/behaviors/ramp.png", :width => "100%" %></behavior>
               <button class="btn btn-xxs btn-primary">
                 <span class="glyphicon glyphicon-plus"></span>
               </button>
@@ -276,120 +214,7 @@ Event.prototype = {
       </button>
   </event>
 
-   <event class="flex-item flex-container-hoz">
-      <button type="trigger" class="btn-primary trigger">
-        onPath
-      </button>
-
-      <transition class="flex-item flex-container-vert-space drag-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option> 20ms </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <div class="dropdown">  
-            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
-              <span class="glyphicon glyphicon-random"></span>
-            </button>
-            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
-              <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
-              <li data-value="delay" ><a href="#">Delay</a></li> 
-              <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
-              <li data-value="fade-on"><a href="#">Fade to On</a></li>
-              <li data-value="fade-off"><a href="#">Fade to Off</a></li>
-            </ul>
-          </div>
-        </options>
-      </transition>
-
-
-
-
-
-
-
-      <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
-          <option class="flex-item"> 
-              <span class="glyphicon glyphicon-repeat"></span>
-          </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <optiongroup class="selectors flex-item flex-container-vert">
-              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-          <optiongroup  class="behaviors flex-item flex-container-vert">
-              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-        </options>
-      </keyframe>
-      <button id="keyframe-adder" class="add-big btn btn-xs btn-primary">
-          <span class="glyphicon glyphicon-plus"></span>
-      </button>
-  </event>
-   <event class="flex-item flex-container-hoz">
-      <button type="trigger" class="btn-primary trigger">
-        onRefresh
-      </button>
-
-      <transition class="flex-item flex-container-vert-space drag-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option> 20ms </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <div class="dropdown">  
-            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
-              <span class="glyphicon glyphicon-random"></span>
-            </button>
-            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
-              <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
-              <li data-value="delay" ><a href="#">Delay</a></li> 
-              <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
-              <li data-value="fade-on"><a href="#">Fade to On</a></li>
-              <li data-value="fade-off"><a href="#">Fade to Off</a></li>
-            </ul>
-          </div>
-        </options>
-      </transition>
-
-
-
-
-
-
-
-      <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
-          <option class="flex-item"> 
-              <span class="glyphicon glyphicon-repeat"></span>
-          </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <optiongroup class="selectors flex-item flex-container-vert">
-              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/all.png", :width => "100%" %></selector>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-          <optiongroup  class="behaviors flex-item flex-container-vert">
-              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/ramp.png", :width => "100%" %></behavior>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-        </options>
-      </keyframe>
-      <button id="keyframe-adder" class="add-big btn btn-xs btn-primary">
-          <span class="glyphicon glyphicon-plus"></span>
-      </button>
-  </event>
+   
 
 </group>
 
@@ -467,7 +292,7 @@ group{
 event.flex-item{
   background: #151515;
   padding: 0px;
-  width: 50%;
+  width: 100%;
   margin-top: 5px;
   margin-bottom: 0px;
 
