@@ -5,7 +5,7 @@
       
       $(function(){ 
         $("#shade").fadeOut("slow");
-        paperSetup('myCanvas');
+        Utility.paperSetup('myCanvas');
         ps = new PerceptualScheduler(paper);
         hs = new HeatSketch();
 
@@ -50,16 +50,7 @@
         }
       });
       
-      function paperSetup(id){
-        var dom = $("#" + id);
-        dom.attr('height', dom.parent().height());
-        dom.attr('width', dom.parent().width());
-        paper.install(window);
-        var myPaper = new paper.PaperScope();
-        myPaper.setup(id);
-        console.log("Paper.js installed on", id);
-        return myPaper;
-      }
+     
       
     </script>
   </head>

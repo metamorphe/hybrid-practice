@@ -153,9 +153,21 @@ function norm(arr){
 }
 
 function Utility(){}
-Utility.paperSetup = function(dom){
-  dom.attr('height', $(window).height());
-  dom.attr('width', $(window).width());
-  paper.install(window);
-  paper.setup('myCanvas');
-}
+// Utility.paperSetup = function(dom){
+//   dom.attr('height', $(window).height());
+//   dom.attr('width', $(window).width());
+//   paper.install(window);
+//   paper.setup('myCanvas');
+// }
+
+ Utility.paperSetup = function(id){
+    var dom = $("#" + id);
+    dom.attr('height', dom.parent().height());
+    dom.attr('width', dom.parent().width());
+    paper.install(window);
+    var myPaper = new paper.PaperScope();
+    myPaper.setup(id);
+    console.log("Paper.js installed on", id);
+    return myPaper;
+  }
+

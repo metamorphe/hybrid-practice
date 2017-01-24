@@ -1,10 +1,10 @@
    <script type="text/javascript">
-      var zb, cp, bb, vm, sm, displays = [];
+      var zb, cp, bb, vm, sm, fm, displays = [];
        
       $(function(){
         paperSetup();
+        fm = new FileManger(files);
         cp = new ColorPalette($('#sidebar-left'));
-        
         bb = new BrushBar($('#brush-bar')); 
         vm = new ViewManager($('#views'));
         $('img[tool="LEDPlacerBrush"]').click();

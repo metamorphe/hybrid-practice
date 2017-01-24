@@ -4,10 +4,16 @@
       var papers = [];
       var miniPaper, mainPaper;
       var DEFAULT_PIPE_FILE = "example_sunmoon_4inches.svg";
-      var vm;
+      var vm, fm, ws;
+
       $(function(){ 
+        Utility.paperSetup('myCanvas');
+        ws = new WebStorage();
+        fm = new FileManager(files);
+
         $("#shade").fadeOut("slow");
         
+
 
         // TEMPLATE UPDATE
         var widgets = $("#status .widget-title");
@@ -32,18 +38,20 @@
         })
       });
            sm = new SelectionManager();
-      papers = [];
-      function paperSetup(id){
-        var dom = $("#" + id);
-        console.log(dom.parent().height());
-        dom.attr('height', dom.parent().height());
-        dom.attr('width', dom.parent().width());
-        // paper.install(window);
-        var myPaper = new paper.PaperScope();
-        myPaper.setup(id);
-        papers.push(myPaper);
-        return myPaper;
-      }
+
+
+      // papers = [];
+      // function paperSetup(id){
+      //   var dom = $("#" + id);
+      //   console.log(dom.parent().height());
+      //   dom.attr('height', dom.parent().height());
+      //   dom.attr('width', dom.parent().width());
+      //   // paper.install(window);
+      //   var myPaper = new paper.PaperScope();
+      //   myPaper.setup(id);
+      //   papers.push(myPaper);
+      //   return myPaper;
+      // }
       
     </script>
   </head>
