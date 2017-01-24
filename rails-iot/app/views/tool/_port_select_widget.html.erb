@@ -30,6 +30,15 @@ $(function(){
     });
 
     $('#port-selector').html(els);
+    if(ports.length == 0){
+      var widget = $('#port-selector').parents(".widget")
+      widget.find('.viewer').click();
+      widget.find('#name').html("NO PORTS FOUND");
+      widget.find('.widget-title')
+        .removeClass('label-normal')
+        .addClass('label-danger');
+
+    }
 
 })
 
@@ -143,7 +152,7 @@ SocketControl.prototype = {
 </script>
 
 <div id="port-select" class="widget status">
-	<label class="widget-title" name="Port Select"></label>
+	<label class="widget-title label-normal" name="Port Select"></label>
 	<div class="widget-body">
 	  <span id="port-info"> CONNECTED TO: <span id="port-status"> – </span></span><br>
 	  <select id="port-selector" class="form-control-special  col-xs-9">

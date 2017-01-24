@@ -41,10 +41,14 @@ FileManager.prototype = {
     paper.view.update();
 
     var display = new Artwork(file, function(artwork){
-       CanvasUtil.fitToViewWithZoom(artwork.svg, paper.view.bounds.expand(-100));
-       CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
-       CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
-       vm = new ViewManager($('#views'));
+      var elds = CanvasUtil.queryPrefix('ELD');
+      var artwork = elds.length > 0 ? elds[0] : artwork.svg;
+      CanvasUtil.fitToViewWithZoom(artwork, paper.view.bounds.expand(-100), paper.view.center);
+      artwork.position.y += 20;
+      CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+      CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+      vm = new ViewManager($('#views'));
+      // var r = new paper.Path.Rectangle({rectangle: artwork.bounds, selected: true})
     });
     paper.view.update();
   }
@@ -53,7 +57,7 @@ FileManager.prototype = {
 </script>
 
 <div id="file-select" class="widget status">
-	<label class="widget-title" name="File Select"></label>
+	<label class="label-normal widget-title" name="File Select"></label>
 	<div class="widget-body">
 	  <select id="file-selector" class="form-control">
 	  </select> 

@@ -31,9 +31,6 @@ Artwork.prototype = {
 	 	
 	 		scope.svg = item;
 	 		scope.svg.position = paper.view.center;
- 			// CanvasUtil.fitToViewWithZoom(scope.svg, paper.view.bounds.expand(-100))
-        	// scope.svg.position.y -= 80;
-        	// scope.svg.position.x += 100;
  			// metadata import
  			leds = scope.queryPrefix("NLED");
  			_.each(leds, function(led){

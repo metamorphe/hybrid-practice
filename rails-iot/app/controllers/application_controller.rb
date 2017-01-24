@@ -22,8 +22,8 @@ class ApplicationController < ActionController::Base
   end
   private
   def get_displays
-    files = {filenames: Dir.glob("public/artwork/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
-    files[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/artwork/", :filename => f, :title => f.split(".")[0].titlecase}}
+    files = {filenames: Dir.glob("public/luminaires/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
+    files[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/luminaires/", :filename => f, :title => f.split(".")[0].titlecase}}
     
     files2 = {filenames: Dir.glob("public/userstudy/examples/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
     files2[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/userstudy/", :filename => f, :title => f.split(".")[0].titlecase}}

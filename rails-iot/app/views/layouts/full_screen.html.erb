@@ -47,8 +47,8 @@
 </head>
 <body>
 		<div id="shade" class="col-xs-12 text-center">
-			<img id="bg" class="" src="/loading.gif">
-		</div>
+			<%= image_tag "loading.gif", :id => "bg" %>
+    </div>
 	  	<% if notice %>
 		  <p class="alert alert-success"><%= notice %></p>
 		<% end %>

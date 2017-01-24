@@ -74,8 +74,8 @@ CanvasUtil.fitToViewWithZoom = function(element, bounds, position){
 	var scaleX = element.bounds.width / bounds.width;
 	var scaleY = element.bounds.height / bounds.height;
 	var scale = _.max([scaleX, scaleY]);
-	console.log("SET ZOOM TO", scale);
-	paper.view.zoom = 1.0/scale;
+	console.log("SET ZOOM TO", scale, bounds.width, bounds.height, 'for', element.bounds.width, element.bounds.height);
+	paper.view.zoom = 1/scale;
 	paper.view.center = position;
 }
 

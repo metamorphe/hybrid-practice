@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="ELD:_Spiral" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" viewBox="0 0 250.4 220.3" style="enable-background:new 0 0 250.4 220.3;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#2E3192;}
+	.st1{fill:#8BFF48;}
+	.st2{fill:#00AEEF;stroke:#231F20;stroke-miterlimit:10;}
+	.st3{fill:#294DFF;}
+	.st4{fill:#FFE313;}
+	.st5{fill:none;stroke:#FFF200;stroke-width:2;stroke-miterlimit:10;}
+</style>
+<path id="BASE:_Base" class="st0" d="M240.7,220.3H9.7c-5.4,0-9.7-4.4-9.7-9.7V9.7C0,4.3,4.4,0,9.7,0h231c5.4,0,9.7,4.4,9.7,9.7
+	v200.8C250.4,215.9,246.1,220.3,240.7,220.3z"/>
+<path id="DIF:_Main_Diffuser" class="st1" d="M207.4,37.1l-10,10c-23.1-23.1-55-37.4-90.2-37.4v14.2c-31.3,0-59.7,12.7-80.2,33.2
+	l10,10c-18,18-29.1,42.8-29.1,70.2h14.2c0,23.5,9.5,44.7,24.9,60.1l10-10c12.8,12.8,30.5,20.8,50.1,20.8V194
+	c15.7,0,29.8-6.3,40.1-16.6l-10-10c7.7-7.7,12.5-18.3,12.5-30.1h14.2h14.2h14.2h14.2h14.2h14.2h14.2C248.9,98.2,233,62.8,207.4,37.1
+	z"/>
+<rect id="NLED:_Light" x="100.1" y="130.3" class="st2" width="14.2" height="14.2"/>
+<rect id="MC:_Attiny" x="150.7" y="154.1" class="st3" width="99.7" height="37.5"/>
+<polygon id="BI:_Breakin_1_" class="st4" points="161.8,182.4 161.8,180.1 161.8,178.6 161.8,174.1 161.8,172.6 161.8,168.1 
+	161.8,162.1 150.7,162.1 150.7,166.2 150.7,168.1 150.7,172.6 150.7,174.1 150.7,178.6 150.7,180.1 150.7,182.4 150.7,184.6 
+	161.8,184.6 "/>
+<line id="CP:_CircuitPath" class="st5" x1="107.1" y1="137.3" x2="150.7" y2="174.1"/>
+</svg>
