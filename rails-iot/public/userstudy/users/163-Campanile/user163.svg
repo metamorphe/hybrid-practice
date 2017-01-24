@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1242 703" style="enable-background:new 0 0 1242 703;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#294DFF;}
+	.st1{fill:#FFE313;}
+	.st2{fill:#565656;}
+	.st3{fill:#191AE6;stroke:#000000;stroke-miterlimit:10;}
+	.st4{fill:#E5E619;stroke:#000000;stroke-miterlimit:10;}
+	.st5{fill:#DFDFDF;stroke:#000000;stroke-width:3;stroke-miterlimit:10;}
+	.st6{opacity:0.5;fill:#DFDFDF;stroke:#000000;stroke-miterlimit:10;stroke-dasharray:2,1;enable-background:new    ;}
+	.st7{fill:none;stroke:#FFE313;stroke-width:6;stroke-miterlimit:10;}
+</style>
+<polygon id="BASE:_BASE_PATH" points="708.1,447.1 708.1,441.5 683.4,441.5 683.4,237.5 621.5,95.3 558.6,239.8 559.5,441.5 
+	534,441.5 534,447.1 504.9,447.1 504.9,499.3 737.1,499.3 737.1,447.1 "/>
+<rect id="MC:_Microcontroller" x="534.2" y="421.6" transform="matrix(4.488949e-11 -1 1 4.488949e-11 83.9261 1026.8427)" class="st0" width="42.3" height="99.7"/>
+<polygon id="BI:_Breakin_1_" class="st1" points="594.4,462.5 594.4,464.7 594.4,466.2 594.4,470.7 594.4,472.2 594.4,476.7 
+	594.4,482.7 605.5,482.7 605.5,478.6 605.5,476.7 605.5,472.2 605.5,470.7 605.5,466.2 605.5,464.7 605.5,462.5 605.5,460.2 
+	594.4,460.2 "/>
+<path id="NUT:_nut_3_" class="st2" d="M613.4,130c0-4.8,3.9-8.7,8.7-8.7c4.8,0,8.7,3.9,8.7,8.7c0,4.8-3.9,8.7-8.7,8.7
+	C617.3,138.7,613.4,134.8,613.4,130z"/>
+<path id="NUT:_nut_1_" class="st2" d="M560.8,343.5c0-4.8,3.9-8.7,8.7-8.7s8.7,3.9,8.7,8.7c0,4.8-3.9,8.7-8.7,8.7
+	S560.8,348.3,560.8,343.5z"/>
+<path id="NUT:_nut_2_" class="st2" d="M664.5,343.5c0-4.8,3.9-8.7,8.7-8.7s8.7,3.9,8.7,8.7c0,4.8-3.9,8.7-8.7,8.7
+	S664.5,348.3,664.5,343.5z"/>
+<path id="NUT:_nut_4_" class="st2" d="M704.5,473.9c0-4.8,3.9-8.7,8.7-8.7s8.7,3.9,8.7,8.7c0,4.8-3.9,8.7-8.7,8.7
+	S704.5,478.7,704.5,473.9z"/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.10196_x2C_0.90196_x5D__x2C__x22_target_x22_:3_x2C__x22_forceTarget_x22_:15_x7D_" class="st3" points="
+	582,436.3 582,422.1 596.2,422.1 596.2,436.3 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.10196_x2C_0.90196_x5D__x2C__x22_target_x22_:3_x7D_" class="st3" points="
+	646.6,319.1 646.6,304.9 660.7,304.9 660.7,319.1 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.10196_x2C_0.90196_x5D__x2C__x22_target_x22_:3_x7D__1_" class="st3" points="
+	582.8,377.1 582.8,362.9 597,362.9 597,377.1 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.10196_x2C_0.90196_x5D__x2C__x22_target_x22_:12_x2C__x22_forceTarget_x22_:12_x7D_" class="st3" points="
+	613.2,191.5 613.2,177.3 627.4,177.3 627.4,191.5 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.89804_x2C_0.90196_x2C_0.09804_x5D__x2C__x22_target_x22_:13_x7D_" class="st4" points="
+	613.9,222 613.9,207.8 628.1,207.8 628.1,222 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.10196_x2C_0.90196_x5D__x2C__x22_target_x22_:3_x7D__2_" class="st3" points="
+	594,259.6 594,245.4 608.2,245.4 608.2,259.6 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.10196_x2C_0.90196_x5D__x2C__x22_target_x22_:3_x7D__3_" class="st3" points="
+	648,436.3 648,422.1 662.1,422.1 662.1,436.3 "/>
+<polygon id="DIF:_OVERALL" class="st5" points="664.5,241.3 621,141.5 577.5,241.3 577.5,241.5 577.5,441.5 664.5,441.5 
+	664.5,241.4 664.5,241.4 "/>
+<path id="DDS:_BOTTOM" class="st6" d="M577.5,241.5v200l87,0.1V241.4L577.5,241.5z"/>
+<polygon id="DDS:_triangle" class="st5" points="664.5,241.4 577.5,241.4 621,141.4 "/>
+<path id="DDS:_x5F_clock_1" class="st5" d="M598.3,213.9c0-12.2,9.8-22,22-22s22,9.8,22,22s-9.8,22-22,22S598.3,226.1,598.3,213.9z"
+	/>
+<polygon id="DDS:_x5F_rec_x5F_3_1" class="st6" points="601.4,302.9 601.4,261.5 642.8,261.5 642.8,302.9 "/>
+<polygon id="DDS:_x5F_rec_x5F_2_1" class="st6" points="600.3,364.4 600.3,323 641.7,323 641.7,364.4 "/>
+<polygon id="DDS:_x5F_rec_x5F_1_1" class="st6" points="600.3,428.9 600.3,387.5 641.7,387.5 641.7,428.9 "/>
+<path id="CP:_Circuit_Path" class="st7" d="M580,470c10.2,3.5,25.6,6.7,39,0c10.9-5.5,24.5-19.6,32-103c1.1-11.9,6.2-53.5,3-109
+	c-2.4-42.3-7.6-60.5-21.2-68c-8.4-4.6-20-5.2-22.8-0.8c-5,7.7,19.9,28.3,14.5,36.8c-3.7,5.8-17.1-1-24.8,6c-8.1,7.3-3.7,24-1.8,32.5
+	c1.1,4.9-0.4-0.5-6.2,113.7c-0.8,15.3-1.9,38.1-3.2,66.2"/>
+</svg>

@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+
   def home 
   end
   def getAPIdata(url, isJSON)
@@ -18,5 +19,15 @@ class ApplicationController < ActionController::Base
       # p "Storing cache #{url.to_s}"
       return res
     # end  
+  end
+  private
+  def get_displays
+    files = {filenames: Dir.glob("public/artwork/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
+    files[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/artwork/", :filename => f, :title => f.split(".")[0].titlecase}}
+    
+    files2 = {filenames: Dir.glob("public/userstudy/*.svg").collect!{|c| c.split('/')[2..-1].join('/')}}
+    files2[:filenames].collect!{|f| {:collection => f.split('.')[0].split('-')[0].split('_')[0].titlecase, path: "/userstudy/", :filename => f, :title => f.split(".")[0].titlecase}}
+    
+    [files[:filenames], files2[:filenames]].flatten
   end
 end

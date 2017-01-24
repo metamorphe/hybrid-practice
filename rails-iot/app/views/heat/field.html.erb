@@ -1,0 +1,100 @@
+   <script type="text/javascript">
+      var files = <%= @files.to_json.html_safe %>;
+      var DEFAULT_PIPE_FILE = "example_sunmoon_4inches.svg";
+      var ah, ps;
+      
+      $(function(){ 
+        $("#shade").fadeOut("slow");
+        paperSetup('myCanvas');
+        
+        var field_x = _.range(0, paper.view.bounds.width, 20);
+        var field_y = _.range(0, paper.view.bounds.height, 20);
+        var fields = new paper.Group({});
+
+        _.each(field_x, function(x){
+          _.each(field_y, function(y){
+            var c = new paper.Path.Rectangle({
+              name: "VEC: Vector Field Point",
+              parent: fields,
+              size: [20,20], 
+              position: new paper.Point(x, y), 
+              fillColor:"red"
+            });
+          });
+        });
+        fields.position = paper.view.center;
+
+
+
+        var fluidBrush = new paper.Tool();
+        fluidBrush.onMouseDown = function(){
+
+        }
+        fluidBrush.onMouseDrag = function(event){
+          distances = _.map(CanvasUtil.queryPrefix("VEC"), function(pt){
+            pt.distance = event.point.getDistance(pt.position);
+            return pt.distance;
+          });
+          var max = _.max(distances);
+          _.each(CanvasUtil.queryPrefix("VEC"),function(pt){
+            var s = 1 - (pt.distance / max);
+            // c = new paper.Color("red");
+            c = new paper.Color(s);
+            // c.hue = (270 + (s * 360)) % 360;
+            pt.fillColor = c;
+          })
+        }
+      });
+      
+      function paperSetup(id){
+        var dom = $("#" + id);
+        dom.attr('height', dom.parent().height());
+        dom.attr('width', dom.parent().width());
+        paper.install(window);
+        var myPaper = new paper.PaperScope();
+        myPaper.setup(id);
+        console.log("Paper.js installed on", id);
+        return myPaper;
+      }
+      
+    </script>
+  </head>
+  <body>
+      <div id="view-container">
+			<div id="main-canvas-container">
+			  <canvas id="myCanvas" class="paper"></canvas>
+			</div>
+      </div>
+  </body>
+
+  <style>
+   	body, html{
+   		width: 100%;
+   		height: 100%;
+   		background: #f5f4f0;
+      	/*overflow: hidden;*/
+   	}
+    #view-container{
+      height: 100%;
+      /*overflow: hidden;*/
+    }
+    #main-canvas{
+		height: 100%;
+	}
+	#main-canvas-container{
+	  position: relative;
+	  height: calc(100% - 0px);
+	  width: 100%;
+	  overflow: hidden;
+	}
+	.paper{
+	  background: #f5f4f0;
+	  position: relative;
+	  top: 0px;
+	  z-index: 0;
+	  cursor: pointer;
+	  -webkit-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+		-moz-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+		box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+	}
+  </style>

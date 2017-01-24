@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="ELD:_Abstract" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" viewBox="0 0 1242 703" style="enable-background:new 0 0 1242 703;" xml:space="preserve">
+<style type="text/css">
+	.st0{opacity:0.5;stroke:#333333;stroke-miterlimit:10;stroke-dasharray:2,1;enable-background:new    ;}
+	.st1{fill:#FFE6F6;stroke:#000000;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#000000;stroke-miterlimit:10;}
+	.st3{opacity:0.5;fill:none;stroke:#333333;stroke-miterlimit:10;stroke-dasharray:2,1;enable-background:new    ;}
+	.st4{fill:#E61919;stroke:#E61919;stroke-miterlimit:10;}
+	.st5{fill:#E67F19;stroke:#E67F19;stroke-miterlimit:10;}
+	.st6{fill:#195DE6;stroke:#195DE6;stroke-miterlimit:10;}
+	.st7{fill:#19E5E6;stroke:#19E5E6;stroke-miterlimit:10;}
+	.st8{fill:#A119E6;stroke:#A119E6;stroke-miterlimit:10;}
+	.st9{fill:#E5E619;stroke:#E5E619;stroke-miterlimit:10;}
+	.st10{fill:#E619A1;stroke:#E619A1;stroke-miterlimit:10;}
+	.st11{fill:#294DFF;}
+	.st12{fill:#FFE313;}
+	.st13{fill:#A32B9B;}
+	.st14{fill:none;stroke:#A32B9B;stroke-width:5;stroke-miterlimit:10;}
+</style>
+<polygon id="BASE:_Base_board" points="440.8,449.8 440.8,137.6 810.7,137.6 810.7,449.8 "/>
+<polygon id="DDS:_x5F_p_1" class="st0" points="516.8,258.7 516.8,208.2 694,208.2 694,258.7 "/>
+<polygon id="DDS:_x5F_diagram_1" class="st1" points="481.8,401.8 481.8,185.6 769.7,185.6 769.7,401.8 "/>
+<polygon id="DDS:_hex" class="st2" points="536,317.5 512.2,272.3 527.3,223.5 572.5,199.7 621.3,214.8 645.2,260 630,308.8 
+	584.8,332.6 "/>
+<path id="DDS:_x5F_Ellipse_1" class="st2" d="M516.8,327.5c0-13.3,31.3-24,69.9-24c38.6,0,69.9,10.7,69.9,24s-31.3,24-69.9,24
+	S516.8,340.8,516.8,327.5z"/>
+<polygon id="DDS:_x5F_n_1" class="st3" points="624.6,338.3 624.6,233.4 729.5,233.4 729.5,338.3 "/>
+<polygon id="DDS:_Polygon" class="st3" points="696.3,279.5 636.5,383.4 576.5,279.5 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.90196_x2C_0.09804_x2C_0.09804_x5D__x2C__x22_target_x22_:10_x2C__x22_forceTarget_x22_:12_x7D_" class="st4" points="
+	634.1,229.6 634.1,215.4 648.3,215.4 648.3,229.6 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.90196_x2C_0.49804_x2C_0.09804_x5D__x2C__x22_target_x22_:10_x2C__x22_forceTarget_x22_:7_x7D_" class="st5" points="
+	593.5,297.7 593.5,283.6 607.7,283.6 607.7,297.7 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.36471_x2C_0.90196_x5D__x2C__x22_target_x22_:10_x2C__x22_forceTarget_x22_:8_x7D_" class="st6" points="
+	651.9,301.9 651.9,287.7 666.1,287.7 666.1,301.9 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.09804_x2C_0.89804_x2C_0.90196_x5D__x2C__x22_target_x22_:11_x2C__x22_forceTarget_x22_:11_x7D_" class="st7" points="
+	537.8,339.6 537.8,325.5 551.9,325.5 551.9,339.6 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.63137_x2C_0.09804_x2C_0.90196_x5D__x2C__x22_target_x22_:10_x2C__x22_forceTarget_x22_:13_x7D_" class="st8" points="
+	630.4,364.1 630.4,349.9 644.5,349.9 644.5,364.1 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.89804_x2C_0.90196_x2C_0.09804_x5D__x2C__x22_target_x22_:10_x2C__x22_forceTarget_x22_:13_x7D_" class="st9" points="
+	675.3,255 675.3,240.8 689.5,240.8 689.5,255 "/>
+<polygon id="NLED:_x5F__x7B__x22_colorID_x22_:_x5B_0.90196_x2C_0.09804_x2C_0.63137_x5D__x2C__x22_target_x22_:7_x7D_" class="st10" points="
+	534.3,243.6 534.3,229.5 548.5,229.5 548.5,243.6 "/>
+<rect id="MC:_Microcontroller" x="709.3" y="396.6" class="st11" width="99.7" height="40.8"/>
+<polygon id="BI:_Breakin_1_" class="st12" points="723.9,426.1 723.9,423.8 723.9,422.3 723.9,417.8 723.9,416.3 723.9,411.8 
+	723.9,405.8 712.8,405.8 712.8,409.9 712.8,411.8 712.8,416.3 712.8,417.8 712.8,422.3 712.8,423.8 712.8,426.1 712.8,428.3 
+	723.9,428.3 "/>
+<circle id="NUT:_NUT" class="st13" cx="464.8" cy="165.8" r="8.8"/>
+<circle id="NUT:_NUT_1_" class="st13" cx="464.8" cy="423.1" r="8.8"/>
+<circle id="NUT:_NUT_2_" class="st13" cx="789.1" cy="165.8" r="8.8"/>
+<path id="CP:_Circuit_Path" class="st14" d="M739,418c-14.2,3.4-32,4.9-49-2.5c-52.3-22.8-34.4-102.8-93-142
+	c-32.7-21.9-66-15.5-70-34.5c-3.1-14.8,14.1-32.6,30-40c44.9-21,98.6,30.9,107,39c7.6,7.3,12.5,13.8,14,22.5
+	c4.2,24.7-23.7,46-27,48.5"/>
+</svg>

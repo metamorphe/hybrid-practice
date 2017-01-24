@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 240.9 229.1" style="enable-background:new 0 0 240.9 229.1;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#DDD0D0;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#000000;stroke-width:3;stroke-miterlimit:10;}
+	.st2{fill:#19E5E6;stroke:#000000;stroke-miterlimit:10;}
+	.st3{fill:#E5E619;stroke:#000000;stroke-miterlimit:10;}
+	.st4{fill:#E619C3;stroke:#000000;stroke-miterlimit:10;}
+	.st5{fill:#FFFFFF;stroke:#000000;stroke-miterlimit:10;}
+	.st6{fill:#FFE313;}
+	.st7{fill:#FF2296;}
+	.st8{fill:none;stroke:#294DFF;stroke-width:4;stroke-miterlimit:10;}
+</style>
+<polygon id="BASE:_base" class="st0" points="53.8,136.2 -12.8,71.2 79.2,57.9 120.4,-25.6 161.7,57.9 253.7,71.2 187.1,136.2 
+	202.9,228 120.4,184.6 38,228 "/>
+<polygon id="DDS:_SOFT" class="st1" points="120.4,130.7 120.4,162.2 64.4,191.7 75.1,129.3 29.8,85.1 92.4,76 "/>
+<polygon id="DDS:_SOFT-2" class="st1" points="148.5,76 120.4,130.7 92.4,76 120.4,19.2 "/>
+<polygon id="DDS:_STAR" class="st1" points="165.8,129.3 176.5,191.7 120.4,162.2 120.4,130.7 148.5,76 211.1,85.1 "/>
+<polygon id="NLED:__colorID_:_0.09804_0.89804_0.90196_target_:4_forceTarget_:4_" class="st2" points="87.1,140.6 87.1,126.5 
+	101.3,126.5 101.3,140.6 "/>
+<polygon id="NLED:__colorID_:_0.89804_0.90196_0.09804_target_:4_forceTarget_:4_" class="st3" points="139.1,141.5 139.1,127.3 
+	153.2,127.3 153.2,141.5 "/>
+<polygon id="NLED:__colorID_:_0.90196_0.09804_0.76471_target_:4_forceTarget_:4_" class="st4" points="113.1,73.1 113.1,58.9 
+	127.3,58.9 127.3,73 "/>
+<polygon id="NLED:__colorID_:_1_1_1_target_:4_" class="st5" points="113.1,108.8 113.1,94.6 127.3,94.6 127.3,108.8 "/>
+<polyline id="BI:_Breakin_1_" class="st6" points="107,168.4 107,179.5 111.1,179.5 113,179.5 117.5,179.5 119,179.5 123.5,179.5 
+	125,179.5 127.3,179.5 129.5,179.5 129.5,168.4 127.3,168.4 125,168.4 123.5,168.4 119,168.4 117.5,168.4 "/>
+<circle id="NUT:_nut" class="st7" cx="120.5" cy="6" r="7.8"/>
+<circle id="NUT:_nut-2_1_" class="st7" cx="55.8" cy="202.4" r="7.8"/>
+<circle id="NUT:_nut-2_4_" class="st7" cx="185" cy="202.4" r="7.8"/>
+<circle id="NUT:_nut-2_2_" class="st7" cx="226.3" cy="80.9" r="7.8"/>
+<circle id="NUT:_nut-2_3_" class="st7" cx="12.1" cy="80.9" r="7.8"/>
+<polyline id="CP:_c" class="st8" points="120.2,174 146.1,133.6 92.4,133.6 120.5,101.2 120.5,66 "/>
+</svg>

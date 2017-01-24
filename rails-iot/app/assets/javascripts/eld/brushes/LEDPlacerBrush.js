@@ -1,3 +1,4 @@
+var RAY_RESOLUTION = 1;
 // LEDPlacerBrush
 function LEDPlacerBrush(paper){
 	var hitOptions = {
@@ -295,7 +296,7 @@ LEDPlacerBrush.prototype = {
 			CanvasUtil.set(rays, "strokeColor", led.fillColor);
 		} else{
 			// CREATE RAYS
-			var rays = _.range(-180, 180, 5);
+			var rays = _.range(-180, 180, RAY_RESOLUTION);
 			
 			
 			led_color = new paper.Color(cp.getCurrentColor());

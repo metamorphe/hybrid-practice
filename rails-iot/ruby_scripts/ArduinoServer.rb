@@ -5,8 +5,8 @@ require 'serialport'
 ports_config = {
 
 }
-# sp = SerialPort.new('/dev/tty.usbmodem1421', 9600, 8, 1, SerialPort::NONE)
-sp = SerialPort.new('/dev/tty.usbmodem1411', 9600*12, 8, 1, SerialPort::NONE)
+sp = SerialPort.new('/dev/tty.usbmodem1421', 9600 * 12, 8, 1, SerialPort::NONE)
+# sp = SerialPort.new('/dev/tty.usbmodem1411', 9600*12, 8, 1, SerialPort::NONE)
 
 
 def message_from(sp)

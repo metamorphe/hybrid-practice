@@ -52,11 +52,11 @@ const MOLD_WALL = 5; // mm
 const MOLD_WALL_SPECIAL = 3.5; // mm
 
 // PCB
-const POINT_OFFSET = 4; //pts
+const POINT_OFFSET = 1; //pts
 const POINT_INNER_OFFSET = 1; //pts
-const THETA_STEP = 1; //pts
+const THETA_STEP = 10; //ptsOPT_MAX_ITERS
 const THETA_OFFSET = 0.5; //pts
-const OPT_MAX_ITERS = 90;
+const OPT_MAX_ITERS = 30;
 const EPSILON = 10;
 
 
@@ -85,7 +85,7 @@ Pipeline.getElements = function() {
         wires: CanvasUtil.queryPrefix("WIRE"), 
         rays: CanvasUtil.queryPrefix("RAY"), 
         nuts: CanvasUtil.queryPrefix("NUT"), 
-        gray: CanvasUtil.queryPrefix("DD") 
+        gray: CanvasUtil.queryPrefix("DDS") 
     }
 }
 Pipeline.script = {
@@ -141,7 +141,7 @@ Pipeline.script = {
         }
 
         //Make non-molding objects invisible
-        var invisible = _.compact(_.flatten([e.nuts, e.art, e.dds, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
+        var invisible = _.compact(_.flatten([e.nuts, e.art, e.leds, e.cp, e.bi, e.bo, e.base, e.mc, e.wires]));
         Pipeline.set_visibility(invisible, false);
 
         result.scaling = new paper.Size(-1, 1);
@@ -154,8 +154,6 @@ Pipeline.script = {
         var all = _.flatten([e.leds, e.diff, e.mc, e.base]);
         var result = new paper.Group(all);
 
-
-        
         _.each(e.diff, function(diffuser) {
              var expanded  = diffuser.expand({
                 strokeAlignment: "exterior", 
@@ -168,12 +166,33 @@ Pipeline.script = {
             });
             diffuser.set({
                 visible: true,
-                fillColor: "black",
+                fillColor: new paper.Color(0.8),
                 strokeWidth: 0,
                 strokeColor: "white",
                 parent: result
             });
         });
+        // SKINS
+         _.each(e.diff, function(diffuser) {
+             var expanded  = diffuser.expand({
+                strokeAlignment: "interior", 
+                strokeWidth: 0,
+                strokeOffset: Ruler.mm2pts(MOLD_WALL_SPECIAL), 
+                strokeColor: null, 
+                fillColor: "black", 
+                joinType: "miter", 
+                parent: result
+            });
+            // diffuser.set({
+            //     visible: true,
+            //     fillColor: "#DDD",
+            //     strokeWidth: 0,
+            //     strokeColor: "white",
+            //     parent: result
+            // });
+            // diffuser.sendToBack();
+        });
+
 
 
         
@@ -181,6 +200,7 @@ Pipeline.script = {
             base.strokeWidth =  0;
             base.fillColor =  'white';
         });
+
         var pegs = _.map(e.nuts, function(nut){
              var bolt_head =  Pipeline.create({ 
              geometry: "circle",
@@ -674,7 +694,7 @@ Pipeline.script = {
                 var led_hole = new paper.Path.Circle({
                     fillColor: "black",
                     strokeColor: 'black',
-                    radius: Ruler.mm2pts(5) / 2, 
+                    radius: Ruler.mm2pts(8) / 2, 
                     position: led.position, 
                     strokeWidth: Ruler.mm2pts(LED_TOLERANCE)/2, 
                     parent: result
@@ -778,7 +798,7 @@ Pipeline.script = {
                 strokeWidth: 0.1,
                 strokeOffset: Ruler.mm2pts(MOLD_WALL), 
                 strokeColor: "black", 
-                fillColor: new paper.Color(PCB_HEIGHT/SPACER_HEIGHT), 
+                fillColor: new paper.Color(1-(PCB_HEIGHT/SPACER_HEIGHT)), 
                 joinType: "miter", 
                 parent: result
         });
@@ -825,6 +845,7 @@ Pipeline.script = {
             //     parent: result
             // });
             led.remove();
+            led_hole.remove();
         });
 
 

@@ -66,15 +66,52 @@ SelectorLibrary.prototype = {
       return led.position.getDistance(paper.view.center) < 100;
     });
     return leds;
+  },
+  train_station: function(){
+    var led = CanvasUtil.query(paper.project, {prefix: "NLED", lid: 2});
+    return led;
+  }, 
+  lone_star: function(){
+    var led = CanvasUtil.query(paper.project, {prefix: "NLED", lid: 3});
+    return led;
+  }, 
+  main_flower: function(){
+    return _.reject(CanvasUtil.queryPrefix("NLED"), function(led){ return led.lid == 3; });
+  },
+  you_are_here: function(){
+    var led = CanvasUtil.query(paper.project, {prefix: "NLED", lid: 7});
+    return led;
+  }, 
+  path_to_station: function(){
+    from = this.you_are_here()[0];
+    to = this.train_station()[0];
+    var directions  = new paper.Path.Line({
+      from: from.position, 
+      to: to.position,
+      strokeWidth: 3, 
+      strokeColor: "purple"
+    });
+    var leds = this.all();
+    leds = _.filter(leds, function(led){
+      var p = directions.getNearestPoint(led.position);
+      console.log("DIST", led.position.getDistance(p));
+      return led.position.getDistance(p) < 80;
+    });
+    leds = _.sortBy(leds, function(led){
+      var p = directions.getNearestPoint(led.position);
+      
+      return directions.getOffsetOf(p);
+    });
+    return leds;
   }
 }
 </script>
 
 <div id="behavior-library" class="widget status">
-	<label class="widget-title" name="quick behaviors"></label>
+	<label class="widget-title" name="selectors"></label>
 	<div class="widget-body flex-container-hoz flex-wrapper">
     
-    <div  data-fn="all" class="selector library-block"> 
+<!--     <div  data-fn="all" class="selector library-block"> 
       <%= image_tag "/all.png", :width => "100%" %>
       <div class="title">
         all
@@ -94,12 +131,44 @@ SelectorLibrary.prototype = {
         not-center
       </div> 
     </div>
-     <div  data-fn="none" class="selector library-block"> 
+    <div  data-fn="none" class="selector library-block"> 
       <%= image_tag "/none.png", :width => "100%" %>
       <div class="title">
         none
       </div> 
+    </div> -->
+    <div  data-fn="train_station" class="selector library-block"> 
+      <%= image_tag "/train_station.png", :width => "100%" %>
+      <div class="title">
+        train_station
+      </div> 
     </div>
+
+    <div  data-fn="you_are_here" class="selector library-block"> 
+      <%= image_tag "/you_are_here.png", :width => "100%" %>
+      <div class="title">
+        you_are_here
+      </div> 
+    </div>
+    <div  data-fn="path_to_station" class="selector library-block"> 
+      <%= image_tag "/path_to_station.png", :width => "100%" %>
+      <div class="title">
+        path_to_station
+      </div> 
+    </div>
+     <div  data-fn="lone_star" class="selector library-block"> 
+      <%= image_tag "/path_to_station.png", :width => "100%" %>
+      <div class="title">
+        lone-star
+      </div> 
+    </div>
+     <div  data-fn="main_flower" class="selector library-block"> 
+      <%= image_tag "/path_to_station.png", :width => "100%" %>
+      <div class="title">
+        main_flower
+      </div> 
+    </div>
+
 
 	</div>
 </div>

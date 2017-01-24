@@ -15,6 +15,7 @@
 //= require hull
 //= require metamorphehalf/webcache
 //= require eld/ruler
+//= require eld/CanvasUtil
 //= require eld/artwork
 //= require eld/CircuitEditBrush
 //= require eld/CircuitRouting

@@ -1,0 +1,34 @@
+#include <Adafruit_DotStar.h>
+// Because conditional #includes don't work w/Arduino sketches...
+//#include <SPI.h>         // COMMENT OUT THIS LINE FOR GEMMA OR TRINKET
+#include <avr/power.h> // ENABLE THIS LINE FOR GEMMA OR TRINKET
+
+#define NUMPIXELS 3 // Number of LEDs in strip
+
+// Here's how to control the LEDs from any two pins:
+#define DATAPIN    3
+#define CLOCKPIN   4 
+Adafruit_DotStar strip = Adafruit_DotStar(
+  NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
+
+void setup() {
+
+#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
+  clock_prescale_set(clock_div_1); // Enable 16 MHz on Trinket
+#endif
+  strip.begin(); // Initialize pins for output
+  strip.show();  // Turn all LEDs off ASAP
+}
+
+void loop() {
+//
+//strip.setPixelColor(1,0x0000FF);
+//strip.setPixelColor(2,0xFF0000);
+//strip.setPixelColor(0,0xFFFF00);
+
+strip.setPixelColor(1,0x193ce6);
+strip.setPixelColor(2,0xe61919);
+strip.setPixelColor(0,0xe5e619);
+  strip.show(); 
+  delay(100);
+}

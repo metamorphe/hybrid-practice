@@ -8,13 +8,13 @@
         bb = new BrushBar($('#brush-bar')); 
         vm = new ViewManager($('#views'));
         $('img[tool="LEDPlacerBrush"]').click();
-        var display = new Artwork("/userstudy/example_sun_moon.svg", function(artwork){
+        // var display = new Artwork("/userstudy/example_sun_moon.svg", function(artwork){
         // var display = new Artwork("/artwork/gecko.svg", function(artwork){
-        // var display = new Artwork("/artwork/design-template-pilot.svg", function(artwork){
+        var display = new Artwork("/userstudy/example_hairpiece_camera_ready.svg", function(artwork){
            CanvasUtil.call(CanvasUtil.queryPrefix("NP"), "remove");
           
-           artwork.svg.position = paper.view.center;
-           artwork.svg.position.y -= 40;
+           // artwork.svg.position = paper.view.center;
+           // artwork.svg.position.y -= 40;
         
            
            
@@ -38,8 +38,9 @@
 
       function paperSetup(){
 
-        $('#myCanvas').attr('height', $(window).height());
+        $('#myCanvas').attr('height', $(window).height() - 50);
         $('#myCanvas').attr('width', $(window).width());
+
         paper.install(window);
         paper.setup('myCanvas');
       }

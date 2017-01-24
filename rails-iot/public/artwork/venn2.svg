@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1123 736" style="enable-background:new 0 0 1123 736;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#DFDFDF;stroke:#000000;stroke-miterlimit:10;}
+	.st1{opacity:0.5;fill:#DFDFDF;stroke:#000000;stroke-miterlimit:10;stroke-dasharray:2,1;enable-background:new    ;}
+	.st2{fill:none;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st3{display:none;fill:#294DFF;}
+	.st4{display:none;fill:#FFE313;}
+	.st5{display:none;fill:none;stroke:#FFE313;stroke-width:3;stroke-miterlimit:10;}
+	.st6{fill:#FFFFFF;stroke:#000000;stroke-miterlimit:10;}
+</style>
+<g transform="">
+	<g>
+		<g id="ELD:_Venn_Diagram_Color_Mixing">
+			<path id="DIF:_Venn_Collective" class="st0" d="M633,278.1c-0.3-38.9-31.9-70.4-70.9-70.4c-38.5,0-69.8,30.7-70.9,69
+				c-21.4,12.2-35.8,35.2-35.8,61.6c0,39.2,31.7,70.9,70.9,70.9c12.6,0,24.4-3.3,34.6-9c10.5,6.2,22.7,9.7,35.8,9.7
+				c39.2,0,70.9-31.7,70.9-70.9C667.5,313.2,653.6,290.6,633,278.1L633,278.1z"/>
+			<path id="DDS:_x5F_Venn_x5F_2_x5F__1" class="st1" d="M525.8,339c0-39.2,31.7-70.9,70.9-70.9c39.2,0,70.9,31.7,70.9,70.9
+				s-31.7,70.9-70.9,70.9C557.5,409.9,525.8,378.2,525.8,339z"/>
+			<path id="DDS:_x5F_Venn_x5F_1_x5F__1" class="st1" d="M455.4,338.4c0-39.2,31.7-70.9,70.9-70.9s70.9,31.7,70.9,70.9
+				s-31.7,70.9-70.9,70.9C487.1,409.2,455.4,377.5,455.4,338.4z"/>
+			<path id="DDS:_x5F_Venn_1" class="st1" d="M491.1,278.6c0-39.2,31.7-70.9,70.9-70.9s70.9,31.7,70.9,70.9s-31.7,70.9-70.9,70.9
+				C522.9,349.5,491.1,317.8,491.1,278.6z"/>
+			<polygon id="BASE:_x5F_diagram_1" class="st2" points="442,421.5 442,194.4 681,194.4 681,421.5 			"/>
+			<polygon id="MC:_x5F_Microcontroller_1" class="st3" points="643.5,294.1 643.5,194.4 681,194.4 681,294.1 			"/>
+			<polygon id="BI:_Breakin_1_" class="st4" points="671.2,283.1 669,283.1 667.5,283.1 663,283.1 661.5,283.1 657,283.1 651,283.1 
+				651,294.2 655,294.2 657,294.2 661.5,294.2 663,294.2 667.5,294.2 669,294.2 671.2,294.2 673.5,294.2 673.5,283.1 			"/>
+			<polyline id="CP:_Circuit_Path" class="st5" points="665.5,302 627,363 502,363 561.5,244.4 			"/>
+			<polygon id="DIF:_Test" class="st0" points="585,263.8 566.7,255.6 549.5,266 551.7,245.9 536.3,232.9 556,228.8 563.8,210.1 
+				573.8,227.6 593.8,229.2 580.3,244.1 			"/>
+			<polygon id="NLED:_x5F__x7B__x22_target_x22_:3_x2C__x22_forceTarget_x22_:9_x7D_" class="st6" points="556.4,285.8 556.4,271.5 
+				570.6,271.5 570.6,285.8 			"/>
+			<polygon id="NLED:_x5F__x7B__x22_target_x22_:3_x7D_" class="st6" points="519.2,345.5 519.2,331.2 533.3,331.2 533.3,345.5 			
+				"/>
+			<polygon id="NLED:_x5F__x7B__x22_target_x22_:3_x7D__1_" class="st6" points="590,346.1 590,332 604.2,332 604.2,346.1 			"/>
+		</g>
+	</g>
+</g>
+</svg>

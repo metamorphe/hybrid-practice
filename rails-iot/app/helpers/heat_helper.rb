@@ -1,0 +1,2 @@
+module HeatHelper
+end

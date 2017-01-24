@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
 
+  get 'heat/sketch'
+  get 'heat/field'
+
   get 'tool/index'
   get 'tool/pipeline'
   get 'tool/lens'
