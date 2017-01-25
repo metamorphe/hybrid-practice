@@ -19,6 +19,13 @@ CanvasUtil.import = function(filename, options){
 		console.log("IMPLEMENTATION JSON IMPORT");
 	}
 }
+CanvasUtil.getLEDS = function(diffuser){
+	var leds = CanvasUtil.queryPrefix('NLED');
+    leds = _.filter(leds, function(led){
+      return diffuser.contains(led.position);
+    });
+    return leds;
+}
 CanvasUtil.getDiffusers = function(led){
     var diffs = CanvasUtil.queryPrefix('DDS');
     diffs = _.filter(diffs, function(diff){

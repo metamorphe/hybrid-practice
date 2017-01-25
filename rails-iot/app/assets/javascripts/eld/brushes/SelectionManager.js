@@ -7,25 +7,42 @@ var NORMAL_SELECT = function(path){
 		path.set({strokeWidth: 2, dashArray: [], strokeColor: "yellow"})
 }
 
-function SelectionManager(){
+function SelectionManager(stylizeFn = NORMAL_SELECT){
 	this.history = {};
+	this.stylize = stylizeFn;
 	this.selection = [];
 }
 SelectionManager.prototype = {
 	ledAdd: function(path){
 		var scope = this;
+		scope.add(path); // important ordering!
+
 		var diffs = CanvasUtil.getDiffusers(path);
+		this.update();
 		 _.each(diffs, function(diff){
 			scope.add(diff);
-			// console.log(scope, diff)
 		});
-		scope.add(path)
+
+		
 	},
 	add: function(path){
 		ids = _.map(this.selection, function(s){return s.id});
-		if(ids.indexOf(path.id) > -1) return;
+		if(ids.indexOf(path.id) > -1){
+			// remove the diffuser if it doesnt have any selected LEDS
+			var leds = CanvasUtil.getLEDS(path);
+			leds = _.reject(leds, function(led){ return led.id == path.id; });
+			
+			var none_s = _.every(leds, function(led){ return !led.s_selected;});
+			if(none_s) this.remove(path);
+			
+			return;
+		}
 		this.selection.push(path);
-
+	},
+	remove: function(path){
+		this.selection = _.reject(this.selection, function(s){
+			return s.id == path.id;
+		});
 	},
 	clear: function(){
 		this.selection = [];
@@ -51,7 +68,7 @@ SelectionManager.prototype = {
 	select: function(path, set){
 		if(set){
 			this.history[path.id] = {strokeColor: path.strokeColor, dashArray: path.dashArray, fillColor: path.fillColor, strokeWidth: path.strokeWidth};
-			NORMAL_SELECT(path);
+			this.stylize(path);
 			// DIFF_SELECT(path);
 		} else{
 			path.set(this.history[path.id]);

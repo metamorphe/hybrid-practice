@@ -5,6 +5,13 @@
       var miniPaper, mainPaper;
       var DEFAULT_PIPE_FILE = "example_sunmoon_4inches.svg";
       var vm, fm, ws;
+      var SELECTOR_SELECT = function(path){
+        name = Artwork.getPrefix(path);
+        if(name == "NLED")
+          path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
+        else
+          path.set({strokeWidth: 2, strokeColor: "#00A8E1", dashArray: [], opacity: 0.5, fillColor: "#00A8E1"})
+      }
 
       $(function(){ 
         Utility.paperSetup('myCanvas');
@@ -37,7 +44,7 @@
            
         })
       });
-           sm = new SelectionManager();
+           sm = new SelectionManager(SELECTOR_SELECT);
 
 
       // papers = [];
