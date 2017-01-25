@@ -131,71 +131,47 @@ SelectorLibrary.prototype = {
 }
 </script>
 
-<div id="behavior-library" class="widget status">
+<div id="selector-library" class="widget status">
 	<label class="label-normal widget-title" name="selectors"></label>
-	<div class="widget-body flex-container-hoz flex-wrapper">
-    
-<!--     <div  data-fn="all" class="selector library-block"> 
-      <%= image_tag "/actuation/selectors/all.png", :width => "100%" %>
-      <div class="title">
-        all
-      </div> 
-    </div>
-
-     <div  data-fn="center" class="selector library-block"> 
-      <%= image_tag "/actuation/selectors/center.png", :width => "100%" %>
-      <div class="title">
-        center
-      </div> 
-    </div>
-
-     <div  data-fn="not_center" class="selector library-block"> 
-      <%= image_tag "/actuation/selectors/not_center.png", :width => "100%" %>
-      <div class="title">
-        not-center
-      </div> 
-    </div>
-    <div  data-fn="none" class="selector library-block"> 
-      <%= image_tag "/actuation/selectors/none.png", :width => "100%" %>
-      <div class="title">
-        none
-      </div> 
-    </div> -->
+	<div class="widget-body scroll-list">
+   
     <div  data-fn="train_station" class="selector library-block"> 
       <%= image_tag "/actuation/selectors/train_station.png", :width => "100%" %>
-      <div class="title">
+      <span class="title">
         train_station
-      </div> 
+      </span> 
     </div>
 
     <div  data-fn="you_are_here" class="selector library-block"> 
       <%= image_tag "/actuation/selectors/you_are_here.png", :width => "100%" %>
-      <div class="title">
+      <span class="title">
         you_are_here
-      </div> 
+      </span> 
     </div>
     <div  data-fn="path_to_station" class="selector library-block"> 
       <%= image_tag "/actuation/selectors/path_to_station.png", :width => "100%" %>
-      <div class="title">
+      <span class="title">
         path_to_station
-      </div> 
+      </span> 
     </div>
      <div  data-fn="lone_star" class="selector library-block"> 
       <%= image_tag "/actuation/selectors/path_to_station.png", :width => "100%" %>
-      <div class="title">
+      <span class="title">
         lone-star
-      </div> 
+      </span> 
     </div>
      <div  data-fn="main_flower" class="selector library-block"> 
       <%= image_tag "/actuation/selectors/path_to_station.png", :width => "100%" %>
-      <div class="title">
+      <span class="title">
         main_flower
-      </div> 
+      </span> 
     </div>
 
 
 	</div>
 </div>
 <style type="text/css">
-
+#selector-library .widget-body{
+   height: 150px;
+}
 </style>

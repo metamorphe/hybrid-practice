@@ -51,11 +51,9 @@ class ToolController < ApplicationController
   def visual_block
     directory = "public/uploads/tmp/"
     search = VisualBlock.where('name = ?', params[:name])
-    if search.length > 0 then
-      @block = search.first
-    else
-     @block = VisualBlock.new
-   end
+    
+    @block = search.length > 0 ? search.first : VisualBlock.new
+    
     # if params[:json] then
     #   path = File.join(directory, params[:name] + ".json")
     #   File.open(path, "wb") { |f| f.write(params[:json]) }
@@ -80,12 +78,14 @@ class ToolController < ApplicationController
       File.open(path, "wb") { |f| f.write(image_data) }
       
       @block.name = params[:name]
+      print @block.name
       @block.image.store!( File.open(path))
       if params[:data] then
         @block.data = data;
       end 
       @block.save!
     end
+
     render :json => params[:name]
   end
 

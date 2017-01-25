@@ -3,7 +3,7 @@ class CreateVisualBlocks < ActiveRecord::Migration
     create_table :visual_blocks do |t|
       t.string :name
       t.string :image
-      t.string :data
+      t.text :data
 
       t.timestamps
     end

@@ -33,6 +33,9 @@ FileManager.prototype = {
     var file = $("#file-selector").val();
     this.load(file);
   }, 
+  getName: function(){
+    return this.open_file.split("/").pop().split('.')[0];
+  },
   load: function(file){
     console.log("LOADING FILE:", file)
     if(ws) ws.set("FILE", file);

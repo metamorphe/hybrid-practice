@@ -92,7 +92,7 @@ ActiveRecord::Schema.define(version: 20170125003035) do
   create_table "visual_blocks", force: true do |t|
     t.string   "name"
     t.string   "image"
-    t.string   "data"
+    t.text     "data"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

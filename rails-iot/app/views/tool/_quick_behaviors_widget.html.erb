@@ -398,113 +398,147 @@ QuickBehavior.prototype = {
 
 <div id="behavior-library" class="widget status">
 	<label class="label-normal widget-title" name="quick behaviors"></label>
-	<div class="widget-body flex-container-hoz flex-wrapper">
+	<div class="widget-body scroll-list">
+    
     <div id="all-on" data-fn="allOn" class="behavior library-block"> 
-      <%= image_tag "/actuation/behaviors/on.png", :width => "100%" %>
-      <div class="title">
+      <%= image_tag "/actuation/behaviors/on.png"%>
+      <span class="title">
         allOn
-      </div> 
+      </span> 
     </div>
-    <div id="all-on" data-fn="allOnStagger" class="behavior library-block"> 
-      <%= image_tag "/actuation/behaviors/on.png", :width => "100%" %>
-      <div class="title">
+    <div id="all-on-stagger" data-fn="allOnStagger" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/on.png"%>
+      <span class="title">
         allOnStagger
-      </div> 
+      </span> 
     </div>
+
     <div id="dim" data-fn="allDim" class="behavior library-block"> 
-      <%= image_tag "/actuation/behaviors/on.png", :width => "100%" %>
-      <div class="title">
+      <%= image_tag "/actuation/behaviors/on.png"%>
+      <span class="title">
         dim
-      </div> 
+      </span> 
     </div>
-    <div id="all-off" data-fn="allOff" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/off.png", :width => "100%" %>
-      <div class="title">
+
+    <div id="all-off" data-fn="allOff" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/off.png"%>
+      <span class="title">
         allOff
-      </div> 
+      </span> 
     </div>
-    <div id="rainbow-flash" data-fn="allRainbowFlash" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/rainbow.png", :width => "100%" %>
-      <div class="title">
+    <div id="rainbow-flash" data-fn="allRainbowFlash" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/rainbow.png"%>
+      <span class="title">
         rainbow
-      </div> 
+      </span> 
     </div>
-    <div id="black" data-fn="allBlack" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/rainbow.png", :width => "100%" %>
-      <div class="title">
+    <div id="black" data-fn="allBlack" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/rainbow.png"%>
+      <span class="title">
         black
-      </div> 
+      </span> 
     </div>
-    <div id="sun" data-fn="allSun" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/rainbow.png", :width => "100%" %>
-      <div class="title">
+    <div id="sun" data-fn="allSun" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/rainbow.png"%>
+      <span class="title">
         sun
-      </div> 
+      </span> 
     </div>
-    <div id="moon" data-fn="allMoon" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/rainbow.png", :width => "100%" %>
-      <div class="title">
+    <div id="moon" data-fn="allMoon" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/rainbow.png"%>
+      <span class="title">
         moon
-      </div> 
+      </span> 
     </div>
-    <div id="sunmoon" data-fn="allSunMoon" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/rainbow.png", :width => "100%" %>
-      <div class="title">
+    <div id="sunmoon" data-fn="allSunMoon" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/rainbow.png"%>
+      <span class="title">
         sunmoon
-      </div> 
+      </span> 
     </div>
-    <div id="ramp" data-fn="allRamp" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/ramp.png", :width => "100%" %>
-      <div class="title">
+    <div id="ramp" data-fn="allRamp" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/ramp.png"%>
+      <span class="title">
         ramp
-      </div> 
+      </span> 
     </div>
-     <div id="ramp" data-fn="allFade" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/ramp.png", :width => "100%" %>
-      <div class="title">
+     <div id="ramp" data-fn="allFade" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/ramp.png"%>
+      <span class="title">
         fade
-      </div> 
+      </span> 
     </div>
-        <div id="ramp" data-fn="allSlowFade" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/ramp.png", :width => "100%" %>
-      <div class="title">
+        <div id="ramp" data-fn="allSlowFade" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/ramp.png"%>
+      <span class="title">
         slow-fade
-      </div> 
+      </span> 
     </div>
-    <div id="red" data-fn="allChangeColor" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/red.png", :width => "100%" %>
-      <div class="title">
+    <div id="red" data-fn="allChangeColor" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/red.png"%>
+      <span class="title">
         red
-      </div> 
+      </span> 
     </div>
-    <div id="all-blink" data-fn="allBlink" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/flash.png", :width => "100%" %>
-      <div class="title">
+    <div id="all-blink" data-fn="allBlink" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/flash.png"%>
+      <span class="title">
         blink
-      </div> 
+      </span> 
     </div>
-    <div id="all-blink" data-fn="allBlinkFast" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/flash.png", :width => "100%" %>
-      <div class="title">
+    <div id="all-blink" data-fn="allBlinkFast" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/flash.png"%>
+      <span class="title">
         blink-fast
-      </div> 
+      </span> 
     </div>
-     <div id="all-blink" data-fn="allFlower" class="behavior library-block btn btn-default"> 
-      <%= image_tag "/actuation/behaviors/flash.png", :width => "100%" %>
-      <div class="title">
+     <div id="all-blink" data-fn="allFlower" class="behavior library-block"> 
+      <%= image_tag "/actuation/behaviors/flash.png"%>
+      <span class="title">
         flowers
-      </div> 
+      </span> 
     </div>
 
 	</div>
 </div>
 <style type="text/css">
-.flex-wrapper{
-  flex-wrap: wrap !important;
+.scroll-list{
+  flex-wrap: nowrap !important;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
+#behavior-library .widget-body{
+   height: 200px;
+}
+
 #myMotionCanvas{
     border: 2px solid #666;
 }
+
+.library-block{
+  width: 100%; 
+  height: 20px;
+  border-radius: 0px;
+  z-index: 10000000;
+}
+.library-block span.title{
+  line-height: 100%;
+  font-size: 10pt;
+  text-align: center;
+}
+.library-block:hover{
+   border-radius: 0px;
+}
+.library-block img{
+  height: 100%;
+  width: auto !important;
+  padding: 3px;
+}
+
+
+/*
 .library-block{
   width: 60px; 
   height: 70px;
@@ -518,10 +552,11 @@ QuickBehavior.prototype = {
   height: 50px;
   padding: 3px;
 }
-.library-block div.title{
+.library-block span.title{
   height: 20px;
   text-align: center;
 }
+*/
 
 
 </style>

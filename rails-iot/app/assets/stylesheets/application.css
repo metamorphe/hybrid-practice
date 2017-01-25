@@ -18,6 +18,10 @@
  *{
  	font-family: "Avenir", sans-serif;
  }
+ .stop-scrolling {
+  height: 100%;
+  overflow: hidden;
+}
  	.nopadding {
 	   padding: 0 !important;
 	   margin: 0 !important;
