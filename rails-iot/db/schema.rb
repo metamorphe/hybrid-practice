@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150728225617) do
+ActiveRecord::Schema.define(version: 20170125003035) do
 
   create_table "authors", force: true do |t|
     t.integer  "swatch_id"
@@ -88,5 +88,13 @@ ActiveRecord::Schema.define(version: 20150728225617) do
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+
+  create_table "visual_blocks", force: true do |t|
+    t.string   "name"
+    t.string   "image"
+    t.string   "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end

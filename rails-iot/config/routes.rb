@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  resources :visual_blocks
+  post 'tool/visual_block'
   get 'heat/sketch'
   get 'heat/field'
 

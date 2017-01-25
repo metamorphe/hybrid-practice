@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @visual_block.name %>
+</p>
+
+<p>
+  <strong>Image:</strong>
+  <%= @visual_block.image %>
+</p>
+
+<p>
+  <strong>Data:</strong>
+  <%= @visual_block.data %>
+</p>
+
+<%= link_to 'Edit', edit_visual_block_path(@visual_block) %> |
+<%= link_to 'Back', visual_blocks_path %>

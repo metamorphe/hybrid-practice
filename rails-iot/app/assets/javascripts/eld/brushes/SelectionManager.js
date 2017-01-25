@@ -78,5 +78,25 @@ SelectionManager.prototype = {
 	currentSelectedLEDs: function(){
 		var leds = CanvasUtil.queryPrefix("NLED");
 		return _.filter(leds, function(el){ return el.s_selected; });;
+	}, 
+	makeBlock: function(){
+		var scope = this;
+		
+		var png = $('canvas')[0].toDataURL("image/png");       
+
+		var data = {
+			image: png,
+			name: "TEST"
+		}
+		console.log("SAVING TO SERVER");
+
+		$.ajax({
+		  url: '/tool/visual_block',
+		  type: 'POST',
+		  data: data,
+		  success: function(data) {
+		    console.log("Saved to the server!", data);
+		  }
+		});
 	}
 }
