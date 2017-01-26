@@ -81,7 +81,7 @@ class ToolController < ApplicationController
       print @block.name
       @block.image.store!( File.open(path))
       if params[:data] then
-        @block.data = data;
+        @block.data = params[:data];
       end 
       @block.save!
     end

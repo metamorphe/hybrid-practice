@@ -82,13 +82,13 @@ SelectionManager.prototype = {
 	makeBlock: function(info){
 		var scope = this;
 		console.log("SAVING TO SERVER", info)
-
 		
 		var png = $('canvas')[0].toDataURL("image/png");       
 
 		var data = {
 			image: png,
-			name: [info.file, info.type, info.name].join('_')
+			name: [info.file, info.type, info.name].join('_'), 
+			data: JSON.stringify(info)
 		}
 
 

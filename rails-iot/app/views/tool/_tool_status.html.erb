@@ -15,6 +15,8 @@ function ToolManager(){
 			$('#current-tool').html(tool.short_name);
 			$('#tool-instructions').html(tool.instructions);
 			$('#tool-fields').html(tool.fields);
+			if(paper.tool.bindings) paper.tool.bindings();
+
 		}
 		else
 			console.log(t, "has not been initialized");
@@ -34,6 +36,7 @@ ToolManager.prototype = {
 					if(paper.tool) paper.tool.disable();
 					paper.tool = this;
 					console.log(this.name, "ENABLED");
+					
 				}
 				tool.disable = function(){
 					if(paper.tool.cleanup) paper.tool.cleanup();
