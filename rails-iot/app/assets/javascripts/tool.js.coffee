@@ -45,6 +45,7 @@
 //= require eld/scripts/diffuser_spacer
 //= require actuation/ComponentSelectTool
 //= require actuation/PathSelectTool
+//= require actuation/BurstSelectTool
 # TEMPLATE UPDATE
 
 $ ->

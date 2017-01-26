@@ -1,15 +1,15 @@
-function PathSelectTool(){
+function RiverSelectTool(){
 	var tool = new paper.Tool();
 
-	tool.name = "PathSelectTool";
+	tool.name = "RiverSelectTool";
 	tool.short_name = "PATH-SELECT";
 	tool.instructions = "Draw a line on the canvas. Elements will be selected by how close they are to the line, in the order the line was drawn. Decide on a name below and save your selection.";
-	tool.fields = '<div class="input-group"> \
-       <input type="text" class="form-control" placeholder="selector name"/>\
-       <span class="input-group-btn">\
-        <button class="btn btn-primary" type="button">SAVE</button>\
-      </span>\
-    </div>';
+	tool.fields = `<div class="input-group"> 
+       <input type="text" class="form-control" placeholder="selector name"/>
+       <span class="input-group-btn">
+        <button class="btn btn-primary" type="button">SAVE</button>
+      </span>
+    </div>`;
     tool.visuals = [];
     tool.path = null;
 
