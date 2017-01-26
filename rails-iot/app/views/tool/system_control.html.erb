@@ -73,10 +73,10 @@
         </div>
         
         <!-- STATUS BAR -->
-        <div id="status" class="col-xs-4 nopadding">
+        <div id="status" class="col-xs-4">
         
-         <%= render :partial => "file_select_widget" %>
          <%= render :partial => "port_select_widget" %>
+         <%= render :partial => "file_select_widget" %>
          <% render :partial => "motion_widget" %>
          <% render :partial => "graph_widget" %>
          <% render :partial => "stream_widget" %>
@@ -102,117 +102,9 @@
   </body>
 
   <style>
-   	body, html{
-   		width: 100%;
-   		height: 100%;
-   		
-      background: #f5f4f0;
-      /*overflow: hidden;*/
-   	}
-    #control-container{
-      position: absolute;
-      top: 0px;
+    #main, #status, #ui{
       height: 100%;
-      width: 100%;
-      overflow: none;
-      cursor: pointer;
-      /*overflow: hidden;*/
     }
-
-    #view-container{
-      height: 70%;
-      /*overflow: hidden;*/
-    }
-    #ui-container{
-      /*position: absolute;*/
-      /*bottom: 0;*/
-      /*z-index: 10000;*/
-      height: 30%;
-      /*overflow: hidden;*/
-    }
-      #main, #status, #ui{
-        height: 100%;
-        /*overflow: scroll;*/
-      }
-        #main{
-          /*background: red;*/
-        }
-        #status{
-        /*  -webkit-box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);
-          -moz-box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);
-          box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);*/
-          background: #333;
-          /*border-top-left-radius: 10px;*/
-          /*border-bottom-left-radius: 10px;*/
-          /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#181617+0,3b3a38+100 */
-          background: #181617; /* Old browsers */
-          background: -moz-linear-gradient(left, #181617 0%, #3b3a38 100%); /* FF3.6-15 */
-          background: -webkit-linear-gradient(left, #181617 0%,#3b3a38 100%); /* Chrome10-25,Safari5.1-6 */
-          background: linear-gradient(to right, #181617 0%,#3b3a38 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#181617', endColorstr='#3b3a38',GradientType=1 ); /* IE6-9 */
-
-          -webkit-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-          -moz-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-          box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-          /*overflow-y: scroll;*/
-        }
-        #ui{
-          height: 100%;
-          /*overflow: scroll;*/
-          position: relative;
-          /*  -webkit-box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);
-          -moz-box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);
-          box-shadow: -5px 6px 10px -5px rgba(0,0,0,0.43);*/
-          background: #333;
-          /*border-top-left-radius: 10px;*/
-          /*border-bottom-left-radius: 10px;*/
-          /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#181617+0,3b3a38+100 */
-          background: #181617; /* Old browsers */
-          background: -moz-linear-gradient(left, #181617 0%, #3b3a38 100%); /* FF3.6-15 */
-          background: -webkit-linear-gradient(left, #181617 0%,#3b3a38 100%); /* Chrome10-25,Safari5.1-6 */
-          background: linear-gradient(to right, #181617 0%,#3b3a38 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#181617', endColorstr='#3b3a38',GradientType=1 ); /* IE6-9 */
-
-          -webkit-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-          -moz-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-          box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
-        }
-
-    .widget{
-      position: relative;
-      width: 100%;
-      /*background: #DDD;*/
-      /*height: 50%;*/
-    }
-    .widget-body{
-      padding: 10px 15px;
-    }
-    
-    .widget-title{
-      /*top: 0px;*/
-      font-family: "Avenir";
-      font-weight: bold;
-      text-transform: uppercase;
-      /*position: absolute;*/
-      padding: 4px 15px;
-      font-size: 12px;
-      /*font-weight: bold;*/
-      text-align: left;
-      width: 100%;
-      z-index: 10;
-      margin-bottom: 0;
-      color: white;
-      -webkit-box-shadow: 0px 2px 12px -5px rgba(0,0,0,0.43);
-      -moz-box-shadow: 0px 2px 12px -5px rgba(0,0,0,0.43);
-      box-shadow: 0px 2px 12px -5px rgba(0,0,0,0.43);
-    }
-    .label-normal{
-      background: #111;
-    }
-    .widget img, .widget textarea{
-      width: 100%;
-    }
-    
     .template{
       display: none;
     }

@@ -115,13 +115,13 @@ Event.prototype = {
 </script>
 
 <!-- TEMPLATES -->
-<transition id="transition-template" class="template flex-item flex-container-vert-space">
-  <options class="short flex-item flex-container-hoz"> 
+<transition id="transition-template" class="template vert-centered">
+  <options class="short hoz"> 
     <option> 20ms </option>
   </options>
-  <options class="tall flex-item flex-container-hoz"> 
+  <options class="tall hoz"> 
     <div class="dropdown">  
-      <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
+      <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-xxs  btn-primary">
         <span class="glyphicon glyphicon-random"></span>
       </button>
       <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
@@ -135,22 +135,22 @@ Event.prototype = {
   </options>
 </transition>
 
-<keyframe class="template flex-item flex-container-vert drag-hoz resizable-hoz">
-  <options class="short flex-item flex-container-hoz"> 
+<keyframe class="template vert drag-hoz resizable-hoz">
+  <options class="short hoz"> 
     <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
     <option class="flex-item"> 
         <span class="glyphicon glyphicon-repeat"></span>
     </option>
   </options>
-  <options class="tall flex-item flex-container-hoz"> 
-    <optiongroup class="selectors flex-item flex-container-vert">
-        <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/actuation/selectors/all.png", :width => "100%" %></selector>
+  <options class="tall hoz"> 
+    <optiongroup class="selectors vert">
+        <selector data-fn="all" class="vert-centered"><%=image_tag "/actuation/selectors/all.png", :width => "100%" %></selector>
         <button class="btn btn-xxs btn-primary">
           <span class="glyphicon glyphicon-plus"></span>
         </button>
     </optiongroup>
-    <optiongroup  class="behaviors flex-item flex-container-vert">
-        <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/actuation/behaviors/ramp.png", :width => "100%" %></behavior>
+    <optiongroup  class="behaviors vert">
+        <behavior data-fn="allRamp" class="vert-centered"><%=image_tag "/actuation/behaviors/ramp.png", :width => "100%" %></behavior>
         <button class="btn btn-xxs btn-primary">
           <span class="glyphicon glyphicon-plus"></span>
         </button>
@@ -161,61 +161,60 @@ Event.prototype = {
 
 
 
-<group class="flex-container-vert">
-  <event class="flex-item flex-container-hoz">
+<group class="vert">
+  <event class="hoz">
       <button type="trigger" class="btn-primary trigger">
         onStation
       </button>
 
-      <transition class="flex-item flex-container-vert-space drag-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option> 20ms </option>
-        </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <div class="dropdown">  
-            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="flex-item btn btn-xxs  btn-primary">
-              <span class="glyphicon glyphicon-random"></span>
-            </button>
-            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
-              <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
-              <li data-value="delay" ><a href="#">Delay</a></li> 
-              <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
-              <li data-value="fade-on"><a href="#">Fade to On</a></li>
-              <li data-value="fade-off"><a href="#">Fade to Off</a></li>
-            </ul>
-          </div>
-        </options>
+     <transition class="vert-centered">
+        <p> 20ms </p>
+      
+
+        <div class="dropdown">  
+          <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-xs btn-transparent">
+            <span class="glyphicon glyphicon-random"></span>
+          </button>
+          <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
+            <li  data-value="no-transition" class="active"><a href="#">No Transition</a></li> 
+            <li data-value="delay" ><a href="#">Delay</a></li> 
+            <li data-value="cross-dissolve"><a href="#">Cross-Dissolve</a></li> 
+            <li data-value="fade-on"><a href="#">Fade to On</a></li>
+            <li data-value="fade-off"><a href="#">Fade to Off</a></li>
+          </ul>
+        </div>
       </transition>
 
-      <keyframe class="flex-item flex-container-vert drag-hoz resizable-hoz">
-        <options class="short flex-item flex-container-hoz"> 
-          <option class="flex-item"> 20 ms<span class="glyphicon glyphicon-repeat"></span> </option>
-          <option class="flex-item"> 
+      <keyframe class="vert drag-hoz resizable-hoz">
+        
+        <div class="keyframe-options"> 
+          <div class="duration" style='width: 50%;'> 20 ms </div> 
+          
+          <div class="dropdown" style='width: 50%;'>  
+            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-xs btn-transparent">
               <span class="glyphicon glyphicon-repeat"></span>
-          </option>
+            </button>
+            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
+              <li data-value="repeat" ><a href="#">Repeat</a></li> 
+              <li data-value="once-repeat"><a href="#">Repeat Once</a></li> 
+              <li data-value="no-repeat"><a href="#">No Repeat</a></li>
+            </ul>
+          </div>         
+        </div>
+
+        <options class="keyframe-params"> 
+              <selector data-fn="all" class="vert-centered">
+                <%=image_tag "/actuation/selectors/all.png" %></selector>
+              <behavior data-fn="allRamp" class="vert-centered">
+                <%=image_tag "/actuation/behaviors/ramp.png" %>
+              </behavior>
         </options>
-        <options class="tall flex-item flex-container-hoz"> 
-          <optiongroup class="selectors flex-item flex-container-vert">
-              <selector data-fn="all" class="flex-item flex-container-vert-space"><%=image_tag "/actuation/selectors/all.png", :width => "100%" %></selector>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-          <optiongroup  class="behaviors flex-item flex-container-vert">
-              <behavior data-fn="allRamp" class="flex-item flex-container-vert-space"><%=image_tag "/actuation/behaviors/ramp.png", :width => "100%" %></behavior>
-              <button class="btn btn-xxs btn-primary">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-          </optiongroup>
-        </options>
+
       </keyframe>
       <button id="keyframe-adder" class="add-big btn btn-xs btn-primary">
           <span class="glyphicon glyphicon-plus"></span>
       </button>
   </event>
-
-   
-
 </group>
 
 <script type="text/javascript">
@@ -232,226 +231,11 @@ group{
   height: 300px;
   /*overflow: scroll;*/
 }
-.flex-container-vert-space {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  
-  -webkit-flex-flow: column wrap;
-  justify-content: center;
-  /*align-items: center;*/
-}
-.flex-container-vert {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  
-  -webkit-flex-flow: column wrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.flex-container-hoz {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  
-  -webkit-flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.flex-item {
-  padding: 5px;
-  color: white;
-  font-weight: bold;
-  font-size: 3em;
-  text-align: center;
-}
 
 
 
-event.flex-item{
-  background: #151515;
-  padding: 0px;
-  width: 100%;
-  margin-top: 5px;
-  margin-bottom: 0px;
-
-  height: 100px;
-  line-height: 150px;
-  color: white;
-  font-weight: bold;
-  font-size: 1em;
-  text-align: center;
-
-}       
-      keyframe.flex-item{
-        background: #00A8e1;
-        padding: 0px;
-        width: 100px;
-        margin-top: 0px;
 
 
-        height: 90%;
-        line-height: 50px;
-        color: white;
-        font-weight: bold;
-        font-size: 1em;
-        text-align: center;
-      }
-                    options.flex-item.short{
-                      /*background: #252120;*/
-                      padding: 0px;
-                      width: 100%;
-                      margin-top: 0px;
-
-
-                      height: 15%;
-                      line-height: 28px;
-                      color: white;
-                      font-weight: bold;
-                      font-size: 0.8em;
-                      text-align: center;
-                    }
-                          option.flex-item{
-                            background: #252120;
-                            padding: 4px;
-                            flex-grow: 1;
-                            margin-top: 0px;
-
-
-                            height: 100%;
-                            line-height: 12px;
-                            color: white;
-                            font-weight: bold;
-                            font-size: 0.8em;
-                            text-align: center;
-
-                          }
-
-                    options.flex-item.tall{
-                      /*background: brown;*/
-                      padding: 0px;
-                      width: 100%;
-                      margin-top: 0px;
-
-
-                      height: 85%;
-                      line-height: 30px;
-                      color: white;
-                      font-weight: bold;
-                      font-size: 1em;
-                      text-align: center;
-
-                    }
-                            optiongroup.flex-item{
-                              background: #555;
-                              padding: 5px;
-                              /*flex-grow: 1;*/
-                              width: 50%;
-                              margin-top: 0px;
-
-
-                              height: 100%;
-                              line-height: 100%;
-                              color: white;
-                              font-weight: bold;
-                              font-size: 1em;
-                              text-align: center;
-                            }
-                            optiongroup.flex-item.selectors{
-                              background: #444;
-                            }
-
-
-                                  behavior.flex-item, selector.flex-item{
-                                    background: #222;
-                                    padding: 0px;
-                                    width: 100%;
-                                    margin: 0;
-                                    margin-bottom: 5px;
-
-                                    flex-grow: 1;
-                                    line-height: 50px;
-                                    color: white;
-                                    font-weight: bold;
-                                    font-size: 1em;
-                                    text-align: center;
-
-                                  }    
-                                  
-                                  .btn-xxs{
-                                    padding: 1px 2px;
-                                    font-size: 8px;
-                                    line-height: 1.2;
-                                    border-radius: 3px;
-                                  }
-                                  button.add-big{
-                                    /*font-size: 1.2em;
-                                    padding: 8px;
-                                    width: auto;*/
-                                    margin-left: 5px;
-                                    margin-right: 5px;
-                                  }            
-
-
-
-      transition.flex-item{
-        background: #006f95;
-        padding: 5px 3px;
-        width: 25px;
-        margin-top: 0px;
-
-        height: 80%;
-        line-height: 50px;
-        color: white;
-        font-weight: bold;
-        font-size: 1em;
-        text-align: center;
-
-      }
-
-      .trigger{
-        background: #111;
-        border: 1px solid #555;
-        padding: 5px;
-        width: 50px;
-        height: 50px;
-        margin-top: 0px;
-        border-radius: 30px;
-        margin-left: 5px;
-        margin-right: 5px;
-        line-height: 40px;
-        color: white;
-        font-weight: bold;
-        font-size: 0.6em;
-        text-align: center;
-      }
-      .trigger:focus{
-        outline: none;
-        /*box-shadow: 0 0 5px #00A8e1;*/
-      }
-      img{
-        background: white;
-      }
+      
 
 </style>

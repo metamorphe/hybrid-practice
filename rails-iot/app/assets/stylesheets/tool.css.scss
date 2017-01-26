@@ -2,7 +2,359 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+/* TOOL CSS PRODUCTION GRADE */
+$sexy_off_white: #f5f4f0;
+$view_ui_ratio: 0.7;
+$base: #2D6A96;
+$base_accent: $base; /* darken($base, 10%); */
+$base_shadow: #78787B; /* gray */
+$shadow: #67686A; /* shadow gray */
+$highlight: #AFB0B3;
+$accent2: $shadow;
+$orange: #ff9e31;
+$off_black: #151311;
 
+$thick: 5px;
+
+@mixin inset-shadow($opacity){
+	-webkit-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
+	-moz-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
+	box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
+}
+@mixin drop-shadow($opacity){
+	-webkit-box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
+	-moz-box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
+	box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
+}
+
+.flex{
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+/* FLEX */
+.vert-centered {
+  @extend .flex;
+  -webkit-flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.vert-centered-sink-top{
+	@extend .vert-centered;
+	justify-content: flex-start;
+}
+.vert {
+  @extend .flex;  
+  -webkit-flex-flow: column wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.hoz {
+  @extend .flex;
+  width: 100%;
+  -webkit-flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.flex-item {
+  padding: 5px;
+  color: white;
+  font-weight: bold;
+  font-size: 3em;
+  text-align: center;
+}
+
+.tall{
+  padding: 0px;
+  width: 100%;
+  margin-top: 0px;
+  height: 85%;
+  line-height: 30px;
+  color: white;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+}
+.short{
+  padding: 0px;
+  width: 100%;
+  margin-top: 0px;
+  height: 15%;
+  line-height: 28px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8em;
+  text-align: center;
+}	
+/**/
+
+.label-normal{ background: $base_accent;}
+.label-danger{ 
+	border: 1px solid $off_black ;
+	background: $accent2;
+	border-radius: 15px;
+	width: 90% !important;
+	margin: 2% 5% 0% 5%;
+	@include drop-shadow(0.2);
+}
+.dark{color: $off_black !important;}
+
+
+body, html{
+	width: 100vw;
+	height: 100vh;
+	background: $sexy_off_white;
+}
+
+#control-container{
+	position: absolute;
+	top: 0px;
+	height: 100%;
+	width: 100%;
+	overflow: none;
+	cursor: pointer;
+}
+	#view-container{
+		height: $view_ui_ratio * 100%;
+	}
+		#status{
+			/*position: relative;*/
+			background: $base;
+			border-left: $thick solid $off_black;
+			padding: 0px 8px 0px 3px;
+			z-index: 10000;
+			@include drop-shadow(0.2);
+			/*overflow: hidden;*/
+		}
+
+		/* WIDGET CSS */
+			.widget{
+			  margin-top: 5px;
+		      position: relative;
+		      width: 100%;
+		    }
+		    .widget-body{
+		      padding: 0px 0px 10px 5px;
+		    }
+		  
+		    .widget-title{
+		      font-family: "Avenir";
+		      font-weight: bold;
+		      text-transform: uppercase;
+		      padding: 4px 10px 4px 5px;
+		      font-size: 12px;
+		      text-align: left;
+		      width: 100%;
+		      z-index: 10;
+		      margin-bottom: 0;
+		      color: $sexy_off_white;
+
+		    }
+		    /* Main div for border to extend to 50% from bottom left corner */
+			.label-normal:after {
+			  content:""; 
+			  background: $sexy_off_white; 
+			  position: absolute; 
+			  top: 5px; 
+			  right: 10px; 
+			  width: 70%; 
+			  height: 1px;
+			}
+		    	.widget-title span{
+	    		  position: relative;
+			      top: 3px;
+		    	}
+		    
+		    .widget img, .widget textarea{
+		      width: 100%;
+		    }
+
+		/* END WIDGET CSS */
+
+	#ui-container{
+		border-top: $thick solid $off_black;
+		background: darken($base, 10%);
+		height: (1 - $view_ui_ratio) * 100%;
+	}
+	/* UI CSS */
+		event{
+			background: $base;
+			padding: 0px;
+			width: 100%;
+			margin-top: 5px;
+			margin-bottom: 0px;
+
+			height: 100px;
+			line-height: 150px;
+			color: white;
+			font-weight: bold;
+			font-size: 1em;
+			text-align: center;
+			border: 2px solid $off_black;
+			@include drop-shadow(0.43);
+
+		}       
+			    keyframe{
+			    	@extend .vert-centered-sink-top;
+
+			      	border: 2px solid $off_black;
+			        background: darken($base_shadow, 20%);
+			        padding: 0px;
+			        width: 100px;
+			        margin-top: 0px;
+
+			        height: 90%;
+			        line-height: 100%;
+
+			        color: white;
+			        font-weight: normal;
+			        font-size: 0.8em;
+			        text-align: center;
+			        @include drop-shadow(0.93);
+			       
+			    }
+			                    
+			                    	/* HEADER KEYFRAME*/
+			                        
+			                    		.keyframe-options{
+			                    			@extend .hoz;
+			                    			height: 25%;
+			                    			background: darken($base, 20%);
+			                    			font-size: 8pt;
+			                    			font-weight: bold;
+			                    			line-height: 20px;
+			                    		}
+			                    		.keyframe-options div{
+			                    			height: 100%;
+			                    			/*border: 1px solid $base_shadow;*/
+			                    			@include drop-shadow(0.9);
+			                    		}
+			                    		.keyframe-params{
+			                    			@extend .hoz;
+			                    			height: 75%;
+			                    			background: lighten($base, 10%);
+			                    		}
+
+			                                  behavior, selector{
+			                                    padding: 5px;
+			                                    width: 100%;
+			                                    margin: 0;
+			                                    height: 40px;
+			                                    margin-bottom: 5px;
+
+			                                    flex-grow: 1;
+			                                    color: white;
+			                                    font-weight: bold;
+			                                    font-size: 1em;
+			                                    text-align: center;
+			                                    
+			                                  }
+			                                  behavior img, selector img{
+										        background: white;
+										        width: 80%;
+										        @include drop-shadow(0.9);
+										      }    
+			                                  
+			                                  .btn-xxs{
+			                                  	margin-top: 4px;
+			                                    padding: 1px 2px;
+			                                    font-size: 8px;
+			                                    line-height: 1.2;
+			                                    border-radius: 3px;
+			                                  }
+			                                  button.add-big{
+			                                    /*font-size: 1.2em;
+			                                    padding: 8px;
+			                                    width: auto;*/
+			                                    margin-left: 5px;
+			                                    margin-right: 5px;
+			                                  }            
+
+
+
+			      transition{
+			      	background: darken($base, 30%);
+			        margin-top: 0px;
+			        padding: 5px 3px;
+			        width: 30px;
+			        height: 80%;
+
+			        line-height: 110%;
+			        color: white !important;
+			        font-weight: bold;
+			        font-size: 7pt;
+			        text-align: center;
+
+			        margin-left: -1px;
+			        margin-right: -1px;
+			        border: 1px solid $off_black;
+			        /*@include inset-shadow(0.2);*/
+			      }
+			     
+
+			      .trigger{
+			        background: $base;
+			        text-transform: uppercase;
+			        /*border: 1px solid #555;*/
+			        padding: 5px;
+			        /*width: 100px;*/
+			        height: 50px;
+			        margin-top: 0px;
+			        border-radius: 20px;
+			        margin-left: 5px;
+			        margin-right: 5px;
+			        line-height: 40px;
+			        color: $sexy_off_white;
+			        font-weight: bold;
+			        font-size: 1.5em;
+			        text-align: center;
+			        border: 3px $sexy_off_white dotted;
+
+			      }
+			      .trigger:hover{
+			      	background: darken($base, 5%);
+			      	border-color: darken($sexy_off_white, 10%); ;
+			      }
+			      .trigger:active{
+			      	background: darken($base, 10%);
+			      	border-color: darken($sexy_off_white, 10%); ;
+			      }
+			      .trigger:focus{
+			        outline: none;
+			        border-color: darken($sexy_off_white, 10%); 
+			        background: darken($base, 10%);
+			        /*box-shadow: 0 0 5px #00A8e1;*/
+			      }
+
+	/* END UI CSS*/
+.dark-gradient{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#181617+0,3b3a38+100 */
+  background: #181617; /* Old browsers */
+  background: -moz-linear-gradient(left, #181617 0%, #3b3a38 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, #181617 0%,#3b3a38 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, #181617 0%,#3b3a38 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#181617', endColorstr='#3b3a38',GradientType=1 ); /* IE6-9 */
+
+  -webkit-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+  -moz-box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+  box-shadow: 5px 0px 24px 3px rgba(0,0,0,0.09);
+}
+
+.subtle-shadow{
+	-webkit-box-shadow: 0px 2px 12px -5px rgba(0,0,0,0.43);
+	-moz-box-shadow: 0px 2px 12px -5px rgba(0,0,0,0.43);
+	box-shadow: 0px 2px 12px -5px rgba(0,0,0,0.43);
+}
+
+/* GRAPH CSS */
 path, .line {
 	stroke: steelblue;
 	stroke-width: 1;
