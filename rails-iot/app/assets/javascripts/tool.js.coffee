@@ -43,6 +43,8 @@
 //= require eld/brushes/FillBrush
 //= require eld/brushes/LEDPlacerBrush
 //= require eld/scripts/diffuser_spacer
+//= require actuation/ComponentSelectTool
+//= require actuation/PathSelectTool
 # TEMPLATE UPDATE
 
 $ ->

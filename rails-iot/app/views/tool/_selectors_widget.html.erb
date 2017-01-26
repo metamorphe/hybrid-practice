@@ -10,7 +10,7 @@ $(function(){
     cursor: "move"
   });  
 
-})
+});
 
 function SelectorLibrary(){
   var scope = this;
@@ -21,24 +21,13 @@ function SelectorLibrary(){
     var collection = scope[fn]();
     scope.select(collection);
   });
-  this.tool = new paper.Tool();
-  this.tool.onMouseDown = function(event){
-    var leds = CanvasUtil.queryPrefix("NLED");
-    var leds = _.filter(leds, function(led){
-      return led.contains(event.point);
-    });
-    _.each(leds, function(led){
-      sm.ledAdd(led);
-    });
-    
-    sm.update();
 
     // var c = new paper.Path.Circle({
     //   position: event.point, 
     //   fillColor: "red", 
     //   radius: 5
     // });
-  }
+  
 }
 
 SelectorLibrary.prototype = {

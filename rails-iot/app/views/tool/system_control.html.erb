@@ -10,13 +10,16 @@
         else
           path.set({strokeWidth: 2, strokeColor: "#00A8E1", dashArray: [], opacity: 0.5, fillColor: "#00A8E1"})
       }
-      
+
       var vm, fm, ws;
       $(function(){ 
         Utility.paperSetup('myCanvas');
         ws = new WebStorage();
         fm = new FileManager(files);
         sm = new SelectionManager(SELECTOR_SELECT);
+        tm = new ToolManager();
+        
+        console.log('active tools', tools);
         $("#shade").fadeOut("slow");
       });
           
