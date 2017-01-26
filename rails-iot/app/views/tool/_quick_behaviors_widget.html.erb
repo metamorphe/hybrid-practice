@@ -130,7 +130,7 @@ var moon = {
 
 $(function(){
   qb = new QuickBehavior();
-  $('.library-block').draggable({
+  $('.library-item').draggable({
     cancel: "a.ui-icon", // clicking an icon won't initiate dragging
     revert: "valid", // when not dropped, the item will revert back to its initial position
     containment: 'window',
@@ -142,7 +142,7 @@ $(function(){
 
 function QuickBehavior(){
   var scope = this;
-  $('div.library-block.behavior').click(function(){
+  $('div.library-item.behavior').click(function(){
     var fn = $(this).data('fn');
     scope[fn]();
   });
@@ -400,101 +400,101 @@ QuickBehavior.prototype = {
 	<label class="label-normal widget-title" name="quick behaviors"></label>
 	<div class="widget-body scroll-list">
     
-    <div id="all-on" data-fn="allOn" class="behavior library-block"> 
+    <div id="all-on" data-fn="allOn" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/on.png"%>
       <span class="title">
         allOn
       </span> 
     </div>
-    <div id="all-on-stagger" data-fn="allOnStagger" class="behavior library-block"> 
+    <div id="all-on-stagger" data-fn="allOnStagger" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/on.png"%>
       <span class="title">
         allOnStagger
       </span> 
     </div>
 
-    <div id="dim" data-fn="allDim" class="behavior library-block"> 
+    <div id="dim" data-fn="allDim" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/on.png"%>
       <span class="title">
         dim
       </span> 
     </div>
 
-    <div id="all-off" data-fn="allOff" class="behavior library-block"> 
+    <div id="all-off" data-fn="allOff" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/off.png"%>
       <span class="title">
         allOff
       </span> 
     </div>
    
-    <div id="black" data-fn="allBlack" class="behavior library-block"> 
+    <div id="black" data-fn="allBlack" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/palette.png"%>
       <span class="title">
         black-sun
       </span> 
     </div>
-    <div id="sun" data-fn="allSun" class="behavior library-block"> 
+    <div id="sun" data-fn="allSun" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/palette.png"%>
       <span class="title">
         sun-sunmoon
       </span> 
     </div>
-    <div id="moon" data-fn="allMoon" class="behavior library-block"> 
+    <div id="moon" data-fn="allMoon" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/palette.png"%>
       <span class="title">
         moon
       </span> 
     </div>
-    <div id="sunmoon" data-fn="allSunMoon" class="behavior library-block"> 
+    <div id="sunmoon" data-fn="allSunMoon" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/palette.png"%>
       <span class="title">
         sunmoon - moon
       </span> 
     </div>
-    <div id="red" data-fn="allChangeColor" class="behavior library-block"> 
+    <div id="red" data-fn="allChangeColor" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/palette.png"%>
       <span class="title">
         red
       </span> 
     </div>
-    <div id="ramp" data-fn="allRamp" class="behavior library-block"> 
+    <div id="ramp" data-fn="allRamp" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         ramp
       </span> 
     </div>
-     <div id="ramp" data-fn="allFade" class="behavior library-block"> 
+     <div id="ramp" data-fn="allFade" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         fade
       </span> 
     </div>
-        <div id="ramp" data-fn="allSlowFade" class="behavior library-block"> 
+        <div id="ramp" data-fn="allSlowFade" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         slow-fade
       </span> 
     </div>
     
-    <div id="all-blink" data-fn="allBlink" class="behavior library-block"> 
+    <div id="all-blink" data-fn="allBlink" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         blink
       </span> 
     </div>
-    <div id="all-blink" data-fn="allBlinkFast" class="behavior library-block"> 
+    <div id="all-blink" data-fn="allBlinkFast" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         blink-fast
       </span> 
     </div>
-     <div id="rainbow-flash" data-fn="allRainbowFlash" class="behavior library-block"> 
+     <div id="rainbow-flash" data-fn="allRainbowFlash" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         rainbow
       </span> 
     </div>
-     <div id="all-blink" data-fn="allFlower" class="behavior library-block"> 
+     <div id="all-blink" data-fn="allFlower" class="behavior library-item"> 
       <%= image_tag "/actuation/behaviors/flash.png"%>
       <span class="title">
         flowers
@@ -512,28 +512,28 @@ QuickBehavior.prototype = {
   overflow-y: scroll;
 }
 #behavior-library .widget-body{
-   height: 200px;
+   height: 100px;
 }
 
 #myMotionCanvas{
     border: 2px solid #666;
 }
 
-.library-block{
+.library-item{
   width: 100%; 
   height: 20px;
   border-radius: 0px;
   z-index: 10000000;
 }
-.library-block span.title{
+.library-item span.title{
   line-height: 100%;
   font-size: 10pt;
   text-align: center;
 }
-.library-block:hover{
+.library-item:hover{
    border-radius: 0px;
 }
-.library-block img{
+.library-item img{
   height: 100%;
   width: auto !important;
   padding: 3px;
@@ -541,20 +541,20 @@ QuickBehavior.prototype = {
 
 
 /*
-.library-block{
+.library-item{
   width: 60px; 
   height: 70px;
   border-radius: 0px;
   z-index: 10000000;
 }
-.library-block:hover{
+.library-item:hover{
    border-radius: 0px;
 }
-.library-block img{
+.library-item img{
   height: 50px;
   padding: 3px;
 }
-.library-block span.title{
+.library-item span.title{
   height: 20px;
   text-align: center;
 }

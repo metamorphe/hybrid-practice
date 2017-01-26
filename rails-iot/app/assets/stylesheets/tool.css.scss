@@ -27,6 +27,70 @@ $thick: 5px;
 	box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
 }
 
+.btn-ard{
+	background: $base;
+	color: $sexy_off_white;
+	padding: 6px 8px;
+	border: 2px solid $off_black;
+	border-radius: 10px;
+	text-transform: uppercase;
+	font-weight: bold;
+	@include drop-shadow(0.5);
+}
+.btn-ard:focus{
+	outline: none;
+    background: darken($base, 10%);
+}
+.btn-ard:hover{
+	outline: none;
+    background: darken($base, 10%);
+}
+.btn-ard:active{
+	outline: none;
+    background: $orange
+}
+.btn-ard.active{
+	outline: none;
+    background: $orange
+}
+
+
+	.drop-tool{
+
+	}
+		.drop-tool ul{
+			display: none;
+			width: 88%;
+			margin: 0% 6%;
+			padding: 0;
+			background: $base;
+		}
+		.drop-tool ul li{
+			display: block;
+			width: 100%;
+			text-align: center;
+			/*margin-top: 2px;*/
+			list-style: none;
+			padding: 2px 0;
+			color: $sexy_off_white;
+			text-transform: uppercase;
+			border-bottom: 1px solid $sexy_off_white
+		}
+		.drop-tool ul li:focus{
+			outline: none;
+		    background: darken($base, 10%);
+		}
+		.drop-tool ul li:hover{
+			outline: none;
+		    background: darken($base, 10%);
+		}
+		.drop-tool ul li.active{
+			outline: none;
+		    background: darken($orange, 10%);
+		}
+
+		
+
 .flex{
   display: -webkit-box;
   display: -moz-box;
@@ -102,7 +166,7 @@ $thick: 5px;
 	background: $accent2;
 	border-radius: 15px;
 	width: 90% !important;
-	margin: 2% 5% 0% 5%;
+	margin: 2% 5% 0% 5% !important;
 	@include drop-shadow(0.2);
 }
 .dark{color: $off_black !important;}
@@ -129,7 +193,7 @@ body, html{
 			/*position: relative;*/
 			background: $base;
 			border-left: $thick solid $off_black;
-			padding: 0px 8px 0px 3px;
+			padding: 0px 0px 0px 0px;
 			z-index: 10000;
 			@include drop-shadow(0.2);
 			/*overflow: hidden;*/
@@ -137,24 +201,25 @@ body, html{
 
 		/* WIDGET CSS */
 			.widget{
-			  margin-top: 5px;
+			  margin-top: 0px;
 		      position: relative;
 		      width: 100%;
 		    }
 		    .widget-body{
-		      padding: 0px 0px 10px 5px;
+		      padding: 10px 10px 10px 10px;
+		      @include inset-shadow(0.2);
 		    }
 		  
 		    .widget-title{
 		      font-family: "Avenir";
 		      font-weight: bold;
 		      text-transform: uppercase;
-		      padding: 4px 10px 4px 5px;
+		      padding: 2px 10px 2px 5px;
 		      font-size: 12px;
 		      text-align: left;
 		      width: 100%;
 		      z-index: 10;
-		      margin-bottom: 0;
+		      margin: 0;
 		      color: $sexy_off_white;
 
 		    }
@@ -163,8 +228,8 @@ body, html{
 			  content:""; 
 			  background: $sexy_off_white; 
 			  position: absolute; 
-			  top: 5px; 
-			  right: 10px; 
+			  top: 0px; 
+			  right: 5px; 
 			  width: 70%; 
 			  height: 1px;
 			}

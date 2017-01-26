@@ -2,7 +2,7 @@
 var qb; 
 $(function(){
   sl = new SelectorLibrary();
-  $('.library-block').draggable({
+  $('.library-item').draggable({
     cancel: "a.ui-icon", // clicking an icon won't initiate dragging
     revert: "valid", // when not dropped, the item will revert back to its initial position
     containment: 'window',
@@ -16,7 +16,7 @@ function SelectorLibrary(){
   var scope = this;
   this.current = "burst";
 
-  $('div.selector.library-block').click(function(){
+  $('div.selector.library-item').click(function(){
     var fn = $(this).data('fn');
     var collection = scope[fn]();
     scope.select(collection);
@@ -135,32 +135,32 @@ SelectorLibrary.prototype = {
 	<label class="label-normal widget-title" name="selectors"></label>
 	<div class="widget-body scroll-list">
    
-    <div  data-fn="train_station" class="selector library-block"> 
+    <div  data-fn="train_station" class="selector library-item"> 
       <%= image_tag "/actuation/selectors/train_station.png", :width => "100%" %>
       <span class="title">
         train_station
       </span> 
     </div>
 
-    <div  data-fn="you_are_here" class="selector library-block"> 
+    <div  data-fn="you_are_here" class="selector library-item"> 
       <%= image_tag "/actuation/selectors/you_are_here.png", :width => "100%" %>
       <span class="title">
         you_are_here
       </span> 
     </div>
-    <div  data-fn="path_to_station" class="selector library-block"> 
+    <div  data-fn="path_to_station" class="selector library-item"> 
       <%= image_tag "/actuation/selectors/path_to_station.png", :width => "100%" %>
       <span class="title">
         path_to_station
       </span> 
     </div>
-     <div  data-fn="lone_star" class="selector library-block"> 
+     <div  data-fn="lone_star" class="selector library-item"> 
       <%= image_tag "/actuation/selectors/path_to_station.png", :width => "100%" %>
       <span class="title">
         lone-star
       </span> 
     </div>
-     <div  data-fn="main_flower" class="selector library-block"> 
+     <div  data-fn="main_flower" class="selector library-item"> 
       <%= image_tag "/actuation/selectors/path_to_station.png", :width => "100%" %>
       <span class="title">
         main_flower
@@ -172,6 +172,6 @@ SelectorLibrary.prototype = {
 </div>
 <style type="text/css">
 #selector-library .widget-body{
-   height: 150px;
+   height: 100px;
 }
 </style>

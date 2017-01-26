@@ -4,13 +4,37 @@
 // 	mainPaper = paperSetup('myCanvas');
 // 	mainPaper.name = "mainPaper";	
 // });
+$('.tool')
 // </script>
 
 <div id="main-canvas-container">
   <canvas id="myCanvas" class="paper"></canvas>
+  <div id="new-selector" class="drop-tool">
+  	<button class="drop-tool-select btn-ard"> SELECT TOOL </button>
+  	<ul>
+  		<li data-tool="ComponentSelectTool" class="tool"> 
+  			POINT
+  		</li>
+  		<li data-tool="PointSelectTool" class="tool"> 
+  			PATH
+  		</li>
+  		<li data-tool="LineSelectTool" class="tool"> 
+  			COMPONENT
+  		</li>
+  	</ul>
+  </div>
 </div>
 
 <style type="text/css">
+	#new-selector{
+		position: absolute;
+		z-index: 1000;
+		top: 30px;
+		left: 30px;
+	}
+	#new-selector ul li button{
+		width: 100px;
+	}
 	#main-canvas{
 		height: 100%;
 	}

@@ -98,13 +98,14 @@
 	/*margin: 10px 10px;*/
 	height: 200px;
 	margin: 0 0;
-	padding: 0 4px;
+	padding: 3px 4px;
 	width: 100%;
 	background: #F8F8F8;
 	cursor: pointer;
 	overflow: hidden;
 	border: 1px solid #E6E6E6;
 	position: relative;
+	color: black;
 }
 .library-block:hover{
 	background: white;
@@ -124,7 +125,6 @@
 	margin-bottom: -20px;
 	/*margin-right: -100px;*/
 	/*display: none;*/
-
 }
 .library-wrapper{
 	padding: 0 4px;
@@ -162,7 +162,8 @@ div.img-wrapper-large{
 	/*background: black;*/
 }
 .library-block img{
-	padding: 10px;
+	/*height: 110p;*/
+	padding: 5px;
 }
 .library-block p{
 	margin-bottom: 0px !important;
