@@ -12,6 +12,8 @@ $(function(){
 
 });
 
+const SELECTORS_GET = "/visual_blocks/selectors.json";
+
 function SelectorLibrary(){
   var scope = this;
   this.current = "burst";
@@ -27,16 +29,12 @@ function SelectorLibrary(){
     //   fillColor: "red", 
     //   radius: 5
     // });
+  this.populate();
   
 }
 
 SelectorLibrary.prototype = {
-  enableTool: function(){
-    paper.tool = this.tool;
-  },
-  disableTool: function(){
-    paper.tool = null;
-  },
+  
   getCurrent: function(){
     return this[this.current]();
   },
@@ -116,20 +114,49 @@ SelectorLibrary.prototype = {
       return directions.getOffsetOf(p);
     });
     return leds;
+  },
+  populate: function(){
+    $('#selector-library').find(".widget-body").html("");
+    $.get(SELECTORS_GET, function(blocks){
+      blocks = _.reject(blocks, function(block){
+        return _.isNull(block.data) || _.isNull(JSON.parse(block.data).name);
+      });
+      _.each(blocks, function(block){
+        block.data = JSON.parse(block.data);
+      });
+      var file = fm.getName();
+      blocks = _.filter(blocks, function(block){
+        return file == block.data.file;
+      })
+      
+      _.each(blocks, function(block){
+        console.log(block);
+        
+        var dom = $('#selector-item-template').clone();
+        dom.attr('id', '').removeClass('template');
+        dom.find('img').attr('src', block.image.thumbnail.url);
+        dom.find('span.title').html(block.data.name);
+        
+        $('#selector-library').find(".widget-body").append(dom);
+        
+      });
+    }); 
   }
 }
 </script>
+
+<div id="selector-item-template" data-fn="" class="template selector library-item"> 
+  <%= image_tag "/actuation/selectors/train_station.png", :width => "100%" %>
+  <span class="title">
+    name
+  </span> 
+</div>
 
 <div id="selector-library" class="widget status">
 	<label class="label-normal widget-title" name="selectors"></label>
 	<div class="widget-body scroll-list">
    
-    <div  data-fn="train_station" class="selector library-item"> 
-      <%= image_tag "/actuation/selectors/train_station.png", :width => "100%" %>
-      <span class="title">
-        train_station
-      </span> 
-    </div>
+    
 
     <div  data-fn="you_are_here" class="selector library-item"> 
       <%= image_tag "/actuation/selectors/you_are_here.png", :width => "100%" %>

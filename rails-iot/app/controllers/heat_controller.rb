@@ -7,4 +7,8 @@ class HeatController < ApplicationController
   	@files = get_displays()
   	render :layout => "full_screen"
   end
+  def generator
+  	@files = get_displays()
+  	render :layout => "full_screen"
+  end
 end

@@ -1,6 +1,10 @@
 class VisualBlocksController < ApplicationController
   before_action :set_visual_block, only: [:show, :edit, :update, :destroy]
-
+  
+  def selectors
+    @visual_blocks = VisualBlock.selectors
+    render :json => @visual_blocks
+  end
   # GET /visual_blocks
   # GET /visual_blocks.json
   def index

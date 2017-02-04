@@ -68,8 +68,10 @@ function Animation(scheduler, props){
 				if(self.props.debug && self.props.name) console.log(p.parameter, event.time, self.props.startTime, self.props.name);
 				if(self.props.onRun) self.props.onRun(_.extend(event, p));
 			}
-			else
+			else{
+				if(self.props.onDone) self.props.onDone(_.extend(event, p));
 				self.scheduler.remove(self.props.id);
+			}
 			
 		}	
 }

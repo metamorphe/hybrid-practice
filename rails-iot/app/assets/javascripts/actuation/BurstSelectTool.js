@@ -17,7 +17,7 @@ function BurstSelectTool(){
   tool.bindings = function(){
     console.log("BINDINGS", tool.short_name);
     $('#make-block').click(function(){
-      var block_name = $('#block-name').val().gsub(' ', '_');
+      var block_name = $('#block-name').val().replace(' ', '_');
       block_name = block_name == "" ? 'untitled' : block_name;
     
       sm.makeBlock({

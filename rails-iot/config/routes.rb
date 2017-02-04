@@ -1,9 +1,15 @@
 Rails.application.routes.draw do
 
-  resources :visual_blocks
+  resources :visual_blocks do 
+    collection do 
+      get 'selectors'
+    end
+  end
+
   post 'tool/visual_block'
   get 'heat/sketch'
   get 'heat/field'
+  get 'heat/generator'
 
   get 'tool/index'
   get 'tool/pipeline'

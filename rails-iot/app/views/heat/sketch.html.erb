@@ -12,7 +12,6 @@
         var brush_direction = null;
         brush = new paper.Tool();
         brush.onMouseDown = function(event){
-          
           brush_direction = new paper.Path.Line({
             strokeColor: "yellow", 
             strokeWidth: 3, 
@@ -38,8 +37,6 @@
           brush_direction.addSegment(event.point);
 
           var boundary = CanvasUtil.queryPrefix('BND')[0];
-          
-          console.log(brush_direction.getTangentAt(brush_direction.length/2.0));
           
           var start = brush_direction.getPointAt(0);
           var direction = brush_direction.getTangentAt(brush_direction.length/2.0);

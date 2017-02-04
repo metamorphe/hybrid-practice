@@ -98,6 +98,7 @@ SelectionManager.prototype = {
 		  data: data,
 		  success: function(data) {
 		    console.log("Saved to the server!", data);
+		    sl.populate();
 		  }
 		});
 	}
