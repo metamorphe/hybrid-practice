@@ -17,11 +17,9 @@ function JouleHeater(gui){
 	f1.add(this, "type").options(["serpentine"]);
 	f1.add(this, "heater_width").min(1.0).max(100);
 	f1.add(this, "heater_height").min(1.0).max(100);
-	f1.addColor(this, "color");
 	f1.add(this, "line_width").min(1.0).max(10.0);
 	f1.add(this, "gap").min(1.0).max(10.0);
-
-
+	f1.addColor(this, "color");
 	f1.add(this, "animated");
 
 	var f2 = gui.addFolder("Output");
@@ -87,15 +85,19 @@ JouleHeater.prototype = {
 		this.resistance = JouleHeater.getResistance(JouleHeater.AGIC_MATERIAL, heater);
 		paper.view.update();
 	}, 
+	getName: function(){
+		return [this.filename, this.heater_width + "x" + , this.heater_height, + "lw", this.line_width, "g", this.gap, "r", parseInt(this.resistance), "l", parseInt(this.length)].join("_");
+	},
 	save: function(){
 		console.log("Exporting SVG...", this.filename);
     	paper.view.zoom = 1;
 	    paper.view.update();
+	    paper.project.activeLayer.name = this.getName();
 	    exp = paper.project.exportSVG({ 
 	      asString: true,
 	      precision: 5
 	    });
-	    var filename = [this.filename, "lw", this.line_width, "g", this.gap].join("_") + ".svg"
+	    var filename = this.getName() + ".svg"
     	saveAs(new Blob([exp], {type:"application/svg+xml"}), filename);
 	}
 }
@@ -128,8 +130,6 @@ JouleHeater.snake = function(op){
     }
 	
 	direction = HeatSketch.turn_and_crawl(serpentine, direction, 90, crawl_step , true, maze)
-    // direction = HeatSketch.turn_and_crawl(serpentine, direction, 90, crawl_length, true, maze)
-
 
     if(op.animated){
 	    serpentine.remove();
@@ -187,9 +187,6 @@ JouleHeater.turn_and_crawl = function(serp, i_direction, rotation,  i_crawl, smo
     	if(off <= turn_padding) return null;
     	turn  = turnLine.getPointAt(off);
     }
-    // else{
-    // 	turn = turnLine.lastSegment.point;
-    // }
     turnLine.remove();
 
     if(smooth){
