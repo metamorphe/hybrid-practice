@@ -6,8 +6,9 @@ function JouleHeater(gui){
 	this.line_width = 3;
 	this.heater_width = 30;
 	this.heater_height = 50;
-	this.gap =  this.line_width + 1;
+	this.gap =  this.line_width + 1.0001;
 	this.resistance = 0;
+	this.area = 0;
 	this.length = 0;
 	this.animated = true;
 	this.color = "#000000"
@@ -17,8 +18,8 @@ function JouleHeater(gui){
 	f1.add(this, "type").options(["serpentine"]);
 	f1.add(this, "heater_width").min(1.0).max(100);
 	f1.add(this, "heater_height").min(1.0).max(100);
-	f1.add(this, "line_width").min(1.0).max(10.0);
-	f1.add(this, "gap").min(1.0).max(10.0);
+	f1.add(this, "line_width").min(0.3).max(10.0);
+	f1.add(this, "gap").min(0.3).max(10.0);
 	f1.addColor(this, "color");
 	f1.add(this, "animated");
 
@@ -27,8 +28,10 @@ function JouleHeater(gui){
 	f2.add(this, "save");
 
 	f3 = gui.addFolder("Properties");
+	f3.add(this, "area").listen();
 	f3.add(this, "length").listen();
 	f3.add(this, "resistance").listen();
+	
 
 
 	
@@ -83,10 +86,11 @@ JouleHeater.prototype = {
 
 		this.length = Ruler.pts2mm(heater.length);
 		this.resistance = JouleHeater.getResistance(JouleHeater.AGIC_MATERIAL, heater);
+		this.area = JouleHeater.getArea(heater);
 		paper.view.update();
 	}, 
 	getName: function(){
-		return [this.filename, this.heater_width + "x" + , this.heater_height, + "lw", this.line_width, "g", this.gap, "r", parseInt(this.resistance), "l", parseInt(this.length)].join("_");
+		return [this.filename, this.heater_width + "x" + this.heater_height, + "lw", this.line_width, "g", this.gap, "r", parseInt(this.resistance), "l", parseInt(this.length)].join("_");
 	},
 	save: function(){
 		console.log("Exporting SVG...", this.filename);
@@ -203,6 +207,12 @@ JouleHeater.turn_and_crawl = function(serp, i_direction, rotation,  i_crawl, smo
 
 JouleHeater.AGIC_MATERIAL = {
 	sheet_resistance: 0.3
+}
+
+JouleHeater.getArea = function(path){
+	var W = Ruler.pts2mm(path.style.strokeWidth); // width of stroke in mm
+	var L = Ruler.pts2mm(path.length);
+	return W * L;
 }
 JouleHeater.getResistance = function(material=AGIC_MATERIAL, path){
 	var W = Ruler.pts2mm(path.style.strokeWidth); // width of stroke in mm

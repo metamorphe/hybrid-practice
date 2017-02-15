@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get 'aesthetic_development/network'
+
   resources :visual_blocks do 
     collection do 
       get 'selectors'
