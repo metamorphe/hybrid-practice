@@ -1,15 +1,25 @@
    <script type="text/javascript">
       var files = <%= @files.to_json.html_safe %>;
       var DEFAULT_PIPE_FILE = "example_sunmoon_4inches.svg";
-      var ah, ps, gui, jhg;
+      var ah, ps, gui, jhg, sm, ws;
       
+      // Using the property s_selected to keep track of element styling
+      var JOULE_SELECT = function(path){
+        if(path.closed)
+          path.set({strokeWidth: 4, strokeColor: "#00A8E1"});
+        else
+          path.set({strokeWidth: 4,  strokeColor: "#00A8E1", dashArray: []})
+      }
       $(function(){ 
         $("#shade").fadeOut("slow");
         Utility.paperSetup('myCanvas');
         paper.project.activeLayer.name = "JouleHeaterGenerator";
         ps = new PerceptualScheduler(paper);
         gui = new dat.GUI();
+        ws = new WebStorage();
+        sm = new SelectionManager(JOULE_SELECT);
         jhg = new JouleHeater(gui);
+        jh = new JouleHeaterSimulator();
 
       });
     </script>

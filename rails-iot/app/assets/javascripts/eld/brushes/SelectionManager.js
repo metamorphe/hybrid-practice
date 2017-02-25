@@ -22,12 +22,10 @@ SelectionManager.prototype = {
 		 _.each(diffs, function(diff){
 			scope.add(diff);
 		});
-
-		
 	},
 	add: function(path){
 		ids = _.map(this.selection, function(s){return s.id});
-		if(ids.indexOf(path.id) > -1){
+		if(_.contains(ids, path.id)){
 			// remove the diffuser if it doesnt have any selected LEDS
 			var leds = CanvasUtil.getLEDS(path);
 			leds = _.reject(leds, function(led){ return led.id == path.id; });
@@ -49,9 +47,10 @@ SelectionManager.prototype = {
 	}, 
 	update: function(){
 		var scope = this;
-		var leds = CanvasUtil.queryPrefix("NLED");
-		var diff = [CanvasUtil.queryPrefix("DIFF"), CanvasUtil.queryPrefix("DDS")];
-		var elements = _.flatten([diff, leds]);
+		// var leds = CanvasUtil.queryPrefix("NLED");
+		// var diff = [CanvasUtil.queryPrefix("DIFF"), CanvasUtil.queryPrefix("DDS")];
+		// var elements = _.flatten([diff, leds]);
+		var elements = CanvasUtil.query(paper.project, {})
 		var selectedElements = _.filter(elements, function(el){ return el.s_selected; });
 		// // console.log('SELECTED ELEMENTS')
 		_.each(selectedElements, function(el){

@@ -15,14 +15,40 @@
       $(function(){ 
         Utility.paperSetup('myCanvas');
         ws = new WebStorage();
-        fm = new FileManager(files);
+        fm = new FileManager(files, onPaperLoad);
         sm = new SelectionManager(SELECTOR_SELECT);
         tm = new ToolManager();
         
         console.log('active tools', tools);
         $("#shade").fadeOut("slow");
+
       });
-          
+      
+
+      var cartesian; 
+      function onPaperLoad(){
+        centroid = _.reduce(leds, function(memo, led){ return memo.add(led.position); }, new paper.Point(0, 0)).divide(leds.length);
+
+        cartesian = new SIA(leds, {
+               i: function(led, i, arr){ return i; },
+               x: function(led, i, arr){ return led.position.x;},
+               y: function(led, i, arr){ return led.position.y;},
+               r: function(led, i, arr){ return led.position.getDistance(centroid); }, 
+               theta: function(led, i, arr){ return led.position.clone().subtract(centroid).angle; } 
+             }
+        );
+
+        // BEHAVIOR
+        ordering_schema = "i"
+        cartesian.each(ordering_schema, function(led, index){
+            if(index.y.param > 0.5) return;
+            led.set({
+            //   fillColor: {brightness: 1, hue: index.r.param * 360, saturation: 0.8}
+            // })
+              fillColor: {hue: index.theta.param * 360, saturation: index.r.param * 0.5 + 0.5, brightness: index.r.param * 0.5 + 0.5}
+            });
+        });
+      }
     </script>
   </head>
   <body>

@@ -163,8 +163,8 @@ Artwork.prototype = {
 }
 
 Artwork.getPrefix = function(item){
-	if(_.isUndefined(item)) return "";
-	if(_.isUndefined(item.name)) return "";
+	if(_.isUndefined(item) || _.isNull(item)) return "";
+	if(_.isUndefined(item.name) || _.isNull(item.name)) return "";
 	// if(item.name.split(":").length < 2) return "";
 	if(item.name.split(":").length < 2) return "";
 	return item.name.split(":")[0].trim();
@@ -172,6 +172,7 @@ Artwork.getPrefix = function(item){
 
 
 Artwork.getPrefixItem = function(item){
+	if(_.isUndefined(item) || _.isNull(item)) return "";
 	if(_.isUndefined(item)) return "";
 	if(item.split(":").length < 2) return "";
 	return item.split(":")[0].trim();

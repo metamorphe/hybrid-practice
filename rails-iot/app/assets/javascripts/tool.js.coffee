@@ -46,6 +46,7 @@
 //= require actuation/ComponentSelectTool
 //= require actuation/PathSelectTool
 //= require actuation/BurstSelectTool
+//= require actuation/SIA
 # TEMPLATE UPDATE
 
 $ ->

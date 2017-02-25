@@ -1,4 +1,10 @@
 class ToolController < ApplicationController
+   def composer
+    @files = get_displays()
+    @ports = get_ports()
+    # render :json => @ports
+    render :layout => "full_screen"
+  end
   def system_control
     @files = get_displays()
     @ports = get_ports()

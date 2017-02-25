@@ -8,25 +8,27 @@ Rails.application.routes.draw do
     end
   end
 
-  post 'tool/visual_block'
   get 'heat/sketch'
   get 'heat/field'
   get 'heat/generator'
 
-  get 'tool/index'
-  get 'tool/pipeline'
-  get 'tool/lens'
-  get 'tool/splitter'
-  get 'tool/optimal_lens'
-  get 'tool/theoretical_testbed'
-  get 'tool/index'
-  get 'tool/displays'
-  get 'tool/start_server'
-  get 'tool/dope'
-  get 'tool/refract'
-  get 'tool/designer'
-  get 'tool/system_control'
-
+  namespace :tool do
+    post 'visual_block'
+    get 'index'
+    get 'pipeline'
+    get 'lens'
+    get 'splitter'
+    get 'optimal_lens'
+    get 'theoretical_testbed'
+    get 'index'
+    get 'displays'
+    get 'start_server'
+    get 'dope'
+    get 'refract'
+    get 'designer'
+    get 'system_control'
+    get 'composer'
+  end
 
   get 'devices/index'
 

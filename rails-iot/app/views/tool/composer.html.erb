@@ -1,0 +1,47 @@
+<script type="text/javascript">
+$(function(){
+	$('#shade').fadeOut(0);
+})
+</script>
+<div id="ui" class="">
+	<group class="vert">
+	  <event class="hoz">
+	      <button type="trigger" class="btn-primary trigger">
+	        onStation
+	      </button>
+
+	      <graphframe class="vert resizable-hoz">
+	      	
+	      	<state class="keyframe-options" style="height: 10%"> 
+	          <div class="duration"> 20 ms </div>
+	      	</state>
+            <graph data-fn="allRamp" class="vert-centered">
+          	 s
+            </graph>
+	        <params>
+	          <div class="duration" style='width: 50%;'> 20 ms </div> 
+	          <div class="dropdown" style='width: 50%;'>  
+	            <button id="transition" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-xs btn-transparent">
+	              <span class="glyphicon glyphicon-repeat"></span>
+	            </button>
+	            <ul class="dropdown-menu hold-state" aria-labelledby="transition"> 
+	              <li data-value="repeat" ><a href="#">Repeat</a></li> 
+	              <li data-value="once-repeat"><a href="#">Repeat Once</a></li> 
+	              <li data-value="no-repeat"><a href="#">No Repeat</a></li>
+	            </ul>
+	          </div>         
+	        </params>
+	      </graphframe>
+	  </event>
+	</group>
+</div>
+
+<style type="text/css">
+.ui{
+	height: 100%;
+}
+group{
+  height: 300px;
+  /*overflow: scroll;*/
+}
+</style>

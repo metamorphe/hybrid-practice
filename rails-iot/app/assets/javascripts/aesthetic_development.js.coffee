@@ -4,7 +4,6 @@
 //= require underscore
 //= require numeric.min
 //= require dat.gui.min
-//= require d3
 //= require clipper
 //= require paper-full.min
 //= require saveas.min
@@ -18,8 +17,4 @@
 //= require eld/artwork
 //= require eld/graph
 //= require eld/ButtonExporter
-//= require eld/brushes/SelectionManager
 //= require circuitree/animation_handler
-//= require heat/heat_sketch
-//= require heat/joule_heater
-//= require actuation/Actuator

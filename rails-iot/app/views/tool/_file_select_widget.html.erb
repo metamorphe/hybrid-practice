@@ -3,15 +3,15 @@
 
 var DEFAULT_FILE = "/userstudy/examples/map.svg";
 
-function FileManager(files){
+function FileManager(files, onLoad){
   this.open_file = DEFAULT_FILE;
   if(ws && ws.includes("FILE"))
     this.open_file = ws.get("FILE");
    
-  this.init();
+  this.init(onLoad);
 }
 FileManager.prototype = {
-  init: function(){
+  init: function(onLoad){
 
     var scope = this;
     console.log("Initializing FileManager with", files.length, "files found.")
@@ -31,12 +31,12 @@ FileManager.prototype = {
       .val(this.open_file);
 
     var file = $("#file-selector").val();
-    this.load(file);
+    this.load(file, onLoad);
   }, 
   getName: function(){
     return this.open_file.split("/").pop().split('.')[0];
   },
-  load: function(file){
+  load: function(file, onLoad){
     console.log("LOADING FILE:", file)
     if(ws) ws.set("FILE", file);
     paper.project.clear();
@@ -51,6 +51,7 @@ FileManager.prototype = {
       CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
       CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
       vm = new ViewManager($('#views'));
+      if(onLoad) onLoad();
       // var r = new paper.Path.Rectangle({rectangle: artwork.bounds, selected: true})
     });
     paper.view.update();

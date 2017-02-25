@@ -27,6 +27,31 @@ $thick: 5px;
 	box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
 }
 
+
+
+
+/*COMPOSER CSS*/
+graphframe{
+	@extend keyframe;
+}
+graph{
+    padding: 5px;
+    width: 100%;
+    margin: 0;
+    height: 100%;
+    margin-bottom: 5px;
+
+    flex-grow: 1;
+    color: black;
+    font-weight: bold;
+    font-size: 1em;
+    text-align: center;
+    background: white;
+    
+  }
+ 
+
+/* DESIGNER CSS */
 .btn-ard{
 	background: $base;
 	color: $sexy_off_white;

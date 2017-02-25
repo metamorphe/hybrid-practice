@@ -59,4 +59,5 @@ gem 'jquery-sparkline-rails', git: "https://github.com/cubus/jquery-sparkline-ra
 gem 'jquery-ui-rails'
 gem 'htmlbeautifier'
 gem 'chart-js-rails'
+gem "haml-rails", "~> 0.9"
 
