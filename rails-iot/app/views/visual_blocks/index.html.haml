@@ -1,0 +1,19 @@
+%h1 Listing visual_blocks
+%table
+  %thead
+    %tr
+      %th Name
+      %th Image
+      %th Data
+      %th{:colspan => "3"}
+  %tbody
+    - @visual_blocks.each do |visual_block|
+      %tr
+        %td= visual_block.name
+        %td= image_tag(visual_block.image.thumbnail.url)
+        %td= visual_block.data
+        %td= link_to 'Show', visual_block
+        %td= link_to 'Edit', edit_visual_block_path(visual_block)
+        %td= link_to 'Destroy', visual_block, method: :delete, data: { confirm: 'Are you sure?' }
+%br/
+= link_to 'New Visual block', new_visual_block_path

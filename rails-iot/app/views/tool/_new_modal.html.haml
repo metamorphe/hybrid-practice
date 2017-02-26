@@ -1,0 +1,21 @@
+:javascript
+  $(function(){
+    $("#new-confirm").click(function(){
+      project.activeLayer.removeChildren();
+      displays = []
+    })
+  });
+#new.modal.fade{"aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog{:role => "document"}
+    .modal-content
+      .modal-header
+        %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4#myModalLabel.modal-title New Design Confirmation
+      .modal-body
+        %p
+          Are you sure you want to leave this design?
+          %br/
+      .modal-footer
+        %button#new-confirm.btn.btn-success{"data-dismiss" => "modal", :type => "button"} Create New Design
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close

@@ -1,0 +1,49 @@
+!!!
+%html
+  %head
+    %title
+      ELD - #{params[:action].humanize}
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    = stylesheet_link_tag params[:controller], media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag params[:controller], 'data-turbolinks-track' => true
+    /
+      <script src="https://use.typekit.net/swf3anw.js"></script>
+      <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    = csrf_meta_tags
+    %meta{:content => "user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1", :name => "viewport"}/
+    :css
+      body, html{
+        	position: fixed;
+        }
+        	#shade{
+        		background: #191f26;
+        		color: black;
+        		width: 100%;
+        		height: 100%;
+        		position: absolute;
+        		top: 0;
+        		left: 0;
+        		font-size: 48pt;
+        		font-weight: bold;
+        		text-shadow: 1px 1px rgb(0, 0, 0, 0.1);
+        		z-index: 10000000000000000;
+        		/*display: table;*/
+          	/*table-layout: fixed;*/
+          	
+      	}
+        	
+       	#shade #bg {
+       		position: relative;
+      		top: 50%;
+      		margin-top: -300px;
+      	}
+  %body.stop-scrolling
+    #shade.col-xs-12.text-center
+      = image_tag "loading.gif", :id => "bg"
+    - if notice
+      %p.alert.alert-success= notice
+    - if alert
+      %p.alert.alert-danger= alert
+    = yield

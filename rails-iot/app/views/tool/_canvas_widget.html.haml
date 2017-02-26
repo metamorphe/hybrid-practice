@@ -1,0 +1,48 @@
+:javascript
+  // var mainVM, mainPaper;
+  // $(function(){
+  // 	mainPaper = paperSetup('myCanvas');
+  // 	mainPaper.name = "mainPaper";	
+  // });
+  $('.tool')
+  //
+#main-canvas-container
+  %canvas#myCanvas.paper
+  #new-selector.drop-tool
+    %button.drop-tool-select.btn-ard SELECT TOOL
+    %ul
+      %li.tool{"data-tool" => "BurstSelectTool"}
+        BURST
+      %li.tool{"data-tool" => "RiverSelectTool"}
+        RIVER
+      %li.tool{"data-tool" => "ComponentSelectTool"}
+        COMPONENT
+:css
+  #new-selector{
+  	position: absolute;
+  	z-index: 1000;
+  	top: 30px;
+  	left: 30px;
+  }
+  #new-selector ul li button{
+  	width: 100px;
+  }
+  #main-canvas{
+  	height: 100%;
+  }
+  #main-canvas-container{
+    position: relative;
+    height: calc(100% - 0px);
+    width: 100%;
+    overflow: hidden;
+  }
+  .paper{
+    background: #f5f4f0;
+    position: relative;
+    top: 0px;
+    z-index: 0;
+    cursor: pointer;
+    -webkit-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+  	-moz-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+  	box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+  }

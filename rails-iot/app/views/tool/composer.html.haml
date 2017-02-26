@@ -1,0 +1,106 @@
+:javascript
+  var act;
+  $(function(){
+      tsp = initTimeSignals($('#data-signals canvas'));
+      act = initActuators($('#actuators canvas'));
+      $("event#actuators input.master").on('input', function(){
+        var v = $(this).val();
+        _.each(act, function(act){
+          paper = act.op.paper;
+          act.value = {hue: v * 360, saturation: 0.8, brightness: 0.8};
+        });
+      })
+      $('#shade').fadeOut(0);
+  });
+
+
+#ui2
+  %group.vert
+    %event#data-signals.full-hoz.data-signal-design
+      %button.design-title.btn-primary.trigger{:type => "trigger"}
+        DATA SIGNAL
+      %graphframe.vert-centered
+        %canvas{:data => "[0, 0, 1, 1, 0, 0]"}
+      %graphframe.vert-centered
+        %canvas{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
+    
+    %event#actuators.full-hoz.actuator-design
+      .vert
+        %button.design-title.btn-primary.trigger{:type => "trigger"} ACTUATOR
+        %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
+      %actuator.selected.hoz
+        %div.info.vert.fill_height{:style => "width: 100px"}
+          %p.actuator-title RGBLED
+          %canvas{:type=>"RGBLED_Simulator"}
+        %params.actuator.scroll-list
+          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+            %input{:type => "radio", :name => "brightness", :value => "brightness", :checked => true}
+            %label.actuator BRIGHTNESS
+          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+            %input{:type => "radio", :name => "hue", :value => "hue"}
+            %label.actuator HUE
+          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+            %input{:type => "radio", :name => "red", :value => "red"}
+            %label.actuator RED
+          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+            %input{:type => "radio", :name => "green", :value => "green"}
+            %label.actuator GREEN
+          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+            %input{:type => "radio", :name => "blue", :value => "blue"}
+            %label.actuator BLUE
+          
+
+    /   %actuator.full-hoz.fill_height
+    /     %div.info.vert.fill_height{:style => "width: 100px"}
+    /       %p.actuator-title STEPPER
+    /       %graph{:type=>"STEPPER"}
+    /     %params.actuator.vert.scroll-list
+    /       %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+    /         %input{:type => "radio", :name => "angle", :value => "angle"}
+    /         %label.actuator ANGLE
+      
+    /   %actuator.full-hoz.fill_height
+    /     %div.info.vert.fill_height{:style => "width: 100px"}
+    /       %p.actuator-title HEATER
+    /       %graph{:type=>"JOULE_HEATER"}
+    /     %params.actuator.scroll-list
+    /       %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
+    /         %input{:type => "radio", :name => "temperature", :value => "temperature"}
+    /         %label.actuator TEMP
+
+    / %event.full-hoz.data-signal-design
+    /   %button.design-title.btn-primary.trigger{:type => "trigger"}
+    /     BEHAVIOR
+    /   %graphframe.vert-centered
+    /     %params.full-hoz
+    /       .name{:style => "width: 100%; height: 20px; line-height: 20px;"} LED_BRIGHT
+    /     %graph
+    /   %graphframe.vert-centered
+    /     %params.full-hoz
+    /       .name{:style => "width: 100%; height: 20px; line-height: 20px;"} LED_HUE
+    /     %graph
+    .canvas-container.fill_height.fill_width
+      %canvas#mainCanvas{:width =>"100%", :height => "100%"}
+  
+       
+           
+:css
+  input.sexy{
+    width: 90%;
+    margin-top: 10px !important;
+  }
+  .ui{
+  	height: 100%;
+  }
+  .blue{
+    background: blue;
+  }
+  .fill_height{
+    height: 100%;
+  }
+  .fill_width{
+    width: 100% !important;
+  }
+
+
+ 

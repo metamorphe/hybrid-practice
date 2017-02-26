@@ -19,30 +19,6 @@
 // resolution: 1,
 // alpha: 1.1, 
 // inertia: function(from, to){ return 0;}
-
-
-function TimeSignal(){
-	this.data = [0, 1, 0]; // only between 0 and 1
-}
-TimeSignal.prototype = {
-	express: function(actuator, options){
-		var gamm = 1/actuator.alpha;
-		var gamma_corrected_signal = _.map(this.data, function(datum){ return Math.pow(datum, actuator.alpha); });
-		var time_signal = _.map(gamma_corrected_signal, function(datum, i){ return [i, datum];});
-		
-		var p = new paper.Path({segments: time_signal});
-
-
-
-		var total_samples = this.temporal_range * this.sampling_rate;
-		var signal = _.range(0, total_samples, 1);
-		return _.map(signal, function(sample){
-			return p.getPointAt(sample / total_samples).y;
-		});
-	}
-}
-
-
 function SIA(collection = [], indices){
 	this.collection = collection;
 	this.indexFNs = indices;

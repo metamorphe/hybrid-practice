@@ -1,0 +1,111 @@
+%head
+  :javascript
+    const files = #{@files.to_json.html_safe};
+    const ports = #{@ports.to_json.html_safe};
+    const DEFAULT_PIPE_FILE = "example_sunmoon_4inches.svg";
+    
+    const SELECTOR_SELECT = function(path){
+      name = Artwork.getPrefix(path);
+      if(name == "NLED")
+        path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
+      else
+        path.set({strokeWidth: 2, strokeColor: "#00A8E1", dashArray: [], opacity: 0.5, fillColor: "#00A8E1"})
+    }
+
+    var vm, fm, ws;
+    $(function(){ 
+      Utility.paperSetup('myCanvas');
+      ws = new WebStorage();
+      fm = new FileManager(files, onPaperLoad);
+      sm = new SelectionManager(SELECTOR_SELECT);
+      tm = new ToolManager();
+      
+      console.log('active tools', tools);
+      $("#shade").fadeOut("slow");
+
+    });
+    
+
+    var cartesian; 
+    function onPaperLoad(){
+      centroid = _.reduce(leds, function(memo, led){ return memo.add(led.position); }, new paper.Point(0, 0)).divide(leds.length);
+
+      cartesian = new SIA(leds, {
+             i: function(led, i, arr){ return i; },
+             x: function(led, i, arr){ return led.position.x;},
+             y: function(led, i, arr){ return led.position.y;},
+             r: function(led, i, arr){ return led.position.getDistance(centroid); }, 
+             theta: function(led, i, arr){ return led.position.clone().subtract(centroid).angle; } 
+           }
+      );
+
+      // BEHAVIOR
+      ordering_schema = "i"
+      cartesian.each(ordering_schema, function(led, index){
+          if(index.y.param > 0.5) return;
+          led.set({
+          //   fillColor: {brightness: 1, hue: index.r.param * 360, saturation: 0.8}
+          // })
+            fillColor: {hue: index.theta.param * 360, saturation: index.r.param * 0.5 + 0.5, brightness: index.r.param * 0.5 + 0.5}
+          });
+      });
+    }
+%body
+  = render :partial => "widget_template"
+  #control-container
+    #view-container
+      #main.col-xs-8.nopadding
+        = render :partial => "canvas_widget"
+      / STATUS BAR
+      #status.col-xs-4
+        = render :partial => "port_select_widget"
+        = render :partial => "file_select_widget"
+        = render :partial => "tool_status"
+        - render :partial => "motion_widget"
+        - render :partial => "graph_widget"
+        - render :partial => "stream_widget"
+        = render :partial => "quick_behaviors_widget"
+        = render :partial => "selectors_widget"
+      / END STATUS BAR
+    #ui-container
+      #ui
+        = render :partial => "interaction_ui"
+  - render :partial => "modals"
+  = render :partial => "views"
+  - render :partial => "color_palette"
+  - render :partial => "brush_bar"
+  - render :partial => "control"
+  - render :partial => "zoom_bar"
+:css
+  #main, #status, #ui{
+    height: 100%;
+  }
+  .template{
+    display: none;
+  }
+  .hide{
+    display: none;
+  }
+  .form-control-special{
+    display: block;
+    /* width: 100%; */
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
+    color: #555555;
+    background-color: white;
+    background-image: none;
+    border: 1px solid #cccccc;
+    /*border-radius: 4px;*/
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  }

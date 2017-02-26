@@ -1,0 +1,132 @@
+:css
+  #stroke-select-ui select optgroup{
+  	font-weight: bold !important;
+  	font-size: 40pt !important;
+  }
+  
+  #stroke-select-ui{
+    position: absolute;
+    top: 66px;
+    /*left: 10px;*/
+    right: 5px;
+    width: 300px;
+    height: 190px;
+    padding-top: 5px;
+  }
+  #stroke-select-ui input{
+  	margin: 8px 0px;
+  }
+  .no-sides{
+  	padding-right: 0px;
+  	padding-left: 0px;
+  }
+  #stroke-select-ui #switcher{
+  	width: 90%;
+  	margin: auto 5%;
+  }
+  .big{
+  	font-size: 90px;
+  }
+  #stroke-select-ui label{
+  	display: inline-block;
+  }
+  #range-headers{
+  	height: 14pt;
+  	top: 14px;
+  }
+  #range-headers .left{
+  	position: relative;
+  	float: left;
+  	
+  }
+  #range-headers .right{
+  	position: relative;
+  	float: right;
+  	
+  }
+  #stroke-select-ui .main-btn-group{
+  	width: 98%;
+  	margin: 3px 1%;
+  }
+  #stroke-select-ui .line-select{
+  	font-size: 18px;
+  	padding: 0px 0px;
+  	text-align: center;
+  }
+  .white-break{
+  	color: white;
+  	padding-bottom: 16px;
+  	border-bottom: 1px dashed #BBB;
+  }
+  button, li{
+  	font-family: "Helvetica", sans-serif;
+  }
+
+  .custom-select{
+  	width: 100%;
+  }
+  .line-selector{
+  	font-weight: bold;
+  	/*margin-right: 4px;*/	
+  }
+  .line{
+  	display: inline-block;
+  	transform:scale(3,2); /* W3C */
+  	color: red;
+  	text-shadow: 0px 1.1px #FF0000;
+
+  }
+  .caret{
+  	position: relative;
+  	right: -20px;
+
+  }
+  .btn-dialog{
+  	width: 49.2%;
+  }
+#stroke-select-ui.toolbox.shadowed
+  / <label class="text-shadowed"> STROKE MAGNET </label>
+  .main-btn-group.btn-group.white-break
+    / Single button
+    #range-headers.col-xs-12.no-sides
+      %label.left ANCHOR TRACE
+      %label.right MOVING TRACE
+    .col-xs-4.no-sides
+      %button.line-selector.custom-select.btn.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+        %span.line —
+        %span.caret
+      %ul.dropdown-menu
+        %li
+          %a.line-selector
+            %span.line —
+        %li
+          %a.line-selector
+            %span.line —
+        %li
+          %a.line-selector
+            %span.line —
+    .col-xs-4.no-sides
+      %button#switcher.btn.btn-primary ⇄
+    .col-xs-4.no-sides
+      %button.line-selector.custom-select.btn.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+        %span.line —
+        %span.caret
+      %ul.dropdown-menu
+        %li
+          %a.line-selector
+            %span.line —
+        %li
+          %a.line-selector
+            %span.line —
+        %li
+          %a.line-selector
+            %span.line —
+  %br.white-break/
+  .main-btn-group.btn-group
+    %input#magnet-strength{:max => "1", :min => "-1", :step => "0.01", :type => "range", :value => "0"}/
+    #range-headers.col-xs-12.no-sides
+      %label.left FURTHER
+      %label.right CLOSER
+  .main-btn-group
+    %button.btn.btn-danger.btn-dialog CANCEL
+    %button.btn.btn-default.btn-dialog DONE

@@ -1,0 +1,17 @@
+%h1 Listing designs
+%table.table.table-striped
+  %thead
+    %tr
+      %th Name
+      %th Json
+      %th{:colspan => "3"}
+  %tbody
+    - @designs.each do |design|
+      %tr
+        %td= design.name
+        %td= design.json
+        %td= link_to 'Show', design
+        %td= link_to 'Edit', edit_design_path(design)
+        %td= link_to 'Destroy', design, method: :delete, data: { confirm: 'Are you sure?' }
+%br/
+= link_to 'New Design', new_design_path

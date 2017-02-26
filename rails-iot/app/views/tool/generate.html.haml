@@ -1,0 +1,269 @@
+%head
+  :javascript
+    var zb, cp, bb, vm, displays = [];
+
+    $(function(){
+      Utility.paperSetup($('#myCanvas'));
+      zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
+      $("#shade").fadeOut("slow");
+      pipelineSetup();
+    });
+
+    function pipelineSetup(){
+      var spacers = new ButtonExporter($('#spacers'), "PNG", spacers_script );
+      var mold = new ButtonExporter($('#mold'), "PNG", mold_script_tiered );
+      var mask = new ButtonExporter($('#mask'), "SVG", mask_script );
+    }
+
+    function pcb_script(display){
+      console.log("Running PCB Generator");
+    }
+    function spacers_script(display){
+      console.log("Running Spacer Generator");
+      return make_diffuser_spacer(display);
+
+    }
+
+    function mask_script(display){
+      var mask = display.queryPrefix("ART");
+      var breakout = display.queryPrefix('BO');
+      var breakin = display.queryPrefix('BI');
+      var circuit_path = display.queryPrefix('CP');
+      var diffusers = display.queryPrefix('DIF');
+      var leds = display.queryPrefix('NLED');
+
+      _.each(mask, function(m){
+        m.set({
+          visible: true,
+          fillColor: "black",
+          strokeWidth: 0
+        });
+      });
+      //Make non-mask objects invisible
+      var invisible = _.flatten([leds, circuit_path, diffusers, breakin, breakout]);
+      _.each(invisible, function(el){
+        el.visible = false;
+      });
+    }
+    var MOLD_WALL = 5; // mm
+
+    function mold_script_tiered(display) {
+      console.log("Running Mold Generator2");
+      //Declarations
+      var breakout = display.queryPrefix('BO');
+      var breakin = display.queryPrefix('BI');
+      var circuit_path = display.queryPrefix('CP');
+      var diffusers = display.queryPrefix('DIF');
+      var leds = display.queryPrefix('NLED');
+      var dds = display.queryPrefix('DD');
+
+      console.log("Found", diffusers.length, "diffusers...")
+      //Extrating diffusers
+      _.each(diffusers, function(diffuser){
+        diffuser.set({
+          visible: true,
+        });
+        diffuser.fillColor.lightness = 1.0 - diffuser.fillColor.lightness;
+      });
+
+      console.log("Found", dds.length, "DDs...")
+      _.each(dds, function(dd) {
+        dd.set({
+          visible: true,
+        });
+        dd.fillColor.lightness = 1.0 - dd.fillColor.lightness;
+        dd.bringToFront();
+      });
+
+      var diff_group = new paper.Group(diffusers);
+      var dd_group = new paper.Group(dds);
+
+      //Creating a bounding box
+      boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL)), 0);
+      boundingBox.style = {
+        fillColor: 'white',
+      };
+      boundingBox.sendToBack();
+
+      var result = new paper.Group({
+        children: [boundingBox, diff_group, dd_group]
+      });
+
+      //Make non-molding objects invisible
+      var invisible = _.flatten([leds, circuit_path, breakin, breakout]);
+      _.each(invisible, function(el){
+        el.visible = false;
+      });
+
+      paper.view.update();
+      return result;
+    }
+
+    function mold_script(display){
+      console.log("Running Mold Generator");
+      //Declarations
+      var breakout = display.queryPrefix('BO');
+      var breakin = display.queryPrefix('BI');
+      var circuit_path = display.queryPrefix('CP');
+      var diffusers = display.queryPrefix('DIF');
+      var leds = display.queryPrefix('NLED');
+
+      console.log("Found", diffusers.length, "diffusers...")
+      //Extrating diffusers
+      _.each(diffusers, function(diffuser){
+        diffuser.set({
+          visible: true,
+          fillColor: "black",
+          strokeColor: "white",
+          strokeWidth: Ruler.mm2pts(2)
+        });
+      });
+
+      var diff_group = new paper.Group(diffusers);
+
+      //Creating a bounding box
+      boundingBox = new paper.Path.Rectangle(diff_group.bounds.expand(Ruler.mm2pts(MOLD_WALL)), 0);
+      boundingBox.style = {
+        fillColor: 'white',
+        // strokeColor: 'black'
+      };
+      boundingBox.sendToBack();
+
+      var result = new paper.Group({
+        children: [boundingBox, diff_group]
+      });
+
+      //Make non-molding objects invisible
+      var invisible = _.flatten([leds, circuit_path, breakin, breakout]);
+      _.each(invisible, function(el){
+        el.visible = false;
+      });
+
+      paper.view.update();
+      return result;
+    }
+
+
+
+    function code_script(display){
+      console.log("Running Mask Generator");
+    }
+%body
+  %canvas#myCanvas
+  #pipeline
+    %ul
+      %li
+        %a#load.process.btn.btn-lg.btn-primary{"data-target" => "#open", "data-toggle" => "modal", :href => "#", :name => "load"}
+          %span.glyphicon.glyphicon-file
+      %li
+        %a#pcb.process.btn.btn-lg.btn-info{:href => "#", :name => "pcb"} Ci
+      %li
+        %a#spacers.process.btn.btn-lg.btn-danger{:href => "#", :name => "spacers"} Sp
+      %li
+        %a#mold.process.btn.btn-lg.btn-success{:href => "#", :name => "mold"} M
+      %li
+        %a#mask.process.btn.btn-lg.btn-primary{:href => "#", :name => "mask"} Ma
+      %li
+        %a#code.process.btn.btn-lg.btn-default{:href => "#", :name => "code"} Co
+    %p#current-file.lead /artwork/dd_test.svg
+  = render :partial => "modals"
+  = render :partial => "zoom_bar"
+  / <canvas id="bufferCanvas"></canvas>
+:css
+  #zoom-bar{
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        padding: 4px 8px;
+        color: #AAA;
+        position: absolute;
+        z-index: 1000;
+        top: 230px;
+        left: 100px;
+         z-index: -1;
+     }
+  
+    #pipeline ul li{
+      display: inline;
+    }
+    .process{
+      width: 80px;
+      height: 80px;
+      line-height: 1.5;
+      font-size: 30pt;
+    }
+    #pipeline{
+        position: absolute;
+        top: 0px;
+        padding: 30px;
+        width: 100%;
+        background: white;
+        padding-bottom: 0;
+    }
+      #pipeline ul{
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          margin-left: calc((100% - 550px) / 2.0)
+      }
+     	body, html{
+     		width: 100%;
+     		height: 100%;
+     		overflow: hidden;
+        background: #f5f4f0;
+     	}
+      .input-group {
+        padding-bottom: 10px;
+      }
+      .badgify{
+        background: white;
+        border: solid 1px #999;
+        border-radius: 10px;
+        padding: 4px;
+      }
+      #myCanvas {
+        position: absolute;
+        top: 180px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 180px);
+        border: solid 1px black;
+        /*display: none;*/
+        z-index: -100;
+        cursor: pointer;
+      }
+      #sidebar-right{
+        display: none;
+        background: red;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 100%;
+  
+      }
+  
+      .btn-transparent{
+        background: none;
+        border: none;
+      }
+  
+      .btn-transparent:visited{
+        color: #f5f4f0;
+        outline: none;
+      }
+      .btn-transparent:hover{
+        color: #f5f4f0;
+        outline: none;
+      }
+      .btn-transparent:active{
+        color: #f5f4f0;
+        outline: none;
+      }
+  
+      .btn-transparent:focus{
+        color: #f5f4f0;
+        outline: none;
+      }
+  
+      .clearfix{
+        clear: both;
+      }

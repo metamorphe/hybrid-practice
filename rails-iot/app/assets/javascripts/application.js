@@ -160,14 +160,25 @@ function Utility(){}
 //   paper.setup('myCanvas');
 // }
 
- Utility.paperSetup = function(id){
-    var dom = $("#" + id);
-    dom.attr('height', dom.parent().height());
-    dom.attr('width', dom.parent().width());
+  Utility.paperSetup = function(id){
+    var dom = typeof(id) == "string" ? $("#" + id) : id;
+    var w = dom.parent().height();
+    var h = dom.parent().width();
+    dom.attr('height', w);
+    dom.attr('width', h);
     paper.install(window);
     var myPaper = new paper.PaperScope();
-    myPaper.setup(id);
-    console.log("Paper.js installed on", id);
+
+    myPaper.setup(dom[0]);
+    if(typeof id == "string")
+      console.info("Paper.js installed on", id, w, "x", h);
+    else
+      console.info("Paper.js installed:",  w, "x", h);
     return myPaper;
   }
+
+
+
+
+
 

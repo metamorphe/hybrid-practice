@@ -1,0 +1,44 @@
+:css
+  .btn-group-wrap {
+      text-align: center;
+  }
+  div.btn-group {
+      margin: 0 auto; 
+      text-align: center;
+      width: inherit;
+      display: inline-block;
+  }
+  
+  a {
+      float: left;   
+  }
+  .tesla-links{
+  	margin: 10px;
+  }
+  .tesla-links a em{
+  	display: block;
+  	font-size: 0.6em;
+  }
+   .btn-tesla{
+  	  color: #FFF;
+  	  background: #5d5d5d;
+  	}
+  	.btn-tesla:hover{
+  	  color: #DDD;
+  	  text-decoration: none;
+  	}
+  	.btn-tesla:visited{
+  	  color: #FFF;
+  	  text-decoration: none;
+  	}
+.btn-group-wrap.tesla-links
+  .btn-group
+    = link_to devices_index_path, :class => "btn btn-lg btn-#{params[:controller] == "devices" ? "primary" : "tesla"}" do
+      %em FIND YOUR
+      DEVICES
+    = link_to stream_path, :class => "btn btn-lg btn-#{params[:controller] == "streams" ? "primary" : "tesla"}" do
+      %em CHOOSE YOUR
+      DATA
+    = link_to jig_interface_path(3), :class => "btn btn-lg btn-#{params[:controller] == "jig" ? "primary" : "tesla"}" do
+      %em DESIGN YOUR
+      ENVIRONMENT

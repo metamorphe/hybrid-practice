@@ -1,0 +1,13 @@
+%p#notice= notice
+%p
+  %strong Name:
+  = @visual_block.name
+%p
+  %strong Image:
+  = @visual_block.image
+%p
+  %strong Data:
+  = @visual_block.data
+= link_to 'Edit', edit_visual_block_path(@visual_block)
+|
+= link_to 'Back', visual_blocks_path

@@ -1,0 +1,28 @@
+:javascript
+  $(function(){
+    d3.csv("/data.csv", function(error, data) {
+      data = _.map(data, function(datum){
+        return _.values(datum).join(',');
+      });
+      data.unshift("id,type,time,voltage");
+      $('#streamer').val(data.join('\n'));
+    });
+  });
+#stream.widget.status
+  %label.widget-title{:name => "stream"}
+  .widget-body
+    .input-group
+      %input.form-control{:placeholder => "Search for...", :type => "text"}/
+      %span.input-group-btn
+        %button.btn.btn-default{:type => "button"}
+          %span.glyphicon.glyphicon-filter
+    / /input-group
+    %br/
+    %textarea#streamer{:rows => "10"}
+      / DUMMY DATA
+      C, 0, 120, 120, 120
+      C, 5, 120, 120, 120
+      C, 12, 120, 120, 120
+      M, 50
+      C, 12, 120, 120, 120
+      C, 12, 120, 120, 120

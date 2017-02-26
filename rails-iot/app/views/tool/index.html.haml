@@ -1,0 +1,209 @@
+%head
+  :javascript
+    var zb, cp, bb, vm, sc, displays = [];
+    function allWhite(){
+        leds = CanvasUtil.queryPrefix("NLED");
+         _.each(leds,  function(led){
+            led.is_on = true;
+            led.fillColor = "white";
+            var msg = 'c,'+ led.lid + ',255,255,255\n';
+            console.log(msg);
+            sc.sendMessage(msg);
+         });
+         paper.view.update();
+    }
+    $(function(){
+      paperSetup();
+      var nineSegment = new Artwork("/userstudy/map.svg", function(artwork){
+         // artwork.svg.position.y -= 100;
+         CanvasUtil.fitToViewWithZoom(artwork.svg, paper.view.bounds);
+         artwork.svg.position.y -= 50;
+         vm = new ViewManager($('#views'));
+         CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+         CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+
+         leds = CanvasUtil.queryPrefix("NLED");
+         _.each(leds,  function(led){
+            led.onMouseEnter = function(event) {
+                  var color = new paper.Color(cp.getCurrentColor());
+                  this.fillColor = color;
+                  var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
+                  var msg = 'c,'+ this.lid + ','+ color_msg.join(',')+'\n';
+                  
+                  sc.sendMessage(msg);
+             
+            }
+            led.onMouseDown = function(event){
+              var color = new paper.Color(cp.getCurrentColor());
+              // this.fillColor = color;
+              var leds = CanvasUtil.queryPrefix("NLED");
+              var c = new paper.Path.Circle({
+                position: this.position, 
+                radius: 90, 
+                strokeWidth: 5, 
+                strokeColor: color
+              });
+              var ixts = CanvasUtil.getInsides(c, leds);
+              console.log(ixts);
+              _.each(ixts, function(ixt){
+                  var path = ixt;
+                 var color = new paper.Color(cp.getCurrentColor());
+                  path.fillColor = color;
+                  var color_msg = [color.red * 255, color.green * 255, color.blue * 255];
+                  var msg = 'c,'+ path.lid + ','+ color_msg.join(',')+'\n';
+                  console.log("msg", msg);
+                  sc.sendMessage(msg);
+              });
+            }
+         });
+      });
+      displays.push(nineSegment);
+      zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
+      cp = new ControlCenter($('#sidebar-left-control'));
+
+      // cp = new ColorPalette($('#sidebar-left'));
+      bb = new BrushBar($('#brush-bar'));
+      sc = new SocketControl($('#socket-button'));
+
+      sm = new SelectionManager();
+      
+      $("#shade").fadeOut("slow");
+    });
+
+    function paperSetup(){
+      $('#myCanvas').attr('height', $(window).height());
+      $('#myCanvas').attr('width', $(window).width());
+      paper.install(window);
+      paper.setup('myCanvas');
+    }
+%body
+  %nav.navbar.navbar-default
+    .container-fluid
+      / Brand and toggle get grouped for better mobile display
+      .navbar-header
+        %button.navbar-toggle.collapsed{"aria-expanded" => "false", "data-target" => "#bs-example-navbar-collapse-1", "data-toggle" => "collapse", :type => "button"}
+          %span.sr-only Toggle navigation
+          %span.icon-bar
+          %span.icon-bar
+          %span.icon-bar
+        %a.navbar-brand{:href => "/"}
+          %b#logo ELD
+      / Collect the nav links, forms, and other content for toggling
+      #bs-example-navbar-collapse-1.collapse.navbar-collapse
+        %ul.nav.navbar-nav
+          %li.dropdown
+            %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+              File
+              %span.caret
+            %ul.dropdown-menu
+              %li
+                %a{"data-target" => "#new", "data-toggle" => "modal", :href => "#"} New
+              %li.divider{:role => "separator"}
+              %li
+                %a{"data-target" => "#open", "data-toggle" => "modal", :href => "#"} Open..
+              %li
+                %a{"data-target" => "#insert", "data-toggle" => "modal", :href => "#"} Insert Display...
+              %li
+                %a{"data-target" => "#upload", "data-toggle" => "modal", :href => "#"} Upload SVG
+              %li.divider{:role => "separator"}
+              %li
+                %a{"data-target" => "#export", "data-toggle" => "modal", :href => "#"} Export...
+              %li.divider{:role => "separator"}
+              %li
+                %a{"data-target" => "#about", "data-toggle" => "modal", :href => "#"} About ELD
+        / USER DROPDOWN
+        %ul.nav.navbar-nav.navbar-right
+          - if user_signed_in?
+            %li.dropdown
+              %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                %span.badgify.glyphicon.glyphicon-user
+                %strong= current_user.email
+                %span.caret
+              %ul.dropdown-menu{:role => "menu"}
+                %li
+                  = link_to "Upload a model".html_safe, "", :class => 'navbar-link'
+                %li.divider
+                %li
+                  = link_to "Your collection".html_safe, :class => 'navbar-link'
+                %li
+                  = link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link'
+                %li.divider
+                %li= link_to 'Sign out', destroy_user_session_path, :method => :delete, :class => 'navbar-link'
+          - else
+            %li
+              - link_to "Sign up", new_user_registration_path, :class => 'navbar-link'
+            %li= link_to "Login", new_user_session_path, :class => 'navbar-link'
+      / /.navbar-collapse
+    / /.container-fluid
+  %canvas#myCanvas
+  #sidebar-right.col-xs-4
+    %h3 MODE
+    .btn-group
+      %button#live.mode.btn.btn-default
+        LIVE
+  = render :partial => "modals"
+  = render :partial => "views"
+  = render :partial => "color_palette"
+  = render :partial => "brush_bar"
+  = render :partial => "control"
+  = render :partial => "zoom_bar"
+:css
+  body, html{
+     		width: 100%;
+     		height: 100%;
+     		overflow: hidden;
+        background: #f5f4f0;
+     	}
+      .input-group {
+        padding-bottom: 10px;
+      }
+      .badgify{
+        background: white;
+        border: solid 1px #999;
+        border-radius: 10px;
+        padding: 4px;
+      }
+      #myCanvas {
+        position: absolute;
+        top: 60px;
+        /*display: none;*/
+        z-index: -100;
+        cursor: pointer;
+      }
+      #sidebar-right{
+        display: none;
+        background: red;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 100%;
+  
+      }
+  
+      .btn-transparent{
+        background: none;
+        border: none;
+      }
+  
+      .btn-transparent:visited{
+        color: #f5f4f0;
+        outline: none;
+      }
+      .btn-transparent:hover{
+        color: #f5f4f0;
+        outline: none;
+      }
+      .btn-transparent:active{
+        color: #f5f4f0;
+        outline: none;
+      }
+  
+      .btn-transparent:focus{
+        color: #f5f4f0;
+        outline: none;
+      }
+  
+      .clearfix{
+        clear: both;
+      }

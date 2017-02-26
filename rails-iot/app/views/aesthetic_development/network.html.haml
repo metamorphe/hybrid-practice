@@ -1,0 +1,181 @@
+%head
+  :javascript
+    var files = #{@files.to_json.html_safe};
+    var DEFAULT_PIPE_FILE = "example_sunmoon_4inches.svg";
+    var mediums = ["_3D_Printing", "Thermopainting", "Interactive_Device", "Illumination_Design", "Aesthetic_Illumination"];
+    var Illumination_Design = {
+      actors: ["FILAMENT", "LENSE", "LIGHT", "ENCLOSURE", "MICROCONTROLLER"],
+      connections:[
+        {actors: [0, 2], strengh: 20},
+        {actors: [0, 4], strengh: 10},
+        {actors: [1, 2], strengh: 10}, 
+        {actors: [3, 4], strengh: 5}
+      ]
+    }
+
+    var Aesthetic_Illumination = {
+      actors: ["FILAMENT", "LENSE", "LIGHT", "ENCLOSURE", "MICROCONTROLLER"],
+      connections:[
+        {actors: [0, 2], strengh: 20},
+        {actors: [0, 4], strengh: 10},
+        {actors: [1, 2], strengh: 20}, 
+        {actors: [2, 3], strengh: 20}, 
+        {actors: [3, 4], strengh: 5}
+      ]
+    }
+
+
+    var Thermopainting = {
+      actors: ["PIGMENT", "PAPER", "TIME", "HEATER"],
+      connections:[
+        {actors: [0, 1], strengh: 8},
+        {actors: [0, 3], strengh: 14}, 
+        {actors: [2, 3], strengh: 10}, 
+      ]
+    }
+    var _3D_Printing = {
+      actors: ["PLASTIC", "PRINTER", "DESIGN_TOOL"],
+      connections:[
+        {actors: [0, 1], strengh: 8},
+        {actors: [1, 2], strengh: 5}, 
+      ]
+    }
+    var Interactive_Device = {
+      actors: ["ACTUATORS", "SENSORS", "CONTROLLER", "SIGNAL", "SPACE + NETWORK", "TIME"],
+      connections:[
+        {actors: [1, 2], strengh: 8}, // sensor/signal
+        {actors: [2, 3], strengh: 5}, // controller/signal
+        {actors: [0, 3], strengh: 5}, // act/signal
+        {actors: [0, 4], strengh: 5}, // act/space
+        {actors: [3, 5], strengh: 5}, // signal/time
+      ]
+    }
+
+    $(function(){ 
+      var gui = new dat.GUI();
+      var ad = {
+        medium: "Thermopainting", 
+        analyze: function(){
+          paper.project.clear();
+          var medium = eval(ad.medium);
+          drawActors(medium.actors);
+          drawConnections(medium.connections);
+        }, 
+        clear: function(){
+          paper.project.clear();
+        }
+      }
+
+      var mediumController = gui.add(ad, "medium").options(mediums);
+      gui.add(ad, "analyze");
+      
+      mediumController.onChange(function(val){
+        ad.analyze();
+      });
+      $("#shade").fadeOut("slow");
+      Utility.paperSetup('myCanvas');
+      ad.analyze();
+      
+    });
+    function drawConnections(connections){
+      _.each(connections, function(connection){
+        var actors = _.map(connection.actors, function(actor){
+          return CanvasUtil.query(paper.project, {actorID: actor});
+        });
+        actors = _.flatten(actors);
+
+        if(actors.length == 2){
+          var up = actors[1].position.getDistance(actors[0].position) > 100;
+          var dir = up ? -1 : 1;
+          var ndir = up ? 1 : -1;
+          var magnet = up ? "topCenter" : "bottomCenter";
+          // var color = actors[0].baseColor.clone();
+          // color.hue = (color.hue + actors[1].baseColor.hue) / 2.0 % 360;
+          color = "black"
+          var connection = new paper.Path({
+            strokeColor: color,
+            strokeWidth: connection.strengh,
+            segments: [actors[0].bounds[magnet], actors[1].bounds[magnet]]
+          });
+          var midpoint = connection.getPointAt(connection.length / 2).add(new paper.Point(0, dir * connection.length/3));
+          connection.insert(1, midpoint);
+          connection.segments[0].handleOut = new paper.Point(0, dir * connection.length/4);
+          connection.segments[2].handleIn = new paper.Point(0, dir * connection.length/4);
+          connection.segments[1].handleIn = new paper.Point(-1 * connection.length / 4, 0);
+          connection.segments[1].handleOut = new paper.Point( connection.length / 4, 0);
+          // connection.selected = true;
+        }
+      })
+    }
+    function drawActors(actors){
+      var baseColor = new paper.Color("#00A8E1");
+        actors = _.map(actors, function(actor, id){
+            var g = new paper.Group({actorID: id});
+
+            var text = new PointText({
+                name: "TEXT: Text element",
+                parent: g,
+                point: g.position,
+                justification: "left",
+                content: actor,
+                fillColor: 'white',
+                fontFamily: 'Avenir',
+                fontWeight: 'bold',
+                fontSize: 25
+            });
+            // baseColor.hue += 70;
+            // baseColor.saturation = 0.8;
+            // baseColor.brightness = 0.8;
+            // g.baseColor = baseColor.clone();
+            baseColor = "black";
+            var bg = new paper.Path.Rectangle({
+              parent: g, 
+              rectangle: text.bounds.expand(20), 
+              fillColor: baseColor
+            });
+            bg.sendToBack();
+            return g;
+          });
+          var padding = 10;
+          var actorsDOM = new paper.Group({})
+          _.each(actors, function(actor){
+            actor.pivot = actor.bounds.leftCenter;
+            actor.position = actorsDOM.bounds.rightCenter.clone().add(new paper.Point(padding, 0));
+            actor.parent = actorsDOM;
+          });
+          actorsDOM.position = paper.view.center;
+      }
+%body
+  #view-container
+    #main-canvas-container
+      %canvas#myCanvas.paper
+:css
+  body, html{
+     		width: 100%;
+     		height: 100%;
+     		background: #f5f4f0;
+        	/*overflow: hidden;*/
+     	}
+      #view-container{
+        height: 100%;
+        /*overflow: hidden;*/
+      }
+      #main-canvas{
+  		height: 100%;
+  	}
+  	#main-canvas-container{
+  	  position: relative;
+  	  height: calc(100% - 0px);
+  	  width: 100%;
+  	  overflow: hidden;
+  	}
+  	.paper{
+  	  background: #f5f4f0;
+  	  position: relative;
+  	  top: 0px;
+  	  z-index: 0;
+  	  cursor: pointer;
+  	  -webkit-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+  		-moz-box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+  		box-shadow: inset 2px 4px 15px 2px rgba(0,0,0,0.2);
+  	}

@@ -1,0 +1,145 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title
+      ELD - #{params[:action].humanize}
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    / <haml_loud>params[:controller]</haml_loud>
+    - if params[:controller] != "application"
+      = stylesheet_link_tag params[:controller], media: 'all', 'data-turbolinks-track' => true
+      = javascript_include_tag params[:controller], 'data-turbolinks-track' => true
+    %script{:src => "//use.typekit.net/duw7epu.js", :type => "text/javascript"}
+    :javascript
+      try { Typekit.load(); } catch (e) {}
+    = csrf_meta_tags
+    %meta{:content => "width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0", :name => "viewport"}/
+    :javascript
+      $(function(){
+      		// PREVENT BROWSER BUMP
+      		$(window).on('scroll', function(e){
+      		   scrollAmount = $(this).scrollTop();
+      		   if(scrollAmount < 1){
+      		      $(this).scrollTop(1);
+      		   }
+      		   if(scrollAmount > $(document).height() - $(window).height()){
+      		      $(this).scrollTop($(window).height());
+      		   }
+      		});
+      	})
+  %body
+    %nav.navbar.navbar-default{:role => "navigation"}
+      .container-fluid
+        / Brand and toggle get grouped for better mobile display
+        .navbar-header
+          %button.navbar-toggle{"data-target" => "#bs-example-navbar-collapse-1", "data-toggle" => "collapse", :type => "button"}
+            %span.sr-only Toggle navigation
+            %span.icon-bar
+            %span.icon-bar
+            %span.icon-bar
+          %a.navbar-brand{:href => "/"}
+            %b#logo ZEN
+        / Collect the nav links, forms, and other content for toggling
+        #bs-example-navbar-collapse-1.collapse.navbar-collapse
+          %ul.nav.navbar-nav
+            %li{:class => "#{params[:action] == "home" ? "active" : ""}"}
+              %a{:href => "/"} Home
+            %li.dropdown
+              %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                IoT
+                %span.caret
+              %ul.dropdown-menu
+                %li{:class => "#{params[:action] == "devices" ? "active" : ""}"}
+                  = link_to "Devices", devices_index_path
+                %li{:class => "#{params[:action] == "stream" ? "active" : ""}"}
+                  = link_to "Streams", stream_path
+            %li.dropdown
+              %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                Illumination
+                %span.caret
+              %ul.dropdown-menu
+                %li{:class => "#{params[:action] == "interface" ? "active" : ""}"}
+                  - link_to "Design", jig_interface_path(1)
+                %li{:class => "#{params[:action] == "designer" ? "active" : ""}"}
+                  = link_to "Designer", tool_designer_path()
+                %li{:class => "#{params[:action] == "tool" ? "active" : ""}"}
+                  = link_to "Tool", tool_index_path()
+                %li.divider{:role => "separator"}
+                %li{:class => "#{params[:action] == "lens" ? "active" : ""}"}
+                  = link_to "Lens Designer", tool_lens_path()
+                %li{:class => "#{params[:action] == "pipeline" ? "active" : ""}"}
+                  = link_to "Pipeline", tool_pipeline_path()
+                %li{:class => "#{params[:action] == "pipeline" ? "active" : ""}"}
+                  = link_to "Optimizer", tool_optimal_lens_path()
+                %li.divider{:role => "separator"}
+                %li{:class => "#{params[:action] == "pipeline" ? "active" : ""}"}
+                  = link_to "Dope", tool_dope_path()
+                %li.divider{:role => "separator"}
+                %li{:class => "#{params[:action] == "pipeline" ? "active" : ""}"}
+                  = link_to "Refract", tool_refract_path()
+                %li{:class => "#{params[:action] == "designer" ? "active" : ""}"}
+                  = link_to "Splitter", tool_splitter_path()
+            %li.dropdown
+              %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                Actuation
+                %span.caret
+              %ul.dropdown-menu
+                %li
+                  = link_to "Actuation Designer", tool_system_control_path
+                  = link_to "Actuation Composer", tool_composer_path
+            %li.dropdown
+              %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                Thermopainting
+                %span.caret
+              %ul.dropdown-menu
+                %li
+                  = link_to "Heat Sketch", heat_sketch_path
+                %li
+                  = link_to "Field Sketch", heat_field_path
+                %li
+                  = link_to "Joule Heater Generator", heat_generator_path
+            %li.dropdown
+              %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                Aesthetic Development
+                %span.caret
+              %ul.dropdown-menu
+                %li
+                  = link_to "Analysis", aesthetic_development_network_path
+          / Sign in
+          %ul.nav.navbar-nav.navbar-right
+            - if user_signed_in?
+              %li.dropdown
+                %a.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :href => "#", :role => "button"}
+                  %span.badgify.glyphicon.glyphicon-user
+                  %strong= current_user.email
+                  %span.caret
+                %ul.dropdown-menu{:role => "menu"}
+                  %li
+                    = link_to "Upload a model".html_safe, "", :class => 'navbar-link'
+                  %li.divider
+                  %li
+                    = link_to "Your collection".html_safe, :class => 'navbar-link'
+                  %li
+                    = link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link'
+                  %li.divider
+                  %li= link_to 'Sign out', destroy_user_session_path, :method => :delete, :class => 'navbar-link'
+            - else
+              %li
+                - link_to "Sign up", new_user_registration_path, :class => 'navbar-link'
+              %li= link_to "Login", new_user_session_path, :class => 'navbar-link'
+          / end sign in
+        / /.navbar-collapse
+      / /.container-fluid
+    .container
+      - if notice
+        %p.alert.alert-success= notice
+      - if alert
+        %p.alert.alert-danger= alert
+      = yield
+    %footer.footer.shadow
+      .container
+        %p.text-muted
+          %a{:href => "/"}
+            %b ZEN
+          UC Berkeley 2015-#{DateTime.now.year}

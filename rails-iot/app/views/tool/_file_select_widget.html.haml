@@ -1,0 +1,63 @@
+:javascript
+  // fm = new FileManager(files); 
+  
+  var DEFAULT_FILE = "/userstudy/examples/map.svg";
+  
+  function FileManager(files, onLoad){
+    this.open_file = DEFAULT_FILE;
+    if(ws && ws.includes("FILE"))
+      this.open_file = ws.get("FILE");
+     
+    this.init(onLoad);
+  }
+  FileManager.prototype = {
+    init: function(onLoad){
+  
+      var scope = this;
+      console.log("Initializing FileManager with", files.length, "files found.")
+      
+      var els = _.map(files, function(el, i, arr){
+        var dom =  $('<option></options>').html(el.title.toUpperCase())
+          .attr('value', el.path + el.filename);
+        if(el.filename == DEFAULT_PIPE_FILE) dom.attr('selected', true);
+        return dom;
+      });
+  
+      $('#file-selector').html(els)
+        .on('change', function(){
+          var file = $(this).val();
+          scope.load(file);
+        })
+        .val(this.open_file);
+  
+      var file = $("#file-selector").val();
+      this.load(file, onLoad);
+    }, 
+    getName: function(){
+      return this.open_file.split("/").pop().split('.')[0];
+    },
+    load: function(file, onLoad){
+      console.log("LOADING FILE:", file)
+      if(ws) ws.set("FILE", file);
+      paper.project.clear();
+      paper.view.zoom = 1;
+      paper.view.update();
+  
+      var display = new Artwork(file, function(artwork){
+        var elds = CanvasUtil.queryPrefix('ELD');
+        var artwork = elds.length > 0 ? elds[0] : artwork.svg;
+        CanvasUtil.fitToViewWithZoom(artwork, paper.view.bounds.expand(-100), paper.view.center);
+        artwork.position.y += 20;
+        CanvasUtil.call(CanvasUtil.queryPrefix("DDS"), "bringToFront");
+        CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "bringToFront");
+        vm = new ViewManager($('#views'));
+        if(onLoad) onLoad();
+        // var r = new paper.Path.Rectangle({rectangle: artwork.bounds, selected: true})
+      });
+      paper.view.update();
+    }
+  }
+#file-select.widget.status.collapsed
+  %label.label-normal.widget-title{:name => "File Select"}
+  .widget-body
+    %select#file-selector.form-control

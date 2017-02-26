@@ -47,6 +47,10 @@
 //= require actuation/PathSelectTool
 //= require actuation/BurstSelectTool
 //= require actuation/SIA
+//= require actuation/TimeSignal
+//= require actuation/Actuator
+//= require actuation/Composer
+//= require actuation/ActuationParam
 # TEMPLATE UPDATE
 
 $ ->

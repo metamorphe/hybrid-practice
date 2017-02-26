@@ -1,0 +1,172 @@
+:javascript
+  var qb; 
+  $(function(){
+    sl = new SelectorLibrary();
+    $('.library-item').draggable({
+      cancel: "a.ui-icon", // clicking an icon won't initiate dragging
+      revert: "valid", // when not dropped, the item will revert back to its initial position
+      containment: 'window',
+      helper: "clone",
+      cursor: "move"
+    });  
+  
+  });
+  
+  const SELECTORS_GET = "/visual_blocks/selectors.json";
+  
+  function SelectorLibrary(){
+    var scope = this;
+    this.current = "burst";
+  
+    $('div.selector.library-item').click(function(){
+      var fn = $(this).data('fn');
+      var collection = scope[fn]();
+      scope.select(collection);
+    });
+  
+      // var c = new paper.Path.Circle({
+      //   position: event.point, 
+      //   fillColor: "red", 
+      //   radius: 5
+      // });
+    this.populate();
+    
+  }
+  
+  SelectorLibrary.prototype = {
+    
+    getCurrent: function(){
+      return this[this.current]();
+    },
+    select: function(fn){
+      sm.clear();
+      _.each(fn, function(led){
+        sm.ledAdd(led);
+      });
+      sm.update();
+    }, 
+    none: function(){
+      return [];
+    },
+    burst: function(){
+      leds = CanvasUtil.queryPrefix("NLED");
+      leds = _.sortBy(leds, function(led){
+        led.delay = led.position.getDistance(paper.view.center);
+        return led.position.getDistance(paper.view.center);
+      });
+      return leds;
+    },
+    all: function(){
+      paper = mainPaper;
+      leds = CanvasUtil.queryPrefix("NLED");
+      leds = _.sortBy(leds, function(led){
+        return led.position.getDistance(paper.view.center);
+      });
+      return leds;
+    }, 
+    center: function(){
+      var leds = this.all();
+      leds = _.filter(leds, function(led){
+        return led.position.getDistance(paper.view.center) < 100;
+      });
+      return leds;
+    },
+    not_center: function(){
+      var leds = this.all();
+      leds = _.reject(leds, function(led){
+        return led.position.getDistance(paper.view.center) < 100;
+      });
+      return leds;
+    },
+    train_station: function(){
+      var led = CanvasUtil.query(paper.project, {prefix: "NLED", lid: 2});
+      return led;
+    }, 
+    lone_star: function(){
+      var led = CanvasUtil.query(paper.project, {prefix: "NLED", lid: 3});
+      return led;
+    }, 
+    main_flower: function(){
+      return _.reject(CanvasUtil.queryPrefix("NLED"), function(led){ return led.lid == 3; });
+    },
+    you_are_here: function(){
+      var led = CanvasUtil.query(paper.project, {prefix: "NLED", lid: 7});
+      return led;
+    }, 
+    path_to_station: function(){
+      from = this.you_are_here()[0];
+      to = this.train_station()[0];
+      var directions  = new paper.Path.Line({
+        from: from.position, 
+        to: to.position,
+        strokeWidth: 3, 
+        strokeColor: "purple"
+      });
+      var leds = this.all();
+      leds = _.filter(leds, function(led){
+        var p = directions.getNearestPoint(led.position);
+        console.log("DIST", led.position.getDistance(p));
+        return led.position.getDistance(p) < 80;
+      });
+      leds = _.sortBy(leds, function(led){
+        var p = directions.getNearestPoint(led.position);
+        
+        return directions.getOffsetOf(p);
+      });
+      return leds;
+    },
+    populate: function(){
+      $('#selector-library').find(".widget-body").html("");
+      $.get(SELECTORS_GET, function(blocks){
+        blocks = _.reject(blocks, function(block){
+          return _.isNull(block.data) || _.isNull(JSON.parse(block.data).name);
+        });
+        _.each(blocks, function(block){
+          block.data = JSON.parse(block.data);
+        });
+        var file = fm.getName();
+        blocks = _.filter(blocks, function(block){
+          return file == block.data.file;
+        })
+        
+        _.each(blocks, function(block){
+          console.log(block);
+          
+          var dom = $('#selector-item-template').clone();
+          dom.attr('id', '').removeClass('template');
+          dom.find('img').attr('src', block.image.thumbnail.url);
+          dom.find('span.title').html(block.data.name);
+          
+          $('#selector-library').find(".widget-body").append(dom);
+          
+        });
+      }); 
+    }
+  }
+#selector-item-template.template.selector.library-item{"data-fn" => ""}
+  = image_tag "/actuation/selectors/train_station.png", :width => "100%"
+  %span.title
+    name
+#selector-library.widget.status
+  %label.label-normal.widget-title{:name => "selectors"}
+  .widget-body.scroll-list
+    .selector.library-item{"data-fn" => "you_are_here"}
+      = image_tag "/actuation/selectors/you_are_here.png", :width => "100%"
+      %span.title
+        you_are_here
+    .selector.library-item{"data-fn" => "path_to_station"}
+      = image_tag "/actuation/selectors/path_to_station.png", :width => "100%"
+      %span.title
+        path_to_station
+    .selector.library-item{"data-fn" => "lone_star"}
+      = image_tag "/actuation/selectors/path_to_station.png", :width => "100%"
+      %span.title
+        lone-star
+    .selector.library-item{"data-fn" => "main_flower"}
+      = image_tag "/actuation/selectors/path_to_station.png", :width => "100%"
+      %span.title
+        main_flower
+:css
+  #selector-library .widget-body{
+     height: 100px;
+  }

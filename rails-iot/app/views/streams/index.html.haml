@@ -1,0 +1,105 @@
+:javascript
+  var forecasts = #{@forecasts.to_json.html_safe};
+  var sl, msl;
+  $(function(){
+  	
+  	sl = new StreamList($("#weather-data"), "plus");
+  	msl = new StreamList($("#my-data"), "minus");
+  
+  	_.each(forecasts, function(value, key, arr){
+  		var place = key;
+  		var data = value;
+  		console.log(place, data);
+  		sl.add(place, data);
+  		
+  	})
+  });
+  function StreamList(dom, icon){
+  	this.dom = dom;
+  	this.icon = icon;
+  }
+  StreamList.prototype = {
+  	add: function(key, data){
+  		var id = guid();
+  		var link = DOM.tag("a").addClass("list-group-item").attr('data-key', key)
+  		var label = DOM.tag("label").html(data.name);
+  		var icon = DOM.tag("span").addClass("pull-right glyphicon glyphicon-" + this.icon);
+  		var sparkline = DOM.tag("div").attr('id', id);
+  		link.append([label, icon, sparkline]);
+  		var scope = this;
+  		link.click(function(){
+  			var key = $(this).attr("data-key");
+  			if(scope.icon == "minus")
+  				$(this).remove();
+  			else
+  				msl.add(key, forecasts[key]);
+  		});
+  		this.dom.append(link);
+  		this.dom.find('.placeholder').remove();
+  		// console.log(data.forecast.splice(5))
+  		$('#' + id).sparkline(data.forecast, {
+  			type: "line", 
+  			width: $('.nav-tabs').width() - 30, 
+  			height: 30, 
+  			lineColor: "#00A8E1"
+  		});
+  	}
+  }
+:css
+  .next-footer{
+  	background: rgba(255, 255, 255, 0.8);
+  	box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+  	/*border: 1px solid red;*/
+  	border-radius: 5px;
+  	padding: 15px 20px;
+  	text-align: right;
+  	margin: 10px 25px;
+  }
+  .next-footer .btn{
+  	margin-left: 10px;
+  }
+  .tabs{
+  	background: white;
+  	padding: 10px;
+  	border-radius: 5px;
+  	height: 100%;
+  }
+%p.lead
+  Choose the type of data you'd like to use in your environment. You can come back at anytime to get or remove data streams.
+.col-xs-6
+  .well
+    %h2 Stream Library
+    / Nav tabs
+    .tabs
+      %ul.nav.nav-tabs{:role => "tablist"}
+        %li.active{:role => "presentation"}
+          %a{"aria-controls" => "home", "data-toggle" => "tab", :href => "#forecast", :role => "tab"} Hourly Forecast
+        %li{:role => "presentation"}
+          %a{"aria-controls" => "profile", "data-toggle" => "tab", :href => "#profile", :role => "tab"} Tides
+        %li{:role => "presentation"}
+          %a{"aria-controls" => "messages", "data-toggle" => "tab", :href => "#messages", :role => "tab"} Social
+        %li{:role => "presentation"}
+          %a{"aria-controls" => "settings", "data-toggle" => "tab", :href => "#settings", :role => "tab"} Sensor
+      / Tab panes
+      .tab-content
+        #forecast.tab-pane.active{:role => "tabpanel"}
+          #weather-data
+        #profile.tab-pane{:role => "tabpanel"} ...
+        #messages.tab-pane{:role => "tabpanel"} ...
+        #settings.tab-pane{:role => "tabpanel"} ...
+      %br.clearfix/
+.col-xs-6
+  .well
+    %h2 Current Streams
+    .tabs
+      #my-data
+        %br/
+        %br/
+        %p.placeholder.lead.text-center Choose from the list on the right.
+      %br.clearfix/
+%br.clearfix/
+.row
+  %p.lead.next-footer
+    Finished?
+    \#{link_to "#", :class => "pull-right btn btn btn-danger" do}
+      NEXT #{glyph "chevron-right"}

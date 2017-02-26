@@ -1,0 +1,32 @@
+:javascript
+  $(function(){
+    $('#downloadButtonSVG').click(function(){
+       rays = CanvasUtil.queryPrefix("RAY");
+       _.each(rays, function(r){ r.remove(); });
+
+       ButtonExporter.exportSVG($('#export-filename').val());
+       displaySVG = CanvasUtil.queryPrefix("ELD")[0];
+       displaySVG.addChildren(rays); 
+       leds = CanvasUtil.queryPrefix("NLED");
+       _.each(leds, function(led){ led.bringToFront(); });
+    });
+  
+  });
+#export.modal.fade{"aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog{:role => "document"}
+    .modal-content
+      .modal-header
+        %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4#myModalLabel.modal-title Export the Design
+      .modal-body
+        %label
+          Export as:
+          %br/
+          %input#export-filename.form-control{:type => "text", :value => "mydisplay"}/
+      .modal-footer
+        .btn-group
+          %a#downloadButtonPNG.btn.btn-default{:name => ""}
+            DOWNLOAD PNG
+          %button#downloadButtonSVG.btn.btn-default{:name => ""}
+            DOWNLOAD SVG

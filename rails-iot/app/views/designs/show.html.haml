@@ -1,0 +1,22 @@
+%p#notice= notice
+.panel.panel-primary
+  .panel-heading
+    %h3
+      = link_to designs_path, :class => "btn btn-primary" do
+        %span.glyphicon.glyphicon-chevron-left
+      WireWrap Design ##{@design.id}
+  .panel-body
+    %p.lead
+      %strong Name:
+      = @design.name
+    %p.lead
+      %strong Json:
+      = @design.json
+    %br/
+    .btn-group
+      = link_to jig_interface_path(@design), :class => "btn btn-primary" do
+        %span.glyphicon.glyphicon-pencil
+        DESIGN
+      = link_to edit_design_path(@design), :class => "btn btn-default"   do
+        %span.glyphicon.glyphicon-edit
+        EDIT
