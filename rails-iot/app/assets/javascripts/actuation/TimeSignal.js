@@ -1,9 +1,21 @@
 
+var time_signal_counter = 0;
 
 function TimeSignal(data){
 	this.data = data; // only between 0 and 1
+	this.id = time_signal_counter++;
 }
 TimeSignal.prototype = {
+	command_list: function(timePeriod){
+		var t_scale = timePeriod / this.data.length;
+		var t_elapsed = 0;
+		return _.map(this.data, function(datum){
+			var duration = 1 * t_scale;
+			var t = t_elapsed;
+			t_elapsed += duration;
+			return {t: t, value: datum}
+		});
+	},
 	draw_axes: function(op){
 	  var offset = new paper.Point(0, -4);
 	  axes = [{

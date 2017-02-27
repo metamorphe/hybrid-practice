@@ -1,53 +1,119 @@
 :javascript
   var act;
   $(function(){
-      tsp = initTimeSignals($('#data-signals canvas'));
+      tsp = initTimeSignals($('datasignal canvas'));
       act = initActuators($('#actuators canvas'));
+      activeInteractivity();
       $("event#actuators input.master").on('input', function(){
         var v = $(this).val();
-        _.each(act, function(act){
-          paper = act.op.paper;
-          act.value = {hue: v * 360, saturation: 0.8, brightness: 0.8};
+        var actuators = $('actuator');
+        _.each(actuators, function(a, i){
+          if(! $(a).hasClass("selected")) return;
+          var param = $(a).find('params input:checked').val();
+          var actuator = act[i];
+          paper = actuator.op.paper;
+          query = {parametrized: true}
+          query[param] = parseFloat(v);
+          actuator.value = query;
         });
       })
       $('#shade').fadeOut(0);
   });
+  function activeInteractivity(){
+    $('actuator').click(function(){
+      $('actuator').removeClass('selected');
+      $(this).addClass('selected');
+    });
+    $('datasignal').click(function(){
+      $('datasignal').removeClass('selected');
+      $(this).addClass('selected');
+    });
+    $('button.sexy').click(function(){
+      var id = $('datasignal.selected').data('time-signal-id');
+      var ts = tsp[id];
+      var commands = ts.command_list(3000);
 
+      _.each(commands, function(command){
+        setTimeout(function(){
+          var actuators = $('actuator');
+          _.each(actuators, function(a, i){
+            if(! $(a).hasClass("selected")) return;
+            var param = $(a).find('params input:checked').val();
+            var actuator = act[i];
+            paper = actuator.op.paper;
+            query = {parametrized: true}
+            query[param] = parseFloat(command.value);
+            actuator.value = query;
+          });
+        }, command.t);
+      }); 
+        
+
+      console.log(commands);
+    });
+  }
+  function activePaper(){
+    paper.project.clear();
+  }
 
 #ui2
   %group.vert
     %event#data-signals.full-hoz.data-signal-design
-      %button.design-title.btn-primary.trigger{:type => "trigger"}
-        DATA SIGNAL
-      %graphframe.vert-centered
-        %canvas{:data => "[0, 0, 1, 1, 0, 0]"}
-      %graphframe.vert-centered
+      .vert
+        %button.design-title.btn-primary.trigger{:type => "trigger"}
+          DATA SIGNAL
+        %button.btn.btn-xs.btn-success.sexy
+          %span.glyphicon.glyphicon-send
+          SEND
+      %datasignal.vert-centered
+        %canvas{:data => "[0, 1, 0]"}
+      %datasignal.vert-centered
         %canvas{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
+      %datasignal.vert-centered
+        %canvas{:data => "[0.2, 0.6, 0.6, 0.6, 1, 0.2, 1, 0.5, 1]"}
     
     %event#actuators.full-hoz.actuator-design
       .vert
-        %button.design-title.btn-primary.trigger{:type => "trigger"} ACTUATOR
+        %button.design-title.btn-primary.trigger{:type => "trigger"}
+          ACTUATOR
         %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
-      %actuator.selected.hoz
+      %actuator.hoz
         %div.info.vert.fill_height{:style => "width: 100px"}
           %p.actuator-title RGBLED
-          %canvas{:type=>"RGBLED_Simulator"}
+          %canvas{:type=>"RGBLED"}
         %params.actuator.scroll-list
-          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-            %input{:type => "radio", :name => "brightness", :value => "brightness", :checked => true}
-            %label.actuator BRIGHTNESS
-          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-            %input{:type => "radio", :name => "hue", :value => "hue"}
-            %label.actuator HUE
-          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-            %input{:type => "radio", :name => "red", :value => "red"}
+          %span.full-hoz
+            %input{:type => "radio", :name => "parameter", :value => "red", :checked => true}
             %label.actuator RED
-          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-            %input{:type => "radio", :name => "green", :value => "green"}
+          %span.full-hoz
+            %input{:type => "radio", :name => "parameter", :value => "green"}
             %label.actuator GREEN
-          %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-            %input{:type => "radio", :name => "blue", :value => "blue"}
+          %span.full-hoz
+            %input{:type => "radio", :name => "parameter", :value => "blue"}
             %label.actuator BLUE
+      %actuator.hoz
+        %div.info.vert.fill_height{:style => "width: 100px"}
+          %p.actuator-title HSBLED
+          %canvas{:type=>"HSBLED"}
+        %params.actuator.scroll-list
+          %span.full-hoz
+            %input{:type => "radio", :name => "hsbparameter", :value => "brightness"}
+            %label.actuator BRIGHTNESS
+          %span.full-hoz
+            %input{:type => "radio", :name => "hsbparameter", :value => "saturation", :checked => true}
+            %label.actuator SATURATION
+          %span.full-hoz
+            %input{:type => "radio", :name => "hsbparameter", :value => "hue"}
+            %label.actuator HUE
+      %actuator.selected.hoz
+        %div.info.vert.fill_height{:style => "width: 100px"}
+          %p.actuator-title LED
+          %canvas{:type=>"LED"}
+        %params.actuator.scroll-list
+          %span.full-hoz
+            %input{:type => "radio", :name => "ledparameter", :value => "brightness", :checked => true}
+            %label.actuator BRIGHTNESS
+          
           
 
     /   %actuator.full-hoz.fill_height
@@ -88,6 +154,11 @@
   input.sexy{
     width: 90%;
     margin-top: 10px !important;
+  }
+  button.sexy{
+    /*width: 30%;*/
+    margin-top: 10px !important;
+    margin-bottom: 5px !important;
   }
   .ui{
   	height: 100%;

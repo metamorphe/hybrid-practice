@@ -2,15 +2,18 @@
     console.info("Initializing time signals");
     return _.map(collection, function(canvas, i){
       var dom = $(canvas);
+
       var p =  Utility.paperSetup(dom);
       var data = eval(dom.attr('data'));
       var ts = new TimeSignal(data);
-     
+      
+      $(canvas).parents('datasignal').data('time-signal-id', ts.id);
+
       fill = ts.signal_fill({
         fillColor: "#FF9912"
       });
 
-      p = ts.signal({
+      x = ts.signal({
         strokeWidth: 3, 
         strokeColor: "#333"
       });
@@ -22,8 +25,8 @@
       });
 
       paper.view.update();
-      
-      return paper;
+      ts.paper = p;
+      return ts;
     });
   }
 
@@ -32,10 +35,9 @@
     return _.map(collection, function(canvas, i){
       var dom = $(canvas);
       var p =  Utility.paperSetup(dom);
-
-      var Act = eval(dom.attr('type'));
-      console.log(Act);
-      var props = _.extend(RGB_LED, {paper: p, dom: dom});
+      var type = dom.attr('type');
+      var Act = eval(type + "_Simulator");
+      var props = _.extend(eval(type), {paper: p, dom: dom});
       return actuator = new Act(props);
      
       

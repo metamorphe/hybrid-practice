@@ -20,7 +20,7 @@ ActuationParam.prototype = {
 		}
 		var p = scope._map(x);
 		this._param = p;
-		if(scope.op.render && this.op.onChange) this.op.onChange();
+		if(scope.op.render && this.op.onChange) this.op.onChange(p);
 		this._value = x;
 	}
 }

@@ -27,9 +27,9 @@ $thick: 5px;
 	box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
 }
 @mixin drop-highlight($opacity){
-	-webkit-box-shadow: 0px 4px 12px -5px rgba(255,255,255,$opacity);
-	-moz-box-shadow: 0px 4px 12px -5px rgba(255,255,255,$opacity);
-	box-shadow: 0px 4px 12px -5px rgba(255,255,255,$opacity);
+	-webkit-box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
+	-moz-box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
+	box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
 }
 
 
@@ -37,7 +37,7 @@ $thick: 5px;
 .data-signal-design{
 
 }
-graphframe{
+datasignal{
 	@extend keyframe;
 }
 
@@ -77,9 +77,9 @@ actuator{
     @include drop-shadow(0.93);   
 }
 
-actuator.selected{
-    border: 2px solid $orange;
-    @include drop-highlight(0.53);
+datasignal.selected, actuator.selected{
+    /*border: 2px solid $orange;*/
+    @include drop-highlight(0.72);
 }
 .actuator-title{
 	padding-top: 2px;
@@ -111,10 +111,9 @@ actuator.selected{
 	    margin: 0 !important;
 	    cursor: pointer;
 	    font-size: 0.7em;
-
 	  }
 	  label.actuator{
-	    padding: 0 6px;
+	    padding: 4px 6px;
 	    line-height: 100%;
 	    margin: 0;
 	    width: 90%;
