@@ -13,7 +13,7 @@ TimeSignal.prototype = {
 			var duration = 1 * t_scale;
 			var t = t_elapsed;
 			t_elapsed += duration;
-			return {t: t, value: datum}
+			return {t: t, param: datum, duration: duration}
 		});
 	},
 	draw_axes: function(op){

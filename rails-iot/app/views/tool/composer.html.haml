@@ -1,5 +1,6 @@
 :javascript
-  var act;
+  const ports = #{@ports.to_json.html_safe};
+  var act, sc;
   $(function(){
       tsp = initTimeSignals($('datasignal canvas'));
       act = initActuators($('#actuators canvas'));
@@ -19,7 +20,9 @@
       })
       $('#shade').fadeOut(0);
   });
+
   function activeInteractivity(){
+    var editor = activateEditors();
     $('actuator').click(function(){
       $('actuator').removeClass('selected');
       $(this).addClass('selected');
@@ -32,9 +35,30 @@
       var id = $('datasignal.selected').data('time-signal-id');
       var ts = tsp[id];
       var commands = ts.command_list(3000);
+      editor.insert("function myBehavior(){\n")
+      _.each(commands, function(command){
+          var actuators = $('actuator');
+          _.each(actuators, function(a, i){
+            if(! $(a).hasClass("selected")) return;
+            var param = $(a).find('params input:checked').val();
+            var actuator = act[i];
+            paper = actuator.op.paper;
+
+            query = {parametrized: true}
+            query[param] = parseFloat(command.param);
+            
+            actuator.value = query;
+            var value = actuator.value;
+             editor.insert(actuator.toCommand());
+             editor.insert("\tdelay("+ command.duration.toFixed(0) +");\n");
+          });
+
+      }); 
+      editor.insert("}\n");
 
       _.each(commands, function(command){
         setTimeout(function(){
+          console.log("FIRED", command.value);
           var actuators = $('actuator');
           _.each(actuators, function(a, i){
             if(! $(a).hasClass("selected")) return;
@@ -42,15 +66,53 @@
             var actuator = act[i];
             paper = actuator.op.paper;
             query = {parametrized: true}
-            query[param] = parseFloat(command.value);
+            query[param] = parseFloat(command.param);
             actuator.value = query;
           });
         }, command.t);
       }); 
-        
-
-      console.log(commands);
+      
     });
+
+    connectToSocket();
+    
+  }
+  function connectToSocket(){
+    sc = new SocketControl({
+      ports: ports,
+      trigger: $('#socket-button'), 
+      selector: $('#port-selector'),
+      noports_func: function(dom){
+        console.log("NO PORTS");
+        dom.removeClass('btn-default btn-success').addClass('btn-danger').find('span').removeClass('glyphicon-send glyphicon-ok').addClass('glyphicon-remove');
+        $('#port-selector').prop('disabled', 'disabled');
+        $('#port-status').html("RECONNECT DEVICE?");
+      },
+      connect_func: function(dom){
+        port = $('#port-selector').val();
+        dom.removeClass('btn-danger btn-success').addClass('btn-default').find('span').removeClass('glyphicon-send glyphicon-remove').addClass('glyphicon-remove');
+        $('#port-selector').prop('disabled', 'disabled');
+        $('#port-status').html(port);
+      }, 
+      error_func: function(dom){
+        dom.removeClass('btn-default btn-success').addClass('btn-danger').find('span').removeClass('glyphicon-send glyphicon-ok').addClass('glyphicon-remove');
+        $('#port-status').html("-");
+      },
+      disconnect_func: function(dom){
+        dom.removeClass('btn-danger btn-default').addClass('btn-success').find('span').removeClass('glyphicon-ok glyphicon-remove').addClass('glyphicon-send');
+        $('#port-selector').prop('disabled', false);
+        $('#port-status').html("–");
+      }
+    });
+  }
+  function activateEditors(){
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    // var JavaScriptMode = ace.require("ace/mode/javascript").Mode;
+    // editor.session.setMode(new JavaScriptMode());
+    editor.getSession().setMode("ace/mode/javascript");
+    editor.$blockScrolling = Infinity;
+    return editor;
   }
   function activePaper(){
     paper.project.clear();
@@ -70,7 +132,9 @@
       %datasignal.vert-centered
         %canvas{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
       %datasignal.vert-centered
-        %canvas{:data => "[0.2, 0.6, 0.6, 0.6, 1, 0.2, 1, 0.5, 1]"}
+        %canvas{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
+      %datasignal.vert-centered
+        %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]"}
     
     %event#actuators.full-hoz.actuator-design
       .vert
@@ -113,44 +177,90 @@
           %span.full-hoz
             %input{:type => "radio", :name => "ledparameter", :value => "brightness", :checked => true}
             %label.actuator BRIGHTNESS
-          
-          
-
-    /   %actuator.full-hoz.fill_height
-    /     %div.info.vert.fill_height{:style => "width: 100px"}
-    /       %p.actuator-title STEPPER
-    /       %graph{:type=>"STEPPER"}
-    /     %params.actuator.vert.scroll-list
-    /       %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-    /         %input{:type => "radio", :name => "angle", :value => "angle"}
-    /         %label.actuator ANGLE
+      %actuator.hoz
+        %div.info.vert.fill_height{:style => "width: 100px"}
+          %p.actuator-title STEPPER
+          %canvas{:type=>"Stepper"}
+        %params.actuator.scroll-list
+          %span.full-hoz
+            %input{:type => "radio", :name => "motorparameter", :value => "angle", :checked => true}
+            %label.actuator ANGLE
+      %actuator.hoz
+        %div.info.vert.fill_height{:style => "width: 100px"}
+          %p.actuator-title HEATER
+          %canvas{:type=>"Heater"}
+        %params.actuator.scroll-list
+          %span.full-hoz
+            %input{:type => "radio", :name => "heaterparameter", :value => "voltage", :checked => true}
+            %label.actuator VOLTAGE
+    %event#simsignal.full-hoz.actuator-design
+      .vert
+        %button.design-title.btn-primary.trigger{:type => "trigger"}
+          SIM. SIGNAL
+        %button.btn.btn-xs.btn-danger.sexy
+          %span.glyphicon.glyphicon-refresh
+          UPDATE
+      %datasignal.vert-centered
+        %canvas{:data => "[0, 1, 0]"}
+      %datasignal.vert-centered
+        %canvas{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
+      %datasignal.vert-centered
+        %canvas{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
+      %datasignal.vert-centered
+        %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]"}
+    %event#commands.full-hoz.tall
+      .vert
+        %button.design-title.btn-primary.trigger{:type => "trigger"}
+          COMMANDS
+        %button.btn.btn-xs.btn-danger.sexy
+          %span.glyphicon.glyphicon-refresh
+          UPDATE
+      %commandlist.vert-centered
+        .full-hoz
+          #port-select.widget.status
+            %label.widget-title.label-normal{:name => "Port Select"}
+            .widget-body.hoz
+              %div.hoz-left{:style => "width: 50%;"}
+                %span#port-info
+                  CONNECTED TO:
+                  %span#port-status –
+              %div{:style => "width: 50%;"}
+                %select#port-selector.sm.col-xs-10
+                .socket-btns.btn-group.col-xs-2.nopadding
+                  %button#socket-button.btn.btn-xs.btn-success.btn-block
+                    = glyph "log-in"
+              %br.clearfix/
+        #editor.editor
+        .full-hoz
+          .btn-group.full-hoz-centered
+            %button.btn.btn-xs.btn-primary.sexy
+              %span.glyphicon.glyphicon-trash
+              TRASH
+            %button.btn.btn-xs.btn-danger.sexy
+              %span.glyphicon.glyphicon-stop
+              STOP
+            %button.btn.btn-xs.btn-danger.sexy
+              %span.glyphicon.glyphicon-pause
+              PAUSE
+            %button.btn.btn-xs.btn-success.sexy{style:"width: 20%;"}
+              %span.glyphicon.glyphicon-play
+              PLAY
+            
+         
+            
       
-    /   %actuator.full-hoz.fill_height
-    /     %div.info.vert.fill_height{:style => "width: 100px"}
-    /       %p.actuator-title HEATER
-    /       %graph{:type=>"JOULE_HEATER"}
-    /     %params.actuator.scroll-list
-    /       %span.full-hoz{:style=> "line-height: 33.33%; height: 33.33%; width:100%;"}
-    /         %input{:type => "radio", :name => "temperature", :value => "temperature"}
-    /         %label.actuator TEMP
-
-    / %event.full-hoz.data-signal-design
-    /   %button.design-title.btn-primary.trigger{:type => "trigger"}
-    /     BEHAVIOR
-    /   %graphframe.vert-centered
-    /     %params.full-hoz
-    /       .name{:style => "width: 100%; height: 20px; line-height: 20px;"} LED_BRIGHT
-    /     %graph
-    /   %graphframe.vert-centered
-    /     %params.full-hoz
-    /       .name{:style => "width: 100%; height: 20px; line-height: 20px;"} LED_HUE
-    /     %graph
-    .canvas-container.fill_height.fill_width
-      %canvas#mainCanvas{:width =>"100%", :height => "100%"}
-  
+          
+        
        
            
 :css
+  #editor{
+    height: 100%;
+    border-radius: 5px;
+    padding: 5px;
+    width: 99%;
+    margin-top: 5px;
+  }
   input.sexy{
     width: 90%;
     margin-top: 10px !important;
@@ -171,6 +281,18 @@
   }
   .fill_width{
     width: 100% !important;
+  }
+  /* PORT */
+  #port-info{
+    color: #00A8E1;
+    /*font-weight: bold;*/
+    font-size: 8pt;
+  }
+  #port-status{
+    color: white;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 8pt;
   }
 
 

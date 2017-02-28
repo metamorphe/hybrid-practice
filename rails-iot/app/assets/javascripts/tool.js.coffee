@@ -51,6 +51,13 @@
 //= require actuation/Actuator
 //= require actuation/Composer
 //= require actuation/ActuationParam
+//= require actuation/LEDSimulators
+//= require actuation/Stepper
+//= require actuation/SocketControl
+//= require ace-rails-ap
+//= require ace/theme-monokai
+//= require ace/mode-javascript
+
 # TEMPLATE UPDATE
 
 $ ->

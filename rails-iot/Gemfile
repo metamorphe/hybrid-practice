@@ -59,6 +59,5 @@ gem 'jquery-ui-rails'
 gem 'htmlbeautifier'
 gem 'chart-js-rails'
 gem "haml-rails", "~> 0.9"
-gem "slim"
-gem "html2slim"
+gem 'ace-rails-ap'
 

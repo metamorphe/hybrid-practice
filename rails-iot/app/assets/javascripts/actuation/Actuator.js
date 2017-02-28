@@ -1,368 +1,90 @@
-// var EXPRESSO = {
-// 	name: "EXPRESSO Test Device",
-// 	yellow_light: LED(0x0000FF), 
-// 	purple_light: LED(0x800080), 
-// 	green_light: LED(0x00FF00),
-// 	motion:  SERVOMOTOR
-// }
-
-// var LIVEWIRE = {
-// 	name: "LIVEWIRE", 
-// 	motion: MOTOR,
-// 	light: LED
-// };
-
-// var MOTOR = {
-// 	angular_speed: {
-// 			range: [0, 4], 
-// 			resolution: 1,
-// 			alpha: 1, 
-// 			inertia: function(from, to){ return Math.abs(to - from) * 16.6; } // ms per unit
-// 	}
-// }
-
-// var SERVOMOTOR = {
-// 	name: "ServoMotor", 
-// 	motion: {
-// 		angle: {
-// 			range: [0, 180], 
-// 			resolution: 1,
-// 			alpha: 1.1, 
-// 			inertia: function(from, to){ return Math.abs(to - from) * 15; } // ms per unit
-// 		}
-// 	}
-// };
-
-// function RGB_LED_Simulator(){
-// 	this.name = "RGB_LED";
-// 	name: "RGB_LED", 
-// 	red_light: LED(0x0000FF), 
-// 	green_light: LED(0x00FF00), 
-// 	blue_light: LED(0x0000FF), 
-// }
 var v10bit_actuator = { range: {min: 0, max: 255}, resolution: 1}; 
 var param_actuator = { range: {min: 0, max: 1}, resolution: 0.01}; 
 var v360_actuator = { range: {min: 0, max: 360}, resolution: 1}; 
 var v180_actuator = { range: {min: 0, max: 180}, resolution: 1}; 
+var voltage_actuator = { range: {min: 0, max: 12}, resolution: 12/256};
 
-var LED = _.extend( _.clone(v10bit_actuator), 
-					{
-						render: true,
-						modality: "light",
-						color: "#FFFFFF", 
-						package: "DIP",
-						alpha: 1.1
-					}
-				);
-				
-var RGBLED = {
+var Heater = {
 				render: true,
 				parameters: {
-					red: _.extend(_.clone(v10bit_actuator), {name: "red", render: false, color: "#FF0000"}), 
-	   				green: _.extend(_.clone(v10bit_actuator), {name: "green", render: false, color: "#00FF00"}),
-	   				blue: _.extend(_.clone(v10bit_actuator), {name: "blue", render: false, color: "#0000FF"})
-	   			},
-	   			package: "DIP"
+					voltage: _.extend(_.clone(voltage_actuator), {name: "voltage", render: false})
+	   			}
 			  }
-
-var HSBLED = {
-				render: true,
-				parameters: {
-					hue: _.extend(_.clone(v360_actuator), {name: "hue", render: false}),
-	   				saturation: _.extend(_.clone(param_actuator), {name: "saturation", render: false}),
-	   				brightness: _.extend(_.clone(param_actuator), {name: "brightness", render: false})
-	   			},
-	   			package: "SMD"
-			  }
-
-function HSBLED_Simulator(op){
-	_.each(LED_inherit, function(val, key){ HSBLED_Simulator.prototype[key] = val; });
-	this.name = "HSB LED"
-		
-	this.op = op;
-	this.visuals = [];
-	this.parameters = _.mapObject(this.op.parameters, function(actuator){ return new ActuationParam(actuator);});
-	this.init();
-}
-
-HSBLED_Simulator.prototype = {
-	init: function(){
-		console.info("Making", this.name, this.op.color);
-		if(this.op.render) this.makeVisuals();		
-	},
-	makeVisuals: function(){
-		switch(this.op.package){
-			case "SMD":
-				var c = new paper.Path.Rectangle({
-					name: "EMITTER: emit",
-			        position: paper.view.center,
-			        size: [16, 8], 
-			        fillColor: "white"
-			    });
-			    break;
-			default:
-			    var c = new paper.Path.Circle({
-			    	name: "EMITTER: emit",
-			        position: paper.view.center,
-			        radius: 8, 
-			        fillColor: "white"
-			    });
-			    break;
-		}
-		var rays =  this._createRays({
-			emitter: c,
-			position: c.position,
-			boundaries: [new paper.Path.Rectangle(paper.view.bounds)], 
-			color: "#FFFFFF", 
-			max_ray_length: 30
-		});
-		this.visuals.push(c);
-		this.visuals.push(rays);
-		this.visuals = _.flatten(this.visuals);
-		this.setBackground();
-	},
-	get value(){
-		var scope = this;
-		params = _.mapObject(this.parameters, function(v, k){
-		 	return v.value;
-		});
-		
-		return new paper.Color(params);
-	},
-	set value(x){
-		var scope = this;
-		// gray
-		if(typeof x == "object"){
-
-			_.each(x, function(val, key){
-				if(key in scope.parameters){
-					if(x.parametrized)
-						scope.parameters[key].param = val;
-					else
-						scope.parameters[key].value = val;
-				}
-			});
-		}
-		else if(typeof x == "string"){
-			var c = new paper.Color(x);
-			this.parameters.hue.value = c.hue;
-		 	this.parameters.saturation.value = c.saturation;
-			this.parameters.brightness.value = c.brightness;
-		}
-		else{
-			console.error("Attempt to set", this.name, "with invalid type", typeof(x));
-		}
-
-		_.each(this.visuals, function(v){
-			var prefix = CanvasUtil.getPrefix(v);
-			if(prefix == "RAY"){
-				v.set({strokeColor: scope.value})
-			}
-			else{
-				v.set({fillColor: scope.value})
-			}
-		});
-	}
-}
-
-function RGBLED_Simulator(op){
-	_.each(LED_inherit, function(val, key){ RGBLED_Simulator.prototype[key] = val; });
-	this.name = "RGB LED"
-		
-	this.op = op;
-	this.visuals = [];
-	this.parameters = _.mapObject(this.op.parameters, function(actuator){ return new ActuationParam(actuator);});
-	this.init();
-}
-
-RGBLED_Simulator.prototype = {
-	init: function(){
-		console.info("Making", this.name, this.op.color);
-		if(this.op.render) this.makeVisuals();		
-	},
-	makeVisuals: function(){
-		switch(this.op.package){
-			case "SMD":
-				var c = new paper.Path.Rectangle({
-					name: "EMITTER: emit",
-			        position: paper.view.center,
-			        size: [16, 8], 
-			        fillColor: "white"
-			    });
-			    break;
-			default:
-			    var c = new paper.Path.Circle({
-			    	name: "EMITTER: emit",
-			        position: paper.view.center,
-			        radius: 8, 
-			        fillColor: "white"
-			    });
-			    break;
-		}
-		var rays =  this._createRays({
-			emitter: c,
-			position: c.position,
-			boundaries: [new paper.Path.Rectangle(paper.view.bounds)], 
-			color: "#FFFFFF", 
-			max_ray_length: 30
-		});
-		this.visuals.push(c);
-		this.visuals.push(rays);
-		this.visuals = _.flatten(this.visuals);
-		this.setBackground();
-	},
-	get value(){
-		var scope = this;
-		params = _.mapObject(this.parameters, function(v, k){
-		 	return v.param;
-		});
-		
-		return new paper.Color(params);
-	},
-	set value(x){
-		var scope = this;
-		// gray
-		if(typeof x == "number"){
-			this.parameters.red.value = x;
-		 	this.parameters.green.value = x;
-			this.parameters.blue.value = x;
-		}
-		else if(typeof x == "object"){
-
-			_.each(x, function(val, key){
-				if(key in scope.parameters){
-					if(x.parametrized)
-						scope.parameters[key].param = val;
-					else
-						scope.parameters[key].value = val;
-				}
-			});
-		}
-		else if(typeof x == "string"){
-			var c = new paper.Color(x);
-			this.parameters.red.param = c.red;
-		 	this.parameters.green.param = c.green;
-			this.parameters.blue.param = c.blue;
-		}
-		else{
-			console.error("Attempt to set", this.name, "with invalid type", typeof(x));
-		}
-
-		_.each(this.visuals, function(v){
-			var prefix = CanvasUtil.getPrefix(v);
-			if(prefix == "RAY"){
-				v.set({strokeColor: scope.value})
-			}
-			else{
-				v.set({fillColor: scope.value})
-			}
-		});
-	}
-}
-
-
-function LED_Simulator(op){
-	_.each(LED_inherit, function(val, key){ LED_Simulator.prototype[key] = val; });
+			  
+function Heater_Simulator(op){
+	_.each(LED_inherit, function(val, key){ Heater_Simulator.prototype[key] = val; });
 	
-	this.name = "LED"
+	this.name = "Heater"
 	this.op = op;
 	this.visuals = [];
-	var scope = this;
- 	this.parameters = {brightness: new ActuationParam(op)}
+	this.parameters = _.mapObject(this.op.parameters, function(actuator){ return new ActuationParam(actuator);});
 	this.init();
 }
 
-LED_Simulator.prototype = {	
-	init: function(){ 
-		console.info("Making", this.name, this.op.color, this.op.render);
-		if(this.op.render) this.makeVisuals();
-		
-	}, 
+Heater_Simulator.prototype = {
+	init: function(){
+		console.info("Making", this.name);
+		if(this.op.render) this.makeVisuals();		
+	},
 	makeVisuals: function(){
-		switch(this.op.package){
-			case "SMD":
-				var c = new paper.Path.Rectangle({
-					name: "EMITTER: emit",
-			        position: paper.view.center,
-			        size: [16, 8], 
-			        fillColor: this.op.color
-			    });
-			    break;
-			default:
-			    var c = new paper.Path.Circle({
-			    	name: "EMITTER: emit",
-			        position: paper.view.center,
-			        radius: 8, 
-			        fillColor: this.op.color
-			    });
-			    break;
-		}
-
-		var rays =  this._createRays({
-			emitter: c,
-			position: c.position,
+		var heater = new paper.Path.Rectangle({
+			name: "EMIT: emit",
+	        position: paper.view.center,
+	        fillColor: "red",
+	        size: [16, 16]
+	    });
+	    var rays =  this._createRays({
+			emitter: heater,
+			position: heater.position,
 			boundaries: [new paper.Path.Rectangle(paper.view.bounds)], 
-			color: this.op.color, 
+			color: "red", 
 			max_ray_length: 30
 		});
 
-		this.visuals.push(c);
+		this.visuals.push(heater);
 		this.visuals.push(rays);
 		this.visuals = _.flatten(this.visuals);
-		this.setBackground();
 	},
-	get param(){ return this.parameters.brightness.param; },
-	get value(){ return this.parameters.brightness.value; },
-	set param(x){ this.parameters.brightness.param = x; },	
+	toCommand: function(){
+		var v = this.value;
+		return "\t" + this.name.toLowerCase() + ".set(" + v.toFixed(0) + ");\n";
+	},
+	get param(){ return this.parameters.voltage.param; },
+	get value(){ return this.parameters.voltage.value; },
+	set param(x){ this.parameters.voltage.param = x; },	
 	set value(x){ 
 		if(typeof x == "object"){
-			if(x.brightness) this.parameters.brightness.param = x.brightness;
+			if(x.voltage) this.parameters.voltage.param = x.voltage;
 		}
 		else{
-			this.parameters.brightness.value = x; 
+			this.parameters.voltage.value = x; 
 		}
 		var scope = this;
+		var red = new paper.Color("red");
+		var blue = new paper.Color("blue");
+		var current = red.multiply(scope.param * 2).add(blue.multiply(1 - (scope.param * 2)));
 		_.each(this.visuals, function(v){
-					var prefix = CanvasUtil.getPrefix(v);
-					var scale = prefix == "RAY" ? 0.2 : 1;
-			v.opacity = scope.param * scale;
+			var prefix = CanvasUtil.getPrefix(v);
+			if(prefix == "RAY"){
+				if(scope.param < 0.5)
+					v.opacity = 0;
+				else
+					v.opacity = (scope.param - 0.5) * 2 * 0.2;
+			}else{
+				if(scope.param > 0.5){
+					v.fillColor.hue = 0;
+					// v.opacity = scope.param + 0.2 > 1 ? 1 : scope.param + 0.2;
+				} else{
+					//270 ---> 0
+					v.fillColor = current;
+				}
+			}
 		});
+	
 		paper.view.update();
 	}
 }
 
-
-
-var LED_inherit = {
-	_createRays: function(rops){
-		var rays = _.range(-180, 180, RAY_RESOLUTION);	
-		return  _.map(rays, function(theta){
-			var point = new paper.Point(1, 0);
-			point.length = Ruler.mm2pts(rops.max_ray_length);
-			point.angle = theta;
-			var line = new paper.Path.Line({
-				name: "RAY: Cast",
-				from: rops.position.clone(), 
-				to: rops.position.clone().add(point), 
-				strokeColor: rops.color, 
-				strokeWidth: 1,
-				opacity: 0.2, 
-				parent: CanvasUtil.queryPrefix("ELD")[0], 
-				originAngle: theta
-			});
-			line.pivot = line.firstSegment.point.clone();		
-			ixts = CanvasUtil.getIntersections(line, rops.boundaries);
-			if(ixts.length > 0){
-				var closestIxT = _.min(ixts, function(ixt){ return ixt.point.getDistance(line.position); })
-				line.lastSegment.point = closestIxT.point.clone();
-			}
-			return line;
-		});
-	},
-	setBackground: function(){
-		this.op.dom.css("background", "black");
-	}
-}
 
 
 

@@ -4,6 +4,7 @@ function ActuationParam(op){
 	// this.param = 0;
 }
 ActuationParam.prototype = {
+	to_value: function(p){ return this._inv_map(p);},
 	_map: function(x){ return (x - this.op.min) / this.op.range ;},
 	_inv_map: function(y){ return this.op.min + y * this.op.range; },
 	get param(){ return this._param; },

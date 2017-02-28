@@ -14,10 +14,15 @@
  *= require_self
  */
 
- @import "bootstrap";
- *{
- 	font-family: "Avenir", sans-serif;
- }
+
+@import "http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css";
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+
+ p, a, button, select{
+    font-family: "Avenir", sans-serif;
+}
 select{
 	color: black !important;
 }
