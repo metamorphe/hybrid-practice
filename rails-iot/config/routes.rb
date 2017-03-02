@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     get 'designer'
     get 'system_control'
     get 'composer'
+    get 'tester'
   end
 
   get 'devices/index'

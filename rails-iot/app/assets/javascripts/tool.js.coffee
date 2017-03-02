@@ -48,52 +48,20 @@
 //= require actuation/BurstSelectTool
 //= require actuation/SIA
 //= require actuation/TimeSignal
-//= require actuation/Actuator
 //= require actuation/Composer
 //= require actuation/ActuationParam
-//= require actuation/LEDSimulators
-//= require actuation/Stepper
+//= require actuation/ActuatorSpecs
+//= require actuation/Actuator
+//= require actuation/actuators/Lights
+//= require actuation/actuators/Heaters
+//= require actuation/actuators/Motors
 //= require actuation/SocketControl
 //= require ace-rails-ap
 //= require ace/theme-monokai
 //= require ace/mode-javascript
 
-# TEMPLATE UPDATE
 
-$ ->
-  # DROP-TOOL FUNCTIONALITY
-  $('.btn-ard').click ->
-    $(this).toggleClass 'active'
-    $(this).siblings('ul').slideToggle()
-    return
 
-  $('.drop-tool ul li').click ->
-    $(this).siblings().removeClass 'active'
-    $(this).toggleClass 'active'
-    return
-  widgets = $('#status .widget-title')
-  template = $('#widget-title')
-  _.each widgets, (widget) ->
-    t = template.clone()
-    name = $(widget).attr('name')
-    t.removeClass 'template'
-    t.find('span#name').html name
-    $(widget).html t.children()
-    return
-  # EYE FUNCTIONALITY
-  $('.viewer').click ->
-    $(this).parent().siblings().toggleClass 'hide'
-    eye = $(this).find('span')
-    if eye.hasClass('glyphicon-eye-open')
-      eye.removeClass 'glyphicon-eye-open'
-      eye.addClass 'glyphicon-eye-close'
-    else
-      eye.addClass 'glyphicon-eye-open'
-      eye.removeClass 'glyphicon-eye-close'
-    return
-  _.each $('.viewer'), (v) ->
-    if $(v).parents('.widget').hasClass('collapsed')
-      $(v).click()
-    return
- return
 
+
+    

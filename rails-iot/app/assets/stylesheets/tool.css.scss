@@ -32,6 +32,18 @@ $thick: 5px;
 	box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
 }
 
+input.sexy{
+	width: 90%;
+	margin-top: 10px !important;
+}
+
+.fill_height{
+	height: 100%;
+}
+.fill_width{
+	width: 100% !important;
+}
+
 .form-control-special{
 	display: block;
 	/* width: 100%; */
@@ -122,42 +134,62 @@ datasignal.selected, actuator.selected{
 	padding-top: 2px;
 	padding-bottom: 2px;
     /*height: 14px;*/
+    height: 20%;
     width: 100%;
     line-height: 14px;
     font-size: 0.9em;
     background: darken($base, 10%);
     margin: 0;
   }
+.actuator-title.light{
+	background: darken($base, 0%);
+}
 .actuator-design{
 	background: darken($base, 5%);
-}
+}	
+	actuator div.info{
+		width: 80px;
+	}
 	actuator canvas{
-		height: 40px;
+		width: 100% !important;
+		height: 80%;
 		margin: 0;
 	}
 	actuator input{
 		line-height: 100%;
 	}
-	  params.actuator{
-	  	padding: 6px !important; 
+	  channels.actuator{
 	  	width: 100px; 
 	  	height: 100%;
 	  	background: darken($base, 20%);
 	  }
-	  params.actuator span input{
+	  channels.actuator channel input{
 	    margin: 0 !important;
 	    cursor: pointer;
 	    font-size: 0.7em;
 	  }
 	  label.actuator{
-	    padding: 4px 6px;
+	    padding: 6px 8px;
 	    line-height: 100%;
 	    margin: 0;
-	    width: 90%;
+	    width: 100%;
 	    text-align: left;
 	    font-weight: normal !important;
-	    font-size: 0.7em;
+	    font-size: 0.8em;
 	  }
+	  label.actuator.selected{
+	  	background: lighten($base, 10%);
+	  }
+	  label.actuator:hover{
+	  	background: darken($base, 30%);
+	  }
+	  label.actuator.selected:hover{
+	  	background: lighten($base, 10%);
+	  }
+	  	label.actuator.span.dimension{
+	  		font-family: monospace;
+	  		font-size: 12pt;
+	  	}
 .behavior_design{
 	background: darken($base, 10%);
 }
