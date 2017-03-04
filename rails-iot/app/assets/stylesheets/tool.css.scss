@@ -36,6 +36,11 @@ input.sexy{
 	width: 90%;
 	margin-top: 10px !important;
 }
+button.sexy{
+    /*width: 30%;*/
+    margin-top: 10px !important;
+    margin-bottom: 5px !important;
+  }
 
 .fill_height{
 	height: 100%;
@@ -80,14 +85,21 @@ event.tall{
 datasignal{
 	@extend keyframe;
 }
-#commands{
+#composed{
 	background: darken($base, 30%);
+}
+#interaction{
+	background: darken($base, 32%);
 }
 commandlist{
 	@extend keyframe;
 	border-radius: 5px;
 	padding: 5px 8px !important;
 	width: 500px !important;
+}
+
+#stateviewer{
+	@extend commandlist;
 }
 
 canvas,graph{
@@ -315,6 +327,12 @@ datasignal.selected, actuator.selected{
 .full-hoz-centered {
   @extend .full-hoz;
   justify-content: center;
+  align-items: center;
+}
+
+.full-hoz-right {
+  @extend .full-hoz;
+  justify-content: flex-end;
   align-items: center;
 }
 

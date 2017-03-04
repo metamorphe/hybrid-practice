@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="ELD:_SIMPLE_STATE_MACHINE" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" viewBox="0 0 479 317.5" style="enable-background:new 0 0 479 317.5;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFFFF;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
+	.st1{fill:#E6E6E6;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;}
+	.st2{font-family:'Avenir-Black';}
+	.st3{font-size:10.9692px;}
+	.st4{font-family:'Avenir-MediumOblique';}
+	.st5{fill:none;stroke:#000000;stroke-width:6;stroke-miterlimit:10;}
+</style>
+<g id="STATE:_ON">
+	<path class="st0" d="M128,167H38.9c-3.5,0-6.4-2.9-6.4-6.4v-54.9c0-3.5,2.9-6.4,6.4-6.4H128c3.5,0,6.4,2.9,6.4,6.4v54.9
+		C134.5,164.1,131.6,167,128,167z"/>
+	<path id="ACCEPTOR:_BEHAVIOR_2_" class="st1" d="M116.3,159.9H50.1c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C117,159.6,116.7,159.9,116.3,159.9z"/>
+	<text transform="matrix(1 0 0 1 74.4581 122.1496)" class="st2 st3">ON</text>
+</g>
+<g id="STATE:_OFF">
+	<path class="st0" d="M395.3,167h-89.1c-3.5,0-6.4-2.9-6.4-6.4v-54.9c0-3.5,2.9-6.4,6.4-6.4h89.1c3.5,0,6.4,2.9,6.4,6.4v54.9
+		C401.7,164.1,398.8,167,395.3,167z"/>
+	<path id="ACCEPTOR:_BEHAVIOR_1_" class="st1" d="M383.6,159.9h-66.2c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C384.2,159.6,383.9,159.9,383.6,159.9z"/>
+	<text transform="matrix(1 0 0 1 339.7015 122.1496)" class="st2 st3">OFF</text>
+</g>
+<g id="STATE:_IN_x5F_USE">
+	<path class="st0" d="M260.8,103h-89.1c-3.5,0-6.4-2.9-6.4-6.4V41.7c0-3.5,2.9-6.4,6.4-6.4h89.1c3.5,0,6.4,2.9,6.4,6.4v54.9
+		C267.2,100.1,264.3,103,260.8,103z"/>
+	<path id="ACCEPTOR:_BEHAVIOR_3_" class="st1" d="M249,95.9h-66.2c-0.4,0-0.7-0.3-0.7-0.7V69.5c0-0.4,0.3-0.7,0.7-0.7H249
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C249.7,95.6,249.4,95.9,249,95.9z"/>
+	<text transform="matrix(1 0 0 1 196.7274 58.1496)" class="st2 st3">IN_USE</text>
+</g>
+<g id="STATE:_IDLE">
+	<path class="st0" d="M194.8,260.9h-89.1c-3.5,0-6.4-2.9-6.4-6.4v-54.9c0-3.5,2.9-6.4,6.4-6.4h89.1c3.5,0,6.4,2.9,6.4,6.4v54.9
+		C201.2,258,198.3,260.9,194.8,260.9z"/>
+	<path id="ACCEPTOR:_BEHAVIOR_4_" class="st1" d="M183.1,253.7h-66.2c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C183.7,253.4,183.4,253.7,183.1,253.7z"/>
+	<text transform="matrix(1 0 0 1 138.0829 216.0079)" class="st2 st3">IDLE</text>
+</g>
+<g id="STATE:_SLEEP">
+	<path class="st0" d="M326.7,260.9h-89.1c-3.5,0-6.4-2.9-6.4-6.4v-54.9c0-3.5,2.9-6.4,6.4-6.4h89.1c3.5,0,6.4,2.9,6.4,6.4v54.9
+		C333.2,258,330.3,260.9,326.7,260.9z"/>
+	<path id="ACCEPTOR:_BEHAVIOR_5_" class="st1" d="M315,253.7h-66.2c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7H315
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C315.7,253.4,315.4,253.7,315,253.7z"/>
+	<text transform="matrix(1 0 0 1 265.7323 216.0079)" class="st2 st3">SLEEP</text>
+</g>
+<g id="START:_START_x5F_CONDITION">
+	<circle cx="440.4" cy="133.2" r="13.4"/>
+	<polygon id="END:_ARROW" points="401.7,133.4 415.9,125.3 415.9,141.6 	"/>
+	<line id="ARROW:_A" class="st5" x1="430.9" y1="133.7" x2="408.5" y2="133.7"/>
+</g>
+<g id="TRANSITION:_a_9_">
+	<polygon id="END:_ARROW_9_" points="165.3,68.9 151.1,77.1 151.1,60.7 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_11_" class="st1" d="M146.4,61.4H80.2c-0.4,0-0.7-0.3-0.7-0.7V35.1c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C147.1,61.1,146.8,61.4,146.4,61.4z"/>
+	<text id="NAME:_READY" transform="matrix(1 0 0 1 95.3333 27.8783)" class="st4 st3">READY</text>
+	<polyline id="ARROW:_A_8_" class="st5" points="83.2,99.3 83.5,68.9 156.2,68.9 	"/>
+</g>
+<g id="TRANSITION:_a_8_">
+	<polygon id="END:_ARROW_8_" points="230.4,227 216.2,235.2 216.2,218.8 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_12_" class="st1" d="M251.2,310.1H185c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C251.8,309.8,251.5,310.1,251.2,310.1z"/>
+	<text id="NAME:_FALL_ASLEEP" transform="matrix(1 0 0 1 184.1547 276.5024)" class="st4 st3">FALL ASLEEP</text>
+	<line id="ARROW:_A_7_" class="st5" x1="201.2" y1="226.7" x2="223.7" y2="226.8"/>
+</g>
+<g id="TRANSITION:_a_7_">
+	<polygon id="END:_ARROW_7_" points="351.2,167.9 359.4,182.1 343.1,182.1 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_14_" class="st1" d="M452.8,222.1h-66.2c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C453.4,221.9,453.1,222.1,452.8,222.1z"/>
+	<text id="NAME:POWER_x5F_DOWN" transform="matrix(1 0 0 1 378.8702 188.5836)" class="st4 st3">POWER_DOWN</text>
+	<polyline id="ARROW:_A_6_" class="st5" points="351.2,177.4 351.2,239.8 333.2,239.8 	"/>
+</g>
+<g id="TRANSITION:_a_6_">
+	<polygon id="END:_ARROW_6_" points="350.8,99.3 342.6,85.2 358.9,85.2 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_8_" class="st1" d="M341.4,61.4h-66.2c-0.4,0-0.7-0.3-0.7-0.7V35.1c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C342.1,61.1,341.8,61.4,341.4,61.4z"/>
+	<text id="NAME:_FORCE_x5F_OFF" transform="matrix(1 0 0 1 276.4876 27.8783)" class="st4 st3">FORCE_OFF</text>
+	<polyline id="ARROW:_A_5_" class="st5" points="267.2,68.9 351.2,69.5 350.9,89.5 	"/>
+</g>
+<g id="TRANSITION:_a_5_">
+	<polygon id="END:_ARROW_4_" points="206.2,103.2 214.4,117.3 198,117.3 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_13_" class="st1" d="M90.4,310.4H24.3c-0.4,0-0.7-0.3-0.7-0.7V284c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C91.1,310.1,90.8,310.4,90.4,310.4z"/>
+	<text id="NAME:_PAY_x5F_ATTENTION" transform="matrix(1 0 0 1 12.6623 276.7933)" class="st4 st3">PAY_ATTENTION</text>
+	<polyline id="ARROW:_A_4_" class="st5" points="206.1,112.5 206.5,137.7 175.4,172.2 175.4,193.2 	"/>
+</g>
+<g id="TRANSITION:_a_4_">
+	<polygon id="END:_ARROW_5_" points="279.1,193.2 270.9,179 287.3,179 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_9_" class="st1" d="M452.8,277.7h-66.2c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7V277C453.4,277.4,453.1,277.7,452.8,277.7z"/>
+	<text id="NAME:_FORCE_x5F_SLEEP" transform="matrix(1 0 0 1 382.8082 244.0886)" class="st4 st3">FORCE_SLEEP</text>
+	<polyline id="ARROW:_A_3_" class="st5" points="279,183.7 278.9,170.3 244.6,133.2 244.6,103 	"/>
+</g>
+<g id="TRANSITION:_a_3_">
+	<polygon id="END:_ARROW_2_" points="227.1,103 235.2,117.2 218.9,117.2 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_7_" class="st1" d="M375.7,310h-66.2c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C376.3,309.7,376,310,375.7,310z"/>
+	<text id="NAME:_WAKE_x5F_UP" transform="matrix(1 0 0 1 316.6944 276.435)" class="st4 st3">WAKE_UP</text>
+	<polyline id="ARROW:_A_2_" class="st5" points="227.2,112.5 226.8,137.7 257.8,172.2 257.8,193.2 	"/>
+</g>
+<g id="TRANSITION:_a_2_">
+	<polygon id="END:_ARROW_1_" points="65.5,99.2 73.7,85 57.4,85 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_6_" class="st1" d="M457.3,72.4h-66.2c-0.4,0-0.7-0.3-0.7-0.7V46.1c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C457.9,72.1,457.6,72.4,457.3,72.4z"/>
+	<text id="NAME:_AWAKE" transform="matrix(1 0 0 1 404.2819 38.8671)" class="st4 st3">AWAKE</text>
+	<polyline id="ARROW:_A_1_" class="st5" points="372.4,98.5 372.4,9.5 65.5,9.5 65.5,89.7 	"/>
+</g>
+<g id="TRANSITION:_a">
+	<polygon id="END:_ARROW_3_" points="155.2,193.2 147.1,179 163.4,179 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_10_" class="st1" d="M91.8,228.7H25.6c-0.4,0-0.7-0.3-0.7-0.7v-25.7c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C92.5,228.4,92.2,228.7,91.8,228.7z"/>
+	<text id="NAME:_BORED" transform="matrix(1 0 0 1 39.95 195.1715)" class="st4 st3">BORED</text>
+	<polyline id="ARROW:_A_9_" class="st5" points="155.2,183.7 155.2,171.5 191,132.9 191,103 	"/>
+</g>
+</svg>

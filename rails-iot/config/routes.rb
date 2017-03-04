@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     get 'system_control'
     get 'composer'
     get 'tester'
+    get 'statemachine'
   end
 
   get 'devices/index'

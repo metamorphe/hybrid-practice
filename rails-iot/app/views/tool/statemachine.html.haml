@@ -1,0 +1,73 @@
+:javascript
+  var sm;
+  var ws;
+  var DEFAULT_SA_FILE = "/actuation/devices/simplestatemachine.svg";
+  var SA_FILES = [{
+    path: "/actuation/devices/", 
+    title: "simplestatemachine",
+    name: "simplestatemachine.svg"
+  }]
+  $(function(){
+    ws = new WebStorage();
+
+    sm = new StateMachineAutomata({dom: $("statemachine canvas")});
+    
+    sm_fm = new FileManager2({
+      files: SA_FILES, 
+      default: DEFAULT_SA_FILE, 
+      selector: $("#sa_file-selector"),
+      status: $("#file-status"),
+      onLoad: function(){
+        sm.initMachine()
+        
+      }
+    });  
+    $('#shade').fadeOut(0);
+  });
+
+#ui2
+  %group.vert
+    %event#interaction.full-hoz.tall
+      .vert
+        %button.design-title.btn-primary.trigger{:type => "trigger"}
+          INTERACTION
+        %button.btn.btn-xs.btn-danger.sexy
+          %span.glyphicon.glyphicon-refresh
+          UPDATE
+      #stateviewer.vert-centered
+        .full-hoz
+          #port-select.widget.status
+            .widget-body.hoz
+              %div.hoz-left{:style => "width: 50%;"}
+                %span#file-info
+                  LOADED:
+                  %span#file-status –
+              %div{:style => "width: 50%;"}
+                %select#sa_file-selector.sm.col-xs-10
+                .socket-btns.btn-group.col-xs-2.nopadding
+                  %button#socket-button.btn.btn-xs.btn-success.btn-block
+                    = glyph "import"
+              %br.clearfix/
+        %statemachine.vert-centered
+          %canvas
+        .full-hoz
+          .btn-group.full-hoz-right
+            %button.btn.btn-xs.btn-primary.sexy
+              = glyph "refresh"
+              RESTART
+            %button.btn.btn-xs.btn-danger.sexy
+              = glyph "dashboard"
+              LIVE
+:css
+  #interaction{
+    height: 500px;
+  }
+  statemachine{
+    height: 100%;
+    border-radius: 5px;
+    padding: 5px;
+    width: 99%;
+    margin-top: 10px;
+  }              
+      
+      

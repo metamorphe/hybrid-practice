@@ -18,7 +18,9 @@
     %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
   %actuator.hoz
     %div.info.vert.fill_height
-      %p.actuator-title RGBLED
+      %p.actuator-title 
+        %span.swatch
+        %span RGBLED
       %canvas{:type=>"RGBLED"}
     %channels.actuator.scroll-list
       %p.actuator-title.light CHANNELS

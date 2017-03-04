@@ -10,105 +10,33 @@
       $('#shade').fadeOut(0);
   });
 
-  function activeInteractivity(){
-    editor = activateEditors();
-    
-    $('button.sexy').click(function(){
-      newSession = ace.createEditSession("","ace/mode/javascript")
-      editor.setSession(newSession);
-      var id = $('datasignal.selected').data('time-signal-id');
-      var ts = tsp[id];
-      var commands = ts.command_list(3000);
-      editor.insert("function myBehavior(){\n")
-      _.each(commands, function(command){
-          var actuators = $('actuator');
-          _.each(actuators, function(a, i){
-            if(! $(a).hasClass("selected")) return;
-            var param = $(a).find('params input:checked').val();
-            var actuator = act[i];
-            paper = actuator.op.paper;
-
-            query = {parametrized: true}
-            query[param] = parseFloat(command.param);
-            
-            actuator.value = query;
-            var value = actuator.value;
-             editor.insert(actuator.toCommand());
-             editor.insert("\tdelay("+ command.duration.toFixed(0) +");\n");
-          });
-
-      }); 
-      editor.insert("}\n");
-
-      _.each(commands, function(command){
-        setTimeout(function(){
-          var actuators = $('actuator');
-          _.each(actuators, function(a, i){
-            if(! $(a).hasClass("selected")) return;
-            var param = $(a).find('params input:checked').val();
-            var actuator = act[i];
-            paper = actuator.op.paper;
-            query = {parametrized: true}
-            query[param] = parseFloat(command.param);
-            actuator.value = query;
-          });
-        }, command.t);
-      }); 
-      
-    });
-
-    connectToSocket();
-    
-  }
-  
-  function activateEditors(){
-    
-  }
-  function activePaper(){
-    paper.project.clear();
-  }
-
 #ui2
   %group.vert
-    %event#data-signals.full-hoz.data-signal-design
-      .vert
-        %button.design-title.btn-primary.trigger{:type => "trigger"}
-          DATA SIGNAL
-        %button.btn.btn-xs.btn-success.sexy
-          %span.glyphicon.glyphicon-send
-          SEND
-      %datasignal.vert-centered
-        %canvas{:data => "[0, 1, 0]"}
-      %datasignal.vert-centered
-        %canvas{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
-      %datasignal.vert-centered
-        %canvas{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
-      %datasignal.vert-centered
-        %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]"}
+    = render :partial => "datasignals"
     = render :partial => "actuators"
-    %event#simsignal.full-hoz.actuator-design
+    %event#composed.full-hoz.tall
       .vert
         %button.design-title.btn-primary.trigger{:type => "trigger"}
-          SIM. SIGNAL
+          COMPOSED
         %button.btn.btn-xs.btn-danger.sexy
           %span.glyphicon.glyphicon-refresh
           UPDATE
-      %datasignal.vert-centered
-        %canvas{:data => "[0, 1, 0]"}
-      %datasignal.vert-centered
-        %canvas{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
-      %datasignal.vert-centered
-        %canvas{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
-      %datasignal.vert-centered
-        %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]"}
-    
-    %event#commands.full-hoz.tall
-      .vert
-        %button.design-title.btn-primary.trigger{:type => "trigger"}
-          COMMANDS
-        %button.btn.btn-xs.btn-danger.sexy
-          %span.glyphicon.glyphicon-refresh
-          UPDATE
+      .vert{:style => "width: 170px"}
+        #time
+          %label.vert
+            %span.label TIME PERIOD
+            %label
+              %span#time-status 3000
+              %span#time-unit ms
+          %input{:name=>"time", :type=> "range", :min => 0, :max => 10000, :step => 100, :value => 3000}
+        
+        %datasignal.vert-centered{:style => "height: 100px; width: 129px"}
+          %canvas{:data => "[0, 1, 0]"}
+        #scrubber
+          %input{:name=>"time", :type=> "range", :min => 0, :max => 3000, :step => 30, :value => 0}
+          %label
+            %span#frame-status 0:00
+          
       %commandlist.vert-centered
         .full-hoz
           #port-select.widget.status
@@ -141,7 +69,7 @@
     %event#composer.full-hoz
       .vert
         %button.design-title.btn-primary.trigger{:type => "trigger"}
-          COMPOSER
+          SEQUENCER
         %button.btn.btn-xs.btn-danger.sexy
           %span.glyphicon.glyphicon-refresh
           UPDATE
@@ -160,12 +88,16 @@
           %span.glyphicon.glyphicon-refresh
           UPDATE
     
-      
           
         
        
            
 :css
+  #time span.label{
+    font-size: 8pt;
+    font-weight: normal;
+    margin-bottom: 0
+  }
   #ui2{
     height: 100%;
     overflow-y: scroll;
@@ -178,11 +110,7 @@
     margin-top: 5px;
   }
   
-  button.sexy{
-    /*width: 30%;*/
-    margin-top: 10px !important;
-    margin-bottom: 5px !important;
-  }
+  
   .ui{
   	height: 100%;
   }

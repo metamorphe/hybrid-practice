@@ -5,6 +5,14 @@
 //= require underscore
 //= require_self
 
+window.YELLOW = "#FF9912"
+window.WHITE = "#f5f4f0"
+window.BLACK = "#000000"
+window.ACTIVE_STATE = YELLOW
+window.INACTIVE_STATE = WHITE
+window.INACTIVE_STATE_ARROW = BLACK
+
+
 _.mixin(isColorString: (str)->
   return typeof str == 'string' && str[0] == "#" && str.length == 7)
 

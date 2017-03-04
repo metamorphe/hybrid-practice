@@ -59,6 +59,9 @@
 //= require ace-rails-ap
 //= require ace/theme-monokai
 //= require ace/mode-javascript
+//= require finitestatemachine
+//= require actuation/StateMachine
+//= require actuation/FileManager2
 
 
 
