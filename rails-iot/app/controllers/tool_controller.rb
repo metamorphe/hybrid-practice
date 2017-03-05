@@ -12,7 +12,7 @@ class ToolController < ApplicationController
     # render :json => @ports
     render :layout => "full_screen"
   end
-  def composer
+  def aesthetic_actuation
     @files = get_displays()
     @ports = get_ports()
     # render :json => @ports

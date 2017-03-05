@@ -27,9 +27,8 @@ Rails.application.routes.draw do
     get 'refract'
     get 'designer'
     get 'system_control'
-    get 'composer'
+    get 'aesthetic_actuation'
     get 'tester'
-    get 'statemachine'
   end
 
   get 'devices/index'
