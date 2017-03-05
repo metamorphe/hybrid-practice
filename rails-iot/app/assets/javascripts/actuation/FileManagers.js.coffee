@@ -1,12 +1,15 @@
 DEFAULT_FILE = '/userstudy/examples/map.svg'
 
-class window.FileManager2
+class FileManager
   constructor: (@op) ->
+    @setKey()
     @open_file = @op.default
-    if ws and ws.includes('FILE') then @open_file = ws.get('FILE')
+    if ws and ws.includes(@key) then @open_file = ws.get(@key)
     if @op.selector then @_setupSelector()
     @load @op.onLoad
     return
+  setKey: ->
+    @key = 'FILE'
   getName: ->
     @open_file.split('/').pop().split('.')[0]
   _setupSelector: ()->
@@ -29,9 +32,14 @@ class window.FileManager2
     ).val @open_file
     return
   load: (onLoad) ->
+    console.warn "TODO: IMPLEMENT LOAD FOR", @constructor.name
+class window.StateMachineFileManager extends FileManager
+  setKey: ->
+    @key = 'SM_FILE'
+  load: (onLoad)->
     console.log(@open_file)
     loadingFn = onLoad
-    if ws then ws.set 'FILE', @open_file
+    if ws then ws.set @key, @open_file
     
     paper.project.clear()
     paper.view.zoom = 1
@@ -51,5 +59,23 @@ class window.FileManager2
       loadingFn()
     )
     paper.view.update()
+    if @op.status then @op.status.html @getName().toUpperCase()
+    return
+class window.BenchmarkFileManager extends FileManager
+  setKey: ->
+    @key = 'B_FILE'
+  load: (onLoad)->
+    console.log(@open_file)
+    loadingFn = onLoad
+    if ws then ws.set @key, @open_file
+    
+
+    $.ajax({
+      url: @open_file, 
+      dataType: "text",
+      success: (data)-> 
+        if(loadingFn) then loadingFn(data)
+    })
+   
     if @op.status then @op.status.html @getName().toUpperCase()
     return

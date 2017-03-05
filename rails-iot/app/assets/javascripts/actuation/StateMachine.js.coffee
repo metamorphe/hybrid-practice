@@ -1,50 +1,64 @@
 class window.StateMachineAutomata
 	constructor: (@op)->
 		@paper = Utility.paperSetup(@op.dom)
+		@bindTriggers()
+
 	initMachine: ()->
 		scope = this
-		@machine = @extractMachine()
-		if _.isNull(@machine)
-			console.warn "COULD NOT EXTRACT MACHINE"
-			return
-		@machine = StateMachine.create(@machine)
-		_.each(@states, (state)-> 
+		@machine_settings = @_extractMachine()
+		@machine = StateMachine.create(@machine_settings)
+		@activateMachine()
+	activateMachine: ()->
+		scope = this
+		_.each(_.keys(@states), (state)-> 
 			scope.activateState(state, false)
-			)
-		activate = @machine.current
-		@activateState(@states[activate], true)
+		)
+		@activateState(@machine.current, true)
 		@bindTransitionInteractivity()
+	bindTriggers: ()->
+		scope = this
+		@op.restart.click((event)->
+			console.info("RESTARTING DEVICE")
+			scope.machine = StateMachine.create(scope.machine_settings)
+			scope.activateMachine()
+		)
+		@op.live.click((event)->
+			console.info("TODO: LIVE CAPTURE OF EVENTS FROM DEVICE")
+		)
+	setState: (state, style)->
+		state.children[0].set(style)
+	activateState: (state, selected)->
+		style = if selected then {fillColor: ACTIVE_STATE} else {fillColor: INACTIVE_STATE}
+		@setState @states[state], style
+	activateTransition: (transition)->
+		arrow = CanvasUtil.queryPrefixIn(transition, "ARROW")
+		end = CanvasUtil.queryPrefixIn(transition, "END")
+	getTransitionComponents: (transition)->
+		components = @transitions[transition]
+		arrow = CanvasUtil.queryPrefixIn(components, "ARROW")[0]
+		end = CanvasUtil.queryPrefixIn(components, "END")[0]
+		acceptor = CanvasUtil.queryPrefixIn(components, "ACCEPTOR")[0]
+		{arrow: arrow, name: transition, end: end, acceptor: acceptor}
+	transit: (scope, name)->
+		if scope.machine.cannot(name) then return
+		t = @getTransitionComponents(name)
+		t.arrow.set({strokeColor: ACTIVE_STATE})
+		t.end.set({fillColor: ACTIVE_STATE})
+		t.acceptor.set({strokeColor: ACTIVE_STATE, strokeWidth: 2})
+		action = ()->
+			scope.machine[name]();
+			t.arrow.set({strokeColor: INACTIVE_STATE_ARROW})
+			t.end.set({fillColor: INACTIVE_STATE_ARROW})
+			t.acceptor.set({strokeColor: INACTIVE_STATE_ARROW, strokeWidth: 1})
+		_.delay(action, 500) 
 	bindTransitionInteractivity: ()->
 		scope = this
 		_.each @transitions, (transition)->
 			transition.onClick = ()->
 				paper = scope.paper
-				arrow = CanvasUtil.queryPrefixIn(transition, "ARROW")[0]
-				end = CanvasUtil.queryPrefixIn(transition, "END")[0]
-				acceptor = CanvasUtil.queryPrefixIn(transition, "ACCEPTOR")[0]
-				if scope.machine.cannot(arrow.transition) then return
-				arrow.set({strokeColor: ACTIVE_STATE})
-				end.set({fillColor: ACTIVE_STATE})
-				acceptor.set({strokeColor: ACTIVE_STATE, strokeWidth: 2})
-				action = ()->
-					scope.machine[arrow.transition]();
-					arrow.set({strokeColor: INACTIVE_STATE_ARROW})
-					end.set({fillColor: INACTIVE_STATE_ARROW})
-					acceptor.set({strokeColor: INACTIVE_STATE_ARROW, strokeWidth: 1})
-				
-				_.delay(action, 500) 
-
-	setState: (state, style)->
-		state.children[0].set(style)
-	activateState: (state, selected)->
-		if selected
-			@setState state, {fillColor: ACTIVE_STATE}
-		else
-			@setState state, {fillColor: INACTIVE_STATE}
-	activateTransition: (transition)->
-		arrow = CanvasUtil.queryPrefixIn(transition, "ARROW")
-		end = CanvasUtil.queryPrefixIn(transition, "END")
-	extractMachine:()->
+				name = transition.sm_name
+				scope.transit(scope, name)
+	_extractMachine:()->
 		scope = this
 		states = CanvasUtil.queryPrefix('STATE');
 		transitions = CanvasUtil.queryPrefix('TRANSITION')
@@ -54,6 +68,7 @@ class window.StateMachineAutomata
 		_.each states, (state, i)-> 
 			name = CanvasUtil.getName(state).toUpperCase()
 			scope.states[name] = state
+			state.sm_name = name
 			return 
 		@transitions = {}
 		_.each transitions, (transition, i)-> 
@@ -61,6 +76,7 @@ class window.StateMachineAutomata
 			if _.isEmpty(name) then return
 			name = CanvasUtil.getName(name[0]).toUpperCase()
 			scope.transitions[name] = transition
+			transition.sm_name = name
 			return
 
 		# STATE MACHINE OBJECT CONSTRUCTION
@@ -108,22 +124,22 @@ class window.StateMachineAutomata
 		start_state = CanvasUtil.queryPrefixIn(start[0], "END")
 		if _.isEmpty(start_state)
 			console.warn "NO START STATE SPECIFIED"
-			callbacks = @makeCallbacks(transitions)
+			callbacks = @_makeCallbacks(transitions)
 			return {events: transitions, callbacks: callbacks}
 		else
 			start_state = start_state[0]
 			start_state = _.min states, (state)-> start_state.position.getDistance(state.position)
 			start_state = CanvasUtil.getName start_state
-			callbacks = @makeCallbacks(transitions)
+			callbacks = @_makeCallbacks(transitions)
 			return {events: transitions, initial: start_state, callbacks: callbacks}
-	makeCallbacks: (transitions)->
+	_makeCallbacks: (transitions)->
 		scope = this
 		callbacks = {}
 		_.each transitions, (transition)->
 			callback = "on" + transition.name;
 			callbackFN = (event, from, to, msg)->
-				scope.activateState(scope.states[from], false)
-				scope.activateState(scope.states[to], true)
+				scope.activateState(from, false)
+				scope.activateState(to, true)
 			callbacks[callback] = callbackFN
 		callbacks
 	

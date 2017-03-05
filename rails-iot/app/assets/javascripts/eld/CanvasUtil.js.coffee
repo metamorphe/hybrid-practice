@@ -197,7 +197,10 @@ CanvasUtil.getName = (item) ->
     return ''
   if item.name.split(':').length < 2
     return ''
-  item.name.split(':')[1].trim().slice(1).replace("_x5F_", "_")
+  name = item.name.split(':')[1].trim()
+  if(name[0] == "_") then name = name.slice(1)
+  name = name.replace("_x5F_", "_")
+  name
 
 
 CanvasUtil.getNameItem = (item) ->

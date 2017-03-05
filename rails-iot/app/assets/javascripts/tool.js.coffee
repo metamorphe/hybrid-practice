@@ -61,7 +61,8 @@
 //= require ace/mode-javascript
 //= require finitestatemachine
 //= require actuation/StateMachine
-//= require actuation/FileManager2
+//= require actuation/FileManagers
+//= require actuation/Benchmark
 
 
 
