@@ -1,0 +1,97 @@
+:javascript
+  // var cmp;
+  // $(function(){
+  //     cmp = new Composer({
+  //       actuators: $('#actuators'), 
+  //       slider: $("event#actuators input.master"), 
+  //       timesignals: $('datasignal canvas')
+  //     });
+  //     $('#shade').fadeOut(0);      
+  // });
+
+/ #ui2
+/ %group.vert
+%event#actuators.full-hoz.actuator-design
+  .vert
+    %button.design-title.btn-primary.trigger{:type => "trigger"}
+      ACTUATOR
+    %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
+  %actuator.hoz
+    %div.info.vert.fill_height
+      %p.actuator-title 
+        %span.swatch
+        %span RGBLED
+      %canvas{:type=>"RGBLED"}
+    %channels.actuator.scroll-list
+      %p.actuator-title.light CHANNELS
+      %channel.full-hoz{type: "red"}
+        %label.actuator.selected 
+          %span RED
+          %span.dimension.pull-right 0
+      %channel.full-hoz{type: "green"}
+        %label.actuator 
+          %span GREEN
+          %span.dimension.pull-right 0
+      %channel.full-hoz{type: "blue"}
+        %label.actuator
+          %span BLUE
+          %span.dimension.pull-right 0
+  %actuator.hoz
+    %div.info.vert.fill_height
+      %p.actuator-title HSBLED
+      %canvas{:type=>"HSBLED"}
+    %channels.actuator.scroll-list
+      %p.actuator-title.light CHANNELS
+      %channel.full-hoz{type: "brightness"}
+        %label.actuator
+          %span BRIGHTNESS
+          %span.dimension.pull-right 0
+      %channel.full-hoz{type: "saturation"}
+        %label.actuator.selected
+          %span SATURATION
+          %span.dimension.pull-right 0
+      %channel.full-hoz{type: "hue"}
+        %label.actuator
+          %span HUE
+          %span.dimension.pull-right 0
+  %actuator.selected.hoz
+    %div.info.vert.fill_height
+      %p.actuator-title LED
+      %canvas{:type=>"LED"}
+    %channels.actuator.scroll-list
+      %p.actuator-title.light CHANNELS
+      %channel.full-hoz{type: "brightness"}
+        %label.actuator.selected
+          %span BRIGHTNESS
+          %span.dimension.pull-right 0
+  %actuator.hoz
+    %div.info.vert.fill_height
+      %p.actuator-title STEPPER
+      %canvas{:type=>"Stepper"}
+    %channels.actuator.scroll-list
+      %p.actuator-title.light CHANNELS
+      %channel.full-hoz{type: "angle"}
+        %label.actuator.selected
+          %span ANGLE
+          %span.dimension.pull-right 0
+  %actuator.hoz
+    %div.info.vert.fill_height
+      %p.actuator-title 360-STEPPER
+      %canvas{:type=>"Stepper360"}
+    %channels.actuator.scroll-list
+      %p.actuator-title.light CHANNELS
+      %channel.full-hoz{type: "angle"}
+        %label.actuator.selected
+          %span ANGLE
+          %span.dimension.pull-right 0
+  %actuator.hoz
+    %div.info.vert.fill_height
+      %p.actuator-title HEATER
+      %canvas{:type=>"Heater"}
+    %channels.actuator.scroll-list
+      %p.actuator-title.light CHANNELS
+      %channel.full-hoz{type: "voltage"}
+        %label.actuator.selected
+          %span VOLTAGE
+          %span.dimension.pull-right 0
+   
