@@ -3,6 +3,7 @@ class window.ActuatorStepper extends Actuator1D
     @expression = 128;
     return
   _updateVisuals: (p)->
+    window.paper = @paper
     arm = CanvasUtil.queryPrefix('ARM')[0]
     base = CanvasUtil.queryPrefix('BASE')[0]
     theta = new (paper.Point)(0, -20)

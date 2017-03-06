@@ -7,14 +7,18 @@ class window.Composer
     @initBLRadio($('actuator channel'))
     @timesignals = @initTimeSignals()
     @socket = @initSocket()
+  getActuator: (id)->
+    @actuators[id]
+  getTimeSignal: (id)->
+    @timesignals[id]
   getActiveActuator: ()->
     id = $('actuator.selected').data('id')
     actuator = @getActuator(id)
     window.paper = actuator.op.paper
     actuator
   getActiveTimeSignal: ()->
-    id = $('datasignal.selected').data('id')
-    @timesignals[id]
+    id = $('datasignal.selected').data('time_signal_id')
+    @getTimeSignal(id)
   getChannels:(actuator)->
     channels = $(actuator.op.dom).parents('actuator').find('channel')
     _.map(channels, (channel)-> $(channel).attr('type'))
@@ -29,12 +33,26 @@ class window.Composer
   sendCommand: (scope, param) ->
     actuator = scope.getActiveActuator()
     channel = scope.getActiveChannel()
+    paper = actuator.paper
+    scope.sendCommandTo(scope, actuator, channel, param)
+
+  sendCommandTo: (scope, actuator, channel, param)->
+    paper = actuator.paper
     query = parameterized: true
     query[channel] = param
     actuator.expression = query  
     update = actuator.channels[channel].value.toFixed(0)
     scope.updateActiveChannel(update);
     return actuator.toCommand()
+
+  sendCommandByID: (actuator_id, channel, time_signal_id)->
+    scope = this
+    actuator = @getActuator(actuator_id)
+    ts = @getTimeSignal(time_signal_id)
+    commands = ts.command_list(3000)
+    _.each commands, (command) ->
+      _.delay(scope.sendCommandTo, command.t, scope, actuator, channel, command.param) 
+    return
   initActuators: () ->
     scope = this;
     console.info 'Initializing actuators'
@@ -53,8 +71,7 @@ class window.Composer
         scope.updateChannel(actuator, channel)
       )
       actuator
-  getActuator: (id)->
-    @actuators[id]
+ 
   initBLSlider: (dom)->
     scope = this;
     dom.on 'input', ->
@@ -80,7 +97,8 @@ class window.Composer
       channel = $('actuator.selected channels input[type="radio"]:checked').val()
       id = $('actuator.selected').data('id')
       actuator = scope.getActuator(id)
-      value = actuator.getChannelParam(channel)
+      if actuator
+        value = actuator.getChannelParam(channel)
       $('event#actuators input.master').val value
       return
     $('label.actuator').click ->
@@ -92,23 +110,8 @@ class window.Composer
     collection = @op.timesignals
     _.map collection, (canvas, i) ->
       dom = $(canvas)
-      papel = Utility.paperSetup(dom)
-      data = eval(dom.attr('data'))
-      op = 
-        data: data
-        paper: papel
-        dom: dom
+      op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), {dom: dom})
       ts = new TimeSignal(op)
-      fill = ts.signal_fill(fillColor: '#FF9912')
-      x = ts.signal(
-        strokeWidth: 3
-        strokeColor: '#333')
-      axes = ts.draw_axes(
-        strokeWidth: 2
-        strokeColor: 'blue'
-        opacity: 0.5)
-      paper.view.update()
-      ts
   initSocket: ->
     new SocketControl(
       ports: ports

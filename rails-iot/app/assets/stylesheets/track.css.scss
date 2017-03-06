@@ -1,0 +1,113 @@
+event{
+	background: $base;
+	padding: 0px;
+	width: 100%;
+	margin-top: 5px;
+	margin-bottom: 0px;
+
+	height: 100px;
+	line-height: 150px;
+	color: white;
+	font-weight: bold;
+	font-size: 1em;
+	text-align: center;
+	border: 2px solid $off_black;
+	@include drop-shadow(0.43);
+}       
+keyframe{
+	@extend .vert-centered-sink-top;
+
+  	border: 2px solid $off_black;
+    background: darken($base_shadow, 20%);
+    padding: 0px;
+    width: 100px;
+    margin-top: 0px;
+
+    height: 90%;
+    line-height: 100%;
+
+    color: white;
+    font-weight: normal;
+    font-size: 0.8em;
+    text-align: center;
+    @include drop-shadow(0.93);
+   
+}
+
+/* HEADER KEYFRAME*/
+
+.keyframe-options{
+	@extend .full-hoz;
+	height: 25%;
+	background: darken($base, 20%);
+	font-size: 8pt;
+	font-weight: bold;
+	line-height: 20px;
+}
+.keyframe-options div{
+	height: 100%;
+	/*border: 1px solid $base_shadow;*/
+	@include drop-shadow(0.9);
+}
+.keyframe-params{
+	@extend .full-hoz;
+	height: 75%;
+	background: lighten($base, 10%);
+}
+
+      behavior, selector{
+        padding: 5px;
+        width: 100%;
+        margin: 0;
+        height: 40px;
+        margin-bottom: 5px;
+
+        flex-grow: 1;
+        color: white;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
+        
+      }
+      behavior img, selector img{
+        background: white;
+        width: 80%;
+        @include drop-shadow(0.9);
+      }    
+      
+      .btn-xxs{
+      	margin-top: 4px;
+        padding: 1px 2px;
+        font-size: 8px;
+        line-height: 1.2;
+        border-radius: 3px;
+      }
+      button.add-big{
+        /*font-size: 1.2em;
+        padding: 8px;
+        width: auto;*/
+        margin-left: 5px;
+        margin-right: 5px;
+      }            
+
+
+
+  transition{
+  	background: darken($base, 30%);
+    margin-top: 0px;
+    padding: 5px 3px;
+    width: 30px;
+    height: 80%;
+
+    line-height: 110%;
+    color: white !important;
+    font-weight: bold;
+    font-size: 7pt;
+    text-align: center;
+
+    margin-left: -1px;
+    margin-right: -1px;
+    border: 1px solid $off_black;
+    /*@include inset-shadow(0.2);*/
+  }
+ 

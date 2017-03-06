@@ -1,0 +1,95 @@
+.flex{
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scroll-list{
+    flex-wrap: nowrap !important;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: scroll;
+ }
+/* FLEX */
+.vert-centered {
+  @extend .flex;
+  -webkit-flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.vert-centered-sink-top{
+	@extend .vert-centered;
+	justify-content: flex-start;
+}
+.vert {
+  @extend .flex;  
+  -webkit-flex-flow: column wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+/*REF*/
+ /*justify-content: flex-start | flex-end | center | space-between | space-around;*/
+.hoz-left {
+  @extend .flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.hoz {
+  @extend .flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+.full-hoz {
+  @extend .hoz;
+  width: 100%;
+}
+.full-hoz-centered {
+  @extend .full-hoz;
+  justify-content: center;
+  align-items: center;
+}
+
+.full-hoz-right {
+  @extend .full-hoz;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.flex-item {
+  padding: 5px;
+  color: white;
+  font-weight: bold;
+  font-size: 3em;
+  text-align: center;
+}
+
+.tall{
+  padding: 0px;
+  width: 100%;
+  margin-top: 0px;
+  height: 85%;
+  line-height: 30px;
+  color: white;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+}
+.short{
+  padding: 0px;
+  width: 100%;
+  margin-top: 0px;
+  height: 15%;
+  line-height: 28px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8em;
+  text-align: center;
+}	

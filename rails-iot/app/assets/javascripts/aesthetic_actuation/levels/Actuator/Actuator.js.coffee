@@ -4,6 +4,7 @@ actuator_counter = 0;
 class Actuator
   constructor: (@op) ->
     console.info 'Making', @constructor.name
+    @paper = @op.paper
     @init()
     @onCreate()
   init: ->

@@ -1,0 +1,171 @@
+acceptor{
+    @extend keyframe;
+/*    border-radius: 5px;
+    /*width: 200px;*/
+  	width: 100%;
+  	height: 100% !important;  
+  	padding: 10px;
+    background: $sexy_off_white !important;
+    border: 1px solid $off_black;
+ }
+acceptor.ui-droppable-active{
+	background: darken($electric_blue, 0%) !important;
+}
+acceptor.ui-droppable-default{
+	background: lighten($sexy_off_white, 0%) !important;
+}
+acceptor.ui-droppable-highlight, acceptor.ui-droppable-hover{
+	background: lighten($electric_blue, 20%) !important;
+}
+input.sexy{
+	width: 90%;
+	margin-top: 10px !important;
+}
+button.sexy{
+    /*width: 30%;*/
+    margin-top: 10px !important;
+    margin-bottom: 5px !important;
+  }
+
+.fill_height{
+	height: 100%;
+}
+.fill_width{
+	width: 100% !important;
+}
+
+/*COMPOSER CSS*/
+event.tall{
+	height: 400px;
+}
+
+datasignal{
+	@extend keyframe;
+	@extend vert-centered;
+}
+#composed{
+	background: darken($base, 30%);
+}
+#interaction{
+	background: darken($base, 32%);
+}
+commandlist{
+	@extend keyframe;
+	border-radius: 5px;
+	padding: 5px 8px !important;
+	width: 500px !important;
+}
+
+#stateviewer{
+	@extend commandlist;
+	width: 400px !important;
+}
+
+#benchmarks{
+	@extend commandlist;
+	width: 350px !important;
+}
+
+canvas,graph{
+    /*padding: 1px;*/
+    width: 100%;
+    margin: 0;
+    height: 100%;
+    /*margin-bottom: 5px;*/
+
+    flex-grow: 1;
+    color: black;
+    font-weight: bold;
+    font-size: 1em;
+    text-align: center;
+    background: white;
+    
+  }
+.design-title{
+	min-width: 130px !important;
+	font-size: 12pt !important;
+}
+
+actuator{
+	@extend .vert-centered-sink-top;
+
+  	width: 180px;
+    margin-top: 0px;
+
+    height: 90%;
+    line-height: 100%;
+
+    color: white;
+    font-weight: normal;
+    font-size: 0.8em;
+    text-align: center;
+    @include drop-shadow(0.93);   
+}
+
+datasignal.selected, actuator.selected{
+    /*border: 2px solid $orange;*/
+    @include drop-highlight(0.72);
+}
+.actuator-title{
+	padding-top: 2px;
+	padding-bottom: 2px;
+    /*height: 14px;*/
+    height: 20%;
+    width: 100%;
+    line-height: 14px;
+    font-size: 0.9em;
+    background: darken($base, 10%);
+    margin: 0;
+  }
+.actuator-title.light{
+	background: darken($base, 0%);
+}
+.actuator-design{
+	background: darken($base, 5%);
+}	
+	actuator div.info{
+		width: 80px;
+	}
+	actuator canvas{
+		width: 100% !important;
+		height: 80%;
+		margin: 0;
+	}
+	actuator input{
+		line-height: 100%;
+	}
+	  channels.actuator{
+	  	width: 100px; 
+	  	height: 100%;
+	  	background: darken($base, 20%);
+	  }
+	  channels.actuator channel input{
+	    margin: 0 !important;
+	    cursor: pointer;
+	    font-size: 0.7em;
+	  }
+	  label.actuator{
+	    padding: 6px 8px;
+	    line-height: 100%;
+	    margin: 0;
+	    width: 100%;
+	    text-align: left;
+	    font-weight: normal !important;
+	    font-size: 0.8em;
+	  }
+	  label.actuator.selected{
+	  	background: lighten($base, 10%);
+	  }
+	  label.actuator:hover{
+	  	background: darken($base, 30%);
+	  }
+	  label.actuator.selected:hover{
+	  	background: lighten($base, 10%);
+	  }
+	  	label.actuator.span.dimension{
+	  		font-family: monospace;
+	  		font-size: 12pt;
+	  	}
+.behavior_design{
+	background: darken($base, 10%);
+}

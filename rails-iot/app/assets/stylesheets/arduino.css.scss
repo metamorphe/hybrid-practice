@@ -1,0 +1,60 @@
+.btn-ard{
+	background: $base;
+	color: $sexy_off_white;
+	padding: 6px 8px;
+	border: 2px solid $off_black;
+	border-radius: 10px;
+	text-transform: uppercase;
+	font-weight: bold;
+	@include drop-shadow(0.5);
+}
+.btn-ard:focus{
+	outline: none;
+    background: darken($base, 10%);
+}
+.btn-ard:hover{
+	outline: none;
+    background: darken($base, 10%);
+}
+.btn-ard:active{
+	outline: none;
+    background: $orange
+}
+.btn-ard.active{
+	outline: none;
+    background: $orange
+}
+
+.trigger{
+    background: $base;
+    text-transform: uppercase;
+    /*border: 1px solid #555;*/
+    padding: 5px;
+    /*width: 100px;*/
+    height: 50px;
+    margin-top: 0px;
+    border-radius: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+    line-height: 40px;
+    color: $sexy_off_white;
+    font-weight: bold;
+    font-size: 1.5em;
+    text-align: center;
+    border: 3px $sexy_off_white dotted;
+
+  }
+  .trigger:hover{
+  	background: darken($base, 5%);
+  	border-color: darken($sexy_off_white, 10%); ;
+  }
+  .trigger:active{
+  	background: darken($base, 10%);
+  	border-color: darken($sexy_off_white, 10%); ;
+  }
+  .trigger:focus{
+    outline: none;
+    border-color: darken($sexy_off_white, 10%); 
+    background: darken($base, 10%);
+    /*box-shadow: 0 0 5px #00A8e1;*/
+  }

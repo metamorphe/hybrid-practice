@@ -15,6 +15,7 @@ class window.StateMachineAutomata
 		)
 		@activateState(@machine.current, true)
 		@bindTransitionInteractivity()
+		@bindAcceptorInteractivity()
 	bindTriggers: ()->
 		scope = this
 		@op.restart.click((event)->
@@ -45,6 +46,8 @@ class window.StateMachineAutomata
 		t.arrow.set({strokeColor: ACTIVE_STATE})
 		t.end.set({fillColor: ACTIVE_STATE})
 		t.acceptor.set({strokeColor: ACTIVE_STATE, strokeWidth: 2})
+		if t.acceptor.time_signal_id
+			cmp.sendCommandByID(3, "angle", t.acceptor.time_signal_id)
 		action = ()->
 			scope.machine[name]();
 			t.arrow.set({strokeColor: INACTIVE_STATE_ARROW})
@@ -58,6 +61,40 @@ class window.StateMachineAutomata
 				paper = scope.paper
 				name = transition.sm_name
 				scope.transit(scope, name)
+	getAcceptor: (pageX, pageY)->
+		paper = @paper
+		offset = @op.dom.offset() 
+		w = @op.dom.width()
+		h = @op.dom.height()
+		max = new paper.Point(w, h)
+		offset = new paper.Point(offset.left, offset.top)
+		page = new paper.Point(pageX, pageY)
+		pt = page.subtract(offset)
+
+		inside = pt.project(max).length <= max.length and pt.x > 0 and pt.y > 0
+		pt = paper.view.viewToProject(pt)
+
+		if not inside then return null
+		return _.min @acceptors, (acceptor)->
+			pt.getDistance(acceptor.position) # and less than some threshold
+
+
+	setAcceptorsActive: (active)->
+		scope = this
+		_.each @acceptors, (acceptor)->
+			paper = scope.paper
+			if active then acceptor.set {fillColor: "#00A8E1"} else acceptor.set {fillColor: INACTIVE_STATE}
+	bindAcceptorInteractivity: ()->
+		scope = this
+
+		# _.each @acceptors, (acceptor)->
+		# 	acceptor.onMouseEnter = ()->
+		# 		paper = scope.paper
+		# 		acceptor.set {fillColor: ACTIVE_STATE}
+		# 	acceptor.onMouseLeave = ()->
+		# 		paper = scope.paper
+		# 		acceptor.set {fillColor: INACTIVE_STATE}
+
 	_extractMachine:()->
 		scope = this
 		states = CanvasUtil.queryPrefix('STATE');
@@ -78,7 +115,9 @@ class window.StateMachineAutomata
 			scope.transitions[name] = transition
 			transition.sm_name = name
 			return
-
+		
+		@acceptors = CanvasUtil.queryPrefix("ACCEPTOR")
+		
 		# STATE MACHINE OBJECT CONSTRUCTION
 		transitions = _.map transitions, (transition, i)-> 
 			name = CanvasUtil.queryPrefixIn(transition, "NAME")

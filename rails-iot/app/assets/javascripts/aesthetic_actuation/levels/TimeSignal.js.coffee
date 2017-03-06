@@ -1,12 +1,35 @@
+window.DEFAULT_SIGNAL_STYLE = 
+  signal_fill: {fillColor: '#FF9912'}
+  signal: {strokeWidth: 3, strokeColor: '#333'}
+  axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
 time_signal_counter = 0
 
 window.TimeSignal = (@op) ->
-  @data = @op.data
   @id = time_signal_counter++
-  @op.dom.parents('datasignal').data 'id', @id
+  if @op.dom then @canvasInit()
+  if @op.acceptor then @acceptorInit()
   return
 
 TimeSignal.prototype =
+  acceptorInit: ()->
+    @data = eval(@op.data)
+    @op.acceptor.set({fillColor: "purple"})
+    @op.acceptor.time_signal_id = @id
+   
+    fill = @signal_fill(@op.signal_fill)
+    signal = @signal(@op.signal)
+    axes = @draw_axes(@op.axes)
+    @visuals = new paper.Group
+      name: "TIMESIGNAL: haeoirh", 
+      acceptor: @op.acceptor.id, 
+      children: _.flatten([axes, signal, fill])
+  canvasInit: ()->
+    @data = eval(@op.dom.attr('data'))
+    @op.paper = Utility.paperSetup(@op.dom)
+    @op.dom.parents('datasignal').data 'time_signal_id', @id
+    @signal_fill(@op.signal_fill)
+    @signal(@op.signal)
+    @draw_axes(@op.axes)
   command_list: (timePeriod) ->
     t_scale = timePeriod / @data.length
     t_elapsed = 0
@@ -62,10 +85,15 @@ TimeSignal.prototype =
     p = @makePath(op)
   makePath: (op) ->
     p = new (paper.Path)(op)
-    p.scaling.x = paper.view.bounds.width / p.bounds.width
-    p.scaling.y = -(paper.view.bounds.height - 10) / p.bounds.height
-    p.position = paper.view.center
-    return
+    if @op.dom 
+      p.scaling.x = paper.view.bounds.width / p.bounds.width
+      p.scaling.y = -(paper.view.bounds.height - 10) / p.bounds.height
+      p.position = paper.view.center
+    else
+      p.scaling.x = @op.acceptor.bounds.width / p.bounds.width
+      p.scaling.y = -(@op.acceptor.bounds.height) / p.bounds.height
+      p.position = @op.acceptor.bounds.center
+    return p
   express: (actuator, options) ->
     gamm = 1 / actuator.alpha
     gamma_corrected_signal = _.map(@data, (datum) ->

@@ -6,15 +6,15 @@
     title: "simplestatemachine",
     name: "simplestatemachine.svg"
   }]
-
-  var DEFAULT_B_FILE = "/assets/actuation/benchmarks/full_cycle.js";
+  var BASE_B = "/assets/aesthetic_actuation/levels/Benchmark/simplestatemachine/"
+  var DEFAULT_B_FILE = BASE_B + "full_cycle.js";
   var B_FILES = [{
-    path: "/assets/actuation/benchmarks/", 
+    path: BASE_B, 
     title: "full_cycle",
     name: "full_cycle.js"
   }, 
   {
-    path: "/assets/actuation/benchmarks/", 
+    path: BASE_B, 
     title: "awake_and_forgotten",
     name: "awake_and_forgotten.js"
   }]
@@ -23,6 +23,8 @@
     ws = new WebStorage();
     initInteractionLevel();
     $('#shade').fadeOut(0);
+
+
   });
   function initInteractionLevel(){
     sm = new StateMachineAutomata(
@@ -81,7 +83,7 @@
                 = glyph "import"
           %br.clearfix/
     %statemachine.vert-centered
-      %canvas
+      %canvas.droppable
     .full-hoz
       .btn-group.full-hoz-right
         %button#restart-sm.btn.btn-xs.btn-primary.sexy

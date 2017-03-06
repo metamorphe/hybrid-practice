@@ -1,0 +1,44 @@
+/* WIDGET CSS */
+.widget{
+  margin-top: 0px;
+  position: relative;
+  width: 100%;
+}
+.widget-body{
+  padding: 10px 10px 10px 10px;
+  @include inset-shadow(0.2);
+}
+
+.widget-title{
+  font-family: "Avenir";
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 2px 10px 2px 5px;
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  z-index: 10;
+  margin: 0;
+  color: $sexy_off_white;
+
+}
+/* Main div for border to extend to 50% from bottom left corner */
+.label-normal:after {
+  content:""; 
+  background: $sexy_off_white; 
+  position: absolute; 
+  top: 0px; 
+  right: 5px; 
+  width: 70%; 
+  height: 1px;
+}
+	.widget-title span{
+	  position: relative;
+      top: 3px;
+	}
+
+.widget img, .widget textarea{
+  width: 100%;
+}
+
+/* END WIDGET CSS */
