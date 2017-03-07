@@ -47,26 +47,45 @@ void color_change(){
 
 void findCommandEnd(){
   buffer = ' ';
-  while(Serial.available() > 0 && buffer != '\n') buffer = Serial.read();
+  while(buffer != '\n'){
+    if(Serial.available() > 0){
+      buffer = Serial.read();
+    } 
+  }
 }
 
 void api_call(char prefix){
-  switch (prefix) {
+   switch (prefix) {
     case 'p': 
       findCommandEnd();     
+      break;
+    case 'f':
+      buffer = ' ';
+     
+      while(buffer == ' '){
+        if(Serial.available() > 0){
+          buffer = Serial.read();  
+        }
+        if(buffer == '\n') break;
+      }
+      if(buffer == '\n') break;
+      state = buffer;
+      update();
+      findCommandEnd();
       break;
     case 'c':
       Serial.println("C");
       color_change();
       findCommandEnd(); 
-       Serial.print("CHANGING: ");
-       Serial.print(id);
-         Serial.print(",");
-       Serial.println(b);
+//       Serial.print("CHANGING: ");
+//       Serial.print(id);
+//         Serial.print(",");
+//       Serial.println(b);
       break;
     default: 
       Serial.print(prefix);
       Serial.println(" API command does not exist");
+      findCommandEnd(); 
     break;
   }
 }
@@ -125,35 +144,38 @@ int strikes = 3;
 void state_machine(int val, int delta){
   if(delta <= 2)
     state = 'g';
-  else if(delta > 2 && delta <= 4)
+  else if(delta > 2 && delta <= 4){
     state = 'f';
+  }
   else if(delta > 5 && strikes > 0){
     state = 'e';
     strikes--;
   }
   else if(delta > 8){
-    state = 'x';
-    non_block_delay('o', 3000);
+    non_block_delay('e', 0);
+    non_block_delay('x', 1000);
+    non_block_delay('d', 4000);
     off = true;
   }
   if(strikes <= 0){
-    state = 'x';
-    non_block_delay('o', 3000);
+    non_block_delay('e', 0);
+    non_block_delay('x', 1000);
+    non_block_delay('d', 4000);
     off = true;
   }
   if(val < 5 && strikes > 0){
-    state = 's';
-    non_block_delay('o', 3000);
+    non_block_delay('g', 1000);
+    non_block_delay('s', 2000);
+    non_block_delay('d', 5000);
     off = true;
   }
   update();  
 }
 
-void non_block_delay(char state, int delay){
-  state = 'b';
+void non_block_delay(char s, int delay){
   Serial.print("T:");
-  Serial.print(state);
-  Serial.print(",");
+  Serial.print(s);
+  Serial.print(" ");
   Serial.print(delay);
   Serial.println();
 }

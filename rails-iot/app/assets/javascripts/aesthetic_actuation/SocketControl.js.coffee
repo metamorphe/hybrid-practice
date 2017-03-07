@@ -11,6 +11,7 @@ class window.SocketControl
     return id
   unsubscribe: (id)->
     delete @subscribers[id]
+    return ''
   init: ->
     scope = this
     success = @processPorts()
@@ -76,9 +77,22 @@ class window.SocketControl
 
     @ws.onmessage = (evt) ->
       if evt.data
-        console.log '↑', evt.data
         _.each scope.subscribers, (fan)->
-          fan(evt.data.replace("\n", "").trim())
+          data= evt.data.replace("\n", "").trim();
+          parse = data.split(":")
+          if parse.length != 2
+            console.log '↑', evt.data
+          else
+            flag = parse[0].toUpperCase()
+            args = parse[1].split(" ")
+            args = _.map args, (arg)->
+              if _.isString(arg) then return arg.toUpperCase()
+              else if _.isNumber(arg) then return parseInt(arg)            
+            # DELAY TRIGGER DETECTED
+            if flag == "T"
+              scope.sendMessageAt(["f ", args[0].toLowerCase(), "\n"].join(""), args[1])
+              return
+            fan({flag: flag, args: args})
           return
         scope.update()
       return

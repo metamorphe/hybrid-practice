@@ -120,4 +120,11 @@
 	<text id="NAME:_WARN" transform="matrix(1 0 0 1 110.35 125.9356)" class="st5 st3">WARN</text>
 	<polyline id="ARROW:_A_9_" class="st4" points="151.2,192.7 151.2,180.5 187,141.9 187,112 	"/>
 </g>
+<g id="TRANSITION:_STRIKE_1_">
+	<polygon id="END:_ARROW_9_" points="263.9,189.5 280.2,189.5 272.1,203.7 	"/>
+	<path id="ACCEPTOR:_BEHAVIOR_2_" class="st1" d="M154.1,106.6H87.9c-0.4,0-0.7-0.3-0.7-0.7V80.2c0-0.4,0.3-0.7,0.7-0.7h66.2
+		c0.4,0,0.7,0.3,0.7,0.7v25.7C154.8,106.3,154.5,106.6,154.1,106.6z"/>
+	<text id="NAME:_WARN_1_" transform="matrix(1 0 0 1 102.25 73.0858)" class="st5 st3">STRIKE</text>
+	<polyline id="ARROW:_A_8_" class="st4" points="236.3,113.5 236.3,143.4 272.1,182 272.1,194.2 	"/>
+</g>
 </svg>

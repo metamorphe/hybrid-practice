@@ -1,7 +1,7 @@
 class window.StateMachineAutomata
 	constructor: (@op)->
 		@paper = Utility.paperSetup(@op.dom)
-		@subscribed = false
+		@subscribed = ''
 		@live_set = false
 		@bindTriggers()
 	initMachine: ()->
@@ -13,25 +13,28 @@ class window.StateMachineAutomata
 		if not sc then return
 		sc.unsubscribe(scope.subscribed)
 	subscribe: (scope)->
-		scope.subscribed = sc.subscribe (msg)->
-			console.log("MSG", msg)
-			state_update = msg.split ":"
-			# VALID COMMAND
-			if state_update.length == 2 and state_update[0] == "S"
-				state = state_update[1].toUpperCase()
-				if not scope.live_set
-					console.log "SETTING INITIAL", state
-					scope.machine_settings.initial = state
-					scope.op.restart.click();
-					scope.live_set = true
-				else
-					console.log "UPDATING SM TO", state
-					current = scope.machine.current
-					transition = scope.states[current].transitions[state]
-					if _.contains(scope.machine.transitions(), transition)
-						scope.machine[transition]()
+		if scope.subscribed == ''
+			console.info("SUBSCRIBING")
+			scope.subscribed = sc.subscribe (msg)->
+				if msg.flag == "S"
+					state = msg.args[0]
+					if not scope.live_set
+						console.log "SETTING INITIAL", state
+						scope.machine_settings.initial = state
+						scope.op.restart.click();
+						scope.live_set = true
 					else
-						console.log "MISSED STATE", transition
+						console.log "UPDATING SM TO", state
+						current = scope.machine.current
+						transition = scope.states[current].transitions[state]
+						if _.contains(scope.machine.transitions(), transition)
+							scope.machine[transition]()
+						else
+							console.log "MISSED STATE", transition
+		else
+			console.info("UNSUBSCRIBING")
+			scope.subscribed = sc.unsubscribe(scope.subscribed)
+			scope.live_set = false
 
 	activateMachine: ()->
 		scope = this
@@ -50,11 +53,6 @@ class window.StateMachineAutomata
 		)
 		@op.live.click((event)->
 			scope.subscribe(scope)
-			console.info("SUBSCRIBING")
-			scope.op.live.click((event)->
-				scope.unsubscribe(scope)
-				console.info("UNSUBSCRIBING")
-			)
 		)
 	setState: (state, style)->
 		state.children[0].set(style)
