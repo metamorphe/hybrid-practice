@@ -203,6 +203,7 @@ CanvasUtil.getName = (item) ->
   name = item.name.split(':')[1].trim()
   if(name[0] == "_") then name = name.slice(1)
   name = name.replace("_x5F_", "_")
+  name = name.replace("_x23_", "#")
   name
 
 

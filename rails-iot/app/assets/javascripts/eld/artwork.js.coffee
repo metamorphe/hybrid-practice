@@ -49,7 +49,6 @@ class window.Artwork
 		CanvasUtil.call e.dds, 'set',  dds_style
 		CanvasUtil.set _.flatten(show), "visible", true
 		CanvasUtil.set _.flatten(hide), "visible", false
-
 Artwork.getElements = ()->
 	art: CanvasUtil.queryPrefix('ART'),
 	diff: CanvasUtil.queryPrefix('DIF'),
@@ -64,6 +63,7 @@ Artwork.getElements = ()->
 	rays: CanvasUtil.queryPrefix("RAY"), 
 	nuts: CanvasUtil.queryPrefix("NUT"), 
 	gray: CanvasUtil.queryPrefix("DDS") 
+
 
 	# remove: ->
 	# 	@svg.remove()

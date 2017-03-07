@@ -1,5 +1,5 @@
 function ActuationParam(op){
-	this.op = _.extend(op, {min: op.range.min, max: op.range.max, range: op.range.max - op.range.min});
+	this.op = _.extend(_.clone(op), {min: op.range.min, max: op.range.max, range: op.range.max - op.range.min});
 	this.value = 0;
 	// this.param = 0;
 }

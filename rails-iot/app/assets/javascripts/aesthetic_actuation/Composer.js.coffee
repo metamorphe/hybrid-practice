@@ -1,11 +1,60 @@
 class window.Composer
+  @extract: ()->
+    console.log "HELLO WORLD"
+    LEDS = _.map CanvasUtil.queryPrefix("LED"), (led)->
+      led.type = "LED"
+      led.color = CanvasUtil.getName(led)
+      # FIND TEMPLATE
+      act = $('actuator.template[name="'+led.type+'"]')
+        .clone().removeClass('template')
+        .data('canvas-id', led.id)
+      act.find("canvas").data('color', led.color);
+      $('#actuators').append(act);
+      return led
   constructor: (@op) ->
+  init:()->
+    @live = false
     console.info "COMPOSER INITIALIZED"
-    @actuators = @initActuators()
+    Composer.extract()
+    @actuators = _.compact(@initActuators())
     @initSelection()
     @initBLSlider @op.slider
     @initBLRadio($('actuator channel'))
     @timesignals = @initTimeSignals()
+    @bindLiveButton()
+  bindLiveButton:()->
+    scope = this
+    @op.live_button.click((event)->
+      scope.live = not scope.live
+      if scope.live 
+        $(this).css('background', '#d9534f')
+      else
+        $(this).css('background', '#2d6a96')
+    )
+  initActuators: () ->
+    scope = this;
+    console.info 'Initializing actuators'
+    collection = @op.actuators.find('canvas')
+    _.map collection, (canvas, i) ->
+      if $(canvas).parents('actuator').hasClass('template') then return null
+      dom = $(canvas)
+      papel = Utility.paperSetup(dom)
+      ActuatorType = dom.attr('type')
+      color = dom.data('color');
+      console.log(eval(ActuatorType))
+      ActuatorSimulator = eval('Actuator' + ActuatorType)
+      props = _.extend(_.clone(eval(ActuatorType)),
+        color: color,
+        paper: papel
+        dom: dom)
+      console.log props
+      actuator = new ActuatorSimulator(props)
+      channels = scope.getChannels(actuator)
+      _.each( channels, (channel)->
+        scope.updateChannel(actuator, channel)
+      )
+      actuator
+
   getActuator: (id)->
     @actuators[id]
   getTimeSignal: (id)->
@@ -35,12 +84,16 @@ class window.Composer
     paper = actuator.paper
     scope.sendCommandTo(scope, actuator, channel, param)
 
+
   sendCommandTo: (scope, actuator, channel, param)->
     paper = actuator.paper
     query = parameterized: true
     query[channel] = param
     actuator.expression = query  
     update = actuator.channels[channel].value.toFixed(0)
+
+    val = parseInt(actuator.channels[channel].value)
+    if scope.live and sc then sc.sendMessage("c " + actuator.id + " " + val + "\n")
     scope.updateActiveChannel(update);
     return actuator.toCommand()
 
@@ -52,24 +105,7 @@ class window.Composer
     _.each commands, (command) ->
       _.delay(scope.sendCommandTo, command.t, scope, actuator, channel, command.param) 
     return
-  initActuators: () ->
-    scope = this;
-    console.info 'Initializing actuators'
-    collection = @op.actuators.find('canvas')
-    _.map collection, (canvas, i) ->
-      dom = $(canvas)
-      papel = Utility.paperSetup(dom)
-      ActuatorType = dom.attr('type')
-      ActuatorSimulator = eval('Actuator' + ActuatorType)
-      props = _.extend(eval(ActuatorType),
-        paper: papel
-        dom: dom)
-      actuator = new ActuatorSimulator(props)
-      channels = scope.getChannels(actuator)
-      _.each( channels, (channel)->
-        scope.updateChannel(actuator, channel)
-      )
-      actuator
+  
  
   initBLSlider: (dom)->
     scope = this;
