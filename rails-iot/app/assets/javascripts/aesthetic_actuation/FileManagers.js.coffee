@@ -33,11 +33,10 @@ class FileManager
     return
   load: (onLoad) ->
     console.warn "TODO: IMPLEMENT LOAD FOR", @constructor.name
-class window.StateMachineFileManager extends FileManager
-  setKey: ->
-    @key = 'SM_FILE'
+class SVGFileManager extends FileManager
   load: (onLoad)->
     console.log(@open_file)
+    window.paper = @op.paper;
     loadingFn = onLoad
     if ws then ws.set @key, @open_file
     
@@ -61,6 +60,13 @@ class window.StateMachineFileManager extends FileManager
     paper.view.update()
     if @op.status then @op.status.html @getName().toUpperCase()
     return
+class window.StateMachineFileManager extends SVGFileManager
+  setKey: ->
+    @key = 'SM_FILE'
+class window.ProjectFileManager extends SVGFileManager
+  setKey: ->
+    @key = 'PROJECT_FILE'
+  
 class window.BenchmarkFileManager extends FileManager
   setKey: ->
     @key = 'B_FILE'
@@ -79,3 +85,4 @@ class window.BenchmarkFileManager extends FileManager
    
     if @op.status then @op.status.html @getName().toUpperCase()
     return
+

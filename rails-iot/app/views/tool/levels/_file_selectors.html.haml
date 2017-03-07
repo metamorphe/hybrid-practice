@@ -1,0 +1,48 @@
+:javascript
+  var fs, sc;
+  var PROJECT = {
+    CANVAS_COLOR: "rgb(245, 244, 240)"
+  }
+  
+  $(function(){
+    dom = 'projectviewer canvas';
+    fs = new ProjectFileManager({
+      paper: Utility.paperSetup(dom),
+      files: files, 
+      selector: $("#file-selector"),
+      onLoad: function(data){
+        $(dom).css('background', PROJECT.CANVAS_COLOR);
+    
+      }
+    });
+    sc = new SocketControl({
+        socket_port: 3015,
+        ports: ports,
+        trigger: $('#port-connect'),
+        selector: $('#port-selector'),
+        status: $('#port-status')
+      }
+    )
+  })
+#selectors.full-hoz
+  #file-select.hoz-left.half-w.mpadding
+    .vert-left.full-w
+      %span.status-label#file-info
+        PROJECT
+      .full-hoz
+        %select.form-control#file-selector.sexy
+  #port-select.hoz-left.half-w.mpadding
+    .vert-left.full-w
+      %span.status-label#port-info
+        CONNECTED TO:
+        %span.status#port-status –
+      .full-hoz
+        %select.form-control#port-selector.sexy
+        %button#port-connect.btn.btn-xs.btn-success
+          = glyph "transfer"
+%event#project.full-hoz.tall
+  .vert
+    %button.design-title.btn-primary.trigger{:type => "trigger"}
+      PROJECT
+  #projectviewer
+    %canvas

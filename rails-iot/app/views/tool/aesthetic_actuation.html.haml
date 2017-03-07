@@ -1,7 +1,9 @@
 :javascript
   const ports = #{@ports.to_json.html_safe};
-  var act, sc;
+  const files = #{@files.to_json.html_safe};
+  var act, sc, ws;
   $(function(){
+      ws = new WebStorage();
       cmp = new Composer({
         actuators: $('#actuators'), 
         slider: $("event#actuators input.master"), 
@@ -12,8 +14,9 @@
 
 #ui2
   %group.vert
-    = render :partial => "tool/levels/datasignals"
-    = render :partial => "tool/levels/actuators"
+    = render :partial => "tool/levels/file_selectors"
+    - render :partial => "tool/levels/datasignals"
+    - render :partial => "tool/levels/actuators"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"
     - render :partial => "tool/levels/behaviors"

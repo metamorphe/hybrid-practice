@@ -18,7 +18,52 @@ class window.Artwork
 		cl.svg = @svg.clone()
 		cl
 	process: ->
+		@AE_style_process()
 		# @orderLeds()
+	AE_style_process: ->
+		e = Artwork.getElements()
+		show = [e.art, e.diff, e.leds, e.dds, e.base]
+		hide = [e.rays, e.cp, e.mc, e.bo, e.bi, e.nuts, e.wires]
+
+		_.each e.leds, (led)->
+			style =  
+				fillColor: if led.colorID then led.colorID else "#FFFFFF", 
+				strokeColor: "black",
+				strokeWidth: 1, 
+				opacity: 1.0
+			led.set(style)
+
+		diff_style = 
+			fillColor: "#DFDFDF", 
+			strokeWidth: 3,
+			strokeColor: "black", 
+			opacity: 1.0
+		dds_style =
+			fillColor: "#DFDFDF", 
+			strokeWidth: 1,
+			strokeColor: "black", 
+			dashArray: [2, 1],
+			opacity: 0.5
+
+		CanvasUtil.call e.diff, 'set',  diff_style
+		CanvasUtil.call e.dds, 'set',  dds_style
+		CanvasUtil.set _.flatten(show), "visible", true
+		CanvasUtil.set _.flatten(hide), "visible", false
+
+Artwork.getElements = ()->
+	art: CanvasUtil.queryPrefix('ART'),
+	diff: CanvasUtil.queryPrefix('DIF'),
+	leds: CanvasUtil.queryPrefix('NLED'),
+	bo: CanvasUtil.queryPrefix('BO'),
+	bi: CanvasUtil.queryPrefix('BI'),
+	cp: CanvasUtil.queryPrefix('CP'),
+	dds: CanvasUtil.queryPrefix('DDS'),
+	mc: CanvasUtil.queryPrefix("MC"),
+	base: CanvasUtil.queryPrefix("BASE"),
+	wires: CanvasUtil.queryPrefix("WIRE"), 
+	rays: CanvasUtil.queryPrefix("RAY"), 
+	nuts: CanvasUtil.queryPrefix("NUT"), 
+	gray: CanvasUtil.queryPrefix("DDS") 
 
 	# remove: ->
 	# 	@svg.remove()

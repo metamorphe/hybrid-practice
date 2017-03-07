@@ -6,7 +6,6 @@ class window.Composer
     @initBLSlider @op.slider
     @initBLRadio($('actuator channel'))
     @timesignals = @initTimeSignals()
-    @socket = @initSocket()
   getActuator: (id)->
     @actuators[id]
   getTimeSignal: (id)->
@@ -112,32 +111,6 @@ class window.Composer
       dom = $(canvas)
       op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), {dom: dom})
       ts = new TimeSignal(op)
-  initSocket: ->
-    new SocketControl(
-      ports: ports
-      trigger: $('#socket-button')
-      selector: $('#port-selector')
-      noports_func: (dom) ->
-        console.log 'NO PORTS'
-        dom.removeClass('btn-default btn-success').addClass('btn-danger').find('span').removeClass('glyphicon-send glyphicon-ok').addClass 'glyphicon-remove'
-        $('#port-selector').prop 'disabled', 'disabled'
-        $('#port-status').html 'RECONNECT DEVICE?'
-        return
-      connect_func: (dom) ->
-        port = $('#port-selector').val()
-        dom.removeClass('btn-danger btn-success').addClass('btn-default').find('span').removeClass('glyphicon-send glyphicon-remove').addClass 'glyphicon-remove'
-        $('#port-selector').prop 'disabled', 'disabled'
-        $('#port-status').html port
-        return
-      error_func: (dom) ->
-        dom.removeClass('btn-default btn-success').addClass('btn-danger').find('span').removeClass('glyphicon-send glyphicon-ok').addClass 'glyphicon-remove'
-        $('#port-status').html '-'
-        return
-      disconnect_func: (dom) ->
-        dom.removeClass('btn-danger btn-default').addClass('btn-success').find('span').removeClass('glyphicon-ok glyphicon-remove').addClass 'glyphicon-send'
-        $('#port-selector').prop 'disabled', false
-        $('#port-status').html '–'
-        return
-    )
+    
 
  

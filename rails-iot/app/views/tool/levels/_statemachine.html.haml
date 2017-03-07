@@ -1,10 +1,15 @@
 :javascript
-  var sm, ws, bm
+  var sm, bm
   var DEFAULT_SA_FILE = "/actuation/devices/simplestatemachine.svg";
   var SA_FILES = [{
     path: "/actuation/devices/", 
     title: "simplestatemachine",
     name: "simplestatemachine.svg"
+  }, 
+  {
+    path: "/actuation/devices/", 
+    title: "knobandleds",
+    name: "knobandleds.svg"
   }]
   var BASE_B = "/assets/aesthetic_actuation/levels/Benchmark/simplestatemachine/"
   var DEFAULT_B_FILE = BASE_B + "full_cycle.js";
@@ -20,7 +25,6 @@
   }]
 
   $(function(){
-    ws = new WebStorage();
     initInteractionLevel();
     $('#shade').fadeOut(0);
 
@@ -37,6 +41,7 @@
     sm_fm = new StateMachineFileManager({
       files: SA_FILES, 
       default: DEFAULT_SA_FILE, 
+      paper: sm.paper,
       selector: $("#sa_file-selector"),
       status: $("#file-status"),
       onLoad: function(){

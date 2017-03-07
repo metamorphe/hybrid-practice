@@ -11,6 +11,7 @@ $orange: #ff9e31;
 $off_black: #151311;
 $thick: 5px;
 
+
 @mixin inset-shadow($opacity){
 	-webkit-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
 	-moz-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
@@ -111,7 +112,4 @@ body, html{
 	-o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 	transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
-select.sm{
-	@extend .form-control-special;
-	height: 20px;
-}
+

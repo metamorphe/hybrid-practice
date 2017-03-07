@@ -1,13 +1,38 @@
 class window.StateMachineAutomata
 	constructor: (@op)->
 		@paper = Utility.paperSetup(@op.dom)
+		@subscribed = false
+		@live_set = false
 		@bindTriggers()
-
 	initMachine: ()->
 		scope = this
 		@machine_settings = @_extractMachine()
 		@machine = StateMachine.create(@machine_settings)
 		@activateMachine()
+	unsubscribe: (scope)->
+		if not sc then return
+		sc.unsubscribe(scope.subscribed)
+	subscribe: (scope)->
+		scope.subscribed = sc.subscribe (msg)->
+			console.log("MSG", msg)
+			state_update = msg.split ":"
+			# VALID COMMAND
+			if state_update.length == 2 and state_update[0] == "S"
+				state = state_update[1].toUpperCase()
+				if not scope.live_set
+					console.log "SETTING INITIAL", state
+					scope.machine_settings.initial = state
+					scope.op.restart.click();
+					scope.live_set = true
+				else
+					console.log "UPDATING SM TO", state
+					current = scope.machine.current
+					transition = scope.states[current].transitions[state]
+					if _.contains(scope.machine.transitions(), transition)
+						scope.machine[transition]()
+					else
+						console.log "MISSED STATE", transition
+
 	activateMachine: ()->
 		scope = this
 		_.each(_.keys(@states), (state)-> 
@@ -24,7 +49,12 @@ class window.StateMachineAutomata
 			scope.activateMachine()
 		)
 		@op.live.click((event)->
-			console.info("TODO: LIVE CAPTURE OF EVENTS FROM DEVICE")
+			scope.subscribe(scope)
+			console.info("SUBSCRIBING")
+			scope.op.live.click((event)->
+				scope.unsubscribe(scope)
+				console.info("UNSUBSCRIBING")
+			)
 		)
 	setState: (state, style)->
 		state.children[0].set(style)
@@ -106,12 +136,12 @@ class window.StateMachineAutomata
 			name = CanvasUtil.getName(state).toUpperCase()
 			scope.states[name] = state
 			state.sm_name = name
+			state.transitions = {}
 			return 
 		@transitions = {}
 		_.each transitions, (transition, i)-> 
-			name = CanvasUtil.queryPrefixIn(transition, "NAME")
+			name = CanvasUtil.getName(transition).toUpperCase()
 			if _.isEmpty(name) then return
-			name = CanvasUtil.getName(name[0]).toUpperCase()
 			scope.transitions[name] = transition
 			transition.sm_name = name
 			return
@@ -120,7 +150,7 @@ class window.StateMachineAutomata
 		
 		# STATE MACHINE OBJECT CONSTRUCTION
 		transitions = _.map transitions, (transition, i)-> 
-			name = CanvasUtil.queryPrefixIn(transition, "NAME")
+			name = CanvasUtil.getName(transition).toUpperCase()			
 			arrow = CanvasUtil.queryPrefixIn(transition, "ARROW")
 			end = CanvasUtil.queryPrefixIn(transition, "END")
 			
@@ -129,8 +159,6 @@ class window.StateMachineAutomata
 			
 			arrow = arrow[0]
 			end = end[0]
-			name = CanvasUtil.getName(name[0]).toUpperCase()
-			
 
 			
 			forward = arrow.firstSegment.point.getDistance(end.position)
@@ -144,15 +172,18 @@ class window.StateMachineAutomata
 			to = CanvasUtil.getName to
 
 			
+			
 			if invert 
 				arrow.from = to
 				arrow.to = from
 				arrow.transition = name
+				scope.states[to].transitions[from] = name;
 				{name: name, from: to, to: from} 
 			else 
 				arrow.from = from
 				arrow.to = to
 				arrow.transition = name
+				scope.states[from].transitions[to] = name;
 				{name: name, from: from, to: to}
 		
 		start = CanvasUtil.queryPrefix('START')

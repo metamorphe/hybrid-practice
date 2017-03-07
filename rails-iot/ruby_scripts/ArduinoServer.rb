@@ -2,38 +2,39 @@ require 'em-websocket'
 require 'json'
 require 'serialport'
 
-ports_config = {
-
-}
-sp = SerialPort.new('/dev/tty.usbmodem1421', 9600 * 12, 8, 1, SerialPort::NONE)
-# sp = SerialPort.new('/dev/tty.usbmodem1411', 9600*12, 8, 1, SerialPort::NONE)
-
-
-def message_from(sp)
-    message = sp.gets
-    message.chop!
-  return { "msg" => message }
-end
-
-def start_connection(sp, port)
-  print "Starting server at #{port}\n"
-  EM::WebSocket.start(:host => "0.0.0.0", :port => port) do |ws|
+EventMachine.run do
+  @channel = EM::Channel.new
+  @port = 3015
+  baud_fast = 9600 * 12
+  baud_normal = 9600
+  @baud = baud_normal
+  @sp = SerialPort.new('/dev/tty.usbmodem1411', @baud, 8, 1, SerialPort::NONE)
+  @sid = nil
+  EM::defer do
+    loop do
+      puts data = @sp.readline("\n")
+      next if !data or data.to_s.size < 1
+      @channel.push data
+    end
+  end
+  EM::WebSocket.start(:host => "0.0.0.0", :port => @port) do |ws|
     ws.onopen{
       print "OPENED!\n"
+      @sid = @channel.subscribe { |msg| ws.send msg }
+      @channel.push "#{@sid} connected!"
+      
     }
     ws.onclose{
       print "CLOSING\n"
+      if @sid
+        @channel.unsubscribe(@sid)
+      end
     }
     ws.onmessage do |msg|
         print "SERVER SAYS:" + msg + "\n"
-        sp.write(msg);
-        
-        msg =  message_from(sp).to_json
-        print "ARDUINO SAYS:" + msg + "\n"
-        ws.send "ARDUINO SAYS:" + msg + "\n"
+        @sp.write(msg);
     end
   end
+
+  puts "SERVER STARTED"
 end
-
-start_connection(sp, 3015)
-

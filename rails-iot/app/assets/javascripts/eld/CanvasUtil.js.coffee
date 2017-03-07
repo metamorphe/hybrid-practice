@@ -165,9 +165,12 @@ CanvasUtil.set = (arr, property, value) ->
       return
   return
 
-CanvasUtil.call = (collection, calling) ->
+CanvasUtil.call = (collection, calling, args) ->
   _.each collection, (rt) ->
-    rt[calling]()
+    if args
+      rt[calling](args)
+    else
+      rt[calling]()
     return
   return
 

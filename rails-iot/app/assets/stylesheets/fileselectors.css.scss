@@ -1,0 +1,36 @@
+/* FILE SELECTOR */
+  #selectors{
+    padding: 2px 1px 6px 1px;
+    background: $base;
+    @include inset-shadow(0.43);
+    @include drop-shadow(0.43);
+  }
+ .status-label{
+    color: #00A8E1;
+    /*font-weight: bold;*/
+    font-size: 8pt;
+    font-style: italic;
+  }
+  .status{
+    color: white;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 8pt;
+  }
+  select.sexy{
+    -webkit-appearance: none;
+    -webkit-border-radius: 0px;
+    height: 22px;
+    border: none;
+    border-radius: 1px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    font-size: 10px;
+    padding: 3px 5px;
+    text-align: center;
+    background-image: url(/assets/down-arrow.png);
+    background-size: 15px 10px;
+    background-repeat: no-repeat;
+    background-position: right;
+    @include inset-shadow(0.10);
+  }

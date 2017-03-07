@@ -22,19 +22,6 @@
         %span#frame-status 0:00
       
   %commandlist.vert-centered
-    .full-hoz
-      #port-select.widget.status
-        .widget-body.hoz
-          %div.hoz-left{:style => "width: 50%;"}
-            %span#port-info
-              CONNECTED TO:
-              %span#port-status –
-          %div{:style => "width: 50%;"}
-            %select#port-selector.sm.col-xs-10
-            .socket-btns.btn-group.col-xs-2.nopadding
-              %button#socket-button.btn.btn-xs.btn-success.btn-block
-                = glyph "log-in"
-          %br.clearfix/
     #editor.editor
     .full-hoz
       .btn-group.full-hoz-centered
@@ -58,18 +45,7 @@
     width: 99%;
     margin-top: 5px;
   }
-  /* PORT */
-  #port-info{
-    color: #00A8E1;
-    /*font-weight: bold;*/
-    font-size: 8pt;
-  }
-  #port-status{
-    color: white;
-    font-style: italic;
-    font-weight: normal;
-    font-size: 8pt;
-  }
+  
   #time span.label{
     font-size: 8pt;
     font-weight: normal;

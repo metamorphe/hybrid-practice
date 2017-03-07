@@ -1,3 +1,17 @@
+.full-w{
+  width: 100%;
+}
+.half-w{
+  width: 50%;
+}
+.full{
+  height: 100%;
+  width: 100%;
+}
+.mpadding{
+  padding: 0px 10px !important;
+}
+
 .flex{
   display: -webkit-box;
   display: -moz-box;
@@ -32,6 +46,10 @@
   -webkit-flex-flow: column wrap;
   justify-content: flex-start;
   align-items: center;
+}
+.vert-left{
+  @extend .vert; 
+  align-items: flex-start;
 }
 /*REF*/
  /*justify-content: flex-start | flex-end | center | space-between | space-around;*/
