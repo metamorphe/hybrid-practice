@@ -22,6 +22,7 @@ class window.Composer
       commands = tsm.getActiveTimeSignal().command_list(3000)
       act = am.getActiveActuator()
       channel = am.getActiveChannel()
+      # console.log commands, act, channel
       scope.op.signal_button.css('background', '#d9534f')
       _.each commands, (command) ->
         _.delay(am.sendCommandTo, command.t, act, channel, command.param) 

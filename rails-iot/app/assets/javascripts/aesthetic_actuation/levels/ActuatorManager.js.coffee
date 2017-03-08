@@ -1,16 +1,21 @@
 class window.ActuatorManager
   @extract: ()->
-    console.log "HELLO WORLD"
     LEDS = _.map CanvasUtil.queryPrefix("LED"), (led)->
       led.type = "LED"
       led.color = CanvasUtil.getName(led)
       # FIND TEMPLATE
       act = $('actuator.template[name="'+led.type+'"]')
         .clone().removeClass('template')
+        .data('color', led.color)
         .data('canvas-id', led.id)
-      act.find("canvas").data('color', led.color);
+      act.find("canvas")
       $('#actuators').append(act);
       return led
+    actuators = _.flatten([LEDS])
+    _.each actuators, (actuator)->
+      actuator.onClick = ()->
+        console.log actuator.id
+
   constructor: (@op) ->
   init:()->
     ActuatorManager.extract()
@@ -19,17 +24,19 @@ class window.ActuatorManager
     @initBLRadio($('actuator channel'))
   initActuators: () ->
     scope = this;
-    console.info 'Initializing actuators'
-    collection = @op.collection.find('canvas')
-    _.map collection, (canvas, i) ->
-      if $(canvas).parents('actuator').hasClass('template') then return null
-      dom = $(canvas)
+    collection = @op.collection.find('actuator').not('.template')
+    console.info 'Initializing actuators', collection.length
+    _.map collection, (act, i) ->
+      act = $(act)
+      dom = act.find('canvas')
       papel = Utility.paperSetup(dom)
-      ActuatorType = dom.attr('type')
-      color = dom.data('color');
+      ActuatorType = act.attr('name')
+      color = act.data('color');
+      canvas_id = act.data('canvas-id');
       ActuatorSimulator = eval('Actuator' + ActuatorType)
       props = _.extend(_.clone(eval(ActuatorType)),
         color: color,
+        canvas_id: canvas_id,
         paper: papel
         dom: dom)
       actuator = new ActuatorSimulator(props)

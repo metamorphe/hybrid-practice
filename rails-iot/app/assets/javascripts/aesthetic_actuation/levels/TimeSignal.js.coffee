@@ -16,21 +16,75 @@ TimeSignal.prototype =
     @data = eval(@op.data)
     @op.acceptor.set({fillColor: "purple"})
     @op.acceptor.time_signal_id = @id
-   
-    fill = @signal_fill(@op.signal_fill)
-    signal = @signal(@op.signal)
-    axes = @draw_axes(@op.axes)
-    @visuals = new paper.Group
-      name: "TIMESIGNAL: haeoirh", 
-      acceptor: @op.acceptor.id, 
-      children: _.flatten([axes, signal, fill])
+    @_visuals()
   canvasInit: ()->
     @data = eval(@op.dom.attr('data'))
     @op.paper = Utility.paperSetup(@op.dom)
     @op.dom.parents('datasignal').data 'time_signal_id', @id
-    @signal_fill(@op.signal_fill)
-    @signal(@op.signal)
-    @draw_axes(@op.axes)
+    @_visuals()
+
+  _visuals:()->
+    fill = @signal_fill(@op.signal_fill)
+    signal = @signal(@op.signal)
+    axes = @draw_axes(@op.axes)
+    @visuals = new paper.Group
+      name: "TIMESIGNAL:" + @id,
+      time_signal_id: @id,  
+      children: _.flatten([fill, signal, axes])
+    time = @_time_encoder(@visuals)
+    play = @_play_button(@visuals)
+    if not _.isUndefined(@op.acceptor)
+      @visuals.acceptor = @op.acceptor.id
+  _play_button:(group)->
+    scope = this
+    playGroup = new paper.Group
+      name: "PLAY: _play_button"
+      parent: group
+      position: group.bounds.center.clone()
+    rect = new paper.Path.Rectangle
+      parent: playGroup
+      rectangle: new paper.Size 15,10
+      fillColor: "#00A8E1"
+      opacity: 0.5
+      position: playGroup.bounds.center.clone()
+    tri = new paper.Path.RegularPolygon
+      parent: playGroup
+      sides: 3
+      radius: 3
+      rotation: 90
+      fillColor: "white"
+    tri.position = rect.bounds.center.clone()
+    playGroup.pivot = playGroup.bounds.bottomRight.clone()
+    playGroup.position = group.bounds.bottomRight.clone().add(new paper.Point(0, 5))
+    playGroup.onClick = (event)->
+      cmp.op.signal_button.click()
+  _time_encoder: (group)->
+    if not _.isUndefined @op.dom.attr('period')
+      time = (parseFloat(@op.dom.attr('period')) / 1000).toFixed(0)
+      timeGroup = new paper.Group
+        name: "TIME: time selector"
+        parent: group
+        position: group.bounds.center.clone()
+      text = new PointText
+        parent: timeGroup
+        content: time + ' s',
+        fillColor: '#080808',
+        fontFamily: 'Avenir',
+        fontWeight: 'bold',
+        fontSize: 10
+        justification: "center", 
+        position: timeGroup.bounds.center.clone()
+      rect = new paper.Path.Rectangle
+        parent: timeGroup
+        rectangle: text.bounds.clone().expand(3, 2), 
+        fillColor: "white"
+        opacity: 0.5
+        position: timeGroup.bounds.center.clone()
+      rect.sendToBack()
+      timeGroup.pivot = timeGroup.bounds.topRight.clone()
+      timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
+
+  
   command_list: (timePeriod) ->
     t_scale = timePeriod / @data.length
     t_elapsed = 0

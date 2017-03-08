@@ -1,4 +1,4 @@
-%event#data-signals.full-hoz.data-signal-design
+%event#datasignals.full-hoz.data-signal-design
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       DATA SIGNAL
@@ -10,10 +10,14 @@
     %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
   %datasignal
     %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]"}
-%event#acceptors.full-hoz.data-signal-design
+%event#adder.full-hoz.data-signal-design
   .vert
-    %button.design-title.btn-primary.trigger{:type => "trigger"}
-      TEST
+    %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
+      ADD
+  %datasignal#result
+    %canvas
+  %datasignal
+    %acceptor.droppable
   %datasignal
     %acceptor.droppable
 

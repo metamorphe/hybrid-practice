@@ -12,7 +12,9 @@
 
     // TIME SIGNAL MANAGER
     tsm = new TimeSignalManager({
-      collection: $('datasignal canvas')
+      collection: $('#datasignals datasignal canvas'), 
+      add_track: $('event#adder'),
+      add_button: $('#ts-adder')
     });
     // ACTUATIOR MANAGER
     am = new ActuatorManager({
@@ -60,7 +62,7 @@
     - render :partial => "tool/levels/sequencer"
     - render :partial => "tool/levels/behaviors"
     - render :partial => "tool/levels/distributed"
-    = render :partial => "tool/levels/statemachine"
+    - render :partial => "tool/levels/statemachine"
            
 :css
   #ui2{

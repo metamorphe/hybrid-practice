@@ -16,6 +16,7 @@ class Actuator
       new ActuationParam(actuator)
     )
     @_visuals()
+    
   onCreate: ->
     return
   getChannelValue: (name)->

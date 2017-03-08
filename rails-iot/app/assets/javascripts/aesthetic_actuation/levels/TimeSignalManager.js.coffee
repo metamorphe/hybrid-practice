@@ -6,6 +6,8 @@ class window.TimeSignalManager
     @timesignals = @initTimeSignals()
     @initSelection()
     @activateDragAndDrop()
+    @bindAdder()
+  
   initTimeSignals: ->
     _.map @op.collection, (canvas, i) ->
       dom = $(canvas)
@@ -16,6 +18,35 @@ class window.TimeSignalManager
   getActiveTimeSignal: ()->
     id = $('datasignal.selected').data('time_signal_id')
     @getTimeSignal(id)
+  bindAdder: ()->
+    scope = this
+    @op.add_button.click((event)->
+      ids = _.map(scope.op.add_track.find('datasignal').not('#result'), (dom)->
+        return $(dom).data 'time_signal_id'
+      )
+      console.log ids, tsm
+      tsm.addTS(ids)
+    )
+  addTS: (timesignal_ids)->
+    console.log "ADDING"
+    ts = _.map(timesignal_ids, (id)->
+        return tsm.getTimeSignal(id)
+      )
+    console.log ts
+    data = _.reduce(ts, ((memo, t)->
+      memo.push(t.data)
+      return memo
+      ), [])
+    data = _.flatten(data)
+    dom = $("datasignal#result canvas").attr("data", JSON.stringify(data))
+    dom = $("datasignal#result canvas").attr("period", 3000)
+    op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE),
+      signal_fill:
+        fillColor: '#d9534f', 
+      dom: dom
+      )
+    tsm.add(new TimeSignal(op))
+    return 
   initSelection: ()->
     scope = this
     $('datasignal').click ->
