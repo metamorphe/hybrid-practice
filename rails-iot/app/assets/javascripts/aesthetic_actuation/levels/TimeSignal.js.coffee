@@ -12,6 +12,7 @@ window.TimeSignal = (@op) ->
 
 TimeSignal.prototype =
   acceptorInit: ()->
+    window.paper = @op.paper
     @data = eval(@op.data)
     @op.acceptor.set({fillColor: "purple"})
     @op.acceptor.time_signal_id = @id

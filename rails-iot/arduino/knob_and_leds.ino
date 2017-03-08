@@ -40,8 +40,8 @@ bool off = false; // ARTIFICIAL TURN OFF (UNBINDS API)
 void color_change(){
   id = Serial.parseInt();
   b = Serial.parseInt();
-  Serial.println(id);
-  Serial.println(b);
+  // Serial.println(id);
+  // Serial.println(b);
   analogWrite(leds[id], b);
 }
 
@@ -74,7 +74,7 @@ void api_call(char prefix){
       findCommandEnd();
       break;
     case 'c':
-      Serial.println("C");
+      // Serial.println("C");
       color_change();
       findCommandEnd(); 
 //       Serial.print("CHANGING: ");

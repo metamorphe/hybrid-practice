@@ -1,48 +1,7 @@
-:javascript
-  $(function(){
-    console.log("DATASIGNALS");  
-    $('canvas.draggable').draggable({
-      revert: true
-    });
-    $('acceptor.droppable').droppable({
-      accept: "canvas.draggable", 
-      classes: { "droppable-active": "droppable-default"},
-      activate: function(event, ui){
-        console.log("START")
-        sm.setAcceptorsActive(true)
-      },
-      drop: function(event, ui){
-        dom = $('<canvas></canvas>').addClass('draggable')
-            .attr('data', ui.draggable.attr('data'));
-
-        $(this).parent().html("").append(dom);
-        op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), {dom: dom})
-        cmp.timesignals.push(new TimeSignal(op))
-      }, 
-      deactivate: function(event, ui){
-        acceptor = sm.getAcceptor(event.pageX, event.pageY)
-        if(!_.isNull(acceptor)){
-          op = {
-            paper: sm.paper,
-            data: ui.draggable.attr('data'), 
-            acceptor: acceptor
-          }
-          op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), op)
-          ts = CanvasUtil.query(paper.project, {prefix: ["TIMESIGNAL"], acceptor: acceptor.id})
-          CanvasUtil.call(ts, 'remove')
-          cmp.timesignals.push(new TimeSignal(op))
-        }
-        sm.setAcceptorsActive(false)
-      }
-    })
-  })
 %event#data-signals.full-hoz.data-signal-design
   .vert
-    %button.design-title.btn-primary.trigger{:type => "trigger"}
+    %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       DATA SIGNAL
-    %button.btn.btn-xs.btn-success.sexy
-      = glyph "send"
-      SEND
   %datasignal
     %canvas.draggable{:data => "[0, 1, 0]"}
   %datasignal

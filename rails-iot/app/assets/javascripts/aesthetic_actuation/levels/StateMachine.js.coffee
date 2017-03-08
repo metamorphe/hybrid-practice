@@ -28,7 +28,7 @@ class window.StateMachineAutomata
 						current = scope.machine.current
 						transition = scope.states[current].transitions[state]
 						if _.contains(scope.machine.transitions(), transition)
-							scope.machine[transition]()
+							scope.transit(scope, transition)
 						else
 							console.log "MISSED STATE", transition
 		else
@@ -75,9 +75,9 @@ class window.StateMachineAutomata
 		t.end.set({fillColor: ACTIVE_STATE})
 		t.acceptor.set({strokeColor: ACTIVE_STATE, strokeWidth: 2})
 		if t.acceptor.time_signal_id
-			cmp.sendCommandByID(3, "angle", t.acceptor.time_signal_id)
+			am.sendCommandById(0, "brightness", t.acceptor.time_signal_id)
 		action = ()->
-			scope.machine[name]();
+			if not scope.machine.cannot(name) then scope.machine[name]();
 			t.arrow.set({strokeColor: INACTIVE_STATE_ARROW})
 			t.end.set({fillColor: INACTIVE_STATE_ARROW})
 			t.acceptor.set({strokeColor: INACTIVE_STATE_ARROW, strokeWidth: 1})

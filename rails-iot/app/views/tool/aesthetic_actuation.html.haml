@@ -1,7 +1,7 @@
 :javascript
   const ports = #{@ports.to_json.html_safe};
   const files = #{@files.to_json.html_safe};
-  var act, sc, ws, fs, cmp;
+  var act, sc, ws, fs, cmp, tsm, sm, am;
 
   var PROJECT = {
     CANVAS_COLOR: "rgb(245, 244, 240)"
@@ -9,23 +9,34 @@
   
   $(function(){
     ws = new WebStorage();
-    dom = 'projectviewer canvas';
+
+    // TIME SIGNAL MANAGER
+    tsm = new TimeSignalManager({
+      collection: $('datasignal canvas')
+    });
+    // ACTUATIOR MANAGER
+    am = new ActuatorManager({
+      collection: $('#actuators')
+    })
+    // COMPOSER
     cmp = new Composer({
-          live_button: $('#slider-live'),
-          actuators: $('#actuators'), 
-          slider: $("event#actuators input.master"), 
-          timesignals: $('datasignal canvas')
-        });
+      signal_button: $('#apply-signal'),
+      live_button: $('#slider-live'),
+      slider: $("event#actuators input.master")
+    });
+
+    // FILE MANAGER
+    dom = 'projectviewer canvas'
     fs = new ProjectFileManager({
       paper: Utility.paperSetup(dom),
       files: files, 
       selector: $("#file-selector"),
       onLoad: function(data){
         $(dom).css('background', PROJECT.CANVAS_COLOR);
-        cmp.init();
+        am.init();
       }
     });
-     $('#shade').fadeOut(0);
+    // SOCKET CONTROL
     sc = new SocketControl({
         socket_port: 3015,
         ports: ports,
@@ -35,17 +46,15 @@
       }
     )
 
+     $('#shade').fadeOut(0);
     
-      
 
   })
-
-
 
 #ui2
   %group.vert
     = render :partial => "tool/levels/file_selectors"
-    - render :partial => "tool/levels/datasignals"
+    = render :partial => "tool/levels/datasignals"
     = render :partial => "tool/levels/actuators"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"

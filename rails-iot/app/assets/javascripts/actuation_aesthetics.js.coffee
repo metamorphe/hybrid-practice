@@ -12,6 +12,8 @@
 //= require aesthetic_actuation/FileManagers
 //= require aesthetic_actuation/SocketControl
 # LEVELS
+//= require aesthetic_actuation/levels/TimeSignalManager
+//= require aesthetic_actuation/levels/ActuatorManager
 //= require aesthetic_actuation/levels/TimeSignal
 //= require aesthetic_actuation/levels/Composition
 //= require aesthetic_actuation/levels/StateMachine
