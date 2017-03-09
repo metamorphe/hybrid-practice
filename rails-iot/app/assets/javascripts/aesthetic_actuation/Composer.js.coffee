@@ -19,7 +19,8 @@ class window.Composer
   bindSignalButton:()->
     scope = this;
     @op.signal_button.click((event)->
-      commands = tsm.getActiveTimeSignal().command_list(3000)
+      ts = tsm.getActiveTimeSignal()
+      commands = ts.command_list(ts)
       act = am.getActiveActuator()
       channel = am.getActiveChannel()
       # console.log commands, act, channel

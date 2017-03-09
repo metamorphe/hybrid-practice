@@ -85,7 +85,8 @@ class window.ActuatorManager
   sendCommandById: (a_id, channel, ts_id)->
     scope = this
     act = @getActuator(a_id)
-    commands = tsm.getTimeSignal(ts_id).command_list(3000)
+    ts = tsm.getTimeSignal(ts_id)
+    commands = ts.command_list(ts)
     _.each commands, (command) ->
       _.delay(am.sendCommandTo, command.t, act, channel, command.param) 
       return

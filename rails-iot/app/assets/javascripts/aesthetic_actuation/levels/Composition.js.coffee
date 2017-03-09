@@ -19,7 +19,7 @@ class window.Composition
       editor.setSession newSession
      
       ts = scope.getActiveTimeSignal()
-      commands = ts.command_list(3000)
+      commands = ts.command_list(ts)
       editor.insert 'function myBehavior(){\n'
       
       _.each commands, (command) ->

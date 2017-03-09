@@ -4,13 +4,27 @@ window.DEFAULT_SIGNAL_STYLE =
   axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
 time_signal_counter = 0
 
-window.TimeSignal = (@op) ->
-  @id = time_signal_counter++
-  if @op.dom then @canvasInit()
-  if @op.acceptor then @acceptorInit()
-  return
+class window.TimeSignal
+  @DEFAULT_PERIOD: 3000
+  constructor: (@op)->
+    @id = time_signal_counter++
+    if @op.dom
+      console.log(@op.dom.attr('period'))
+      @period = if _.isUndefined(@op.dom.attr('period')) then TimeSignal.DEFAULT_PERIOD else parseFloat(@op.dom.attr('period')) 
+      @canvasInit()
+      if tsm then tsm.initSelection()
+    if @op.acceptor
+      @period  = if _.isUndefined(@op.period) then TimeSignal.DEFAULT_PERIOD  else @op.period
+      @acceptorInit()
+    return
 
-TimeSignal.prototype =
+  updatePeriod: (scope, period)->
+    scope.period = period
+    scope.op.dom.attr('period', scope.period)
+    window.paper = scope.op.paper
+    CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
+    time = scope._time_encoder(scope.visuals)
+
   acceptorInit: ()->
     window.paper = @op.paper
     @data = eval(@op.data)
@@ -22,7 +36,6 @@ TimeSignal.prototype =
     @op.paper = Utility.paperSetup(@op.dom)
     @op.dom.parents('datasignal').data 'time_signal_id', @id
     @_visuals()
-
   _visuals:()->
     fill = @signal_fill(@op.signal_fill)
     signal = @signal(@op.signal)
@@ -33,8 +46,10 @@ TimeSignal.prototype =
       children: _.flatten([fill, signal, axes])
     time = @_time_encoder(@visuals)
     play = @_play_button(@visuals)
+    remove = @_remove_button(@visuals)
     if not _.isUndefined(@op.acceptor)
       @visuals.acceptor = @op.acceptor.id
+
   _play_button:(group)->
     scope = this
     playGroup = new paper.Group
@@ -57,36 +72,82 @@ TimeSignal.prototype =
     playGroup.pivot = playGroup.bounds.bottomRight.clone()
     playGroup.position = group.bounds.bottomRight.clone().add(new paper.Point(0, 5))
     playGroup.onClick = (event)->
+      scope.op.dom.click()
       cmp.op.signal_button.click()
   _time_encoder: (group)->
-    if not _.isUndefined @op.dom.attr('period')
-      time = (parseFloat(@op.dom.attr('period')) / 1000).toFixed(0)
-      timeGroup = new paper.Group
-        name: "TIME: time selector"
-        parent: group
-        position: group.bounds.center.clone()
-      text = new PointText
-        parent: timeGroup
-        content: time + ' s',
-        fillColor: '#080808',
-        fontFamily: 'Avenir',
-        fontWeight: 'bold',
-        fontSize: 10
-        justification: "center", 
-        position: timeGroup.bounds.center.clone()
-      rect = new paper.Path.Rectangle
-        parent: timeGroup
-        rectangle: text.bounds.clone().expand(3, 2), 
-        fillColor: "white"
-        opacity: 0.5
-        position: timeGroup.bounds.center.clone()
-      rect.sendToBack()
-      timeGroup.pivot = timeGroup.bounds.topRight.clone()
-      timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
+    # if @period != TimeSignal.DEFAULT_PERIOD
+    # SMART FORMAT
+    time = (@period / 1000)
+    unit = 's'
+    switch
+      when time < 3
+        time = (time * 1000).toFixed(0) + "ms"
+      when time <= 60
+        time = time.toFixed(1) + "s"
+      when time > 60 
+        time /= 60
+        time.toFixed(2) + 'min'
+      when time > 60 * 60
+        time /= 60 * 60
+        time.toFixed(2) + 'hr'
 
-  
-  command_list: (timePeriod) ->
-    t_scale = timePeriod / @data.length
+    timeGroup = new paper.Group
+      name: "TIME: time selector"
+      parent: group
+      position: group.bounds.center.clone()
+    text = new PointText
+      parent: timeGroup
+      content: time,
+      fillColor: '#080808',
+      fontFamily: 'Avenir',
+      fontWeight: 'bold',
+      fontSize: 10
+      justification: "center", 
+      position: timeGroup.bounds.center.clone()
+    rect = new paper.Path.Rectangle
+      parent: timeGroup
+      rectangle: text.bounds.clone().expand(3, 2), 
+      fillColor: "white"
+      opacity: 0.5
+      radius: 3
+      position: timeGroup.bounds.center.clone()
+    rect.sendToBack()
+    timeGroup.pivot = timeGroup.bounds.topRight.clone()
+    timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
+
+  _remove_button: (group)->
+    scope = this
+    removeGroup = new paper.Group
+      name: "REMOVE: remove selector"
+      parent: group
+      position: group.bounds.center.clone()
+    text = new PointText
+      parent: removeGroup
+      content: "x",
+      fillColor: 'white',
+      fontFamily: 'Consolas',
+      fontWeight: 'bold',
+      fontSize: 8
+     
+      justification: "center", 
+      position: removeGroup.bounds.center.clone()
+    rect = new paper.Path.Rectangle
+      parent: removeGroup
+      rectangle: text.bounds.clone().expand(8, 2), 
+      fillColor: "#00A8E1"
+      opacity: 0.5
+      radius: 4
+      position: removeGroup.bounds.center.clone()
+    rect.sendToBack()
+    text.position = rect.bounds.center.clone()
+    removeGroup.pivot = removeGroup.bounds.topLeft.clone()
+    removeGroup.position = group.bounds.expand(-18, -13).topLeft.clone()
+    removeGroup.onClick = (event)->
+      scope.op.dom.parents('datasignal').remove()
+      
+  command_list: (scope) ->
+    console.log "PERIOD", scope.period
+    t_scale = scope.period / scope.data.length
     t_elapsed = 0
     _.map @data, (datum) ->
       duration = 1 * t_scale

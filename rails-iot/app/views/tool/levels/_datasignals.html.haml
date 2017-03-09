@@ -9,16 +9,20 @@
   %datasignal
     %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
   %datasignal
-    %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]"}
+    %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
 %event#adder.full-hoz.data-signal-design
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       ADD
-  %datasignal#result
-    %canvas
-  %datasignal
-    %acceptor.droppable
-  %datasignal
-    %acceptor.droppable
+  .unit-track
+    %datasignal#result
+      %canvas
+  .track.droppable.sortable
+%event#timemorph.full-hoz.data-signal-design
+  .vert
+    %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
+      TIME MORPH
+    %input#time-morph.sexy{:type=>"range", :min => 100, :max => 10000, :step => 100}
+  #time-morph-track.track.track-full.droppable
 
 :css

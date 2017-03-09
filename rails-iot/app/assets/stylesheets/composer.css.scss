@@ -1,4 +1,42 @@
 
+keyframe{
+	@extend .vert-centered-sink-top;
+
+  	border: 2px solid $off_black;
+    background: darken($base_shadow, 20%);
+    padding: 0px;
+    width: 100px;
+    margin-top: 0px;
+
+    height: 90%;
+    line-height: 100%;
+
+    color: white;
+    font-weight: normal;
+    font-size: 0.8em;
+    text-align: center;
+    @include drop-shadow(0.93);
+   
+}
+.track{
+	@extend .hoz;
+	height: 90%;
+	width: 500px;
+	padding: 0px 5px;
+	background: darken($base, 20%)
+}
+.track-full{
+	@extend .track;
+	width: 100%;
+}
+.unit-track{
+	@extend .track;
+	width: 110px;
+	padding: 0px 5px;
+	background: $sexy_red;
+}
+
+
 #projectviewer{
 	@extend commandlist;
 	width: 400px !important;
@@ -13,15 +51,21 @@ acceptor{
     background: $sexy_off_white !important;
     border: 1px solid $off_black;
  }
-acceptor.ui-droppable-active{
+.ui-droppable-active{
 	background: darken($electric_blue, 0%) !important;
 }
-acceptor.ui-droppable-default{
+.ui-droppable-default{
 	background: lighten($sexy_off_white, 0%) !important;
 }
-acceptor.ui-droppable-highlight, acceptor.ui-droppable-hover{
+.ui-droppable-highlight, .ui-droppable-hover{
 	background: lighten($electric_blue, 20%) !important;
 }
+.ui-sortable-placeholder{
+	border: 1px dotted $sexy_off_white;
+	background: none;
+
+}
+
 input.sexy{
 	width: 90%;
 	margin-top: 10px !important;
@@ -32,12 +76,7 @@ button.sexy{
     margin-bottom: 5px !important;
   }
 
-.fill_height{
-	height: 100%;
-}
-.fill_width{
-	width: 100% !important;
-}
+
 
 /*COMPOSER CSS*/
 event.tall{

@@ -14,25 +14,7 @@ event{
 	border: 2px solid $off_black;
 	@include drop-shadow(0.43);
 }       
-keyframe{
-	@extend .vert-centered-sink-top;
 
-  	border: 2px solid $off_black;
-    background: darken($base_shadow, 20%);
-    padding: 0px;
-    width: 100px;
-    margin-top: 0px;
-
-    height: 90%;
-    line-height: 100%;
-
-    color: white;
-    font-weight: normal;
-    font-size: 0.8em;
-    text-align: center;
-    @include drop-shadow(0.93);
-   
-}
 
 /* HEADER KEYFRAME*/
 
