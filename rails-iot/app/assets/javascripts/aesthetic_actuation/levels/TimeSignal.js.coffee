@@ -17,6 +17,22 @@ class window.TimeSignal
         i++
         return data[i].p
     )
+  @pretty_time: (time)->
+    time = parseFloat time
+    time = time / 1000
+    unit = 's'
+    switch
+      when time < 3
+        time = (time * 1000).toFixed(0) + "ms"
+      when time <= 60
+        time = time.toFixed(1) + "s"
+      when time > 60 
+        time /= 60
+        time.toFixed(2) + 'min'
+      when time > 60 * 60
+        time /= 60 * 60
+        time.toFixed(2) + 'hr'
+    return time
   @makeDOM:(op)->
     newDom = $('<datasignal id="result"><canvas></canvas></datasignal>')
     newDom.find("canvas")
@@ -139,22 +155,12 @@ class window.TimeSignal
     playGroup.onClick = (event)->
       scope.op.dom.click()
       cmp.op.signal_button.click()
+
   _time_encoder: (group)->
     # if @period != TimeSignal.DEFAULT_PERIOD
     # SMART FORMAT
-    time = (@period / 1000)
-    unit = 's'
-    switch
-      when time < 3
-        time = (time * 1000).toFixed(0) + "ms"
-      when time <= 60
-        time = time.toFixed(1) + "s"
-      when time > 60 
-        time /= 60
-        time.toFixed(2) + 'min'
-      when time > 60 * 60
-        time /= 60 * 60
-        time.toFixed(2) + 'hr'
+    
+    time = TimeSignal.pretty_time(@period)
 
     timeGroup = new paper.Group
       name: "TIME: time selector"

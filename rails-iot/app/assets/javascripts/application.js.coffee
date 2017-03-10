@@ -85,10 +85,10 @@ window.Utility.paperSetup = (id) ->
   paper.install window
   myPaper = new (paper.PaperScope)
   myPaper.setup dom[0]
-  if typeof id == 'string'
-    console.info 'Paper.js installed on', id, w, 'x', h
-  else
-    console.info 'Paper.js installed:', w, 'x', h
+  # if typeof id == 'string'
+  #   console.info 'Paper.js installed on', id, w, 'x', h
+  # else
+  #   console.info 'Paper.js installed:', w, 'x', h
   myPaper
 
 

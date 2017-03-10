@@ -1,16 +1,16 @@
-%event#datasignals.full-hoz.data-signal-design
+%event#datasignals
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       DATA SIGNAL
   %datasignal
-    %canvas.draggable{:data => "[0, 1, 0]"}
+    %canvas.draggable{:data => "[0, 1, 0]", "period" => 1000}
   %datasignal
-    %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]"}
+    %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
   %datasignal
-    %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]"}
+    %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
   %datasignal
     %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
-%event#adder.full-hoz.data-signal-design
+%event#adder
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       STITCH
@@ -18,14 +18,14 @@
     %datasignal#result
       %canvas
   #adder-track.track.droppable.sortable
-%event#recorder.full-hoz.data-signal-design
+%event#recorder
   .vert
     %button#record.design-title.btn-primary.trigger{:type => "trigger"}
       RECORD
   #record-result.unit-track
     %datasignal#result
       %canvas
-%event#timemorph.full-hoz.data-signal-design
+%event#timemorph
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       TIME MORPH

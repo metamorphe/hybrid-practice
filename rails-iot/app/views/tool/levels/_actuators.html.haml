@@ -1,29 +1,39 @@
 :javascript
-  // var cmp;
-  // $(function(){
-  //     cmp = new Composer({
-  //       actuators: $('#actuators'), 
-  //       slider: $("event#actuators input.master"), 
-  //       timesignals: $('datasignal canvas')
-  //     });
-  //     $('#shade').fadeOut(0);      
-  // });
+  var gm;
+  $(function(){
+    gm = new ActuatorGroup({
+      track: $("#actuator-group"),
+      result: $("#group-result"), 
+      button: $("#group-button"),
+      clear: $("#group-clear")
+    })
+  })
 
-/ #ui2
-/ %group.vert
-%event#receptors.full-hoz.actuator-design
+%event#receptors
   .vert
     %button.design-title.btn-primary.trigger{:type => "trigger"}
-      TEST 
-  #some-actuator.actuator_unit.unit-track.actuator-droppable
+      SAVED
+  .group-track.actuator-droppable
+
+%event#receptors
+  .vert
+    %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
+      GROUP
+    %button#group-clear.sexy.btn.btn-xs.btn-danger
+      =glyph "trash"
+      CLEAR
+  #group-result.actuator_unit.unit-track
     %actuator.vert-centered
-      %span ACTUATOR
-%event#actuators.full-hoz.actuator-design
+      %h5 RESULT
+      %em.faint (ADD ACTUATORS TO THE RIGHT TO FORM A GROUP)
+  #actuator-group.group-track.actuator-droppable
+   
+%event#actuators
   .vert
     %button#slider-live.design-title.btn-primary.trigger{:type => "trigger"}
       ACTUATOR
     %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
-  %actuator.draggable.template.hoz{name: "RGBLED"}
+  %actuator.draggable.template{name: "RGBLED"}
     %div.info.vert.fill_height
       %p.actuator-title 
         %span.swatch
@@ -43,25 +53,25 @@
         %label.actuator
           %span BLUE
           %span.dimension.pull-right 0
-  %actuator.draggable.template.hoz{name: "HSBLED"}
+  %actuator.draggable.template{name: "HSBLED"}
     %div.info.vert.fill_height
       %p.actuator-title HSBLED
       %canvas{:type=>"HSBLED"}
     %channels.actuator.scroll-list
       %p.actuator-title.light CHANNELS
       %channel.full-hoz{type: "brightness"}
-        %label.actuator
+        %label.actuator.selected
           %span BRIGHTNESS
           %span.dimension.pull-right 0
       %channel.full-hoz{type: "saturation"}
-        %label.actuator.selected
+        %label.actuator
           %span SATURATION
           %span.dimension.pull-right 0
       %channel.full-hoz{type: "hue"}
         %label.actuator
           %span HUE
           %span.dimension.pull-right 0
-  %actuator.draggable.template.hoz{name: "LED"}
+  %actuator.draggable.template{name: "LED"}
     %div.info.vert.fill_height
       %p.actuator-title LED
       %canvas{:type=>"LED"}
@@ -71,7 +81,7 @@
         %label.actuator.selected
           %span BRIGHTNESS
           %span.dimension.pull-right 0
-  %actuator.draggable.template.hoz{name: "STEPPER"}
+  %actuator.draggable.template{name: "STEPPER"}
     %div.info.vert.fill_height
       %p.actuator-title STEPPER
       %canvas{:type=>"Stepper"}
@@ -81,7 +91,7 @@
         %label.actuator.selected
           %span ANGLE
           %span.dimension.pull-right 0
-  %actuator.draggable.template.hoz{name: "Stepper360"}
+  %actuator.draggable.template{name: "Stepper360"}
     %div.info.vert.fill_height
       %p.actuator-title 360-STEPPER
       %canvas{:type=>"Stepper360"}
@@ -91,7 +101,7 @@
         %label.actuator.selected
           %span ANGLE
           %span.dimension.pull-right 0
-  %actuator.draggable.template.hoz{name: "HEATER"}
+  %actuator.draggable.template{name: "HEATER"}
     %div.info.vert.fill_height
       %p.actuator-title HEATER
       %canvas{:type=>"Heater"}
@@ -101,8 +111,5 @@
         %label.actuator.selected
           %span VOLTAGE
           %span.dimension.pull-right 0
-:css
-  .template{
-    display: none;
-  }
+
    

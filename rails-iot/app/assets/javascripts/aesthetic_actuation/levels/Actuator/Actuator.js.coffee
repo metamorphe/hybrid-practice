@@ -3,9 +3,13 @@ actuator_counter = 0;
 # ABSTRACT INTERFACE
 class Actuator
   constructor: (@op) ->
-    console.info 'Making', @constructor.name
     @paper = @op.paper
-    @hardware_id = @op.hardware_id
+    hid = eval(@op.hardware_id)
+    if _.isObject hid
+      @hardware_id = hid
+    else if _.isNumber hid
+      @hardware_id = [hid]
+    console.info '..', @constructor.name, "h_id", @hardware_id
     @init()
     @onCreate()
   init: ->
@@ -13,14 +17,23 @@ class Actuator
     @id = actuator_counter++;
     window.paper = fs.op.paper
     @op.dom.parents('actuator').data('id', @id)
-    CanvasUtil.queryID(@op.canvas_id).expresso_id = @id
+    
+    cE = CanvasUtil.queryID(@op.canvas_id)
+    if _.isUndefined cE.expresso_id then cE.expresso_id = @id
     window.paper = @paper
     @visuals = []
     @channels = _.mapObject(@op.channels, (actuator) ->
       new ActuationParam(actuator)
     )
     @_visuals()
-    
+  makeGroup: (ids)->
+    scope = this
+    @hardware_id = []
+    _.each ids, (id)-> 
+      scope.addMember id
+    @op.dom.parents('actuator').data('hardware-id', JSON.stringify(@hardware_id))
+  addMember: (id)->
+    @hardware_id.push(id)
   onCreate: ->
     return
   getChannelValue: (name)->

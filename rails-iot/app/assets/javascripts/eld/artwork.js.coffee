@@ -1,4 +1,18 @@
 class window.Artwork
+	@getElements = ()->
+		art: CanvasUtil.queryPrefix('ART'),
+		diff: CanvasUtil.queryPrefix('DIF'),
+		leds: CanvasUtil.queryPrefix('NLED'),
+		bo: CanvasUtil.queryPrefix('BO'),
+		bi: CanvasUtil.queryPrefix('BI'),
+		cp: CanvasUtil.queryPrefix('CP'),
+		dds: CanvasUtil.queryPrefix('DDS'),
+		mc: CanvasUtil.queryPrefix("MC"),
+		base: CanvasUtil.queryPrefix("BASE"),
+		wires: CanvasUtil.queryPrefix("WIRE"), 
+		rays: CanvasUtil.queryPrefix("RAY"), 
+		nuts: CanvasUtil.queryPrefix("NUT"), 
+		gray: CanvasUtil.queryPrefix("DDS") 
 	constructor: (@file, @loadFN, @cloned) ->
 		@svg = null
 		if _.isUndefined @cloned then @import @loadFN else @clone()
@@ -19,7 +33,7 @@ class window.Artwork
 		cl
 	process: ->
 		@AE_style_process()
-		# @orderLeds()
+		@orderLeds()
 	AE_style_process: ->
 		e = Artwork.getElements()
 		show = [e.art, e.diff, e.leds, e.dds, e.base]
@@ -49,61 +63,34 @@ class window.Artwork
 		CanvasUtil.call e.dds, 'set',  dds_style
 		CanvasUtil.set _.flatten(show), "visible", true
 		CanvasUtil.set _.flatten(hide), "visible", false
-Artwork.getElements = ()->
-	art: CanvasUtil.queryPrefix('ART'),
-	diff: CanvasUtil.queryPrefix('DIF'),
-	leds: CanvasUtil.queryPrefix('NLED'),
-	bo: CanvasUtil.queryPrefix('BO'),
-	bi: CanvasUtil.queryPrefix('BI'),
-	cp: CanvasUtil.queryPrefix('CP'),
-	dds: CanvasUtil.queryPrefix('DDS'),
-	mc: CanvasUtil.queryPrefix("MC"),
-	base: CanvasUtil.queryPrefix("BASE"),
-	wires: CanvasUtil.queryPrefix("WIRE"), 
-	rays: CanvasUtil.queryPrefix("RAY"), 
-	nuts: CanvasUtil.queryPrefix("NUT"), 
-	gray: CanvasUtil.queryPrefix("DDS") 
 
+	orderLeds: ->
+		leds = CanvasUtil.queryPrefix('NLED')
+		cp = CanvasUtil.queryPrefix('CP')
+		bi = CanvasUtil.queryPrefix('BI')
+		# CHECKS
+		if _.isEmpty leds
+			console.warn("NO LEDS DETECTED")
+			return 
+		if _.isEmpty cp
+			console.warn("NO PATH; CAN'T ENUMERATE LEDS")
+			return 
+		if _.isEmpty bi
+			console.warn("NO BREAKIN; CAN'T ENUMERATE LEDS")
+			return
+		cp = cp[0]
+		bi = bi[0]
+		forward = cp.firstSegment.point.getDistance(bi.firstSegment.point)
+		backward = cp.lastSegment.point.getDistance(bi.firstSegment.point)
+		polarity = if backward < forward then -1 else 1
+		_.each leds, (led) ->
+			cpPoint = cp.getNearestPoint(led.position)
+			led.offset = polarity * cp.getOffsetOf(cpPoint)
+			return
+		leds = _.sortBy leds, 'offset'
+		_.each leds, (led, id) ->
+			led.lid = id
 
-	# remove: ->
-	# 	@svg.remove()
-	# 	return
-	# queryable: ->
-	# 	_.map @query({}), (el) ->
-	# 		el.name	  
-	# query: (selector) ->
-	# 	CanvasUtil.query @svg, selector
-	# queryPrefix: (selector) ->
-	# 	@query prefix: [ selector ]
-	# orderLeds: ->
-	# 	leds = CanvasUtil.queryPrefix('NLED')
-	# 	cp = CanvasUtil.queryPrefix('CP')
-	# 	bi = CanvasUtil.queryPrefix('BI')
-	# 	# CHECKS
-	# 	if _.isEmpty leds
-	# 		console.warn("NO LEDS DETECTED")
-	# 		return 
-	# 	if _.isEmpty cp
-	# 		console.warn("NO PATH; CAN'T ENUMERATE LEDS")
-	# 		return 
-	# 	if _.isEmpty bi
-	# 		console.warn("NO BREAKIN; CAN'T ENUMERATE LEDS")
-	# 		return
-	# 	cp = cp[0]
-	# 	bi = bi[0]
-	# 	forward = cp[0].firstSegment.point.getDistance(bi.firstSegment.point)
-	# 	backward = cp[0].lastSegment.point.getDistance(bi.firstSegment.point)
-		
-	# 	_.each leds, (led) ->
-	# 		cpPoint = cp.getNearestPoint(led.position)
-	# 		led.offset = polarity * cp.getOffsetOf(cpPoint)
-	# 		return
-
-	# 	leds = _.sortBy allLeds, 'offset'
-
-	# 	_.each allLeds, (led, id) ->
-	# 		obj.lid = id
-	# 		return
 	# loadLEDS: (scope) ->
 	# 	leds = scope.queryPrefix('NLED')
 	# _.each leds, (led) ->

@@ -26,3 +26,4 @@
 //= require aesthetic_actuation/levels/Actuator/Lights
 //= require aesthetic_actuation/levels/Actuator/Heaters
 //= require aesthetic_actuation/levels/Actuator/Motors
+//= require aesthetic_actuation/levels/Actuator/ActuatorGroup

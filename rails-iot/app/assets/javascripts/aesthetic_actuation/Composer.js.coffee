@@ -1,13 +1,15 @@
 class window.Composer
+  @log: ()-> return#console.log.bind(console)
   constructor: (@op) ->
     @init()
   init:()->
     @live = false
-    console.info "COMPOSER INITIALIZED"
+    Composer.log "COMPOSER INITIALIZED"
     @initBLSlider @op.slider
     @bindLiveButton()
     @bindSignalButton()
   bindLiveButton:()->
+    Composer.log "BINDING LIVE BUTTON"
     scope = this
     @op.live_button.click((event)->
       scope.live = not scope.live
@@ -17,7 +19,8 @@ class window.Composer
         $(this).css('background', '#2d6a96')
     )
   bindSignalButton:()->
-    scope = this;
+    Composer.log "BINDING SIGNAL SENDER"
+    scope = this
     @op.signal_button.click((event)->
       ts = tsm.getActiveTimeSignal()
       commands = ts.command_list.apply(ts)
@@ -34,8 +37,8 @@ class window.Composer
       _.delay(turnBack, 3000)
     )
   initBLSlider: (dom)->
+    Composer.log "BINDING BL"
     scope = this;
-    console.log "BINDING BL"
     dom.on 'input', ->
       act = am.getActiveActuator()
       channel = am.getActiveChannel()

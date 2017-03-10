@@ -1,6 +1,7 @@
 class window.TimeSignalManager
+  @log: ()-> return#console.log.bind(console)
   constructor: (@op) ->
-    console.info 'TSM'
+    TimeSignalManager.log 'TSM'
     @init()
   init:()->
     @timesignals = @initTimeSignals()
@@ -93,12 +94,17 @@ class window.TimeSignalManager
     @activateDragAndDrop()
   activateDragAndDrop: ()->
     scope = this
-    $('.sortable').sortable({
+    $('.sortable').sortable
       placeholder: "ui-state-highlight"
-    });
-    $('canvas.draggable').draggable({
+
+    $('canvas.draggable').draggable
       revert: true
-    });
+      appendTo: '#ui2'
+      scroll: false
+      helper: ()->
+        copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).attr('period'))
+        return copy;
+ 
     $('.track.droppable').droppable({
       accept: "canvas.draggable", 
       classes: { "droppable-active": "droppable-default"},
@@ -120,11 +126,11 @@ class window.TimeSignalManager
           acceptor = sm.getAcceptor(event.pageX, event.pageY)
           if not _.isNull acceptor
             window.paper = sm.paper
-            op = {
+            op =
               paper: sm.paper,
               data: ui.draggable.attr('data'), 
               acceptor: acceptor
-            }
+
             if not _.isUndefined ui.draggable.attr('period')
               op.period = ui.draggable.attr('period')
             op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), op)

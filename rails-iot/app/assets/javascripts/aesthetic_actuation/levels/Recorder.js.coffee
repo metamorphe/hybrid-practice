@@ -1,7 +1,7 @@
 class window.Recorder
   @DEFAULT_PERIOD: 60000
   @DEFAULT_RESOLUTION: 100 # ms/sample
-  @log: console.log.bind(console)
+  @log: ()-> return#console.log.bind(console)
  
   constructor: (@op)->
     Recorder.log "RECORDER"
@@ -36,6 +36,7 @@ class window.Recorder
       )
     $(document).keypress (event) ->
       if event.which == 32 # SPACE KEY
+        event.preventDefault()
         scope.op.recorder_button.click()
       if event.which == 99 # 'c' KEY
         scope.ts.inject.apply(scope.ts, [0, 0, scope.ts.period])

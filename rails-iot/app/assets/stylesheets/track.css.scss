@@ -1,8 +1,16 @@
+/*flex-wrap: nowrap !important;
+    flex-direction: column;
+    justify-content: flex-start;
+    */
+
 event{
+  @extend .full-hoz;
+  /*overflow-y: hidden;*/
+  overflow-x: scroll;
 	background: $base;
 	padding: 0px;
 	width: 100%;
-	margin-top: 5px;
+	margin-top: 0px;
 	margin-bottom: 0px;
 
 	height: 100px;
@@ -11,7 +19,7 @@ event{
 	font-weight: bold;
 	font-size: 1em;
 	text-align: center;
-	border: 2px solid $off_black;
+	/*border: 2px solid $off_black;*/
 	@include drop-shadow(0.43);
 }       
 

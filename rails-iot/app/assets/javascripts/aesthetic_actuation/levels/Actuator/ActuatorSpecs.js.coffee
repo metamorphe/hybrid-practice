@@ -53,10 +53,10 @@ _.extend(window,
 	    hue: _.extend(_.clone(v360_actuator),
 	      modality: 'light'
 	      alpha: 1.1)
-	    saturation: _.extend(_.clone(v10bit_actuator),
+	    saturation: _.extend(_.clone(param_actuator),
 	      modality: 'light'
 	      alpha: 1.1)
-	    brightness: _.extend(_.clone(v10bit_actuator),
+	    brightness: _.extend(_.clone(param_actuator),
 	      modality: 'light'
 	      alpha: 1.1)
 	  package: 'SMD'

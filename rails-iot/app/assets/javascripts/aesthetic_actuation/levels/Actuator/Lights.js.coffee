@@ -46,12 +46,16 @@ class window.ActuatorLED extends ActuatorLight
   toCommand: ->
     v = parseInt(@expression.brightness * 255)
     return "\t" + @op.name + ".set("+ v + ");\n";
-  
+  toAPI: ->
+    _.map @hardware_id, (hid)->
+      {flag: "C", args: [hid, @expression.brightness]}
+    
   
     
 class window.ActuatorRGBLED extends ActuatorLED
   onCreate: ->
-    @expression = {red: 255, green: 0, blue: 0}
+    # @expression = {red: 255, green: 0, blue: 0}
+    @expression = @op.color
     return
   _param2express: ->
     c = @channels
@@ -93,10 +97,16 @@ class window.ActuatorRGBLED extends ActuatorLED
       parseInt(val * 255)
     )
     return "\t" + @op.name + ".set("+ v.join(', ') + ");\n";
-
+  toAPI: ->
+    c = @expression
+    r = parseInt(c.red * 255)
+    g = parseInt(c.green * 255)
+    b = parseInt(c.blue * 255)
+    _.map @hardware_id, (hid)->
+      {flag: "C", args: [hid, r, g, b]}
 class window.ActuatorHSBLED extends ActuatorRGBLED
   onCreate: ->
-    @expression = {hue: 120, saturation: 128, brightness: 230}
+    @expression = @op.color
     return
   _param2express: ->
     c = @channels
@@ -111,6 +121,6 @@ class window.ActuatorHSBLED extends ActuatorRGBLED
     @_warn val
   _color:(str)->
     c = new paper.Color str
-    @channels.hue.value = c.hue * 255
-    @channels.saturation.value = c.saturation * 255
-    @channels.brightness.value = c.brightness * 255
+    @channels.hue.value = c.hue
+    @channels.saturation.value = c.saturation #* 255
+    @channels.brightness.value = c.brightness #* 255

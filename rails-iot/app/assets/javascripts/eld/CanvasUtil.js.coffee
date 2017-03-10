@@ -6,7 +6,9 @@
 #    Breakin --> obj.queryPrefix("BI");
 
 window.CanvasUtil = ->
-
+# queryable: ->
+#   _.map @query({}), (el) ->
+#     el.name   
 CanvasUtil.import = (filename, options) ->
   extension = filename.split('.')
   extension = extension[extension.length - 1]
@@ -83,7 +85,7 @@ CanvasUtil.fitToViewWithZoom = (element, bounds, position) ->
     scaleX
     scaleY
   ])
-  console.log 'SET ZOOM TO', scale, bounds.width, bounds.height, 'for', element.bounds.width, element.bounds.height
+  # console.log 'SET ZOOM TO', scale, bounds.width, bounds.height, 'for', element.bounds.width, element.bounds.height
   paper.view.zoom = 1 / scale
   paper.view.center = position
   return
@@ -210,7 +212,8 @@ CanvasUtil.getName = (item) ->
   name = name.replaceAll("_x5B_", '[')
   name = name.replaceAll("_x5D_", ']')
   name = name.replaceAll("_x2C_", ',')
-  if(name[0] == "_") then name = name.slice(1)
+  if name[0] == "_" then name = name.slice(1)
+  if name[name.length - 1] == "_" then name = name.slice(0, -3) #NEEDS TO BE _X_ matched
   name
   # x5F__x7B__x22_colorID_x22_
 # _{"colorID":[0.90196,0.09804,0.09804],"target":43,"forceTarget":38}

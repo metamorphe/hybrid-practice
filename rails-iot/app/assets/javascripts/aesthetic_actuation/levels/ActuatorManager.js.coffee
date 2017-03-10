@@ -1,5 +1,6 @@
 class window.ActuatorManager
   @extract: ()->
+    console.info "EXTRACTING ACTUATORS FROM ARTWORK"
     LEDS = _.map CanvasUtil.queryPrefix("LED"), (led, i)->
       led.type = "LED"
       led.color = CanvasUtil.getName(led)
@@ -12,27 +13,24 @@ class window.ActuatorManager
      
       $('#actuators').append(act);
       return led
+    console.log "LEDs:", LEDS.length
     hsbLEDs = _.map CanvasUtil.queryPrefix("NLED"), (led, i)->
       led.type = "HSBLED"
       data = JSON.parse(CanvasUtil.getName(led))
-
       led.color = rgb2hex(new paper.Color(data.colorID).toCSS())
-      # # FIND TEMPLATE
+      led.fillColor = led.color
+      # FIND TEMPLATE
       act = $('actuator.template[name="'+led.type+'"]')
         .clone().removeClass('template')
         .data('color', led.color)
         .data('canvas-id', led.id)
-        # .data('hardware-id', i)
-        
+        .data('hardware-id', led.lid)
+      
       $('#actuators').append(act);
       return led
+    console.log "hsbLEDs:", hsbLEDs.length
 
-
-
-
-
-
-    actuators = _.flatten([LEDS])
+    actuators = _.flatten([LEDS, hsbLEDs])
     _.each actuators, (actuator)->
       actuator.onClick = ()->
         console.log actuator.expresso_id
@@ -58,30 +56,27 @@ class window.ActuatorManager
     collection = @op.collection.find('actuator').not('.template')
     console.info 'Initializing actuators', collection.length
     _.each collection, (act, i) ->
-      console.log i, 'actuator'
       scope.initActuator.apply(scope, [act])
   
-  initActuator: (act)->
-    console.log act
+  initActuator: (act, op)->
     scope = this
     act = $(act)
     dom = act.find('canvas')
     papel = Utility.paperSetup(dom)
+
     ActuatorType = act.attr('name')
-    console.log ActuatorType
-    color = act.data('color')
-    canvas_id = act.data('canvas-id')
-    hardware_id = act.data('hardware-id')
     ActuatorSimulator = eval('Actuator' + ActuatorType)
     props = _.extend(_.clone(eval(ActuatorType)),
-      color: color
       type: ActuatorType
-      hardware_id: hardware_id
-      canvas_id: canvas_id
+      color: act.data('color')
+      hardware_id: act.data('hardware-id')
+      canvas_id: act.data('canvas-id')
       paper: papel
       dom: dom)
     actuator = new ActuatorSimulator(props)
-    console.log actuator
+    if op and op.group
+      actuator.makeGroup(op.group)
+
     channels = @getChannels(actuator)
     _.each( channels, (channel)->
       scope.updateChannel(actuator, channel)
@@ -110,11 +105,13 @@ class window.ActuatorManager
     $('actuator.selected channels label.actuator.selected').parents('channel').attr('type');
   updateChannel: (actuator, channel)->
     val = actuator.channels[channel].value
+    val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
+    # val =  if val == 0 then val.toFixed(0)
     query = 'channel[type="' + channel + '"]'
     $(actuator.op.dom).parents('actuator').find(query).find('.dimension').html(val);
   updateActiveChannel: (val)->
+    val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     $('actuator.selected channels label.actuator.selected').find('.dimension').html(val);
-
   sendCommandTo: (actuator, channel, param)->
     if _.isUndefined actuator
       console.warn("FORGOT TO SELECT AN ACTUATOR!")
@@ -123,10 +120,12 @@ class window.ActuatorManager
     query = parameterized: true
     query[channel] = param
     actuator.expression = query  
-    update = actuator.channels[channel].value.toFixed(0)
+    update = actuator.channels[channel].value
     val = parseInt(actuator.channels[channel].value)
     if cmp and sc
-      sc.sendMessage({flag: "C", args: [actuator.hardware_id, val]}, {live: cmp.live}) 
+      commands = actuator.toAPI()
+      _.each commands, (command)->
+        sc.sendMessage(command, {live: cmp.live}) 
     am.updateActiveChannel(update);
     return actuator.toCommand()
   sendCommandById: (a_id, channel, ts_id)->
@@ -154,57 +153,35 @@ class window.ActuatorManager
       siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
       $(this).addClass('selected')
       return
-  clone: (o)->
-    act_type = o.attr('name')
+  clone: (o, title)->
+    name = o.attr('name')
     act = $('actuator.template[name="'+name+'"]')
-    .clone().removeClass('template')
+    .clone()
+    .removeClass('template')
     .data('color', o.data('color'))
     .data('hardware-id', o.data('hardware-id'))
     .data('canvas-id', o.data('canvas-id'))
-
+    if title then act.find("p.actuator-title:first").html(title.toUpperCase())
+    act
+   
   activateDragAndDrop: ()->
     scope = this
-    $('actuator.draggable').draggable({
+    $('actuator.draggable').draggable
       revert: true
-    });
+      appendTo: '#ui2'
+      scroll: false
+      helper: ()->
+        copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardwareId)
+        return copy;
+    
     $('.actuator-droppable').droppable
-      accept: "actuator.draggable", 
-      classes: { "droppable-active": "droppable-default"},
-      # activate: (event, ui) ->
-        # if not sm then return
-        # sm.setAcceptorsActive(true)
+      accept: "actuator.draggable"
+      classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->
         act = scope.clone(ui.draggable)
-        $(this).html("").append(act).removeClass('actuator-droppable');
+        $(this).append(act).removeClass('actuator-droppable');
         scope.initActuator.apply(scope, [act]);
         scope.activate()
-        # dom = $('<canvas></canvas>') #.addClass('draggable')
-        #     .attr('data', ui.draggable.attr('data'))
-        #     .attr('period', ui.draggable.attr('period'));
-        # if $(this).attr('id') == "time-morph-track" then dom.addClass('draggable')
-        # ts = $('<datasignal></datasignal>').append(dom)
-        # $(this).append(ts);
-        # op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
-        # scope.add(new TimeSignal(op)) 
-        
-    #   deactivate: (event, ui) ->
-    #     if sm
-    #       acceptor = sm.getAcceptor(event.pageX, event.pageY)
-    #       if not _.isNull acceptor
-    #         window.paper = sm.paper
-    #         op = {
-    #           paper: sm.paper,
-    #           data: ui.draggable.attr('data'), 
-    #           acceptor: acceptor
-    #         }
-    #         if not _.isUndefined ui.draggable.attr('period')
-    #           op.period = ui.draggable.attr('period')
-    #         op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), op)
-
-    #         ts = CanvasUtil.query(paper.project, {prefix: ["TIMESIGNAL"], acceptor: acceptor.id})
-    #         CanvasUtil.call(ts, 'remove')
-    #         tsm.add(new TimeSignal(op))
-          
-    #       sm.setAcceptorsActive(false)
+      
       
   
