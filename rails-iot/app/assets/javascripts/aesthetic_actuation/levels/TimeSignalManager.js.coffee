@@ -17,17 +17,10 @@ class window.TimeSignalManager
       ids = _.map(scope.op.time_track.find('datasignal'), (dom)->
         id = $(dom).data 'time_signal_id'
         ts = scope.getTimeSignal(id)
-
-        red = new paper.Color("#d9534f");
-        blue = new paper.Color("#00A8E1");
         v = scope.op.time_slider.val()
-        max = parseInt(scope.op.time_slider.attr('max'))
-        min = parseInt(scope.op.time_slider.attr('min'))
-        p = (v - min) / (max - min);
-        temp = red.multiply(1-p).add(blue.multiply(p))
-        scope.op.time_track.css('background', temp.toCSS())
-
-        ts.updatePeriod(ts, scope.op.time_slider.val())
+        # temp = TimeSignal.temperatureColor(v)
+        # scope.op.time_track.css('background', temp.toCSS())
+        ts.updatePeriod.apply(ts, [v])
       )
     )
   initTimeSignals: ->
@@ -50,14 +43,9 @@ class window.TimeSignalManager
     )
   addTS: (timesignal_ids)->
     console.log "ADDING"
-    ts = _.map(timesignal_ids, (id)->
-        return tsm.getTimeSignal(id)
-      )
-    time_sum = _.reduce ts, ((memo, t)->
-        return memo + t.period
-      ), 0
-    cls = _.map ts, (t)->
-      return t.command_list()
+    ts = _.map timesignal_ids, (id)-> return tsm.getTimeSignal(id)
+    time_sum = _.reduce ts, ((memo, t)-> return memo + t.period), 0
+    cls = _.map ts, (t)-> return t.command_list()
 
     elapsed_time = 0
     data = _.map cls, (commands, i)->
@@ -69,19 +57,18 @@ class window.TimeSignalManager
 
     data = _.flatten(data) 
     data = TimeSignal.resample(data, time_sum)
-    new_dom = TimeSignal.makeDOM
+
+    new_dom = TimeSignal.copy
       data: data
       period: time_sum
       classes: ['draggable']
-
-    dom = tsm.op.add_result.html("").append(new_dom)
-            
-    op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE),
-      signal_fill:
-        fillColor: '#d9534f', 
-      dom: new_dom.find('canvas')
-      )
-    tsm.add(new TimeSignal(op))
+      parent: tsm.op.add_result
+      clearParent: true
+      activate: true
+      style:
+        signal_fill:
+          fillColor: '#d9534f', 
+      
     return 
   initSelection: ()->
     scope = this

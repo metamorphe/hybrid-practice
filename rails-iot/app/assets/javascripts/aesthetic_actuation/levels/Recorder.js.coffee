@@ -10,18 +10,16 @@ class window.Recorder
     @curr_elapsed = 0
     
     @record = false
-    new_dom = TimeSignal.makeDOM
+    new_dom = TimeSignal.copy
       data: _.zeros(parseInt(Recorder.DEFAULT_PERIOD/Recorder.DEFAULT_RESOLUTION))
       period: Recorder.DEFAULT_PERIOD
       classes: ['draggable']
-    @op.recorder_result.html("").append(new_dom)
-    op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE),
-      signal_fill:
-        fillColor: '#d9534f', 
-      dom: new_dom.find('canvas')
-      )
-    @ts = new TimeSignal op
-    tsm.add @ts
+      parent: @op.recorder_result
+      clearParent: true
+      activate: true
+      style: 
+        signal_fill:
+          fillColor: '#d9534f'
     @bindButton()
   bindButton: ()->
     scope = this

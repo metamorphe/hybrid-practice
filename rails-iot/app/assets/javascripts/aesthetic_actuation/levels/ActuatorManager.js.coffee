@@ -161,7 +161,9 @@ class window.ActuatorManager
     .data('color', o.data('color'))
     .data('hardware-id', o.data('hardware-id'))
     .data('canvas-id', o.data('canvas-id'))
+    console.log o.find("p.actuator-title:first").html()
     if title then act.find("p.actuator-title:first").html(title.toUpperCase())
+    else act.find("p.actuator-title:first").html(o.find("p.actuator-title:first").html())
     act
    
   activateDragAndDrop: ()->

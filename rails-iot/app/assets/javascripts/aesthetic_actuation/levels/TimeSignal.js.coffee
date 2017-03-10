@@ -2,10 +2,19 @@ class window.TimeSignal
   @COUNTER: 0
   @DEFAULT_PERIOD: 3000
   @DEFAULT_RESOLUTION: 100 # ms/sample
+  @MAX: 10000, 
+  @MIN: 0,
   @DEFAULT_STYLE: 
     signal_fill: {fillColor: '#FF9912'}
     signal: {strokeWidth: 3, strokeColor: '#333'}
     axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
+  @temperatureColor: (v)->
+    max = TimeSignal.MAX
+    min = TimeSignal.MIN
+    p = (v - min) / (max - min);
+    red = new paper.Color("#d9534f");
+    blue = new paper.Color("#00A8E1");
+    return red.multiply(1-p).add(blue.multiply(p))
   @resample: (data, period)->
     target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
     i = 0
@@ -33,15 +42,18 @@ class window.TimeSignal
         time /= 60 * 60
         time.toFixed(2) + 'hr'
     return time
-  @makeDOM:(op)->
+  @copy:(op)->
     newDom = $('<datasignal id="result"><canvas></canvas></datasignal>')
-    newDom.find("canvas")
-      .attr("data", JSON.stringify(op.data))
-      .attr("period", op.period)
-    _.each op.classes, (c)->
-      newDom.find('canvas').addClass(c)
-      return
-    tsm.activateDragAndDrop()
+    canvas = newDom.find("canvas").attr("data", JSON.stringify(op.data)).attr("period", op.period)
+    props = _.clone(TimeSignal.DEFAULT_STYLE)
+    props = _.extend props,{dom: canvas}
+    if op.classes then _.each op.classes, (c)-> newDom.find('canvas').addClass(c)
+    if op.clearParent then op.parent.html("")
+    if op.parent then op.parent.append(newDom)
+    if op.style then _.extend props, op.style
+    if op.activate
+      tsm.add(new TimeSignal(props))
+      tsm.activateDragAndDrop()
     return newDom
   @compile: (cl)->
     prev = cl[0]
@@ -65,12 +77,13 @@ class window.TimeSignal
       @period  = if _.isUndefined(@op.period) then TimeSignal.DEFAULT_PERIOD  else @op.period
       @acceptorInit()
     return
-  updatePeriod: (scope, period)->
-    scope.period = period
-    scope.op.dom.attr('period', scope.period)
-    window.paper = scope.op.paper
+  updatePeriod: (period)->
+    @period = period
+    @op.dom.attr('period', @period)
+    window.paper = @op.paper
     CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
-    time = scope._time_encoder(scope.visuals)
+    CanvasUtil.queryPrefix("SIGNAL")[0].fillColor = TimeSignal.temperatureColor(@period)
+    time = @_time_encoder(@visuals)
   acceptorInit: ()->
     window.paper = @op.paper
     @data = eval(@op.data)
@@ -243,6 +256,8 @@ class window.TimeSignal
     op = _.extend(op,
       segments: time_signal
       closed: true)
+    op.name = "SIGNAL: fill me"
+    op.fillColor = TimeSignal.temperatureColor(@period)
     p = @makePath(op)
   signal: (op) ->
     visual = @to_visual()
