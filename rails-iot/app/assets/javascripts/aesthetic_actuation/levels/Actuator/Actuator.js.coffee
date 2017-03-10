@@ -5,6 +5,7 @@ class Actuator
   constructor: (@op) ->
     console.info 'Making', @constructor.name
     @paper = @op.paper
+    @hardware_id = @op.hardware_id
     @init()
     @onCreate()
   init: ->

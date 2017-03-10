@@ -29,6 +29,14 @@ $sexy_red: #d9534f;
 	box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
 }
 
+ @mixin rotate($degrees) {
+    -webkit-transform: rotate($degrees);
+    -moz-transform: rotate($degrees);
+    -ms-transform: rotate($degrees);
+    -o-transform: rotate($degrees);
+    transform: rotate($degrees);
+}
+
 body, html{
 	width: 100vw;
 	height: 100vh;

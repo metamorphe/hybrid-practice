@@ -1,15 +1,47 @@
-window.DEFAULT_SIGNAL_STYLE = 
-  signal_fill: {fillColor: '#FF9912'}
-  signal: {strokeWidth: 3, strokeColor: '#333'}
-  axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
-time_signal_counter = 0
-
 class window.TimeSignal
+  @COUNTER: 0
   @DEFAULT_PERIOD: 3000
+  @DEFAULT_RESOLUTION: 100 # ms/sample
+  @DEFAULT_STYLE: 
+    signal_fill: {fillColor: '#FF9912'}
+    signal: {strokeWidth: 3, strokeColor: '#333'}
+    axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
+  @resample: (data, period)->
+    target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
+    i = 0
+    return _.map(target, (t)->
+      if i + 1 >= data.length then return data[i].p
+      if t <= data[i + 1].t
+        return data[i].p
+      else
+        i++
+        return data[i].p
+    )
+  @makeDOM:(op)->
+    newDom = $('<datasignal id="result"><canvas></canvas></datasignal>')
+    newDom.find("canvas")
+      .attr("data", JSON.stringify(op.data))
+      .attr("period", op.period)
+    _.each op.classes, (c)->
+      newDom.find('canvas').addClass(c)
+      return
+    tsm.activateDragAndDrop()
+    return newDom
+  @compile: (cl)->
+    prev = cl[0]
+    compiled = [prev]
+    _.map cl, (command, i)->
+      if i == 0 then return
+      if command.param == prev.param
+        prev.duration += command.duration
+      else
+        compiled.push(command)
+        prev = command
+    return compiled
+
   constructor: (@op)->
-    @id = time_signal_counter++
+    @id = TimeSignal.COUNTER++
     if @op.dom
-      console.log(@op.dom.attr('period'))
       @period = if _.isUndefined(@op.dom.attr('period')) then TimeSignal.DEFAULT_PERIOD else parseFloat(@op.dom.attr('period')) 
       @canvasInit()
       if tsm then tsm.initSelection()
@@ -17,14 +49,12 @@ class window.TimeSignal
       @period  = if _.isUndefined(@op.period) then TimeSignal.DEFAULT_PERIOD  else @op.period
       @acceptorInit()
     return
-
   updatePeriod: (scope, period)->
     scope.period = period
     scope.op.dom.attr('period', scope.period)
     window.paper = scope.op.paper
     CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
     time = scope._time_encoder(scope.visuals)
-
   acceptorInit: ()->
     window.paper = @op.paper
     @data = eval(@op.data)
@@ -36,14 +66,49 @@ class window.TimeSignal
     @op.paper = Utility.paperSetup(@op.dom)
     @op.dom.parents('datasignal').data 'time_signal_id', @id
     @_visuals()
+  command_list: () ->
+    console.log "PERIOD", @period
+    t_scale = @period / @data.length
+    t_elapsed = 0
+    cl = _.map @data, (datum) ->
+      duration = 1 * t_scale
+      t = t_elapsed
+      t_elapsed += duration
+      {
+        t: t
+        param: datum
+        duration: duration
+      }
+
+    cm = TimeSignal.compile(cl)
+    console.log("COMPILATION SAVING", (cl.length - cm.length) / cl.length * 100, "%")
+    cm
+  inject:(data, from, to)->
+    if from < 0 or from > @period
+      console.warn "ATTEMPTING TO RECORD AFTER PERIOD", from, to
+      return
+    if to > @period then to = @period
+    scope = this
+    from = parseInt((from / scope.period) * (scope.data.length - 1))
+    to = parseInt((to / scope.period) * (scope.data.length - 1))
+    data = _.fill(to - from, data)
+    # console.log data
+    r = _.range(0, data.length, 1)
+    _.each r, (i)->
+      scope.data[i + from] = data[i]
+    scope.op.dom.attr('data', JSON.stringify(@data))
+    window.paper = @op.paper
+    @visuals.remove();
+    @_visuals()
+
   _visuals:()->
     fill = @signal_fill(@op.signal_fill)
-    signal = @signal(@op.signal)
+    @_signal = @signal(@op.signal)
     axes = @draw_axes(@op.axes)
     @visuals = new paper.Group
       name: "TIMESIGNAL:" + @id,
       time_signal_id: @id,  
-      children: _.flatten([fill, signal, axes])
+      children: _.flatten([fill, @_signal, axes])
     time = @_time_encoder(@visuals)
     play = @_play_button(@visuals)
     remove = @_remove_button(@visuals)
@@ -145,19 +210,7 @@ class window.TimeSignal
     removeGroup.onClick = (event)->
       scope.op.dom.parents('datasignal').remove()
       
-  command_list: (scope) ->
-    console.log "PERIOD", scope.period
-    t_scale = scope.period / scope.data.length
-    t_elapsed = 0
-    _.map @data, (datum) ->
-      duration = 1 * t_scale
-      t = t_elapsed
-      t_elapsed += duration
-      {
-        t: t
-        param: datum
-        duration: duration
-      }
+  
   draw_axes: (op) ->
     offset = new (paper.Point)(0, -4)
     axes = [
@@ -175,16 +228,7 @@ class window.TimeSignal
       new (paper.Path.Line)(axis)
   to_visual: ->
     _.map @data, (datum, i) ->
-      [
-        [
-          i
-          datum
-        ]
-        [
-          i + 1
-          datum
-        ]
-      ]
+      [[i, datum],[i + 1, datum]]
   signal_fill: (op) ->
     visual = @to_visual()
     time_signal = _.flatten(visual, true);

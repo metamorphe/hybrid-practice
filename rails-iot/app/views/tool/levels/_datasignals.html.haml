@@ -13,11 +13,18 @@
 %event#adder.full-hoz.data-signal-design
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
-      ADD
-  .unit-track
+      STITCH
+  #add-result.unit-track
     %datasignal#result
       %canvas
-  .track.droppable.sortable
+  #adder-track.track.droppable.sortable
+%event#recorder.full-hoz.data-signal-design
+  .vert
+    %button#record.design-title.btn-primary.trigger{:type => "trigger"}
+      RECORD
+  #record-result.unit-track
+    %datasignal#result
+      %canvas
 %event#timemorph.full-hoz.data-signal-design
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}

@@ -12,29 +12,30 @@ class window.StateMachineAutomata
 	unsubscribe: (scope)->
 		if not sc then return
 		sc.unsubscribe(scope.subscribed)
-	subscribe: (scope)->
-		if scope.subscribed == ''
+	subscribe: ()->
+		scope = this
+		if @subscribed == ''
 			console.info("SUBSCRIBING")
-			scope.subscribed = sc.subscribe (msg)->
+			@subscribed = sc.subscribe "input", (msg)->
 				if msg.flag == "S"
 					state = msg.args[0]
-					if not scope.live_set
+					if not @live_set
 						console.log "SETTING INITIAL", state
-						scope.machine_settings.initial = state
-						scope.op.restart.click();
-						scope.live_set = true
+						@machine_settings.initial = state
+						@op.restart.click();
+						@live_set = true
 					else
 						console.log "UPDATING SM TO", state
-						current = scope.machine.current
-						transition = scope.states[current].transitions[state]
-						if _.contains(scope.machine.transitions(), transition)
-							scope.transit(scope, transition)
+						current = @machine.current
+						transition = @states[current].transitions[state]
+						if _.contains(@machine.transitions(), transition)
+							scope.transit.apply(scope, [transition])
 						else
 							console.log "MISSED STATE", transition
 		else
 			console.info("UNSUBSCRIBING")
-			scope.subscribed = sc.unsubscribe(scope.subscribed)
-			scope.live_set = false
+			@subscribed = sc.unsubscribe("input", @subscribed)
+			@live_set = false
 
 	activateMachine: ()->
 		scope = this
@@ -52,7 +53,7 @@ class window.StateMachineAutomata
 			scope.activateMachine()
 		)
 		@op.live.click((event)->
-			scope.subscribe(scope)
+			scope.subscribe.apply(scope)
 		)
 	setState: (state, style)->
 		state.children[0].set(style)
@@ -68,8 +69,9 @@ class window.StateMachineAutomata
 		end = CanvasUtil.queryPrefixIn(components, "END")[0]
 		acceptor = CanvasUtil.queryPrefixIn(components, "ACCEPTOR")[0]
 		{arrow: arrow, name: transition, end: end, acceptor: acceptor}
-	transit: (scope, name)->
-		if scope.machine.cannot(name) then return
+	transit: (name)->
+		scope = this
+		if @machine.cannot(name) then return
 		t = @getTransitionComponents(name)
 		t.arrow.set({strokeColor: ACTIVE_STATE})
 		t.end.set({fillColor: ACTIVE_STATE})
@@ -88,7 +90,7 @@ class window.StateMachineAutomata
 			transition.onClick = ()->
 				paper = scope.paper
 				name = transition.sm_name
-				scope.transit(scope, name)
+				scope.transit.apply(scope, [name])
 	getAcceptor: (pageX, pageY)->
 		paper = @paper
 		offset = @op.dom.offset() 

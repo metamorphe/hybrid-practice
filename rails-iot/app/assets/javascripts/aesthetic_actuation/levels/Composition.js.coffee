@@ -12,23 +12,23 @@ class window.Composition
     editor.$blockScrolling = Infinity
     editor
   initEditorButton:()->
-    scope = this;
-    editor = scope.editor
-    $('button.sexy').click ->
-      newSession = ace.createEditSession('', 'ace/mode/javascript')
-      editor.setSession newSession
+    # scope = this;
+    # editor = scope.editor
+    # $('button.sexy').click ->
+    #   newSession = ace.createEditSession('', 'ace/mode/javascript')
+    #   editor.setSession newSession
      
-      ts = scope.getActiveTimeSignal()
-      commands = ts.command_list(ts)
-      editor.insert 'function myBehavior(){\n'
+    #   ts = scope.getActiveTimeSignal()
+    #   commands = ts.command_list.apply(ts)
+    #   editor.insert 'function myBehavior(){\n'
       
-      _.each commands, (command) ->
-        txt = scope.sendCommand(scope, command.param)
-        editor.insert txt
-        editor.insert '\u0009delay(' + command.duration.toFixed(0) + ');\n'
-        return
-      editor.insert '}\n'
+    #   _.each commands, (command) ->
+    #     txt = scope.sendCommand(scope, command.param)
+    #     editor.insert txt
+    #     editor.insert '\u0009delay(' + command.duration.toFixed(0) + ');\n'
+    #     return
+    #   editor.insert '}\n'
 
-      _.each commands, (command) ->
-        _.delay(scope.sendCommand, command.t, scope, command.param) 
-        return
+    #   _.each commands, (command) ->
+    #     _.delay(scope.sendCommand, command.t, scope, command.param) 
+    #     return

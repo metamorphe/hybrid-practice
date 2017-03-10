@@ -12,9 +12,14 @@ window.ACTIVE_STATE = YELLOW
 window.INACTIVE_STATE = WHITE
 window.INACTIVE_STATE_ARROW = BLACK
 
-
-_.mixin(isColorString: (str)->
-  return typeof str == 'string' && str[0] == "#" && str.length == 7)
+$(()->
+  _.mixin(isColorString: (str)->
+    return typeof str == 'string' && str[0] == "#" && str.length == 7)
+  _.mixin(zeros: (length)->
+    return Array.apply(null, Array(length)).map(Number.prototype.valueOf,0))
+  _.mixin(fill: (length, v)->
+    return Array.apply(null, Array(length)).map(Number.prototype.valueOf,v))
+)
 
 window.rgb2hex = (rgb) ->
   rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i)

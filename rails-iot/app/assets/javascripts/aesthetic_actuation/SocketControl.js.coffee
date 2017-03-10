@@ -1,16 +1,23 @@
 class window.SocketControl
+  @DISCONNECTED: 0
+  @ERROR : 1
+  @CONNECTED: 1
+  @LOG: true
   constructor: (@op) ->
     console.info 'ENABLING SOCKET COMMUNICATION'
-    @subscribers = {}
+    @subscribers = {
+      input: {}, 
+      output: {}
+    }
     @state = SocketControl.DISCONNECTED
     @init()
     return
-  subscribe:(fn)->
+  subscribe:(channel, fn)->
     id = guid()
-    @subscribers[id] = fn
+    @subscribers[channel][id] = fn
     return id
-  unsubscribe: (id)->
-    delete @subscribers[id]
+  unsubscribe: (channel, id)->
+    delete @subscribers[channel][id]
     return ''
   init: ->
     scope = this
@@ -77,58 +84,33 @@ class window.SocketControl
 
     @ws.onmessage = (evt) ->
       if evt.data
-        _.each scope.subscribers, (fan)->
-          data= evt.data.replace("\n", "").trim();
-          parse = data.split(":")
-          if parse.length != 2
-            console.log '↑', evt.data
+        _.each scope.subscribers.input, (fan)->
+          command = scope.stringToCommand(evt.data)
+          if _.isNull command then console.log '↑', evt.data
           else
-            flag = parse[0].toUpperCase()
-            args = parse[1].split(" ")
-            args = _.map args, (arg)->
-              if _.isString(arg) then return arg.toUpperCase()
-              else if _.isNumber(arg) then return parseInt(arg)            
             # DELAY TRIGGER DETECTED
-            if flag == "T"
-              scope.sendMessageAt(["f ", args[0].toLowerCase(), "\n"].join(""), args[1])
-              return
-            fan({flag: flag, args: args})
-          return
+            if command.flag == "T"
+              forceTrigger = {flag: "F", args: command.args[0].toLowerCase()}
+              scope.sendMessageAt(forceTrigger, {delay: args[1]})
+            fan({flag: flag, args: args})  
         scope.update()
       return
-   
     return
-  sendUpdateMsg: (delay = 0) ->
-    @sendMessageAt 'u\n', delay
-    return
-  didYouSaySomething: (message)->
-    @sendMessage(message + "\n");
-  sendMessage: (msgString) ->
-    if @state != SocketControl.CONNECTED
-      return
-    try
-      @ws.send msgString
-      console.log '↓', msgString
-    catch e
-      console.error 'ERROR SENSING', msgString
-    true
-  sendMessageAt: (msgString, timeFromNow, updateFN) ->
-    `var updateFN`
-    if _.isUndefined(updateFN)
-      updateFN = ->
-
-    if timeFromNow == 0
-      @sendMessage msgString
-      updateFN()
-      return
+  sendMessage: (command, op) ->
     scope = this
-    
-    msgFN = ->
-      scope.sendMessage msgString
-      updateFN()
-      return
-
-    _.delay(msgFN, timeFromNow)
+    f = ()->
+      msgString = scope.commandToString(command)
+      _.each scope.subscribers.output, (fan)->
+        fan(command)  
+      if op.live
+        if not scope.ws then console.warn "NOT CONNECTED TO A WEBSOCKET"
+        else scope.ws.send msgString
+      if op.update then op.update()
+      if not op.delay then op.delay = 0
+      if scope.LOG then console.log '↓', msgString
+    _.delay(f, op.delay)
+  sendUpdateMsg: (op) ->
+    @sendMessage({flag: 'u', args: []}, op)
     return
   _noports_func: () ->
     console.warn 'NO PORTS'
@@ -165,7 +147,18 @@ class window.SocketControl
       @_noports_func()
       return false
     return true
-
-window.SocketControl.DISCONNECTED = 0
-window.SocketControl.ERROR = -1
-window.SocketControl.CONNECTED = 1
+  stringToCommand: (str)->
+    str = str.replace("\n", "").trim();
+    parse = str.split(":")
+    if parse.length != 2 
+      return null        
+    else
+      flag = parse[0].toUpperCase().trim()
+      args = parse[1].split(" ")
+      args = _.map args, (arg)->
+      if _.isString(arg) then return arg.toUpperCase()
+      else if _.isNumber(arg) then return parseInt(arg)            
+      return {flag: flag, args: args}
+      
+  commandToString: (command) ->
+      return [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"

@@ -20,7 +20,7 @@ class window.Composer
     scope = this;
     @op.signal_button.click((event)->
       ts = tsm.getActiveTimeSignal()
-      commands = ts.command_list(ts)
+      commands = ts.command_list.apply(ts)
       act = am.getActiveActuator()
       channel = am.getActiveChannel()
       # console.log commands, act, channel

@@ -12,16 +12,27 @@ class window.TimeSignalManager
     scope = this
     @op.time_slider.val(TimeSignal.DEFAULT_PERIOD)
     @op.time_slider.on('input', (event)->
+
       ids = _.map(scope.op.time_track.find('datasignal'), (dom)->
         id = $(dom).data 'time_signal_id'
         ts = scope.getTimeSignal(id)
+
+        red = new paper.Color("#d9534f");
+        blue = new paper.Color("#00A8E1");
+        v = scope.op.time_slider.val()
+        max = parseInt(scope.op.time_slider.attr('max'))
+        min = parseInt(scope.op.time_slider.attr('min'))
+        p = (v - min) / (max - min);
+        temp = red.multiply(1-p).add(blue.multiply(p))
+        scope.op.time_track.css('background', temp.toCSS())
+
         ts.updatePeriod(ts, scope.op.time_slider.val())
       )
     )
   initTimeSignals: ->
     _.map @op.collection, (canvas, i) ->
       dom = $(canvas)
-      op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), {dom: dom})
+      op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
       ts = new TimeSignal(op)
   getTimeSignal: (id)->
     @timesignals[id]
@@ -44,23 +55,30 @@ class window.TimeSignalManager
     time_sum = _.reduce ts, ((memo, t)->
         return memo + t.period
       ), 0
-    data = _.reduce(ts, ((memo, t)->
-      memo.push(t.data)
-      return memo
-      ), [])
-    data = _.flatten(data)
-    newDom = $('<datasignal id="result"><canvas></canvas></datasignal>')
-    newDom.find("canvas")
-      .attr("data", JSON.stringify(data))
-      .attr("period", time_sum)
-      .addClass('draggable')
-    dom = tsm.op.add_result.html("").append(newDom)
+    cls = _.map ts, (t)->
+      return t.command_list()
+
+    elapsed_time = 0
+    data = _.map cls, (commands, i)->
+      if i > 0
+        prev_t = ts[i - 1].period
+        elapsed_time += prev_t
+      return _.map commands, (c, i)->
+          return {t: c.t + elapsed_time, p: c.param}
+
+    data = _.flatten(data) 
+    data = TimeSignal.resample(data, time_sum)
+    new_dom = TimeSignal.makeDOM
+      data: data
+      period: time_sum
+      classes: ['draggable']
+
+    dom = tsm.op.add_result.html("").append(new_dom)
             
-    tsm.activateDragAndDrop()
-    op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE),
+    op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE),
       signal_fill:
         fillColor: '#d9534f', 
-      dom: newDom.find('canvas')
+      dom: new_dom.find('canvas')
       )
     tsm.add(new TimeSignal(op))
     return 
@@ -94,7 +112,7 @@ class window.TimeSignalManager
         if $(this).attr('id') == "time-morph-track" then dom.addClass('draggable')
         ts = $('<datasignal></datasignal>').append(dom)
         $(this).append(ts);
-        op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), {dom: dom})
+        op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
         scope.add(new TimeSignal(op)) 
         
       deactivate: (event, ui) ->
@@ -109,7 +127,7 @@ class window.TimeSignalManager
             }
             if not _.isUndefined ui.draggable.attr('period')
               op.period = ui.draggable.attr('period')
-            op = _.extend(_.clone(DEFAULT_SIGNAL_STYLE), op)
+            op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), op)
 
             ts = CanvasUtil.query(paper.project, {prefix: ["TIMESIGNAL"], acceptor: acceptor.id})
             CanvasUtil.call(ts, 'remove')

@@ -1,7 +1,7 @@
 :javascript
   const ports = #{@ports.to_json.html_safe};
   const files = #{@files.to_json.html_safe};
-  var act, sc, ws, fs, cmp, tsm, sm, am;
+  var act, sc, ws, fs, cmp, tsm, sm, am, record;
 
   var PROJECT = {
     CANVAS_COLOR: "rgb(245, 244, 240)"
@@ -17,8 +17,12 @@
       add_result: $('event#adder .unit-track'),
       add_button: $('#ts-adder'),
       time_track: $('#time-morph-track'),
-      time_slider: $('input#time-morph')
+      time_slider: $('input#time-morph'), 
     });
+    record = new Recorder({
+      recorder_button: $('button#record'), 
+      recorder_result: $('#record-result')
+    })
     // ACTUATIOR MANAGER
     am = new ActuatorManager({
       collection: $('#actuators')
@@ -59,13 +63,13 @@
 #ui2
   %group.vert
     = render :partial => "tool/levels/file_selectors"
-    = render :partial => "tool/levels/datasignals"
+    - render :partial => "tool/levels/datasignals"
     = render :partial => "tool/levels/actuators"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"
     - render :partial => "tool/levels/behaviors"
     - render :partial => "tool/levels/distributed"
-    = render :partial => "tool/levels/statemachine"
+    - render :partial => "tool/levels/statemachine"
            
 :css
   #ui2{
