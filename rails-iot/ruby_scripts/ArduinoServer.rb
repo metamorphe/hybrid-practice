@@ -7,7 +7,7 @@ EventMachine.run do
   @port = 3015
   baud_fast = 9600 * 12
   baud_normal = 9600
-  @baud = baud_normal
+  @baud = baud_fast
   @sp = SerialPort.new('/dev/tty.usbmodem1411', @baud, 8, 1, SerialPort::NONE)
   @sid = nil
   EM::defer do
