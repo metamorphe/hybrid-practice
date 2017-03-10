@@ -11,7 +11,10 @@ class Actuator
   init: ->
     @visuals = []
     @id = actuator_counter++;
+    window.paper = fs.op.paper
     @op.dom.parents('actuator').data('id', @id)
+    CanvasUtil.queryID(@op.canvas_id).expresso_id = @id
+    window.paper = @paper
     @visuals = []
     @channels = _.mapObject(@op.channels, (actuator) ->
       new ActuationParam(actuator)

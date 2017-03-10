@@ -2,6 +2,8 @@
 
 .actuator_unit.actuator-droppable{
 	width: 110px !important;
+	height: 90px !important;
+	margin: 0px 6px;
 }
 .actuator-droppable actuator{
 	border: 2px dashed lighten($base, 10%);
@@ -13,6 +15,8 @@
 }
 .actuator_unit{
 	width: 190px!important;
+	height: 90px !important;
+	margin: 0px 6px;
 }
 #record-result{
 	width: 300px;

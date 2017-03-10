@@ -9,22 +9,49 @@ class window.ActuatorManager
         .data('color', led.color)
         .data('canvas-id', led.id)
         .data('hardware-id', i)
-      # act.find("canvas")
+     
       $('#actuators').append(act);
       return led
+    hsbLEDs = _.map CanvasUtil.queryPrefix("NLED"), (led, i)->
+      led.type = "HSBLED"
+      data = JSON.parse(CanvasUtil.getName(led))
+
+      led.color = rgb2hex(new paper.Color(data.colorID).toCSS())
+      # # FIND TEMPLATE
+      act = $('actuator.template[name="'+led.type+'"]')
+        .clone().removeClass('template')
+        .data('color', led.color)
+        .data('canvas-id', led.id)
+        # .data('hardware-id', i)
+        
+      $('#actuators').append(act);
+      return led
+
+
+
+
+
+
     actuators = _.flatten([LEDS])
     _.each actuators, (actuator)->
       actuator.onClick = ()->
-        console.log actuator.id
-
+        console.log actuator.expresso_id
+        act = am.getActuator(actuator.expresso_id)
+        act = am.clone(act.op.dom.parents("actuator"))
+        $("#actuator-generator").html("").append(act).removeClass('actuator-droppable');
+        am.initActuator.apply(am, [act]);
+        am.activate()
+        act.click()
   constructor: (@op) ->
     @actuators = []
     
   init:()->
     ActuatorManager.extract()
     @initActuators()
-    @initSelection()
     @initBLRadio($('actuator channel'))
+    @activate()
+  activate: ()->
+    @initSelection()    
     @activateDragAndDrop()
   initActuators: () ->
     scope = this;
@@ -47,9 +74,10 @@ class window.ActuatorManager
     hardware_id = act.data('hardware-id')
     ActuatorSimulator = eval('Actuator' + ActuatorType)
     props = _.extend(_.clone(eval(ActuatorType)),
-      color: color,
+      color: color
+      type: ActuatorType
       hardware_id: hardware_id
-      canvas_id: canvas_id,
+      canvas_id: canvas_id
       paper: papel
       dom: dom)
     actuator = new ActuatorSimulator(props)
@@ -126,13 +154,19 @@ class window.ActuatorManager
       siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
       $(this).addClass('selected')
       return
+  clone: (o)->
+    act_type = o.attr('name')
+    act = $('actuator.template[name="'+name+'"]')
+    .clone().removeClass('template')
+    .data('color', o.data('color'))
+    .data('hardware-id', o.data('hardware-id'))
+    .data('canvas-id', o.data('canvas-id'))
+
   activateDragAndDrop: ()->
     scope = this
     $('actuator.draggable').draggable({
       revert: true
     });
-
-
     $('.actuator-droppable').droppable
       accept: "actuator.draggable", 
       classes: { "droppable-active": "droppable-default"},
@@ -140,19 +174,10 @@ class window.ActuatorManager
         # if not sm then return
         # sm.setAcceptorsActive(true)
       drop: (event, ui) ->
-        o = ui.draggable
-        console.log o.attr('name'), o.data('color'), o.data('canvas-id')
-        act_type = o.attr('name')
-        act = $('actuator.template[name="'+name+'"]')
-        .clone().removeClass('template')
-        .data('color', o.data('color'))
-        .data('hardware-id', o.data('hardware-id'))
-        .data('canvas-id', o.data('canvas-id'))
-
+        act = scope.clone(ui.draggable)
         $(this).html("").append(act).removeClass('actuator-droppable');
         scope.initActuator.apply(scope, [act]);
-        scope.initSelection()
-        scope.activateDragAndDrop()
+        scope.activate()
         # dom = $('<canvas></canvas>') #.addClass('draggable')
         #     .attr('data', ui.draggable.attr('data'))
         #     .attr('period', ui.draggable.attr('period'));

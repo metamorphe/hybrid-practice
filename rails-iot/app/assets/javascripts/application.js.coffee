@@ -19,6 +19,10 @@ $(()->
     return Array.apply(null, Array(length)).map(Number.prototype.valueOf,0))
   _.mixin(fill: (length, v)->
     return Array.apply(null, Array(length)).map(Number.prototype.valueOf,v))
+  String.prototype.replaceAll = (search, replacement)->
+    target = this
+    return target.replace(new RegExp(search, 'g'), replacement)
+  
 )
 
 window.rgb2hex = (rgb) ->

@@ -200,12 +200,20 @@ CanvasUtil.getName = (item) ->
     return ''
   if item.name.split(':').length < 2
     return ''
-  name = item.name.split(':')[1].trim()
+  name = item.name.split(':')
+  name = name.slice(1).join(':').trim()
+  name = name.replaceAll("_x5F_", "_")
+  name = name.replaceAll("_x23_", "#")
+  name = name.replaceAll("_x22_", '"')
+  name = name.replaceAll("_x7B_", '{')
+  name = name.replaceAll("_x7D_", '}')
+  name = name.replaceAll("_x5B_", '[')
+  name = name.replaceAll("_x5D_", ']')
+  name = name.replaceAll("_x2C_", ',')
   if(name[0] == "_") then name = name.slice(1)
-  name = name.replace("_x5F_", "_")
-  name = name.replace("_x23_", "#")
   name
-
+  # x5F__x7B__x22_colorID_x22_
+# _{"colorID":[0.90196,0.09804,0.09804],"target":43,"forceTarget":38}
 
 CanvasUtil.getNameItem = (item) ->
   if _.isUndefined(item)
