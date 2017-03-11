@@ -41,19 +41,18 @@ class window.TimeSignalManager
       )
       tsm.addTS(ids)
     )
+    
   addTS: (timesignal_ids)->
-    console.log "ADDING"
     ts = _.map timesignal_ids, (id)-> return tsm.getTimeSignal(id)
     time_sum = _.reduce ts, ((memo, t)-> return memo + t.period), 0
-    cls = _.map ts, (t)-> return t.command_list()
+    series = _.map ts, (t)-> return t.time_series()
 
     elapsed_time = 0
-    data = _.map cls, (commands, i)->
+    data = _.map series, (s, i)->
       if i > 0
         prev_t = ts[i - 1].period
         elapsed_time += prev_t
-      return _.map commands, (c, i)->
-          return {t: c.t + elapsed_time, p: c.param}
+      return _.map s, (c, i)-> {t: c.t + elapsed_time, p: c.p}
 
     data = _.flatten(data) 
     data = TimeSignal.resample(data, time_sum)

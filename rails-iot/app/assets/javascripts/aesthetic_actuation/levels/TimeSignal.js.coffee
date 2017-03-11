@@ -20,8 +20,7 @@ class window.TimeSignal
     i = 0
     return _.map(target, (t)->
       if i + 1 >= data.length then return data[i].p
-      if t <= data[i + 1].t
-        return data[i].p
+      if t <= data[i + 1].t then return data[i].p
       else
         i++
         return data[i].p
@@ -77,6 +76,38 @@ class window.TimeSignal
       @period  = if _.isUndefined(@op.period) then TimeSignal.DEFAULT_PERIOD  else @op.period
       @acceptorInit()
     return
+  time_series: ->
+    commands = @command_list()
+    return _.map commands, (c, i)->
+      return {t: c.t, p: c.param}
+  split: (t)->
+    data = TimeSignal.resample(@time_series(), @period)
+    i = parseInt(t / @period * data.length)
+    a = data.slice(0, i + 1)
+    b = data.slice(i, data.length)
+
+    new_dom = TimeSignal.copy
+      data: a
+      period: t
+      classes: ['draggable']
+      parent: tsm.op.add_track
+      clearParent: true
+      activate: true
+      style:
+        signal_fill:
+          fillColor: '#d9534f', 
+
+    new_dom = TimeSignal.copy
+      data: b
+      period: @period - t
+      classes: ['draggable']
+      parent: tsm.op.add_track
+      clearParent: false
+      activate: true
+      style:
+        signal_fill:
+          fillColor: '#d9534f', 
+
   updatePeriod: (period)->
     @period = period
     @op.dom.attr('period', @period)
@@ -262,18 +293,23 @@ class window.TimeSignal
   signal: (op) ->
     visual = @to_visual()
     time_signal = _.flatten(visual, true)
+    time_signal = _.flatten([[[0, 0]], time_signal, [[this.data.length, 0]]], true)
     op = _.extend(op, segments: time_signal)
     p = @makePath(op)
   makePath: (op) ->
     p = new (paper.Path)(op)
+    w =  if p.bounds.width < 1 then 1 else p.bounds.width
+    h =  if p.bounds.height < 1 then 1 else p.bounds.height
     if @op.dom 
-      p.scaling.x = paper.view.bounds.width / p.bounds.width
-      p.scaling.y = -(paper.view.bounds.height - 10) / p.bounds.height
-      p.position = paper.view.center
+      p.scaling.x = paper.view.bounds.width / w
+      p.scaling.y = -(paper.view.bounds.height - 10) / h
+      p.pivot = p.bounds.bottomCenter.clone()
+      p.position = paper.view.bounds.bottomCenter.clone().add(new paper.Point(0, -5))
     else
-      p.scaling.x = @op.acceptor.bounds.width / p.bounds.width
-      p.scaling.y = -(@op.acceptor.bounds.height) / p.bounds.height
-      p.position = @op.acceptor.bounds.center
+      p.scaling.x = @op.acceptor.bounds.width / w
+      p.scaling.y = -(@op.acceptor.bounds.height) / h
+      p.pivot = p.bounds.bottomCenter.clone()
+      p.position = @op.acceptor.bounds.bottomCenter.clone().add(new paper.Point(0, -5))
     return p
   express: (actuator, options) ->
     gamm = 1 / actuator.alpha
