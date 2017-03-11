@@ -42,17 +42,26 @@ class window.TimeSignal
         time.toFixed(2) + 'hr'
     return time
   @copy:(op)->
-    newDom = $('<datasignal id="result"><canvas></canvas></datasignal>')
-    canvas = newDom.find("canvas").attr("data", JSON.stringify(op.data)).attr("period", op.period)
+    newDom = $('<datasignal><canvas></canvas></datasignal>')
+    canvas = newDom.find("canvas")
+    if op.clone
+      canvas.attr("data", op.clone.attr('data'))
+      canvas.attr("period", op.clone.attr('period'))
+    if op.data then canvas.attr("data", JSON.stringify(op.data))
+    if op.period then canvas.attr("period", op.period)
+
     props = _.clone(TimeSignal.DEFAULT_STYLE)
     props = _.extend props,{dom: canvas}
     if op.classes then _.each op.classes, (c)-> newDom.find('canvas').addClass(c)
-    if op.clearParent then op.parent.html("")
+    if op.clearParent 
+      $(op.parent).find('datasignal').remove()
     if op.parent then op.parent.append(newDom)
     if op.style then _.extend props, op.style
     if op.activate
-      tsm.add(new TimeSignal(props))
+      ts = new TimeSignal(props)
+      tsm.add(ts)
       tsm.activateDragAndDrop()
+      return ts
     return newDom
   @compile: (cl)->
     prev = cl[0]
@@ -81,6 +90,7 @@ class window.TimeSignal
     return _.map commands, (c, i)->
       return {t: c.t, p: c.param}
   split: (t)->
+    t = t * @period
     data = TimeSignal.resample(@time_series(), @period)
     i = parseInt(t / @period * data.length)
     a = data.slice(0, i + 1)
@@ -90,7 +100,7 @@ class window.TimeSignal
       data: a
       period: t
       classes: ['draggable']
-      parent: tsm.op.add_track
+      parent: $('#timecut .track-full')
       clearParent: true
       activate: true
       style:
@@ -101,7 +111,7 @@ class window.TimeSignal
       data: b
       period: @period - t
       classes: ['draggable']
-      parent: tsm.op.add_track
+      parent: $('#timecut .track-full')
       clearParent: false
       activate: true
       style:

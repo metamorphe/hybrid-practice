@@ -11,7 +11,7 @@ class window.ActuatorManager
         .data('canvas-id', led.id)
         .data('hardware-id', i)
      
-      $('#actuators').append(act);
+      $('#actuators .track-full').append(act);
       return led
     console.log "LEDs:", LEDS.length
     hsbLEDs = _.map CanvasUtil.queryPrefix("NLED"), (led, i)->
@@ -26,7 +26,7 @@ class window.ActuatorManager
         .data('canvas-id', led.id)
         .data('hardware-id', led.lid)
       
-      $('#actuators').append(act);
+      $('#actuators .track-full').append(act);
       return led
     console.log "hsbLEDs:", hsbLEDs.length
 
@@ -49,7 +49,9 @@ class window.ActuatorManager
     @initBLRadio($('actuator channel'))
     @activate()
   activate: ()->
-    @initSelection()    
+    @initSelection() 
+    $(".remove").click ()->
+      $(this).parents('actuator').remove()   
     @activateDragAndDrop()
   initActuators: () ->
     scope = this;
@@ -106,7 +108,6 @@ class window.ActuatorManager
   updateChannel: (actuator, channel)->
     val = actuator.channels[channel].value
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
-    # val =  if val == 0 then val.toFixed(0)
     query = 'channel[type="' + channel + '"]'
     $(actuator.op.dom).parents('actuator').find(query).find('.dimension').html(val);
   updateActiveChannel: (val)->
@@ -161,14 +162,13 @@ class window.ActuatorManager
     .data('color', o.data('color'))
     .data('hardware-id', o.data('hardware-id'))
     .data('canvas-id', o.data('canvas-id'))
-    console.log o.find("p.actuator-title:first").html()
     if title then act.find("p.actuator-title:first").html(title.toUpperCase())
     else act.find("p.actuator-title:first").html(o.find("p.actuator-title:first").html())
     act
    
   activateDragAndDrop: ()->
     scope = this
-    $('actuator.draggable').draggable
+    $('.actuation-design .draggable').draggable
       revert: true
       appendTo: '#ui2'
       scroll: false
@@ -176,7 +176,7 @@ class window.ActuatorManager
         copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardwareId)
         return copy;
     
-    $('.actuator-droppable').droppable
+    $('.actuation-design .droppable').droppable
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->

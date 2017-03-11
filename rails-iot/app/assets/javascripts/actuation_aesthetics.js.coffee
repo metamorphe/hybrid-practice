@@ -3,6 +3,7 @@
 //= require ace/theme-monokai
 //= require ace/mode-javascript
 //= require finitestatemachine
+//= require jquery.preventMacBackScroll.js
 # //= require aesthetic_actuation/ComponentSelectTool
 # //= require aesthetic_actuation/PathSelectTool
 # //= require aesthetic_actuation/BurstSelectTool

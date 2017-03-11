@@ -97,12 +97,24 @@ class window.TimeSignalManager
         dom = $('<canvas></canvas>').addClass('draggable')
             .attr('data', ui.draggable.attr('data'))
             .attr('period', ui.draggable.attr('period'));
-        if $(this).attr('id') == "time-morph-track" then dom.addClass('draggable')
-        ts = $('<datasignal></datasignal>').append(dom)
-        $(this).append(ts);
-        op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
-        scope.add(new TimeSignal(op)) 
+        id = $(this).parent('event').attr('id')
+        clear = not _.contains ["adder", "library", "timemorph"], id
         
+        draggable =  id != "timecut"
+        classes = if draggable then ['draggable'] else []
+        @ts = TimeSignal.copy
+          clone: ui.draggable
+          classes: classes
+          parent: $(this)
+          clearParent: clear
+          activate: true
+        if not draggable
+          @ts.op.dom.draggable({disabled: true})
+          @ts.op.dom.parent().draggable
+            axis: "x"
+            containment: ".track-full"
+            scroll: false
+
       deactivate: (event, ui) ->
         if sm
           acceptor = sm.getAcceptor(event.pageX, event.pageY)

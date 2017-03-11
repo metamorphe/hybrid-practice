@@ -20,3 +20,11 @@ class window.ActuatorGroup
         	am.initActuator.apply(am, [act, {group: ids}]);
         	am.activate()
       		return
+		$('#name-button').on 'click', ->
+		  name = $(this).siblings('input').val()
+		  $(this).parents('event').find('.track-unit').find('p.actuator-title:first').html name
+		  return
+		$('#group input').on 'input', ->
+		  name = $(this).val()
+		  $(this).parents('event').find('.track-unit').find('p.actuator-title:first').html name
+		  return

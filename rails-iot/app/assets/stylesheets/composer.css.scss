@@ -1,25 +1,3 @@
-/*.track{
-	@extend .hoz;
-	height: 90%;
-	background: darken($base, 20%);
-}*/
-/*.track-full{
-	@extend .track;
-	width: 100%;
-}
-
-.group-track{
-	@extend .track;
-	width: 100% !important;
-	margin: 0px 6px;
-}*/
-/*.unit-track{
-	@extend .track;
-	width: 110px;
-	padding: 0px 5px;
-	background: $sexy_red;
-}
-*/
 .command{
 	display: block;
 	margin: 0;
@@ -61,81 +39,158 @@
 	box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
 }
 
-event.signal-design{
-	background: darken($sexy_yellow, 5%);
-	.track{
-		@extend .hoz;
-		height: 90%;
-		margin: 0 6px;
-		padding: 0 6px;
-		background: darken($sexy_yellow, 20%);
-		@include inset-shadow(0.5);
-	}
-	.track-unit{
-		@extend .track;
-		width: $time_signal_width !important;
-	}
-	.track-long{
-		@extend .track;
-		width: $time_signal_width * 3 !important;
-	}
-	.track-full{
-		@extend .track;
-		width: 100% !important;
-	}
-	.ui-droppable-active{
-		background: darken($sexy_yellow, 30%) !important;
-	}
-	.ui-droppable-highlight, .ui-droppable-hover{
-		background: darken($sexy_yellow, 35%) !important;
-	}
-	.trigger{
-		@extend .trigger;
-		background: lighten($sexy_yellow, 5%);
+track{
+	@extend .hoz;
+	height: 90%;
+	margin: 0 6px;
+	max-height: 90px;
+	padding: 0 6px;
+	overflow-y: hidden;
+	overflow-x: scroll;
 
-		&:hover{
-			@extend .trigger:hover;
-			background: darken($sexy_yellow, 10%);
-		}
-		&:active{
-			@extend .trigger:active;
-			background: darken($sexy_yellow, 15%);
-		}
-		&:focus{
-			@extend .trigger:focus;
-			background: darken($sexy_yellow, 15%);
-		}
-	}
+	@include inset-shadow(0.5);
 }
 
-/* RECORD LEVEL */
-
- .actuator_unit.actuator-droppable{
-	width: 110px !important;
-	height: 90px !important;
-	margin: 0px 6px;
-}
-.actuator-droppable actuator{
-	border: 2px dashed lighten($base, 10%);
-	border-radius: 5px;
-	/*background: darken($base, 20%);*/
-	color: $sexy_off_white;
-	font-family: Avenir;
+#actuators button.remove{display: none;}
+	
+event{
+	@extend .full-hoz;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	border: 1px solid $off_black;
+	background: $base;
+	padding: 0px;
+	width: 100%;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	position: relative;
+	height: 100px;
+	line-height: 150px;
+	color: white;
 	font-weight: bold;
+	font-size: 1em;
+	text-align: center;
+	@include drop-shadow(0.43);
+
+	button.remove{
+		position: absolute;
+		top: 1px;
+		right: 2px;
+		font-size: 9px;
+		line-height: 1;
+		padding: 0px 1px;
+		
+	}
+	button.trash{
+		position: absolute;
+		top: 5px;
+		right: 6px;
+		font-size: 9px;
+		line-height: 1;
+		padding: 0px 1px;
+	}
+
+	.result{
+		border-radius: 5px;
+		color: $sexy_off_white;
+		font-family: Avenir;
+		font-weight: bold;
+		background: darken($base, 30%) !important;
+	}
+	&.tall{height: 400px;}
+	&.actuation-design{
+		border: 1px solid darken($base, 20%);
+		background: darken($base, 5%);
+		.track{
+			@extend track;
+			background: darken($base, 20%);
+		}
+		.track-unit{
+			@extend .track;
+			width: $actuator_width !important;
+			min-width: $actuator_width !important;
+		}
+		.track-long{
+			@extend .track;
+			width: $actuator_width * 3 !important;
+		}
+		.track-full{
+			@extend .track;
+			width: 100%;
+		}
+		.ui-droppable-active{
+			background: darken($base, 25%) !important;
+		}
+		.ui-droppable-highlight, .ui-droppable-hover{
+			background: darken($base, 30%) !important;
+		}
+	}
+	&.signal-design{
+		border: 1px solid darken($sexy_yellow, 20%);
+		background: darken($sexy_yellow, 5%);
+		
+		&#timecut datasignal{
+			width: 50% !important;
+		}
+		&#timecut .track-full{position: relative;}
+		&#timecut .track-full:after{
+			height: 100%;
+			width: 2px;
+			background: $electric_blue;
+			position: absolute;
+			content: '';
+			top:0;
+			left: 50%;
+			
+			box-shadow: 0px 5px 7px 1px rgba(0, 0, 0, 0.5);
+		}
+		.track{
+			@extend track;
+			background: darken($sexy_yellow, 20%);
+		}
+		.track-unit{
+			@extend .track;
+			width: $time_signal_width !important;
+			min-width: $time_signal_width !important;
+		}
+		.track-long{
+			@extend .track;
+			width: $time_signal_width * 3 !important;
+			datasignal{width: 100%;}
+		}
+		.track-full{
+			@extend .track;
+			width: 100% !important;
+		}
+		.ui-droppable-active{
+			background: darken($sexy_yellow, 30%) !important;
+		}
+		.ui-droppable-highlight, .ui-droppable-hover{
+			background: darken($sexy_yellow, 35%) !important;
+		}
+
+		datasignal{position: relative;}
+		.trigger{
+			@extend .trigger;
+			background: lighten($sexy_yellow, 5%);
+
+			&:hover{
+				@extend .trigger:hover;
+				background: darken($sexy_yellow, 10%);
+			}
+			&:active{
+				@extend .trigger:active;
+				background: darken($sexy_yellow, 15%);
+			}
+			&:focus{
+				@extend .trigger:focus;
+				background: darken($sexy_yellow, 15%);
+			}
+		}
+	}
 }
-.actuator_unit{
-	width: 190px!important;
-	height: 90px !important;
-	margin: 0px 6px;
-}
-#group-result{
-	/*border: 2px dashed lighten($base, 10%);*/
-	border-radius: 5px;
-	color: $sexy_off_white;
-	font-family: Avenir;
-	font-weight: bold;
-	background: darken($base, 30%);
-}
+
+
 .faint{
 	opacity: 0.8;
 }
@@ -143,19 +198,10 @@ event.signal-design{
 #record-result{
 	width: 300px;
 }
-#add-result{
-	width: 110px !important;
-}
-	#record-result datasignal{
-		width: 100%;
-	}
 
-
-
+	
 /* DATA SIGNAL LEVEL */
-datasignal{
-	position: relative;
-}
+
 
 
 keyframe{
@@ -205,8 +251,22 @@ acceptor{
 }
 
 input.sexy{
+	width: 80%;
+	/*margin-top: 10px !important;*/
+	height: 22px;
+	font-size: 10pt;
+	color: #111;
+	font-family: Avenir;
+	font-weight: normal;
+	margin: 3px 0px;
+	border-radius: 3px;
+	outline: none;
+	border: none;
+	padding: 2px 6px;
+}
+.sexy-input-group{
 	width: 90%;
-	margin-top: 10px !important;
+	margin: 5px 2px;
 }
 button.sexy{
     /*width: 30%;*/
@@ -219,9 +279,7 @@ button.sexy{
 }
 
 /*COMPOSER CSS*/
-event.tall{
-	height: 400px;
-}
+
 
 datasignal{
 	@extend keyframe;
@@ -286,39 +344,41 @@ actuator{
     font-size: 0.8em;
     text-align: center;
     z-index: 10;
-    @include drop-shadow(0.93);   
+    @include drop-shadow(0.93);  
+
+    canvas{
+		width: 100% !important;
+		height: 80%;
+		margin: 0;
+	}
+	input{
+		line-height: 100%;
+	}
+    div.info{
+		width: 80px;
+	}
+    .actuator-title{
+		padding-top: 2px;
+		padding-bottom: 2px;
+	    /*height: 14px;*/
+	    height: 20%;
+	    width: 100%;
+	    line-height: 14px;
+	    font-size: 0.9em;
+	    background: darken($base, 10%);
+	    margin: 0;
+	    &.light{
+	    	position: relative;
+			background: darken($base, 0%);
+		}
+	} 
 }
 
 datasignal.selected, actuator.selected{
     /*border: 2px solid $orange;*/
     @include drop-highlight(0.72);
 }
-.actuator-title{
-	padding-top: 2px;
-	padding-bottom: 2px;
-    /*height: 14px;*/
-    height: 20%;
-    width: 100%;
-    line-height: 14px;
-    font-size: 0.9em;
-    background: darken($base, 10%);
-    margin: 0;
-  }
-.actuator-title.light{
-	background: darken($base, 0%);
-}
-
-	actuator div.info{
-		width: 80px;
-	}
-	actuator canvas{
-		width: 100% !important;
-		height: 80%;
-		margin: 0;
-	}
-	actuator input{
-		line-height: 100%;
-	}
+	
 	  channels.actuator{
 	  	width: 100px; 
 	  	height: 100%;
@@ -337,20 +397,13 @@ datasignal.selected, actuator.selected{
 	    text-align: left;
 	    font-weight: normal !important;
 	    font-size: 0.8em;
+
+	    &.selected{ background: lighten($base, 10%);}
+		&:hover{background: darken($base, 30%);}
+
+		&.span.dimension{
+			font-family: monospace;
+			font-size: 12pt;
+		}
 	  }
-	  label.actuator.selected{
-	  	background: lighten($base, 10%);
-	  }
-	  label.actuator:hover{
-	  	background: darken($base, 30%);
-	  }
-	  label.actuator.selected:hover{
-	  	background: lighten($base, 10%);
-	  }
-	  	label.actuator.span.dimension{
-	  		font-family: monospace;
-	  		font-size: 12pt;
-	  	}
-.behavior_design{
-	background: darken($base, 10%);
-}
+	

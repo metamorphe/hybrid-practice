@@ -9,7 +9,7 @@ class window.Recorder
     @elapsed = 0
     @curr_elapsed = 0
     @record = false
-    new_dom = TimeSignal.copy
+    @ts = TimeSignal.copy
       data: _.zeros(parseInt(Recorder.DEFAULT_PERIOD/Recorder.DEFAULT_RESOLUTION))
       period: Recorder.DEFAULT_PERIOD
       classes: ['draggable']

@@ -14,6 +14,7 @@ $sexy_red: #d9534f;
 $sexy_yellow: #FF9912;
 
 $time_signal_width: 110px;
+$actuator_width: 190px;
 
 @mixin inset-shadow($opacity){
 	-webkit-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);

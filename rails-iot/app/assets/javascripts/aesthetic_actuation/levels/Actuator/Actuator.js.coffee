@@ -9,9 +9,15 @@ class Actuator
       @hardware_id = hid
     else if _.isNumber hid
       @hardware_id = [hid]
-    console.info '..', @constructor.name, "h_id", @hardware_id
+    @setTitle()
     @init()
     @onCreate()
+  setTitle: ->
+    title = @op.dom.parents('actuator').find("p.actuator-title:first")
+    if _.contains title.html(), ":" 
+      title.html([title.html().split(":")[0], " : ",@hardware_id.join(',')].join(''))
+    else
+      title.html([title.html(), " : ",@hardware_id.join(',')].join(''))
   init: ->
     @visuals = []
     @id = actuator_counter++;
@@ -32,6 +38,7 @@ class Actuator
     _.each ids, (id)-> 
       scope.addMember id
     @op.dom.parents('actuator').data('hardware-id', JSON.stringify(@hardware_id))
+    @setTitle()
   addMember: (id)->
     @hardware_id.push(id)
   onCreate: ->

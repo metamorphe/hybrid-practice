@@ -14,12 +14,13 @@
         %select.form-control#port-selector.sexy
         %button#port-connect.btn.btn-xs.btn-success
           = glyph "transfer"
-%event#project.full-hoz.tall
+%event#project.full-hoz.tall.actuation-design
   .vert
     %button.design-title.btn-primary.trigger{:type => "trigger"}
       PROJECT
   #projectviewer
     %canvas
-  #actuator-generator.actuator_unit.unit-track
+  #actuator-generator.track-unit.result
     %actuator.vert-centered
-      %span ACTUATOR
+      %h5 RESULT
+      %em.faint (CLICK ON AN ACTUATOR IN THE IMAGE)
