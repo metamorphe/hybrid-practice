@@ -7,24 +7,27 @@
 	text-transform: uppercase;
 	font-weight: bold;
 	@include drop-shadow(0.5);
-}
-.btn-ard:focus{
-	outline: none;
+
+  &:focus{
+  	outline: none;
     background: darken($base, 10%);
-}
-.btn-ard:hover{
-	outline: none;
+  }
+  &:hover{
+  	outline: none;
     background: darken($base, 10%);
-}
-.btn-ard:active{
-	outline: none;
+  }
+  &:active{
+  	outline: none;
     background: $orange
+  }
 }
 .btn-ard.active{
 	outline: none;
-    background: $orange
+  background: $orange
 }
-
+button.trigger.active{
+  background: $sexy_red !important;
+}
 .trigger{
     background: $base;
     text-transform: uppercase;
@@ -36,25 +39,24 @@
     border-radius: 20px;
     margin-left: 5px;
     margin-right: 5px;
-    line-height: 40px;
+    line-height: 20px;
     color: $sexy_off_white;
     font-weight: bold;
     font-size: 1.5em;
     text-align: center;
-    border: 3px $sexy_off_white dotted;
-
-  }
-  .trigger:hover{
+    border: 3px $sexy_off_white dotted;  
+  &:hover{
   	background: darken($base, 5%);
-  	border-color: darken($sexy_off_white, 10%); ;
+  	border-color: darken($sexy_off_white, 10%);
   }
-  .trigger:active{
+  &:active{
   	background: darken($base, 10%);
   	border-color: darken($sexy_off_white, 10%); ;
   }
-  .trigger:focus{
+  &:focus{
     outline: none;
     border-color: darken($sexy_off_white, 10%); 
     background: darken($base, 10%);
     /*box-shadow: 0 0 5px #00A8e1;*/
   }
+}

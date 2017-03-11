@@ -1,3 +1,113 @@
+/*.track{
+	@extend .hoz;
+	height: 90%;
+	background: darken($base, 20%);
+}*/
+/*.track-full{
+	@extend .track;
+	width: 100%;
+}
+
+.group-track{
+	@extend .track;
+	width: 100% !important;
+	margin: 0px 6px;
+}*/
+/*.unit-track{
+	@extend .track;
+	width: 110px;
+	padding: 0px 5px;
+	background: $sexy_red;
+}
+*/
+.command{
+	display: block;
+	margin: 0;
+	text-align: center;
+	width: 100%;
+	font-size: 8pt;
+	height: 8px;
+	line-height: 8px;
+	font-weight: normal;
+	font-family: Menlo, Consolas, monospace;
+}
+.dragbox{
+	@extend .vert-centered;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+	background: darken($base, 30%);
+	width: 100px;
+	height: 60px;
+	z-index: 200;
+	opacity: 1.0;
+	border-radius: 5px;
+	cursor: -webkit-grabbing; cursor: -moz-grabbing;
+}
+
+
+#adder-track datasignal::after{
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 20%;
+    width: 8px;
+    height: 60%;
+    background: $sexy_off_white;
+    z-index: 1000;
+    @include rotate(3deg);
+    -webkit-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
+	-moz-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
+	box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
+}
+
+event.signal-design{
+	background: darken($sexy_yellow, 5%);
+	.track{
+		@extend .hoz;
+		height: 90%;
+		margin: 0 6px;
+		padding: 0 6px;
+		background: darken($sexy_yellow, 20%);
+		@include inset-shadow(0.5);
+	}
+	.track-unit{
+		@extend .track;
+		width: $time_signal_width !important;
+	}
+	.track-long{
+		@extend .track;
+		width: $time_signal_width * 3 !important;
+	}
+	.track-full{
+		@extend .track;
+		width: 100% !important;
+	}
+	.ui-droppable-active{
+		background: darken($sexy_yellow, 30%) !important;
+	}
+	.ui-droppable-highlight, .ui-droppable-hover{
+		background: darken($sexy_yellow, 35%) !important;
+	}
+	.trigger{
+		@extend .trigger;
+		background: lighten($sexy_yellow, 5%);
+
+		&:hover{
+			@extend .trigger:hover;
+			background: darken($sexy_yellow, 10%);
+		}
+		&:active{
+			@extend .trigger:active;
+			background: darken($sexy_yellow, 15%);
+		}
+		&:focus{
+			@extend .trigger:focus;
+			background: darken($sexy_yellow, 15%);
+		}
+	}
+}
+
 /* RECORD LEVEL */
 
  .actuator_unit.actuator-droppable{
@@ -29,12 +139,7 @@
 .faint{
 	opacity: 0.8;
 }
-.group-track{
-	@extend .track;
-	width: 100% !important;
-	height: 90px !important;
-	margin: 0px 6px;
-}
+
 #record-result{
 	width: 300px;
 }
@@ -52,28 +157,7 @@ datasignal{
 	position: relative;
 }
 
-.unit-track{
-	@extend .track;
-	width: 110px;
-	padding: 0px 5px;
-	background: $sexy_red;
-}
 
-
-#adder-track datasignal::after{
-    content: '';
-    position: absolute;
-    right: -4px;
-    top: 20%;
-    width: 8px;
-    height: 60%;
-    background: $sexy_off_white;
-    z-index: 1000;
-    @include rotate(3deg);
-    -webkit-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
-	-moz-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
-	box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
-}
 keyframe{
 	@extend .vert-centered-sink-top;
 
@@ -92,17 +176,6 @@ keyframe{
     text-align: center;
     @include drop-shadow(0.93);
    
-}
-.track{
-	@extend .hoz;
-	height: 90%;
-	width: 500px;
-	padding: 0px 5px;
-	background: darken($base, 20%)
-}
-.track-full{
-	@extend .track;
-	width: 100%;
 }
 
 
@@ -123,16 +196,12 @@ acceptor{
 .ui-droppable-active{
 	background: darken($electric_blue, 0%) !important;
 }
-.ui-droppable-default{
-	background: lighten($sexy_off_white, 0%) !important;
-}
 .ui-droppable-highlight, .ui-droppable-hover{
 	background: lighten($electric_blue, 20%) !important;
 }
 .ui-sortable-placeholder{
 	border: 1px dotted $sexy_off_white;
 	background: none;
-
 }
 
 input.sexy{
@@ -196,17 +265,7 @@ canvas,graph{
     background: white;
     
   }
- .dragbox{
- 	@extend .vert-centered;
- 	color: white;
- 	font-weight: bold;
- 	text-align: center;
- 	background: darken($base, 30%);
- 	width: 100px;
- 	height: 60px;
- 	z-index: 200;
- 	opacity: 1.0;
- }
+
 .design-title{
 	min-width: 130px !important;
 	font-size: 12pt !important;

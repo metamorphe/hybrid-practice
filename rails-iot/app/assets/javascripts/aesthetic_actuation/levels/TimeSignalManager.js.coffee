@@ -12,17 +12,13 @@ class window.TimeSignalManager
   bindTimeMorph: ()->
     scope = this
     @op.time_slider.val(TimeSignal.DEFAULT_PERIOD)
-    @op.time_slider.on('input', (event)->
-
-      ids = _.map(scope.op.time_track.find('datasignal'), (dom)->
+    @op.time_slider.on 'input', (event)->
+      ids = _.map scope.op.time_track.find('datasignal'), (dom)->
         id = $(dom).data 'time_signal_id'
         ts = scope.getTimeSignal(id)
         v = scope.op.time_slider.val()
-        # temp = TimeSignal.temperatureColor(v)
-        # scope.op.time_track.css('background', temp.toCSS())
         ts.updatePeriod.apply(ts, [v])
-      )
-    )
+
   initTimeSignals: ->
     _.map @op.collection, (canvas, i) ->
       dom = $(canvas)
@@ -91,14 +87,14 @@ class window.TimeSignalManager
         copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).attr('period'))
         return copy;
  
-    $('.track.droppable').droppable({
+    $('.signal-design').find('.droppable[class^="track-"]').droppable({
       accept: "canvas.draggable", 
       classes: { "droppable-active": "droppable-default"},
       activate: (event, ui) ->
         if not sm then return
         sm.setAcceptorsActive(true)
       drop: (event, ui) ->
-        dom = $('<canvas></canvas>') #.addClass('draggable')
+        dom = $('<canvas></canvas>').addClass('draggable')
             .attr('data', ui.draggable.attr('data'))
             .attr('period', ui.draggable.attr('period'));
         if $(this).attr('id') == "time-morph-track" then dom.addClass('draggable')

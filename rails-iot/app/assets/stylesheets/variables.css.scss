@@ -11,7 +11,9 @@ $orange: #ff9e31;
 $off_black: #151311;
 $thick: 5px;
 $sexy_red: #d9534f;
+$sexy_yellow: #FF9912;
 
+$time_signal_width: 110px;
 
 @mixin inset-shadow($opacity){
 	-webkit-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
@@ -53,9 +55,6 @@ body, html{
 	@include drop-shadow(0.2);
 }
 .dark{color: $off_black !important;}
-
-
-
 .dark-gradient{
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#181617+0,3b3a38+100 */
   background: #181617; /* Old browsers */

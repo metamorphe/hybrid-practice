@@ -8,7 +8,6 @@ class window.Recorder
     @sub_start = Date.now()
     @elapsed = 0
     @curr_elapsed = 0
-    
     @record = false
     new_dom = TimeSignal.copy
       data: _.zeros(parseInt(Recorder.DEFAULT_PERIOD/Recorder.DEFAULT_RESOLUTION))
@@ -26,10 +25,10 @@ class window.Recorder
     @op.recorder_button.click(()->
       scope.record = not scope.record
       if scope.record 
-        $(this).css('background', '#d9534f')
+        $(this).addClass('active');
         scope.start()  
       else
-        $(this).css('background', '#2d6a96')
+        $(this).removeClass('active');
         scope.stop()  
       )
     $(document).keypress (event) ->

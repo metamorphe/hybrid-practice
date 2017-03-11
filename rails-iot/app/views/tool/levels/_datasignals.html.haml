@@ -1,35 +1,47 @@
-%event#datasignals
-  .vert
-    %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
-      DATA SIGNAL
-  %datasignal
-    %canvas.draggable{:data => "[0, 1, 0]", "period" => 1000}
-  %datasignal
-    %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
-  %datasignal
-    %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
-  %datasignal
-    %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
-%event#adder
-  .vert
-    %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
-      STITCH
-  #add-result.unit-track
-    %datasignal#result
-      %canvas
-  #adder-track.track.droppable.sortable
-%event#recorder
+%event#recorder.signal-design
   .vert
     %button#record.design-title.btn-primary.trigger{:type => "trigger"}
       RECORD
-  #record-result.unit-track
+      %span.command &lt;SPACE&gt;
+  #record-result.track-long
     %datasignal#result
       %canvas
-%event#timemorph
+%event#library.signal-design
+  .vert
+    %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
+      LIBRARY
+  .track-full.droppable.sortable
+    %datasignal
+      %canvas.draggable{:data => "[0, 1, 0]", "period" => 1000}
+    %datasignal
+      %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
+    %datasignal
+      %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
+    %datasignal
+      %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+%event#timecut.signal-design
+  .vert
+    %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
+      %span CUT
+      %span.command [X]
+  .track-full.droppable
+%event#adder.signal-design
+  .vert
+    %button#ts-adder.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
+      %span STITCH
+      %span.command [S]
+  #add-result.track-unit
+    %datasignal#result
+      %canvas
+  #adder-track.track-full.droppable.sortable
+%event#timemorph.signal-design
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
-      TIME MORPH
+      TIME MORPH 
     %input#time-morph.sexy{:type=>"range", :min => 100, :max => 10000, :step => 100}
-  #time-morph-track.track.track-full.droppable
+  #time-morph-track.track-full.droppable
+
+
+
 
 :css
