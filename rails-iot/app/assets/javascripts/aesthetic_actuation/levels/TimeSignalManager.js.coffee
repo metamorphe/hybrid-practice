@@ -7,18 +7,6 @@ class window.TimeSignalManager
     @timesignals = @initTimeSignals()
     @initSelection()
     @activateDragAndDrop()
-    @bindAdder()
-    @bindTimeMorph()
-  bindTimeMorph: ()->
-    scope = this
-    @op.time_slider.val(TimeSignal.DEFAULT_PERIOD)
-    @op.time_slider.on 'input', (event)->
-      ids = _.map scope.op.time_track.find('datasignal'), (dom)->
-        id = $(dom).data 'time_signal_id'
-        ts = scope.getTimeSignal(id)
-        v = scope.op.time_slider.val()
-        ts.updatePeriod.apply(ts, [v])
-
   initTimeSignals: ->
     _.map @op.collection, (canvas, i) ->
       dom = $(canvas)
@@ -29,42 +17,6 @@ class window.TimeSignalManager
   getActiveTimeSignal: ()->
     id = $('datasignal.selected').data('time_signal_id')
     @getTimeSignal(id)
-  bindAdder: ()->
-    scope = this
-    @op.add_button.click((event)->
-      ids = _.map(scope.op.add_track.find('datasignal'), (dom)->
-        return $(dom).data 'time_signal_id'
-      )
-      tsm.addTS(ids)
-    )
-    
-  addTS: (timesignal_ids)->
-    ts = _.map timesignal_ids, (id)-> return tsm.getTimeSignal(id)
-    time_sum = _.reduce ts, ((memo, t)-> return memo + t.period), 0
-    series = _.map ts, (t)-> return t.time_series()
-
-    elapsed_time = 0
-    data = _.map series, (s, i)->
-      if i > 0
-        prev_t = ts[i - 1].period
-        elapsed_time += prev_t
-      return _.map s, (c, i)-> {t: c.t + elapsed_time, p: c.p}
-
-    data = _.flatten(data) 
-    data = TimeSignal.resample(data, time_sum)
-
-    new_dom = TimeSignal.copy
-      data: data
-      period: time_sum
-      classes: ['draggable']
-      parent: tsm.op.add_result
-      clearParent: true
-      activate: true
-      style:
-        signal_fill:
-          fillColor: '#d9534f', 
-      
-    return 
   initSelection: ()->
     scope = this
     $('datasignal').click ->

@@ -1,39 +1,14 @@
 :javascript
   const ports = #{@ports.to_json.html_safe};
   const files = #{@files.to_json.html_safe};
-  var act, sc, ws, fs, cmp, tsm, sm, am, record;
+  var act, sc, ws, fs, cmp, tsm, sm, am, record, aw, gm, tw;
 
   var PROJECT = {
     CANVAS_COLOR: "rgb(245, 244, 240)"
   }
   
   $(function(){
-    ws = new WebStorage();
-
-    // TIME SIGNAL MANAGER
-    tsm = new TimeSignalManager({
-      collection: $('#library.signal-design canvas'), 
-      add_track: $('event#adder .track-full'),
-      add_result: $('event#adder .track-unit'),
-      add_button: $('#ts-adder'),
-      time_track: $('#time-morph-track'),
-      time_slider: $('input#time-morph'), 
-    });
-    record = new Recorder({
-      recorder_button: $('button#record'), 
-      recorder_result: $('#record-result')
-    })
-    // ACTUATIOR MANAGER
-    am = new ActuatorManager({
-      collection: $('#actuators')
-    })
-    // COMPOSER
-    cmp = new Composer({
-      signal_button: $('#apply-signal'),
-      live_button: $('#slider-live'),
-      slider: $("event#actuators input.master")
-    });
-
+    ws = new WebStorage
     // FILE MANAGER
     dom = 'projectviewer canvas'
     fs = new ProjectFileManager({
@@ -42,7 +17,7 @@
       selector: $("#file-selector"),
       onLoad: function(data){
         $(dom).css('background', PROJECT.CANVAS_COLOR);
-        am.init();
+        AestheticActuation.enable();
       }
     });
     // SOCKET CONTROL
@@ -62,8 +37,8 @@
 
 #ui2
   %group.vert
-    = render :partial => "tool/levels/file_selectors"
-    = render :partial => "tool/levels/actuators"
+    - render :partial => "tool/levels/file_selectors"
+    - render :partial => "tool/levels/actuators"
     = render :partial => "tool/levels/datasignals"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"

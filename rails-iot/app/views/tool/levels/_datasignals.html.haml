@@ -1,26 +1,3 @@
-:javascript
-  $(function(){
-    $('#ts-cutter').click(function(){
-      var ds = $('#timecut .track-full datasignal');
-      var id = ds.data().time_signal_id;
-      var ts = tsm.getTimeSignal(id);
-      var offsetP = ds.parent().offset();
-      var offset = ds.offset();
-      var cut_x = offsetP.left + (ds.parent().width() / 2)
-      var padding = parseFloat(ds.parent().css('padding-left'));
-      var padding = 6;
-      var cut_location = cut_x + padding - offset.left
-      var cut_p = cut_location / ds.width()
-      if(cut_p <0 || cut_p >=1) return;
-      console.log("CUTTING AT", cut_p)
-      ts.split(cut_p);
-    })
-    $(document).keypress(function(event){
-      console.log(event.which)
-      if(event.which == 120)
-        $('#ts-cutter').click();
-    })
-  })
 %event#recorder.signal-design
   .vert
     %button#record.design-title.btn-primary.trigger{:type => "trigger"}

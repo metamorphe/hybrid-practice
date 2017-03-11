@@ -27,4 +27,26 @@
 //= require aesthetic_actuation/levels/Actuator/Lights
 //= require aesthetic_actuation/levels/Actuator/Heaters
 //= require aesthetic_actuation/levels/Actuator/Motors
-//= require aesthetic_actuation/levels/Actuator/ActuatorGroup
+//= require aesthetic_actuation/levels/Actuator/ActuatorWidgets
+//= require aesthetic_actuation/levels/Actuator/TimeSignalWidgets
+
+class window.AestheticActuation
+	@enable: ->
+		console.info "AestheticActuation PROJECT"
+		# ACTUATIOR MANAGER
+		window.am = new ActuatorManager
+			collection: $('#actuators')
+		am.init()
+		# TIME SIGNAL MANAGER
+		window.tsm = new TimeSignalManager
+		  collection: $('#library.signal-design canvas')
+		# COMPOSER
+		window.cmp = new Composer
+		  signal_button: $('#apply-signal')
+		  live_button: $('#slider-live')
+		  slider: $('event#actuators input.master')
+		Widget.enable()
+		window.tw = TimeWidgets()
+		window.aw = new ActuatorWidgets()
+
+		return

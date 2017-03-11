@@ -1,17 +1,3 @@
-:javascript
-  var gm;
-  $(function(){
-    gm = new ActuatorGroup({
-      track: $("#actuator-group"),
-      result: $("#group-result"), 
-      button: $("#group-button"),
-      clear: $("#group-clear")
-    })
-    $(".trash").click(function(){
-      $(this).siblings().remove();
-    })
-  })
-
 %event#library.actuation-design
   .vert
     %button.design-title.btn-primary.trigger{:type => "trigger"}
