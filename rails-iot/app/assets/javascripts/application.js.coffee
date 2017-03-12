@@ -13,12 +13,16 @@ window.INACTIVE_STATE = WHITE
 window.INACTIVE_STATE_ARROW = BLACK
 
 $(()->
-  _.mixin(isColorString: (str)->
-    return typeof str == 'string' && str[0] == "#" && str.length == 7)
-  _.mixin(zeros: (length)->
-    return Array.apply(null, Array(length)).map(Number.prototype.valueOf,0))
-  _.mixin(fill: (length, v)->
-    return Array.apply(null, Array(length)).map(Number.prototype.valueOf,v))
+  _.mixin isColorString: (str)->
+    return typeof str == 'string' && str[0] == "#" && str.length == 7
+  _.mixin zeros: (length)->
+    return Array.apply(null, Array(length)).map(Number.prototype.valueOf,0)
+  _.mixin fill: (length, v)->
+    return Array.apply(null, Array(length)).map(Number.prototype.valueOf,v)
+  _.mixin repeat: (func, interval)->
+    args = _.last arguments, 2
+    return setInterval(_.bind(func, null, args), interval);
+    
   String.prototype.replaceAll = (search, replacement)->
     target = this
     return target.replace(new RegExp(search, 'g'), replacement)

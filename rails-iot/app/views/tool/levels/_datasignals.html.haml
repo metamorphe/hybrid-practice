@@ -25,21 +25,27 @@
       %span CUT
       %span.command [X]
   .track-full.droppable
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
 %event#adder.signal-design
   .vert
     %button#ts-adder.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
-      %span STITCH
-      %span.command [S]
+      %span WELD
+      %span.command [W]
   #add-result.track-unit
     %datasignal#result
       %canvas
   #adder-track.track-full.droppable.sortable
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
 %event#timemorph.signal-design
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       TIME MORPH 
-    %input#time-morph.sexy{:type=>"range", :min => 100, :max => 10000, :step => 100}
+    %input#time-morph.sexy{:type=>"range", :min => -100, :max => 100, :step => 10}
   #time-morph-track.track-full.droppable
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
 
 
 

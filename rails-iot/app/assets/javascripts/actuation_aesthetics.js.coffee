@@ -48,5 +48,5 @@ class window.AestheticActuation
 		Widget.enable()
 		window.tw = TimeWidgets()
 		window.aw = new ActuatorWidgets()
-
+		aw.saver.load()
 		return

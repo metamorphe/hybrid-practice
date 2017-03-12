@@ -14,7 +14,9 @@ class window.ActuatorManager
       $('#actuators .track-full').append(act);
       return led
     console.log "LEDs:", LEDS.length
-    hsbLEDs = _.map CanvasUtil.queryPrefix("NLED"), (led, i)->
+    hsbLEDs = CanvasUtil.queryPrefix("NLED")
+    # hsbLEDs = hsbLEDs.slice(0, 2)
+    hsbLEDs = _.map hsbLEDs, (led, i)->
       led.type = "HSBLED"
       data = JSON.parse(CanvasUtil.getName(led))
       led.color = rgb2hex(new paper.Color(data.colorID).toCSS())
@@ -35,11 +37,12 @@ class window.ActuatorManager
       actuator.onClick = ()->
         console.log actuator.expresso_id
         act = am.getActuator(actuator.expresso_id)
-        act = am.clone(act.op.dom.parents("actuator"))
+        act = am.clone(act.op.dom.parents("actuator"), {})
         $("#actuator-generator").html("").append(act).removeClass('actuator-droppable');
         am.initActuator.apply(am, [act]);
         am.activate()
         act.click()
+    
   constructor: (@op) ->
     @actuators = []
     
@@ -154,16 +157,17 @@ class window.ActuatorManager
       siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
       $(this).addClass('selected')
       return
-  clone: (o, title)->
-    name = o.attr('name')
-    act = $('actuator.template[name="'+name+'"]')
-    .clone()
-    .removeClass('template')
-    .data('color', o.data('color'))
-    .data('hardware-id', o.data('hardware-id'))
-    .data('canvas-id', o.data('canvas-id'))
-    if title then act.find("p.actuator-title:first").html(title.toUpperCase())
+  clone: (o, op)->
+    act = if op.type then $('actuator.template[name="'+op.type+'"]') else $('actuator.template[name="'+ o.attr('name')+'"]')
+    act = act.clone().removeClass('template')
+
+    if op.expression then act.data('color', op.expression) else act.data('color', o.data('color'))
+    if op.ids then act.data('hardware-id', op.ids) else act.data('hardware-id', o.data('hardware-id'))
+    if op.canvas_id then act.data('canvas-id', op.canvas_id) else act.data('canvas-id', o.data('canvas-id'))
+
+    if op.title then act.find("p.actuator-title:first").html(op.title.toUpperCase())
     else act.find("p.actuator-title:first").html(o.find("p.actuator-title:first").html())
+    
     act
    
   activateDragAndDrop: ()->
@@ -180,7 +184,7 @@ class window.ActuatorManager
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->
-        act = scope.clone(ui.draggable)
+        act = scope.clone(ui.draggable, {})
         $(this).append(act).removeClass('actuator-droppable');
         scope.initActuator.apply(scope, [act]);
         scope.activate()

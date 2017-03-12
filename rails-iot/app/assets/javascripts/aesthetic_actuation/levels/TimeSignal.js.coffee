@@ -32,14 +32,22 @@ class window.TimeSignal
     switch
       when time < 3
         time = (time * 1000).toFixed(0) + "ms"
+        break
       when time <= 60
         time = time.toFixed(1) + "s"
-      when time > 60 
+        break
+      when time < 60 * 60
         time /= 60
-        time.toFixed(2) + 'min'
-      when time > 60 * 60
+        time = time.toFixed(2) + 'min'
+        break
+      when time < 60 * 60 * 24
         time /= 60 * 60
-        time.toFixed(2) + 'hr'
+        time = time.toFixed(2) + 'hr'
+        break
+      when time < 60 * 60 * 24 * 7
+        time /= 60 * 60
+        time = time.toFixed(1) + 'days'
+        break
     return time
   @copy:(op)->
     newDom = $('<datasignal><canvas></canvas></datasignal>')
@@ -118,8 +126,11 @@ class window.TimeSignal
         signal_fill:
           fillColor: '#d9534f', 
 
-  updatePeriod: (period)->
-    @period = period
+  updatePeriod: (op)->
+    if op.delta then @period += op.delta
+    if op.period then @period = op.period
+    if @period < 100 then @period = 100
+
     @op.dom.attr('period', @period)
     window.paper = @op.paper
     CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
@@ -215,7 +226,6 @@ class window.TimeSignal
     # SMART FORMAT
     
     time = TimeSignal.pretty_time(@period)
-
     timeGroup = new paper.Group
       name: "TIME: time selector"
       parent: group

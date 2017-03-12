@@ -35,7 +35,6 @@ class FileManager
     console.warn "TODO: IMPLEMENT LOAD FOR", @constructor.name
 class SVGFileManager extends FileManager
   load: (onLoad)->
-    console.log(@open_file)
     window.paper = @op.paper;
     loadingFn = onLoad
     if ws then ws.set @key, @open_file

@@ -32,17 +32,36 @@ class Cutter extends Widget
 class TimeMorph extends Widget
   constructor: (@op)->
     scope = this
-    @op.time_slider.val(TimeSignal.DEFAULT_PERIOD)
-    @op.time_slider.on 'input', (event)->
+    @op.time_slider.val(0)
+    updateTime = ()->
       ids = _.map scope.op.time_track.find('datasignal'), (dom)->
         id = $(dom).data 'time_signal_id'
-        ts = scope.getTimeSignal(id)
+        ts = tsm.getTimeSignal(id)
         v = scope.op.time_slider.val()
-        ts.updatePeriod.apply(ts, [v])
+        props = 
+          delta: parseFloat(v)
+        ts.updatePeriod.apply(ts, [props])
+
+    sampler = 0
+    @op.time_slider.on 'mousedown', (event)->
+      sampler = _.repeat(updateTime, 100)
+      
+    @op.time_slider.on 'mouseup', (event)->
+      clearTimeout(sampler);
+      console.log $(this).val()
+      that = $(this)
+      d = $(this).val()
+      
+      animate = _.range(0, 700, 10)
+      _.each animate, (t)->
+        p = t / 1000
+        p = 1 - p
+        p = p * p * p
+        _.delay((()-> that.val(p * d)), t)
 class Stitcher extends Widget
   constructor: (@op)->
     scope = this
-    Widget.bindKeypress "s", ()->  scope.op.trigger.click()
+    Widget.bindKeypress "w", ()->  scope.op.trigger.click()
     
     @op.trigger.click((event)->
       ids = _.map(scope.op.track.find('datasignal'), (dom)->
