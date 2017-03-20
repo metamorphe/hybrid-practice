@@ -83,7 +83,7 @@
           %label.actuator.selected
             %span BRIGHTNESS
             %span.dimension.pull-right 0
-    %actuator.draggable.template{name: "STEPPER"}
+    %actuator.draggable.template{name: "Stepper"}
       %div.info.vert.fill_height
         %p.actuator-title STEPPER
         %canvas{:type=>"Stepper"}
@@ -93,6 +93,10 @@
           %label.actuator.selected
             %span ANGLE
             %span.dimension.pull-right 0
+        %channel.full-hoz{type: "speed"}
+          %label.actuator
+            %span SPEED
+            %span.dimension.pull-right 2
     %actuator.draggable.template{name: "Stepper360"}
       %div.info.vert.fill_height
         %p.actuator-title 360-STEPPER
@@ -103,7 +107,7 @@
           %label.actuator.selected
             %span ANGLE
             %span.dimension.pull-right 0
-    %actuator.draggable.template{name: "HEATER"}
+    %actuator.draggable.template{name: "Heater"}
       %div.info.vert.fill_height
         %p.actuator-title HEATER
         %canvas{:type=>"Heater"}
@@ -112,6 +116,14 @@
         %channel.full-hoz{type: "voltage"}
           %label.actuator.selected
             %span VOLTAGE
-            %span.dimension.pull-right 0
+            %span.dimension.pull-right 4
+        %channel.full-hoz{type: "temperatureF"}
+          %label.actuator
+            %span TEMP (˚F)
+            %span.dimension.pull-right 93.2
+        %channel.full-hoz{type: "temperatureC"}
+          %label.actuator
+            %span TEMP (˚C)
+            %span.dimension.pull-right 34.0
 
    

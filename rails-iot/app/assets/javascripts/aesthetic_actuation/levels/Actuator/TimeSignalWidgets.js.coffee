@@ -39,25 +39,27 @@ class TimeMorph extends Widget
         ts = tsm.getTimeSignal(id)
         v = scope.op.time_slider.val()
         props = 
-          delta: parseFloat(v)
+          period: parseFloat(v)
         ts.updatePeriod.apply(ts, [props])
 
     sampler = 0
-    @op.time_slider.on 'mousedown', (event)->
-      sampler = _.repeat(updateTime, 100)
+    @op.time_slider.on 'input', (event)->
+      sampler = updateTime()
+    # @op.time_slider.on 'mousedown', (event)->
+    #   sampler = _.repeat(updateTime, 100)
       
-    @op.time_slider.on 'mouseup', (event)->
-      clearTimeout(sampler);
-      console.log $(this).val()
-      that = $(this)
-      d = $(this).val()
+    # @op.time_slider.on 'mouseup', (event)->
+    #   clearTimeout(sampler);
+    #   console.log $(this).val()
+    #   that = $(this)
+    #   d = $(this).val()
       
-      animate = _.range(0, 700, 10)
-      _.each animate, (t)->
-        p = t / 1000
-        p = 1 - p
-        p = p * p * p
-        _.delay((()-> that.val(p * d)), t)
+      # animate = _.range(0, 700, 10)
+      # _.each animate, (t)->
+      #   p = t / 1000
+      #   p = 1 - p
+      #   p = p * p * p
+      #   _.delay((()-> that.val(p * d)), t)
 class Stitcher extends Widget
   constructor: (@op)->
     scope = this

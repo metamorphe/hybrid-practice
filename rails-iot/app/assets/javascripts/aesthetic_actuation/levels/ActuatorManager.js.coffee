@@ -14,6 +14,8 @@ class window.ActuatorManager
       $('#actuators .track-full').append(act);
       return led
     console.log "LEDs:", LEDS.length
+
+    # HSB LEDS
     hsbLEDs = CanvasUtil.queryPrefix("NLED")
     # hsbLEDs = hsbLEDs.slice(0, 2)
     hsbLEDs = _.map hsbLEDs, (led, i)->
@@ -32,7 +34,44 @@ class window.ActuatorManager
       return led
     console.log "hsbLEDs:", hsbLEDs.length
 
-    actuators = _.flatten([LEDS, hsbLEDs])
+    # HEATERS
+    heaters = CanvasUtil.queryPrefix("HEATER")
+
+    heaters = _.map heaters, (heater, i)->
+      heater.type = "Heater"
+      data = JSON.parse(CanvasUtil.getName(heater))
+      heater.resistance = data.resistance
+      
+      # FIND TEMPLATE
+      act = $('actuator.template[name="'+heater.type+'"]')
+        .clone().removeClass('template')
+        .data('resistance', heater.resistance)
+        .data('canvas-id', heater.id)
+        .data('hardware-id', heater.id)
+      
+      $('#actuators .track-full').append(act)
+      return heater
+    console.log "heaters:", heaters.length
+
+    motors = CanvasUtil.queryPrefix("MOTOR")
+
+    motors = _.map heaters, (motor, i)->
+      motor.type = "Stepper"
+      data = JSON.parse(CanvasUtil.getName(motor))
+      motor.max = data.max
+      
+      # FIND TEMPLATE
+      act = $('actuator.template[name="'+motor.type+'"]')
+        .clone().removeClass('template')
+        .data('resistance', motor.max)
+        .data('canvas-id', motor.id)
+        .data('hardware-id', motor.id)
+      
+      $('#actuators .track-full').append(act)
+      return motor
+    console.log "motors:", motors.length
+
+    actuators = _.flatten([LEDS, hsbLEDs, heaters, motors])
     _.each actuators, (actuator)->
       actuator.onClick = ()->
         console.log actuator.expresso_id
@@ -70,7 +109,9 @@ class window.ActuatorManager
     papel = Utility.paperSetup(dom)
 
     ActuatorType = act.attr('name')
+    console.log ActuatorType
     ActuatorSimulator = eval('Actuator' + ActuatorType)
+
     props = _.extend(_.clone(eval(ActuatorType)),
       type: ActuatorType
       color: act.data('color')
@@ -82,10 +123,9 @@ class window.ActuatorManager
     if op and op.group
       actuator.makeGroup(op.group)
 
-    channels = @getChannels(actuator)
-    _.each( channels, (channel)->
-      scope.updateChannel(actuator, channel)
-    )
+
+    scope.updateChannels(actuator)
+    
     @actuators.push(actuator)
 
   initBLRadio: (dom) ->
@@ -113,6 +153,11 @@ class window.ActuatorManager
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     query = 'channel[type="' + channel + '"]'
     $(actuator.op.dom).parents('actuator').find(query).find('.dimension').html(val);
+  updateChannels: (actuator)->
+    scope = this
+    channels = @getChannels(actuator)
+    _.each channels, (channel)->
+      scope.updateChannel(actuator, channel)
   updateActiveChannel: (val)->
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     $('actuator.selected channels label.actuator.selected').find('.dimension').html(val);
@@ -130,7 +175,8 @@ class window.ActuatorManager
       commands = actuator.toAPI()
       _.each commands, (command)->
         sc.sendMessage(command, {live: cmp.live}) 
-    am.updateActiveChannel(update);
+    # am.updateActiveChannel(update);
+    am.updateChannels(actuator)
     return actuator.toCommand()
   sendCommandById: (a_id, channel, ts_id)->
     scope = this

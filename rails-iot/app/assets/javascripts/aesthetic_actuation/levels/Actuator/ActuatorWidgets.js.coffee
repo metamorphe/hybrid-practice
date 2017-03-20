@@ -11,7 +11,7 @@ class window.Widget
   @bindKeypress: (key, func, ascii = false)->
     if not ascii
       key = parseInt(key.charCodeAt(0))
-    console.log "Binding", key
+    # console.log "Binding", key
     Widget.bindings[key] = func;
 
 

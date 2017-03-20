@@ -42,7 +42,7 @@
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       TIME MORPH 
-    %input#time-morph.sexy{:type=>"range", :min => -100, :max => 100, :step => 10}
+    %input#time-morph.sexy{:type=>"range", :min => 0, :max => 10000, :step => 100}
   #time-morph-track.track-full.droppable
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"

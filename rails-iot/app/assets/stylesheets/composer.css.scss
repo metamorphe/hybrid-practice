@@ -1,3 +1,7 @@
+.template{
+    display: none;
+}
+
 .command{
 	display: block;
 	margin: 0;
@@ -99,6 +103,50 @@ event{
 		background: darken($base, 30%) !important;
 	}
 	&.tall{height: 400px;}
+	&.composition-design{
+		border: 1px solid darken($composition_base, 20%);
+		background: darken($composition_base, 5%);
+		.track{
+			@extend track;
+			background: darken($composition_base, 20%);
+		}
+		.track-unit{
+			@extend .track;
+			width: $actuator_width !important;
+			min-width: $actuator_width !important;
+		}
+		.track-long{
+			@extend .track;
+			width: $actuator_width * 3 !important;
+		}
+		.track-full{
+			@extend .track;
+			width: 100%;
+		}
+		.ui-droppable-active{
+			background: darken($composition_base, 25%) !important;
+		}
+		.ui-droppable-highlight, .ui-droppable-hover{
+			background: darken($composition_base, 30%) !important;
+		}
+		.trigger{
+			@extend .trigger;
+			background: lighten($composition_base, 5%);
+
+			&:hover{
+				@extend .trigger:hover;
+				background: darken($composition_base, 10%);
+			}
+			&:active{
+				@extend .trigger:active;
+				background: darken($composition_base, 15%);
+			}
+			&:focus{
+				@extend .trigger:focus;
+				background: darken($composition_base, 15%);
+			}
+		}
+	}
 	&.actuation-design{
 		border: 1px solid darken($base, 20%);
 		background: darken($base, 5%);
@@ -275,9 +323,7 @@ button.sexy{
     margin-bottom: 5px !important;
   }
 
-.template{
-    display: none;
-}
+
 
 /*COMPOSER CSS*/
 

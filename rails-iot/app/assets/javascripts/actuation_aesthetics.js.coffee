@@ -29,6 +29,8 @@
 //= require aesthetic_actuation/levels/Actuator/Motors
 //= require aesthetic_actuation/levels/Actuator/ActuatorWidgets
 //= require aesthetic_actuation/levels/Actuator/TimeSignalWidgets
+# COMPOSITIOn
+//= require aesthetic_actuation/levels/Actuator/Keyframe
 
 class window.AestheticActuation
 	@enable: ->

@@ -2,6 +2,23 @@ class window.ActuatorHeater extends Actuator1D
   onCreate: ->
     @expression = 5;
     return
+  _num: (val)->
+    @channel.value = val
+    @channels.temperatureF.value = 72 + (@channel.param * 20)
+    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+  _obj:(obj)->
+    if _.has obj, @op.dimension
+      @channel.value = obj[@op.dimension]
+    @channels.temperatureF.value = 72 + (@channel.param * 20)
+    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+  _pobj:(obj)->
+    if _.has obj, @op.dimension
+      @channel.param = obj[@op.dimension]
+    @channels.temperatureF.value = 72 + (@channel.param * 20)
+    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+  toAPI: ->
+    _.map @hardware_id, (hid)->
+      {flag: "H", args: [hid, @expression]}
   _updateVisuals: (p)->
     scope = this
     param = @channel.param

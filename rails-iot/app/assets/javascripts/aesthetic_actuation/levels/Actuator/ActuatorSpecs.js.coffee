@@ -14,6 +14,11 @@ _.extend(window,
 	    min: 0
 	    max: 360
 	  resolution: 1
+	temp_field:
+	  range:
+	    min: 0
+	    max: 400
+	  resolution: 1
 	v180_actuator:
 	  range:
 	    min: 0
@@ -63,9 +68,13 @@ _.extend(window,
 	Stepper:
 	  name: 'Stepper'
 	  dimension: 'angle'
-	  channels: angle: _.extend(_.clone(v180_actuator),
-	    modality: 'motion'
-	    alpha: 1)
+	  channels: 
+	  	speed: _.extend(_.clone(temp_field),
+	    	modality: 'motion'
+	    	alpha: 1)
+	  	angle: _.extend(_.clone(v180_actuator),
+	    	modality: 'derived'
+	    	alpha: 1)
 	Stepper360:
 	  name: 'Stepper360'
 	  dimension: 'angle'
@@ -75,7 +84,14 @@ _.extend(window,
 	Heater:
 	  name: 'Heater'
 	  dimension: 'voltage'
-	  channels: voltage: _.extend(_.clone(voltage_actuator),
-	    modality: 'heat'
-	    alpha: 1)
+	  channels: 
+	  	voltage: _.extend(_.clone(voltage_actuator),
+	    	modality: 'heat'
+	    	alpha: 1)
+	  	temperatureC: _.extend(_.clone(temp_field),
+	    	modality: 'derived'
+	    	alpha: 1)
+	  	temperatureF: _.extend(_.clone(temp_field),
+	    	modality: 'derived'
+	    	alpha: 1)
 )

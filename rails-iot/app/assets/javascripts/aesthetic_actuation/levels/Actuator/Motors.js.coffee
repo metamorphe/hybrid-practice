@@ -2,6 +2,9 @@ class window.ActuatorStepper extends Actuator1D
   onCreate: ->
     @expression = 128;
     return
+  toAPI: ->
+    _.map @hardware_id, (hid)->
+      {flag: "A", args: [hid, @expression]}
   _updateVisuals: (p)->
     window.paper = @paper
     arm = CanvasUtil.queryPrefix('ARM')[0]

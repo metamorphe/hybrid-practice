@@ -1,7 +1,12 @@
-%event#behaviors.full-hoz
-  .vert
-    %button.design-title.btn-primary.trigger{:type => "trigger"}
-      BEHAVIORS
-    %button.btn.btn-xs.btn-danger.sexy
-      %span.glyphicon.glyphicon-refresh
-      UPDATE
+%event#behaviors.composition-design
+	.vert
+		%button#compose.design-title.btn-primary.trigger{:type => "trigger"}
+			%span GRADIENT
+			%span.command [G]
+		%input#gradient.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
+	#gradient-result.track-unit
+		%datasignal#result
+			%canvas
+	#gradient-track.track-full.droppable.sortable
+		%button.btn.btn-xs.btn-danger.trash
+			=glyph "trash"
