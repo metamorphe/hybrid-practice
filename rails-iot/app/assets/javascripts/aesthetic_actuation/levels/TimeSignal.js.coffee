@@ -9,6 +9,37 @@ class window.TimeSignal
     signal_fill: {fillColor: '#FF9912'}
     signal: {strokeWidth: 3, strokeColor: '#333'}
     axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
+  @copy:(op)->
+    newDom = $('<datasignal><canvas></canvas></datasignal>')
+    canvas = newDom.find("canvas")
+  
+
+    if op.clone
+      canvas.attr("data", op.clone.attr('data'))
+      canvas.attr("period", op.clone.attr('period'))
+    if op.data then canvas.attr("data", JSON.stringify(op.data))
+    if op.period then canvas.attr("period", op.period)
+    if op.draggable then canvas.addClass('draggable')
+    if op.clearParent then $(op.parent).children('datasignal').remove()
+    if op.parent then op.parent.addClass('accepted').append(newDom)
+
+    props = _.clone(TimeSignal.DEFAULT_STYLE)
+    props = _.extend props,{dom: canvas}
+    if op.style then _.extend props, op.style
+
+    if op.activate
+      ts = new TimeSignal(props)
+      tsm.add(ts)
+      tsm.activateDragAndDrop()
+      if op.dragInPlace
+        ts.op.dom.draggable({disabled: true})
+        ts.op.dom.parent().draggable
+          axis: "x"
+          containment: ".track-full"
+          scroll: false
+      return ts
+
+    return newDom
   @temperatureColor: (v)->
     max = TimeSignal.MAX
     min = TimeSignal.MIN
@@ -66,27 +97,7 @@ class window.TimeSignal
         time = time.toFixed(1) + 'days'
         break
     return time
-  @copy:(op)->
-    newDom = $('<datasignal><canvas></canvas></datasignal>')
-    canvas = newDom.find("canvas")
-    if op.clone
-      canvas.attr("data", op.clone.attr('data'))
-      canvas.attr("period", op.clone.attr('period'))
-    if op.data then canvas.attr("data", JSON.stringify(op.data))
-    if op.period then canvas.attr("period", op.period)
 
-    props = _.clone(TimeSignal.DEFAULT_STYLE)
-    props = _.extend props,{dom: canvas}
-    if op.classes then _.each op.classes, (c)-> newDom.find('canvas').addClass(c)
-    if op.clearParent then $(op.parent).children('datasignal').remove()
-    if op.parent then op.parent.addClass('accepted').append(newDom)
-    if op.style then _.extend props, op.style
-    if op.activate
-      ts = new TimeSignal(props)
-      tsm.add(ts)
-      tsm.activateDragAndDrop()
-      return ts
-    return newDom
   @compile: (cl)->
     prev = cl[0]
     compiled = [prev]
@@ -142,7 +153,8 @@ class window.TimeSignal
     new_dom = TimeSignal.copy
       data: a
       period: t
-      classes: ['draggable']
+      draggable: true
+      dragInPlace: false
       parent: $('#timecut .track-full')
       clearParent: true
       activate: true
@@ -153,7 +165,8 @@ class window.TimeSignal
     new_dom = TimeSignal.copy
       data: b
       period: @period - t
-      classes: ['draggable']
+      draggable: true
+      dragInPlace: false
       parent: $('#timecut .track-full')
       clearParent: false
       activate: true

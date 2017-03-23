@@ -1,4 +1,26 @@
-/* %actuator.draggable{name: "Heater","data-resistance": 60, "data-canvas-id": 24, "data-hardware-id": 10}
+/* # activate: (event, ui) ->
+      #   if not sm then return
+      #   sm.setAcceptorsActive(true)
+      # deactivate: (event, ui) ->
+      #   if sm
+      #     acceptor = sm.getAcceptor(event.pageX, event.pageY)
+      #     if not _.isNull acceptor
+      #       window.paper = sm.paper
+      #       op =
+      #         paper: sm.paper,
+      #         data: ui.draggable.attr('data'), 
+      #         acceptor: acceptor
+
+      #       if not _.isUndefined ui.draggable.attr('period')
+      #         op.period = ui.draggable.attr('period')
+      #       op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), op)
+
+      #       ts = CanvasUtil.query(paper.project, {prefix: ["TIMESIGNAL"], acceptor: acceptor.id})
+      #       CanvasUtil.call(ts, 'remove')
+      #       tsm.add(new TimeSignal(op))
+          
+      #     sm.setAcceptorsActive(false)*/
+      /* %actuator.draggable{name: "Heater","data-resistance": 60, "data-canvas-id": 24, "data-hardware-id": 10}
             %div.simulation
               %label.title HEATER
               %canvas{:type=>"Heater"}

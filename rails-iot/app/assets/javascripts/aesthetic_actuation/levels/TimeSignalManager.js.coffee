@@ -61,57 +61,24 @@ class window.TimeSignalManager
 
 
   activateDrop: ()->
-    scope = this
-
- 
-    
-
+    scope = this   
     behavior = 
       accept: "canvas.draggable", 
       classes: { "droppable-active": "droppable-default"},
-      activate: (event, ui) ->
-        if not sm then return
-        sm.setAcceptorsActive(true)
-      drop: (event, ui) ->
-        dom = $('<canvas></canvas>').addClass('draggable')
-            .attr('data', ui.draggable.attr('data'))
-            .attr('period', ui.draggable.attr('period'));
-        id = $(this).parent('event').attr('id')
-        clear = not _.contains ["adder", "library", "timemorph", "behaviors"], id
+      drop: (event, ui) ->  
+        widget = $(this).parent('event').attr('id')
+        clearParent = not _.contains ["adder", "library", "timemorph", "behaviors"], widget
+        # classes = if widget == "timecut" then ['draggable'] else []
         
-        draggable =  id != "timecut"
-        classes = if draggable then ['draggable'] else []
+
         @ts = TimeSignal.copy
           clone: ui.draggable
-          classes: classes
           parent: $(this)
-          clearParent: clear
+          clearParent: clearParent
           activate: true
-        if not draggable
-          @ts.op.dom.draggable({disabled: true})
-          @ts.op.dom.parent().draggable
-            axis: "x"
-            containment: ".track-full"
-            scroll: false
-      deactivate: (event, ui) ->
-        if sm
-          acceptor = sm.getAcceptor(event.pageX, event.pageY)
-          if not _.isNull acceptor
-            window.paper = sm.paper
-            op =
-              paper: sm.paper,
-              data: ui.draggable.attr('data'), 
-              acceptor: acceptor
+          dragInPlace: widget == "timecut"
+          draggable: widget != "timecut"
 
-            if not _.isUndefined ui.draggable.attr('period')
-              op.period = ui.draggable.attr('period')
-            op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), op)
-
-            ts = CanvasUtil.query(paper.project, {prefix: ["TIMESIGNAL"], acceptor: acceptor.id})
-            CanvasUtil.call(ts, 'remove')
-            tsm.add(new TimeSignal(op))
-          
-          sm.setAcceptorsActive(false)
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
     $('acceptor.datasignal').droppable(behavior)
