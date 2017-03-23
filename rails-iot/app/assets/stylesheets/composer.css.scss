@@ -1,6 +1,6 @@
 #actuators button.remove{display: none;}
 
-.template{ display: none;}
+.template{ display: none !important;}
 commandlist{
 	@extend keyframe;
 	border-radius: 5px;

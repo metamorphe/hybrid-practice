@@ -5,11 +5,22 @@ class window.BehaviorManager
 		@playing = false
 		@activateDragAndDrop()
 		$("button#compose").click(()-> scope.play())
+		$("button#add-stage").click(()-> scope.addStage())
 		Widget.bindKeypress 32,((event) ->
 			event.preventDefault()
 			$('#compose').click()), true
 			
-		
+	addStage: ()->
+		template = $('acceptor.actuator.template').clone().removeClass('template');
+		$('#stage').append(template)
+		am.activateDragAndDrop()
+	addSignalTrack: (actor)->
+		template = $('acceptor.datasignals.template').clone().removeClass('template');
+		tracks = _.keys(actor.physical_channels()).length
+		console.log "TRACKS", tracks, actor
+		template.attr('data-tracks', tracks)
+		$('#timetrack').append(template)
+		tsm.activateDragAndDrop();
 	playScrubber: (start, end)->
 		scope = this
 		duration = parseInt((end - start))
@@ -37,8 +48,8 @@ class window.BehaviorManager
 		return t
 	
 	compile: ()->
-		actors = $("#stage actuator")
-		signal_tracks = $("#timetrack acceptor")
+		actors = $("#stage actuator").not(".template")
+		signal_tracks = $("#timetrack acceptor").not(".template")
 		choreography = _.chain actors
 			.map (actor, i)->
 				actor = am.resolve(actor)

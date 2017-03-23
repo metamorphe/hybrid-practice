@@ -92,6 +92,7 @@ class window.ActuatorManager
   activate: ()->
     @initSelection() 
     $(".remove").click ()->
+      $(this).parents('acceptor').removeClass("accepted")   
       $(this).parents('actuator').remove()   
     @activateDragAndDrop()
   initActuators: () ->
@@ -128,6 +129,7 @@ class window.ActuatorManager
     scope.updateChannels(actuator)
     
     @actuators.push(actuator)
+    return actuator
 
   initBLRadio: (dom) ->
     scope = this
@@ -202,15 +204,18 @@ class window.ActuatorManager
   clone: (o, op)->
     act = if op.type then $('actuator.template[name="'+op.type+'"]') else $('actuator.template[name="'+ o.attr('name')+'"]')
     act = act.clone().removeClass('template')
-
     if op.expression then act.data('color', op.expression) else act.data('color', o.data('color'))
     if op.ids then act.data('hardware-id', op.ids) else act.data('hardware-id', o.data('hardware-id'))
     if op.canvas_id then act.data('canvas-id', op.canvas_id) else act.data('canvas-id', o.data('canvas-id'))
-
     if op.title then act.find("p.actuator-title:first").html(op.title.toUpperCase())
-    else act.find("p.actuator-title:first").html(o.find("p.actuator-title:first").html())
-    
-    act
+    else act.find("label.title:first").html(o.find("label.title:first").html())
+    if op.clear then op.parent.html("")
+    op.parent.append(act).addClass('accepted').removeClass('actuator-droppable')
+    if op.activate
+      actor = @initActuator(act)
+      @activate()
+      if op.addSignalTrack
+        bm.addSignalTrack(actor)
    
   activateDragAndDrop: ()->
     scope = this
@@ -225,13 +230,14 @@ class window.ActuatorManager
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->
-        act = scope.clone(ui.draggable, {})
-
+        empty = $(this).html() == ""
         num_to_accept = $(this).data().accept
-        if num_to_accept == 1 then $(this).html('')
-        $(this).append(act).addClass('accepted').removeClass('actuator-droppable');
-        scope.initActuator.apply(scope, [act]);
-        scope.activate()
+        act = scope.clone ui.draggable, 
+          parent: $(this)
+          clear: num_to_accept == 1
+          activate: true
+          addSignalTrack: $(this).is("acceptor") and empty
+        
       
       
   
