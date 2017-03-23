@@ -1,9 +1,41 @@
 class window.BehaviorManager
 	constructor: (@op) ->
 		scope = this
+		@play_ids = []
+		@playing = false
 		@activateDragAndDrop()
 		$("button#compose").click(()-> scope.play())
-		Widget.bindKeypress "b", ()-> $('#compose').click()
+		Widget.bindKeypress 32,((event) ->
+			event.preventDefault()
+			$('#compose').click()), true
+			
+		
+	playScrubber: (start, end)->
+		scope = this
+		duration = parseInt((end - start))
+		@scrubberSet Math.round(@scrubberPos(start))
+		@op.scrubber.css
+			transition: 'left '+ duration+'ms linear'
+			left: Math.round(@scrubberPos(end))
+
+		_.delay(()-> scope.op.scrubber.css
+			transition : 'left 0s linear'
+		, duration);
+	scrubberSet: (x)->
+		@op.scrubber.css
+			transition : 'left 0s linear'
+			left: x
+	scrubberPos: (t)->
+		timescale = $('#timetrack acceptor').data().timescale
+		w = @op.scrubber.parent().width()
+		p = t/timescale * w
+		return p
+	scrubberTime: ()->
+		timescale = $('#timetrack acceptor').data().timescale
+		w = @op.scrubber.parent().width()
+		t = timescale * @op.scrubber.position().left / w
+		return t
+	
 	compile: ()->
 		actors = $("#stage actuator")
 		signal_tracks = $("#timetrack acceptor")
@@ -45,11 +77,37 @@ class window.BehaviorManager
 			.sortBy("t")
 			.value()
 	play: ()->
-		commands = @compile()
-		_.each commands, (command) ->
-			actuator = am.getActuator(command.actuator)
-			_.delay(am.sendCommandTo, command.t, actuator, command.channel, command.param) 
+		if @playing
+			@pause()
+			@playing = false
 			return
+
+		scope = this
+		raw_commands = @compile()
+		t_start = @scrubberTime()
+		
+		# RESTART
+		commands = _.filter raw_commands, (command)-> command.t > t_start
+		if _.isEmpty commands 
+			t_start = 0
+			commands = raw_commands
+		start = _.first(commands).t
+		end = _.last(commands).t + _.last(commands).duration
+		commands = _.each commands, (command)->
+			command.t = command.t - t_start
+
+		scope.play_ids = _.map commands, (command) ->
+			actuator = am.getActuator(command.actuator)
+			id = _.delay(am.sendCommandTo, command.t, actuator, command.channel, command.param)
+			return id
+		scope.playScrubber(start, end)
+		@playing = true
+	pause: ()->
+		pos = @scrubberPos(@scrubberTime())
+		@scrubberSet(pos)
+		_.each @play_ids, (id)->
+			clearTimeout(id)
+		@play_ids = []
 
 	activateDragAndDrop: ()->
 		scope = this

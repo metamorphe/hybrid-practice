@@ -132,9 +132,8 @@ class window.Recorder extends Widget
         $(this).removeClass('active');
         scope.stop()  
       )
-    Widget.bindKeypress 32,((event) ->
-      event.preventDefault()
-      scope.op.recorder_button.click()), true
+    Widget.bindKeypress "r", ()-> scope.op.recorder_button.click()
+    
 
   start: ()->
     scope = this
