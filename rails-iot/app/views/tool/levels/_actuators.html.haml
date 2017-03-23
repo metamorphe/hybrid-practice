@@ -33,13 +33,13 @@
     %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
   .track-full
     %actuator.draggable.template{name: "RGBLED"}
-      %div.info.vert.fill_height
-        %p.actuator-title 
+      %div.simulation
+        %label.title
           %span.swatch
           %span RGBLED
         %canvas{:type=>"RGBLED"}
-      %channels.actuator.scroll-list
-        %p.actuator-title.light CHANNELS
+      %channels.scroll-list
+        %label.title.light CHANNELS
         %channel.full-hoz{type: "red"}
           %label.actuator.selected 
             %span RED
@@ -53,11 +53,11 @@
             %span BLUE
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "HSBLED"}
-      %div.info.vert.fill_height
-        %p.actuator-title HSBLED
+      %div.simulation
+        %label.title HSBLED
         %canvas{:type=>"HSBLED"}
-      %channels.actuator.scroll-list
-        %p.actuator-title.light 
+      %channels.scroll-list
+        %label.title.light 
           CHANNELS
           %button.btn.btn-xs.btn-danger.remove
             =glyph "remove"
@@ -74,21 +74,21 @@
             %span HUE
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "LED"}
-      %div.info.vert.fill_height
-        %p.actuator-title LED
+      %div.simulation
+        %label.title LED
         %canvas{:type=>"LED"}
-      %channels.actuator.scroll-list
-        %p.actuator-title.light CHANNELS
+      %channels.scroll-list
+        %label.title.light CHANNELS
         %channel.full-hoz{type: "brightness"}
           %label.actuator.selected
             %span BRIGHTNESS
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "Stepper"}
-      %div.info.vert.fill_height
-        %p.actuator-title STEPPER
+      %div.simulation
+        %label.title STEPPER
         %canvas{:type=>"Stepper"}
-      %channels.actuator.scroll-list
-        %p.actuator-title.light CHANNELS
+      %channels.scroll-list
+        %label.title.light CHANNELS
         %channel.full-hoz{type: "angle"}
           %label.actuator.selected
             %span ANGLE
@@ -98,21 +98,21 @@
             %span SPEED
             %span.dimension.pull-right 2
     %actuator.draggable.template{name: "Stepper360"}
-      %div.info.vert.fill_height
-        %p.actuator-title 360-STEPPER
+      %div.simulation
+        %label.title 360-STEPPER
         %canvas{:type=>"Stepper360"}
-      %channels.actuator.scroll-list
-        %p.actuator-title.light CHANNELS
+      %channels.scroll-list
+        %label.title.light CHANNELS
         %channel.full-hoz{type: "angle"}
           %label.actuator.selected
             %span ANGLE
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "Heater"}
-      %div.info.vert.fill_height
-        %p.actuator-title HEATER
+      %div.simulation
+        %label.title HEATER
         %canvas{:type=>"Heater"}
-      %channels.actuator.scroll-list
-        %p.actuator-title.light CHANNELS
+      %channels.scroll-list
+        %label.title.light CHANNELS
         %channel.full-hoz{type: "voltage"}
           %label.actuator.selected
             %span VOLTAGE

@@ -1,0 +1,146 @@
+/* %actuator.draggable{name: "Heater","data-resistance": 60, "data-canvas-id": 24, "data-hardware-id": 10}
+            %div.simulation
+              %label.title HEATER
+              %canvas{:type=>"Heater"}
+            %channels.scroll-list
+              %label.title.light CHANNELS
+              %channel.full-hoz{type: "voltage"}
+                %label.actuator.selected
+                  %span VOLTAGE
+                  %span.dimension.pull-right 4
+              %channel.full-hoz{type: "temperatureF"}
+                %label.actuator
+                  %span TEMP (˚F)
+                  %span.dimension.pull-right 93.2
+              %channel.full-hoz{type: "temperatureC"}
+                %label.actuator
+                  %span TEMP (˚C)
+                  %span.dimension.pull-right 34.0*/
+                  /*%event#gradients.composition-design
+/   .vert
+/     %button#compose.design-title.btn-primary.trigger{:type => "trigger"}
+/       %span GRADIENT
+/       %span.command [G]
+/     %input#gradient.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
+/   #gradient-result.track-unit
+/     %datasignal#result
+/       %canvas
+/   #gradient-track.track-full.droppable.sortable
+/     %button.btn.btn-xs.btn-danger.trash
+/       =glyph "trash"*/
+/*
+%behavior
+      %handle
+      %actuator.draggable{name: "Heater","data-resistance": 60, "data-canvas-id": 24, "data-hardware-id": 10}
+        %div.simulation
+          %label.title HEATER
+          %canvas{:type=>"Heater"}
+        %channels.scroll-list
+          %label.title.light CHANNELS
+          %channel.full-hoz{type: "voltage"}
+            %label.actuator.selected
+              %span VOLTAGE
+              %span.dimension.pull-right 4
+          %channel.full-hoz{type: "temperatureF"}
+            %label.actuator
+              %span TEMP (˚F)
+              %span.dimension.pull-right 93.2
+          %channel.full-hoz{type: "temperatureC"}
+            %label.actuator
+              %span TEMP (˚C)
+              %span.dimension.pull-right 34.0
+      %datasignal#result
+        %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+      %button.btn.btn-xxs.track-button
+        =glyph "play"*/
+input{
+    line-height: 100%;
+}
+
+.ui-droppable-active{
+    background: darken($electric_blue, 0%) !important;
+}
+.ui-droppable-highlight, .ui-droppable-hover{
+    background: lighten($electric_blue, 20%) !important;
+}
+.ui-sortable-placeholder{
+    border: 1px dotted $sexy_off_white;
+    background: none;
+}
+
+/* HEADER KEYFRAME*/
+
+.keyframe-options{
+	@extend .full-hoz;
+	height: 25%;
+	background: darken($base, 20%);
+	font-size: 8pt;
+	font-weight: bold;
+	line-height: 20px;
+}
+.keyframe-options div{
+	height: 100%;
+	/*border: 1px solid $base_shadow;*/
+	@include drop-shadow(0.9);
+}
+.keyframe-params{
+	@extend .full-hoz;
+	height: 75%;
+	background: lighten($base, 10%);
+}
+
+      selector{
+        padding: 5px;
+        width: 100%;
+        margin: 0;
+        height: 40px;
+        margin-bottom: 5px;
+
+        flex-grow: 1;
+        color: white;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
+        
+      }
+      behavior img, selector img{
+        background: white;
+        width: 80%;
+        @include drop-shadow(0.9);
+      }    
+      
+      .btn-xxs{
+      	margin-top: 4px;
+        padding: 1px 2px;
+        font-size: 8px;
+        line-height: 1.2;
+        border-radius: 3px;
+      }
+      button.add-big{
+        /*font-size: 1.2em;
+        padding: 8px;
+        width: auto;*/
+        margin-left: 5px;
+        margin-right: 5px;
+      }            
+
+
+
+  transition{
+  	background: darken($base, 30%);
+    margin-top: 0px;
+    padding: 5px 3px;
+    width: 30px;
+    height: 80%;
+
+    line-height: 110%;
+    color: white !important;
+    font-weight: bold;
+    font-size: 7pt;
+    text-align: center;
+
+    margin-left: -1px;
+    margin-right: -1px;
+    border: 1px solid $off_black;
+    /*@include inset-shadow(0.2);*/
+  }

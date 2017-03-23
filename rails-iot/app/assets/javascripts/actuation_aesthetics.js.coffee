@@ -15,6 +15,7 @@
 # LEVELS
 //= require aesthetic_actuation/levels/TimeSignalManager
 //= require aesthetic_actuation/levels/ActuatorManager
+//= require aesthetic_actuation/levels/BehaviorManager
 //= require aesthetic_actuation/levels/TimeSignal
 //= require aesthetic_actuation/levels/Recorder
 //= require aesthetic_actuation/levels/Composition
@@ -37,16 +38,18 @@ class window.AestheticActuation
 		console.info "AestheticActuation PROJECT"
 		# ACTUATIOR MANAGER
 		window.am = new ActuatorManager
-			collection: $('#actuators')
 		am.init()
 		# TIME SIGNAL MANAGER
 		window.tsm = new TimeSignalManager
-		  collection: $('#library.signal-design canvas')
+			collection: $('datasignal canvas[data]')
+		tsm.init()
+		window.bm = new BehaviorManager
+			scrubber: $('#scrubber')
 		# COMPOSER
 		window.cmp = new Composer
-		  signal_button: $('#apply-signal')
-		  live_button: $('#slider-live')
-		  slider: $('event#actuators input.master')
+			signal_button: $('#apply-signal')
+			live_button: $('#slider-live')
+			slider: $('event#actuators input.master')
 		Widget.enable()
 		window.tw = TimeWidgets()
 		window.aw = new ActuatorWidgets()

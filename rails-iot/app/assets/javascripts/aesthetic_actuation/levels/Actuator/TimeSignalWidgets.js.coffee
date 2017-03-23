@@ -1,6 +1,5 @@
 class window.TimeWidgets 
   constructor: ()->
-    console.log "TIMEWIDGET"
     @cutter = new Cutter()
     @stitcher = new Stitcher
       track: $('event#adder .track-full')
@@ -97,7 +96,7 @@ class Stitcher extends Widget
           fillColor: '#d9534f', 
     return 
 class window.Recorder extends Widget
-  @DEFAULT_PERIOD: 60000
+  @DEFAULT_PERIOD: TimeSignal.MAX
   @DEFAULT_RESOLUTION: 100 # ms/sample
   @log: ()-> return#console.log.bind(console)
  
@@ -107,7 +106,7 @@ class window.Recorder extends Widget
     @elapsed = 0
     @curr_elapsed = 0
     @record = false
-    @ts = TimeSignal.copy
+    op = 
       data: _.zeros(parseInt(Recorder.DEFAULT_PERIOD/Recorder.DEFAULT_RESOLUTION))
       period: Recorder.DEFAULT_PERIOD
       classes: ['draggable']
@@ -117,6 +116,8 @@ class window.Recorder extends Widget
       style: 
         signal_fill:
           fillColor: '#d9534f'
+    @ts = TimeSignal.copy op
+      
     @bindButton()
   bindButton: ()->
     scope = this

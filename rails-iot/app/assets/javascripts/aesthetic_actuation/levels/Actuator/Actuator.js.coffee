@@ -12,10 +12,25 @@ class Actuator
     @setTitle()
     @init()
     @onCreate()
+  perform: (channel, param)->
+    window.paper = @op.paper
+    query = 
+      parameterized: true
+      viz_update: true
+    query[channel] = param
+   
+    @expression = query
+    commands = @toAPI()
+    return {commands: commands, expression: @expression}
+  physical_channels: ()->
+    _.pick @channels, (val)->
+      return val.op.modality != "derived"
+  toData: ->
+    console.warn "NOT IMPLEMENTED"
   getTitle:->
-    title = @op.dom.parents('actuator').find("p.actuator-title:first").html()
+    title = @op.dom.parents('actuator').find("label.title:first").html()
   setTitle: ->
-    title = @op.dom.parents('actuator').find("p.actuator-title:first")
+    title = @op.dom.parents('actuator').find("label.title:first")
     if _.contains title.html(), ":" 
       title.html([title.html().split(":")[0], ":",@hardware_id.join(',')].join(''))
     else

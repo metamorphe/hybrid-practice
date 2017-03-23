@@ -1,12 +1,80 @@
-%event#behaviors.composition-design
-	.vert
-		%button#compose.design-title.btn-primary.trigger{:type => "trigger"}
-			%span GRADIENT
-			%span.command [G]
-		%input#gradient.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
-	#gradient-result.track-unit
-		%datasignal#result
-			%canvas
-	#gradient-track.track-full.droppable.sortable
-		%button.btn.btn-xs.btn-danger.trash
-			=glyph "trash"
+
+%event#behaviors.composition-design.playground.collapsed
+  .vert.centered
+    %button#compose.design-title.btn-primary.trigger{:type => "trigger"}
+      %span BEHAVIOR
+      %span.command [B]
+  #behavior_environment.vert-centered-sink-top
+    %label{:contenteditable => true} BEHAVIOR NAME
+    #timeruler
+    %behavior.hoz
+      #stage.vert-centered-sink-top
+        %acceptor.actuator.accepted{:accept=> 1}
+          %actuator.draggable{name: "HSBLED", :data => {"canvas-id" => 24, "hardware-id" => 5, :color => "#00A8E1"}}
+            %div.simulation
+              %label.title HSBLED
+              %canvas{:type=>"HSBLED"}
+            %channels.scroll-list
+              %label.title.light 
+                CHANNELS
+                %button.btn.btn-xs.btn-danger.remove
+                  =glyph "remove"
+              %channel.full-hoz{type: "brightness"}
+                %label.actuator.selected
+                  %span BRIGHTNESS
+                  %span.dimension.pull-right 0
+              %channel.full-hoz{type: "hue"}
+                %label.actuator
+                  %span HUE
+                  %span.dimension.pull-right 0
+              %channel.full-hoz{type: "saturation"}
+                %label.actuator
+                  %span SATURATION
+                  %span.dimension.pull-right 0
+             
+         
+        / %acceptor.actuator.accepted{:accept=> 1}
+        /   %actuator.draggable{name: "Heater","data-resistance": 60, "data-canvas-id": 24, "data-hardware-id": 10}
+        /     %div.simulation
+        /       %label.title HEATER
+        /       %canvas{:type=>"Heater"}
+        /     %channels.scroll-list
+        /       %label.title.light CHANNELS
+        /       %channel.full-hoz{type: "voltage"}
+        /         %label.actuator.selected
+        /           %span VOLTAGE
+        /           %span.dimension.pull-right 4
+        /       %channel.full-hoz{type: "temperatureF"}
+        /         %label.actuator
+        /           %span TEMP (˚F)
+        /           %span.dimension.pull-right 93.2
+        /       %channel.full-hoz{type: "temperatureC"}
+        /         %label.actuator
+        /           %span TEMP (˚C)
+        /           %span.dimension.pull-right 34.0
+      
+      #timetrack.vert-centered-sink-top
+        #scrubber.vert-centered-sink-top
+          #handle
+          #timeline
+        %acceptor.datasignals.accepted{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3}}
+          %datasignal.composeable
+            %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 1000}
+          %datasignal.composeable
+            %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 2000}
+          %datasignal.composeable
+            %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 3000}
+       
+
+          / %datasignal.composeable
+          /   %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 4000}
+          / %datasignal.composeable
+          /   %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+          / %datasignal.composeable
+          /   %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 6000}
+       
+        / %acceptor.datasignals{:accept=> 100}
+    / %button.btn.btn-xxs.track-button
+    /   =glyph "play"
+
+/ 

@@ -80,12 +80,13 @@ Object.size = (obj) ->
 
 window.Utility = ->
 
-window.Utility.paperSetup = (id) ->
+window.Utility.paperSetup = (id, op) ->
   dom = if typeof id == 'string' then $('#' + id) else id
-  w = dom.parent().height()
-  h = dom.parent().width()
-  dom.attr 'height', w
-  dom.attr 'width', h
+  # w = dom.parent().height()
+  if op and op.width then dom.parent().width(op.width)
+  if op and op.height then dom.parent().height(op.height)
+  # dom.attr 'height', w
+  # dom.attr 'width', '90px'
   paper.install window
   myPaper = new (paper.PaperScope)
   myPaper.setup dom[0]

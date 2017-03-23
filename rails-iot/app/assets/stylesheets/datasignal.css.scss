@@ -1,0 +1,106 @@
+acceptor.datasignal{
+  @extend .hoz-left;
+  flex-flow: row nowrap;
+  max-height: 90px;
+  margin: 0px 2px 8px 2px;
+	border: none;
+	background: darken($signal_base, 0%);
+  width: $time_signal_width;
+  	&.ui-droppable-active{
+	  background: darken($signal_base, 35%) !important;
+	}
+	&.ui-droppable-highlight, &.ui-droppable-hover{
+	  background: darken($signal_base, 40%) !important;
+	}
+	&::after{
+		content: 'SIGNAL';
+		color: lighten($signal_base, 40%);
+	}
+  /*datasignal{
+  	margin-top: 5%;
+    margin-bottom: 5%;
+    height: 90% !important;
+  }*/
+  @include drop-shadow(0);
+  /*@include inset-shadow(0.5);*/
+}
+
+
+datasignal{
+	@extend block;
+	@extend vert-centered;
+	position: relative;
+	&.selected{@extend block.selected;}
+}
+
+
+canvas{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	background: white;
+}
+
+event.signal-design{
+    border: 1px solid darken($sexy_yellow, 20%);
+    background: darken($sexy_yellow, 5%);
+    
+    &#timecut datasignal{
+      width: 50% !important;
+    }
+    &#timecut .track-full{position: relative;}
+    &#timecut .track-full:after{
+      height: 100%;
+      width: 2px;
+      background: $electric_blue;
+      position: absolute;
+      content: '';
+      top:0;
+      left: 50%;
+      
+      box-shadow: 0px 5px 7px 1px rgba(0, 0, 0, 0.5);
+    }
+    .track{
+      @extend track;
+      background: darken($sexy_yellow, 20%);
+    }
+    .track-unit{
+      @extend .track;
+      width: $time_signal_width !important;
+      min-width: $time_signal_width !important;
+    }
+    .track-long{
+      @extend .track;
+      width: $time_signal_width * 3 !important;
+      datasignal{width: 100%;}
+    }
+    .track-full{
+      @extend .track;
+      width: 100% !important;
+    }
+    .ui-droppable-active{
+      background: darken($sexy_yellow, 30%) !important;
+    }
+    .ui-droppable-highlight, .ui-droppable-hover{
+      background: darken($sexy_yellow, 35%) !important;
+    }
+
+
+    .trigger{
+      @extend .trigger;
+      background: lighten($sexy_yellow, 5%);
+
+      &:hover{
+        @extend .trigger:hover;
+        background: darken($sexy_yellow, 10%);
+      }
+      &:active{
+        @extend .trigger:active;
+        background: darken($sexy_yellow, 15%);
+      }
+      &:focus{
+        @extend .trigger:focus;
+        background: darken($sexy_yellow, 15%);
+      }
+    }
+  }

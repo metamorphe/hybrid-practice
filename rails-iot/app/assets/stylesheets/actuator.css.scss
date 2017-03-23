@@ -1,0 +1,149 @@
+acceptor.actuator{
+    @extend .hoz;
+    @extend .vert-centered-sink-top;
+    width: 180px;
+    height: 90px;
+    max-height: 90px;
+    color: white;
+    line-height: 100%;
+    font-weight: normal;
+    font-size: 9pt;
+    text-align: center;
+    z-index: 10;
+    margin: 0px 0px 0px 0px;
+
+    /*@extend actuator;*/
+    background: darken($actuator_base, 10%);
+           
+    &.ui-droppable-active{
+      background: darken($actuator_base, 30%) !important;
+    }
+    &.ui-droppable-highlight, &.ui-droppable-hover{
+      background: darken($actuator_base, 35%) !important;
+    }
+    &::after{
+        content: 'ACTUATOR';
+        color: lighten($actuator_base, 50%);
+    }
+    &.accepted::after{
+        content: '';
+        display: none;
+    }
+    actuator{
+        margin-top: 2%;
+        margin-bottom: 2%;
+        height: 96% !important;
+    }
+    @include drop-shadow(0);
+    @include inset-shadow(0);
+    border-bottom: solid 3px darken($actuator_base, 20%);
+    border-radius: 0;
+}
+
+actuator{
+    @extend .hoz;
+    @extend .vert-centered-sink-top;
+
+    width: 180px;
+    height: 90%;
+
+
+    margin-top: 0px;
+
+    color: white;
+    line-height: 100%;
+    font-weight: normal;
+    font-size: 9pt;
+    text-align: center;
+    z-index: 10;
+
+    @include drop-shadow(0.93);  
+
+        &.selected{@extend block.selected;}
+
+    
+        div.simulation{
+            @extend .vert;
+            height: 100%;
+            width: 80px;
+        }
+        canvas{
+            width: 100% !important;
+            height: 75%;
+            margin: 0;
+        }
+        label.title{
+            display: block;
+            height: 25%;
+            width: 100%;
+            padding-top: 2px;
+            padding-bottom: 4px;
+            font-weight: normal;
+            line-height: 14px;
+            font-size: 0.8em;
+            background: darken($actuator_base, 10%);
+            margin: 0;
+            &.light{
+                position: relative;
+                background: darken($actuator_base, 0%);
+            }
+        }
+        channels{
+            width: 100px; 
+            height: 100%;
+            background: darken($actuator_base, 10%);
+        }
+        channel{
+            label.actuator{
+                padding: 5px 7px;
+                line-height: 100%;
+                margin: 0;
+                width: 100%;
+                text-align: left;
+                font-weight: normal !important;
+                font-size: 0.75em;
+                background: darken($actuator_base, 20%);
+                &.selected{ background: lighten($actuator_base, 10%);}
+                &.selected:hover{background: lighten($actuator_base, 12%);}
+                &:hover{background: darken($actuator_base, 25%);}
+                &:focus{background: darken($actuator_base, 27%);}
+                &:active{background: darken($actuator_base, 30%);}
+                &.span.dimension{
+                    font-family: 'Menlo', monospace;
+                    font-size: 10pt;
+                }
+            }
+        }
+        
+}
+
+
+event.actuation-design{
+    border: 1px solid darken($base, 20%);
+    background: darken($base, 5%);
+    .track{
+      @extend track;
+      background: darken($base, 20%);
+    }
+    .track-unit{
+      @extend .track;
+      width: $actuator_width !important;
+      min-width: $actuator_width !important;
+    }
+    .track-long{
+      @extend .track;
+      width: $actuator_width * 3 !important;
+    }
+    .track-full{
+      @extend .track;
+      width: 100%;
+    }
+    .ui-droppable-active{
+      background: darken($base, 25%) !important;
+    }
+    .ui-droppable-highlight, .ui-droppable-hover{
+      background: darken($base, 30%) !important;
+    }
+  }
+      
+

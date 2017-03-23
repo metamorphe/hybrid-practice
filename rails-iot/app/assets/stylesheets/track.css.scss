@@ -1,77 +1,100 @@
-/* HEADER KEYFRAME*/
 
-.keyframe-options{
-	@extend .full-hoz;
-	height: 25%;
-	background: darken($base, 20%);
-	font-size: 8pt;
-	font-weight: bold;
-	line-height: 20px;
-}
-.keyframe-options div{
-	height: 100%;
-	/*border: 1px solid $base_shadow;*/
-	@include drop-shadow(0.9);
-}
-.keyframe-params{
-	@extend .full-hoz;
-	height: 75%;
-	background: lighten($base, 10%);
+
+track{
+  @extend .hoz;
+  height: 90%;
+  margin: 0 6px;
+  /*max-height: 90px;*/
+  padding: 0 6px;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  
+  @include inset-shadow(0.5);
 }
 
-      behavior, selector{
-        padding: 5px;
-        width: 100%;
-        margin: 0;
-        height: 40px;
-        margin-bottom: 5px;
-
-        flex-grow: 1;
-        color: white;
-        font-weight: bold;
-        font-size: 1em;
-        text-align: center;
-        
-      }
-      behavior img, selector img{
-        background: white;
-        width: 80%;
-        @include drop-shadow(0.9);
-      }    
-      
-      .btn-xxs{
-      	margin-top: 4px;
-        padding: 1px 2px;
-        font-size: 8px;
-        line-height: 1.2;
-        border-radius: 3px;
-      }
-      button.add-big{
-        /*font-size: 1.2em;
-        padding: 8px;
-        width: auto;*/
-        margin-left: 5px;
-        margin-right: 5px;
-      }            
-
-
-
-  transition{
-  	background: darken($base, 30%);
-    margin-top: 0px;
-    padding: 5px 3px;
-    width: 30px;
-    height: 80%;
-
-    line-height: 110%;
-    color: white !important;
-    font-weight: bold;
-    font-size: 7pt;
-    text-align: center;
-
-    margin-left: -1px;
-    margin-right: -1px;
-    border: 1px solid $off_black;
-    /*@include inset-shadow(0.2);*/
+event{
+  @extend .full-hoz;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  border: 1px solid $off_black;
+  background: $base;
+  padding: 0px;
+  width: 100%;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  position: relative;
+  height: 100px;
+  line-height: 150px;
+  color: white;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+  @include drop-shadow(0.43);
+  button.trigger{
+      min-width: 120px;
+      width: 90% !important;
+      font-size: 12pt !important;
+      border-radius: 16px;
   }
- 
+  .vert.centered{
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+  }
+  &.collapsed .vert.centered{
+    width: 36px;
+    button.trigger{
+      border: none;
+      border-radius: 0;
+      height: 100%;
+      span:first-child{display:none};
+    }
+    
+  }
+
+
+  
+  button.remove{
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    font-size: 9px;
+    line-height: 1;
+    padding: 0px 1px;
+    
+  }
+  button.trash{
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    font-size: 9px;
+    line-height: 1;
+    padding: 0px 1px;
+    z-index: 1000;
+  }
+  .result{
+    border-radius: 5px;
+    color: $sexy_off_white;
+    font-family: Avenir;
+    font-weight: bold;
+    background: darken($base, 30%) !important;
+  }
+  &.tall{height: 400px;}
+}
+
+
+#adder-track datasignal::after{
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 20%;
+  width: 8px;
+  height: 60%;
+  background: $sexy_off_white;
+  z-index: 1000;
+  @include rotate(3deg);
+  -webkit-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
+  -moz-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
+  box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
+}

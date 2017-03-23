@@ -2,16 +2,21 @@ class window.TimeSignalManager
   @log: ()-> return#console.log.bind(console)
   constructor: (@op) ->
     TimeSignalManager.log 'TSM'
-    @init()
+    @timesignals = []
   init:()->
-    @timesignals = @initTimeSignals()
+    @initTimeSignals()
     @initSelection()
     @activateDragAndDrop()
   initTimeSignals: ->
+    console.log("SIGNALS",@op.collection.length )
     _.map @op.collection, (canvas, i) ->
       dom = $(canvas)
+      if dom.hasClass('skip') then return
       op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
       ts = new TimeSignal(op)
+      tsm.add.apply(tsm, [ts])
+  resolve: (dom)->
+    @getTimeSignal($(dom).data('time_signal_id'))
   getTimeSignal: (id)->
     @timesignals[id]
   getActiveTimeSignal: ()->
@@ -27,19 +32,41 @@ class window.TimeSignalManager
     @timesignals.push(ts)
     @activateDragAndDrop()
   activateDragAndDrop: ()->
+    @activateDrag()
+    @activateDrop()
+  activateDrag: ()->
     scope = this
     $('.sortable').sortable
       placeholder: "ui-state-highlight"
 
-    $('canvas.draggable').draggable
+
+    $('datasignal canvas.draggable').draggable
       revert: true
       appendTo: '#ui2'
-      scroll: false
       helper: ()->
         copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).attr('period'))
         return copy;
+
+    _.each $('datasignal.composeable'), (signal)->
+      tracks = $(signal).parent().data().tracks
+      $(signal).draggable
+        revert: false
+        containment: 'parent'
+        scroll: false
+        # snap: true
+        # snapMode: "outer"
+        # snapTolerance: 10
+        grid: [1, 87/tracks]
+        stack: 'datasignal.composeable'
+
+
+  activateDrop: ()->
+    scope = this
+
  
-    $('.signal-design').find('.droppable[class^="track-"]').droppable({
+    
+
+    behavior = 
       accept: "canvas.draggable", 
       classes: { "droppable-active": "droppable-default"},
       activate: (event, ui) ->
@@ -50,7 +77,7 @@ class window.TimeSignalManager
             .attr('data', ui.draggable.attr('data'))
             .attr('period', ui.draggable.attr('period'));
         id = $(this).parent('event').attr('id')
-        clear = not _.contains ["adder", "library", "timemorph"], id
+        clear = not _.contains ["adder", "library", "timemorph", "behaviors"], id
         
         draggable =  id != "timecut"
         classes = if draggable then ['draggable'] else []
@@ -66,7 +93,6 @@ class window.TimeSignalManager
             axis: "x"
             containment: ".track-full"
             scroll: false
-
       deactivate: (event, ui) ->
         if sm
           acceptor = sm.getAcceptor(event.pageX, event.pageY)
@@ -86,5 +112,7 @@ class window.TimeSignalManager
             tsm.add(new TimeSignal(op))
           
           sm.setAcceptorsActive(false)
-      
-    })
+
+    $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
+    $('acceptor.datasignal').droppable(behavior)
+

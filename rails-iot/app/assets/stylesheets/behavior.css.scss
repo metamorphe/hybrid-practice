@@ -1,0 +1,195 @@
+#behavior_environment{
+  width: 100%;
+  height: 100%;
+
+}
+#timeruler{
+  width: 100%;
+  height: 10px;
+  background: darken($composition_base, 15%);
+}
+
+behavior{
+  @extend .hoz;
+  width: 100%;
+	height: 100%;
+  border-radius: 3px;
+	padding: 0px 0px 0px 0px;
+	background: darken($composition_base, 6%);
+	margin: 5px;
+	border: 1px solid darken($composition_base, 55%);
+	@include drop-shadow(0.93);
+	&.selected{@extend block.selected;}
+  #stage{
+    background: darken($composition_base, 10%);
+    width: $actuator_width;
+    /*padding: 4px 0px 4px 0px;*/
+    height: 100%;
+  }
+  
+  #timetrack{
+    position: relative;
+    background: darken($composition_base, 15%);
+    width: 100%;
+    height: 100%;
+    #scrubber{
+      cursor: pointer;
+      position: absolute;
+      left: 10%;
+      /*top: -8px;*/
+      z-index: 1000;
+      width: 1.2px;
+      height: 100%; 
+      float: left;
+      #timeline{
+        width: 100%;
+        height: 100%;
+        background: $sexy_off_white;
+        z-index: 1000;
+        @include drop-shadow(0.9);
+      }
+      #handle{
+        width: 0; 
+        height: 0; 
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid $electric_blue;
+        font-size: 0;
+        line-height: 0;
+        position: absolute;
+        top: -8px;
+        width: 2px;
+        z-index: 1000000;
+        @include drop-shadow(0.9);
+      }
+    }
+    acceptor.datasignals{
+      @extend acceptor.datasignal;
+      width: 100%;
+      margin: 0px 0px 0px 0px;
+      border-bottom: solid 3px darken($signal_base, 15%);
+      border-radius: 0!important;
+      &::after{content: 'SIGNALS';}
+    } 
+  }
+  
+
+}
+
+label{
+  height: 18px;
+  margin-bottom: 0;
+  line-height: 100%;
+  width: 100%;
+  padding: 3px 3px;
+  font-size: 9pt;
+  font-weight: bold;
+  font-family: Avenir, sans-serif;
+  color: $sexy_off_white;
+  background: desaturate(darken($composition_base, 45%), 10%);
+}
+
+handle{
+  width: 10px;
+  background: desaturate(lighten($composition_base, 20%), 40%);
+  height: 102%;
+  border: 1px solid $off_black;
+  border-radius: 2px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  /*margin-right: 5px;*/
+  margin-left: -1px;
+  cursor: -webkit-grabbing; cursor: -moz-grabbing;
+}
+handle:active{
+  background: desaturate(lighten($composition_base, 0%), 40%);
+}
+
+.track-button{
+  height: 102%;
+  width: 15px;
+  margin-right: -1px;
+  margin-left: 0px;
+  color: $sexy_off_white;
+  background: darken($composition_base, 35%);
+  border-color: darken($composition_base, 55%);
+  &:focus{
+  	outline: none;
+  	color: $sexy_off_white;
+   	background: darken($composition_base, 35%);
+  	border-color: darken($composition_base, 55%);
+  }
+  &:hover{
+  	outline: none;
+  	color: $sexy_off_white;
+    background: darken($composition_base, 40%);
+ 	border-color: darken($composition_base, 55%);
+  }
+  &:active{
+  	outline: none;
+  	color: $sexy_off_white;
+    background: darken($composition_base, 45%);
+  	border-color: darken($composition_base, 55%);
+  }
+  &:active:focus{
+  	color: $sexy_off_white;
+  	outline: none;
+  }
+}
+
+.btn-xxs, .btn-group-xxs > .btn {
+    padding: 1px 2px;
+    font-size: 8px;
+    line-height: 1.5;
+    border-radius: 3px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 0px;
+}
+
+
+event.composition-design{
+    height: 110px;
+	  &.playground{
+      height: 500px;
+    }
+    border: 1px solid darken($composition_base, 20%);
+    background: darken($composition_base, 5%);
+    .track{
+      @extend track;
+      height: 100%;
+      background: darken($composition_base, 20%);
+    }
+    .track-unit{
+      @extend .track;
+      width: $actuator_width !important;
+      min-width: $actuator_width !important;
+    }
+    .track-long{
+      @extend .track;
+      width: $actuator_width * 3 !important;
+    }
+    .track-full{
+      @extend .track;
+      width: 100%;
+    }
+  
+    .trigger{
+      @extend .trigger;
+      background: lighten($composition_base, 5%);
+
+      &:hover{
+        @extend .trigger:hover;
+        background: darken($composition_base, 10%);
+      }
+      &:active{
+        @extend .trigger:active;
+        background: darken($composition_base, 15%);
+      }
+      &:focus{
+        @extend .trigger:focus;
+        background: darken($composition_base, 15%);
+      }
+    }
+  }

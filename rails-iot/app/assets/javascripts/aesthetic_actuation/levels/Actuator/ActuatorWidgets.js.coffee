@@ -87,10 +87,10 @@ class window.Grouper extends Widget
       return
     $('#name-button').on 'click', ->
       name = $(this).siblings('input').val()
-      $(this).parents('event').find('.track-unit').find('p.actuator-title:first').html name
+      $(this).parents('event').find('.track-unit').find('label.title:first').html name
       return
     $('#group input').on 'input', ->
       name = $(this).val()
-      $(this).parents('event').find('.track-unit').find('p.actuator-title:first').html name
+      $(this).parents('event').find('.track-unit').find('label.title:first').html name
       return
     

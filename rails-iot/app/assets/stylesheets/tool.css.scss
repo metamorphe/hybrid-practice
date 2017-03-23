@@ -5,7 +5,14 @@
 @import "variables";
 @import "arduino";
 @import "flexors";
+
+@import "track";
 @import "composer";
+@import "block";
+@import "datasignal";
+@import "actuator";
+@import "behavior";
+
 @import "track";
 @import "widget";
 @import "drop";

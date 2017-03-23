@@ -1,4 +1,5 @@
 class window.TimeSignal
+  @DEFAULT_HEIGHT: 84 # + 4 for BORDER ==> 88
   @COUNTER: 0
   @DEFAULT_PERIOD: 3000
   @DEFAULT_RESOLUTION: 100 # ms/sample
@@ -12,9 +13,25 @@ class window.TimeSignal
     max = TimeSignal.MAX
     min = TimeSignal.MIN
     p = (v - min) / (max - min);
-    red = new paper.Color("#d9534f");
-    blue = new paper.Color("#00A8E1");
-    return red.multiply(1-p).add(blue.multiply(p))
+
+    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
+    # "#000000",
+    thermogram = [ "#380584", "#A23D5C", "#FAA503", "#FFFFFF"];
+    thermogram.reverse();
+    
+    thermogram = _.map thermogram, (t) -> return new paper.Color(t)
+    if p == 0 then return thermogram[0]
+    i = p * (thermogram.length - 1)
+    
+    a = Math.ceil(i)
+    b = a - 1
+    terp = a - i
+    red = thermogram[a]
+    blue = thermogram[b]    
+
+    c = red.multiply(1-terp).add(blue.multiply(terp))
+    c.saturation = 0.8
+    return c
   @resample: (data, period)->
     target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
     i = 0
@@ -61,9 +78,8 @@ class window.TimeSignal
     props = _.clone(TimeSignal.DEFAULT_STYLE)
     props = _.extend props,{dom: canvas}
     if op.classes then _.each op.classes, (c)-> newDom.find('canvas').addClass(c)
-    if op.clearParent 
-      $(op.parent).find('datasignal').remove()
-    if op.parent then op.parent.append(newDom)
+    if op.clearParent then $(op.parent).children('datasignal').remove()
+    if op.parent then op.parent.addClass('accepted').append(newDom)
     if op.style then _.extend props, op.style
     if op.activate
       ts = new TimeSignal(props)
@@ -85,6 +101,7 @@ class window.TimeSignal
 
   constructor: (@op)->
     @id = TimeSignal.COUNTER++
+   
     if @op.dom
       @period = if _.isUndefined(@op.dom.attr('period')) then TimeSignal.DEFAULT_PERIOD else parseFloat(@op.dom.attr('period')) 
       @canvasInit()
@@ -93,6 +110,24 @@ class window.TimeSignal
       @period  = if _.isUndefined(@op.period) then TimeSignal.DEFAULT_PERIOD  else @op.period
       @acceptorInit()
     return
+  canvasInit: ()->
+    @data = eval(@op.dom.attr('data'))
+    t_op = {}
+    container = @op.dom.parent().parent()
+    params = container.data()
+    accept = params.accept
+    semantic = params.semantic == "enabled"
+    tracks = params.tracks
+    timescale = params.timescale
+    if not semantic
+      t_op.width = @period / timescale * container.width()
+      t_op.height = TimeSignal.DEFAULT_HEIGHT / tracks
+      # console.log @period, timescale, t_op.width, t_op.height
+
+    @op.paper = Utility.paperSetup(@op.dom, t_op)
+    @op.dom.parents('datasignal').data 'time_signal_id', @id
+    @_visuals()
+   
   time_series: ->
     commands = @command_list()
     return _.map commands, (c, i)->
@@ -142,13 +177,8 @@ class window.TimeSignal
     @op.acceptor.set({fillColor: "purple"})
     @op.acceptor.time_signal_id = @id
     @_visuals()
-  canvasInit: ()->
-    @data = eval(@op.dom.attr('data'))
-    @op.paper = Utility.paperSetup(@op.dom)
-    @op.dom.parents('datasignal').data 'time_signal_id', @id
-    @_visuals()
-  command_list: () ->
-    console.log "PERIOD", @period
+  
+  command_list: (op) ->
     t_scale = @period / @data.length
     t_elapsed = 0
     cl = _.map @data, (datum) ->
@@ -156,13 +186,13 @@ class window.TimeSignal
       t = t_elapsed
       t_elapsed += duration
       {
-        t: t
+        t: if op and op.offset then t + op.offset else t
         param: datum
         duration: duration
       }
 
     cm = TimeSignal.compile(cl)
-    console.log("COMPILATION SAVING", (cl.length - cm.length) / cl.length * 100, "%")
+    # console.log("COMPILATION SAVING", (cl.length - cm.length) / cl.length * 100, "%")
     cm
   inject:(data, from, to)->
     if from < 0 or from > @period
@@ -183,9 +213,16 @@ class window.TimeSignal
     @_visuals()
 
   _visuals:()->
+    if @op.dom.height() < 30
+      @op.signal.strokeWidth = 1.5
+      @op.axes.strokeWidth = 1.5
+    
     fill = @signal_fill(@op.signal_fill)
+
     @_signal = @signal(@op.signal)
     axes = @draw_axes(@op.axes)
+
+
     @visuals = new paper.Group
       name: "TIMESIGNAL:" + @id,
       time_signal_id: @id,  
@@ -282,7 +319,7 @@ class window.TimeSignal
       
   
   draw_axes: (op) ->
-    offset = new (paper.Point)(0, -4)
+    offset = new (paper.Point)(0, -3)
     axes = [
       {
         from: paper.view.bounds.topLeft.subtract(offset)
@@ -300,15 +337,18 @@ class window.TimeSignal
     _.map @data, (datum, i) ->
       [[i, datum],[i + 1, datum]]
   signal_fill: (op) ->
+
     visual = @to_visual()
     time_signal = _.flatten(visual, true);
     time_signal = _.flatten([[[0, 0]], time_signal, [[this.data.length, 0]]], true)
-    
+   
     op = _.extend(op,
       segments: time_signal
       closed: true)
     op.name = "SIGNAL: fill me"
+
     op.fillColor = TimeSignal.temperatureColor(@period)
+
     p = @makePath(op)
   signal: (op) ->
     visual = @to_visual()
@@ -322,14 +362,14 @@ class window.TimeSignal
     h =  if p.bounds.height < 1 then 1 else p.bounds.height
     if @op.dom 
       p.scaling.x = paper.view.bounds.width / w
-      p.scaling.y = -(paper.view.bounds.height - 10) / h
+      p.scaling.y = -(paper.view.bounds.height - 6) / h
       p.pivot = p.bounds.bottomCenter.clone()
-      p.position = paper.view.bounds.bottomCenter.clone().add(new paper.Point(0, -5))
+      p.position = paper.view.bounds.bottomCenter.clone().add(new paper.Point(0, -3))
     else
       p.scaling.x = @op.acceptor.bounds.width / w
       p.scaling.y = -(@op.acceptor.bounds.height) / h
       p.pivot = p.bounds.bottomCenter.clone()
-      p.position = @op.acceptor.bounds.bottomCenter.clone().add(new paper.Point(0, -5))
+      p.position = @op.acceptor.bounds.bottomCenter.clone().add(new paper.Point(0, -3))
     return p
   express: (actuator, options) ->
     gamm = 1 / actuator.alpha

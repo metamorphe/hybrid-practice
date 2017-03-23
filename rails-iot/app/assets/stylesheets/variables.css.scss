@@ -13,7 +13,11 @@ $thick: 5px;
 $sexy_red: #d9534f;
 $sexy_yellow: #FF9912;
 $sexy_green: #5cb85c;
-$composition_base: $sexy_green;
+
+$garage_band_gray: #3d3d3d;
+$composition_base: $garage_band_gray;
+$signal_base: darken(desaturate($sexy_yellow, 100%), 40%);
+$actuator_base: darken(desaturate($base, 30%), 5%);
 
 $time_signal_width: 110px;
 $actuator_width: 190px;
@@ -32,6 +36,11 @@ $actuator_width: 190px;
 	-webkit-box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
 	-moz-box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
 	box-shadow: 0px 8px 12px -5px rgba(255,255,255,$opacity);
+}
+@mixin inset-highlight($opacity){
+	-webkit-box-shadow: inset 2px 2px 12px 0px rgba(255,255,255,$opacity);
+	-moz-box-shadow: inset 2px 2px 12px 0px rgba(255,255,255,$opacity);
+	box-shadow: inset 2px 2px 12px 0px rgba(255,255,255,$opacity);
 }
 
  @mixin rotate($degrees) {

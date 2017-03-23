@@ -74,7 +74,6 @@ class window.ActuatorManager
     actuators = _.flatten([LEDS, hsbLEDs, heaters, motors])
     _.each actuators, (actuator)->
       actuator.onClick = ()->
-        console.log actuator.expresso_id
         act = am.getActuator(actuator.expresso_id)
         act = am.clone(act.op.dom.parents("actuator"), {})
         $("#actuator-generator").html("").append(act).removeClass('actuator-droppable');
@@ -97,7 +96,8 @@ class window.ActuatorManager
     @activateDragAndDrop()
   initActuators: () ->
     scope = this;
-    collection = @op.collection.find('actuator').not('.template')
+    collection = $('actuator[name]:not(.template)')
+
     console.info 'Initializing actuators', collection.length
     _.each collection, (act, i) ->
       scope.initActuator.apply(scope, [act])
@@ -116,6 +116,7 @@ class window.ActuatorManager
       type: ActuatorType
       color: act.data('color')
       hardware_id: act.data('hardware-id')
+      resistance: act.data('resistance')
       canvas_id: act.data('canvas-id')
       paper: papel
       dom: dom)
@@ -137,7 +138,9 @@ class window.ActuatorManager
       value = actuator.getChannelParam(channel)
       cmp.op.slider.val value
       return
-
+  resolve: (dom)->
+    id = $(dom).data('id')
+    @getActuator(id)
   getActuator: (id)->
     @actuators[id]
   getActiveActuator: ()->
@@ -165,17 +168,10 @@ class window.ActuatorManager
     if _.isUndefined actuator
       console.warn("FORGOT TO SELECT AN ACTUATOR!")
       return
-    window.paper = actuator.op.paper
-    query = parameterized: true
-    query[channel] = param
-    actuator.expression = query  
-    update = actuator.channels[channel].value
-    val = parseInt(actuator.channels[channel].value)
+    cl = actuator.perform(channel, param)
     if cmp and sc
-      commands = actuator.toAPI()
-      _.each commands, (command)->
+      _.each cl.commands, (command)->
         sc.sendMessage(command, {live: cmp.live}) 
-    # am.updateActiveChannel(update);
     am.updateChannels(actuator)
     return actuator.toCommand()
   sendCommandById: (a_id, channel, ts_id)->
@@ -218,20 +214,22 @@ class window.ActuatorManager
    
   activateDragAndDrop: ()->
     scope = this
-    $('.actuation-design .draggable').draggable
+    $('actuator.draggable').draggable
       revert: true
       appendTo: '#ui2'
-      scroll: false
       helper: ()->
         copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardwareId)
         return copy;
     
-    $('.actuation-design .droppable').droppable
+    $('.actuation-design .droppable, acceptor.actuator').droppable
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->
         act = scope.clone(ui.draggable, {})
-        $(this).append(act).removeClass('actuator-droppable');
+
+        num_to_accept = parseInt($(this).attr('accept'))
+        if num_to_accept == 1 then $(this).html('')
+        $(this).append(act).addClass('accepted').removeClass('actuator-droppable');
         scope.initActuator.apply(scope, [act]);
         scope.activate()
       
