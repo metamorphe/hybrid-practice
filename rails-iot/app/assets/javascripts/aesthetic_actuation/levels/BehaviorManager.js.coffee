@@ -3,7 +3,6 @@ class window.BehaviorManager
 		scope = this
 		@activateDragAndDrop()
 		$("button#compose").click(()-> scope.play())
-			
 		Widget.bindKeypress "b", ()-> $('#compose').click()
 	compile: ()->
 		actors = $("#stage actuator")
@@ -51,10 +50,6 @@ class window.BehaviorManager
 			actuator = am.getActuator(command.actuator)
 			_.delay(am.sendCommandTo, command.t, actuator, command.channel, command.param) 
 			return
-
-
-
-
 
 	activateDragAndDrop: ()->
 		scope = this

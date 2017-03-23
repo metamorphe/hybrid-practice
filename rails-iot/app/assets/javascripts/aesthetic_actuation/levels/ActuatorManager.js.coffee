@@ -227,7 +227,7 @@ class window.ActuatorManager
       drop: (event, ui) ->
         act = scope.clone(ui.draggable, {})
 
-        num_to_accept = parseInt($(this).attr('accept'))
+        num_to_accept = $(this).data().accept
         if num_to_accept == 1 then $(this).html('')
         $(this).append(act).addClass('accepted').removeClass('actuator-droppable');
         scope.initActuator.apply(scope, [act]);

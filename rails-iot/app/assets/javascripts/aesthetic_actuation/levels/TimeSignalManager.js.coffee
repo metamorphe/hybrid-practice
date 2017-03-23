@@ -61,25 +61,29 @@ class window.TimeSignalManager
 
 
   activateDrop: ()->
-    scope = this   
+    scope = this  
+
     behavior = 
       accept: "canvas.draggable", 
       classes: { "droppable-active": "droppable-default"},
-      drop: (event, ui) ->  
+      drop: (event, ui) ->
+        num_to_accept = $(this).data().accept
+        drag_in_place = $(this).data().draginplace == "enabled"
+        exportable = $(this).data().exportable == "enabled"
+        composeable = $(this).data().composeable == "enabled"
         widget = $(this).parent('event').attr('id')
-        clearParent = not _.contains ["adder", "library", "timemorph", "behaviors"], widget
-        # classes = if widget == "timecut" then ['draggable'] else []
         
 
         @ts = TimeSignal.copy
           clone: ui.draggable
           parent: $(this)
-          clearParent: clearParent
+          clearParent: num_to_accept == 1
           activate: true
-          dragInPlace: widget == "timecut"
-          draggable: widget != "timecut"
+          dragInPlace: drag_in_place
+          exportable: exportable
+          composeable: composeable
 
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
-    $('acceptor.datasignal').droppable(behavior)
+    $('acceptor.datasignals').droppable(behavior)
 

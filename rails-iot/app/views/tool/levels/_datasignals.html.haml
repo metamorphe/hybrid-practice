@@ -3,14 +3,14 @@
     %button#record.design-title.btn-primary.trigger{:type => "trigger"}
       RECORD
       %span.command &lt;SPACE&gt;
-  #record-result.track-long{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
+  #record-result.track-long{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal#result
       %canvas.skip
 %event#library.signal-design
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       LIBRARY
-  .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
+  .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal
       %canvas.draggable{:data => "[0, 1, 0]", "period" => 1000}
     %datasignal
@@ -24,7 +24,7 @@
     %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span CUT
       %span.command [X]
-  .track-full.droppable{:data =>{:accept=> 1, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
+  .track-full.droppable{:data =>{:accept=> 1, :dragInPlace => "enabled", :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "disabled"}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
 %event#adder.signal-design
@@ -32,7 +32,7 @@
     %button#ts-adder.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span WELD
       %span.command [W]
-  #add-result.track-unit{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
+  #add-result.track-unit{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal#result
       %canvas.skip
   #adder-track.track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
@@ -43,7 +43,7 @@
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       TIME MORPH 
     %input#time-morph.sexy{:type=>"range", :min => 0, :max => 10000, :step => 100}
-  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
+  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
 

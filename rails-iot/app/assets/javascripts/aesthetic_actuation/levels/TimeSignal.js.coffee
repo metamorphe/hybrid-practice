@@ -19,7 +19,8 @@ class window.TimeSignal
       canvas.attr("period", op.clone.attr('period'))
     if op.data then canvas.attr("data", JSON.stringify(op.data))
     if op.period then canvas.attr("period", op.period)
-    if op.draggable then canvas.addClass('draggable')
+    if op.exportable then canvas.addClass('draggable')
+    if op.composeable then newDom.addClass('composeable')
     if op.clearParent then $(op.parent).children('datasignal').remove()
     if op.parent then op.parent.addClass('accepted').append(newDom)
 
@@ -46,6 +47,8 @@ class window.TimeSignal
     p = (v - min) / (max - min);
 
     if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
+    if p > 1 then p = 1
+    if p < 0 then p = 0
     # "#000000",
     thermogram = [ "#380584", "#A23D5C", "#FAA503", "#FFFFFF"];
     thermogram.reverse();
@@ -153,7 +156,7 @@ class window.TimeSignal
     new_dom = TimeSignal.copy
       data: a
       period: t
-      draggable: true
+      exportable: true
       dragInPlace: false
       parent: $('#timecut .track-full')
       clearParent: true
@@ -165,7 +168,7 @@ class window.TimeSignal
     new_dom = TimeSignal.copy
       data: b
       period: @period - t
-      draggable: true
+      exportable: true
       dragInPlace: false
       parent: $('#timecut .track-full')
       clearParent: false

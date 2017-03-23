@@ -87,7 +87,7 @@ class Stitcher extends Widget
     new_dom = TimeSignal.copy
       data: data
       period: time_sum
-      draggable: true
+      exportable: true
       dragInPlace: false
       parent: @op.result
       clearParent: true
@@ -110,7 +110,7 @@ class window.Recorder extends Widget
     op = 
       data: _.zeros(parseInt(Recorder.DEFAULT_PERIOD/Recorder.DEFAULT_RESOLUTION))
       period: Recorder.DEFAULT_PERIOD
-      draggable: true
+      exportable: true
       dragInPlace: false
       parent: @op.recorder_result
       clearParent: true
