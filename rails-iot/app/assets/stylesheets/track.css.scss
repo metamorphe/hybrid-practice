@@ -32,7 +32,7 @@ event{
   @include drop-shadow(0.43);
  
   &.shrink{
-    height: 30px !important;
+    height: 40px !important;
     >*:not(.vert):not(.toggle):not(label):not([class^=track]):not(acceptor){
       display: none !important;
     }
@@ -63,7 +63,7 @@ event{
       border-radius: 0;
     }
     .toggle{
-      font-size: 20px;
+      font-size: 30px;
     }
     &>.vert{
       min-width: 150px;
@@ -71,7 +71,7 @@ event{
     }
     
     .trigger{
-      text-align: left;
+      /*text-align: left;*/
       width: 100%;
       margin: 0;
       padding-left: 10px;

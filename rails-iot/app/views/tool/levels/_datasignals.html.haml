@@ -13,7 +13,8 @@
     =glyph "collapse-up"
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
-      LIBRARY
+      %span LIBRARY
+      %span.command
   #hues.track-full.droppable{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 1540, :tracks => 1, :exportable => "enabled", :codomain => "hue"}}
 
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
@@ -59,7 +60,8 @@
     =glyph "collapse-up"
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
-      FORGE
+      %span FORGE
+      %span.command
     %input#time-morph.sexy{:type=>"range", :min => 0, :max => 10000, :step => 100}
   #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %button.btn.btn-xs.btn-danger.trash

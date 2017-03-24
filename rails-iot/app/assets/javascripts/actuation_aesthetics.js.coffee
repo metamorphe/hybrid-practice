@@ -53,7 +53,7 @@ class window.AestheticActuation
 		Widget.enable()
 		window.aw = new ActuatorWidgets()
 		aw.saver.load()
-		$('event.actuation-design button.toggle').click()
+		$('event.signal-design button.toggle').click()
 		window.tw = TimeWidgets()
 
 		return
