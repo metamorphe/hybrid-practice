@@ -4,6 +4,17 @@ class window.TimeSignalManager
     TimeSignalManager.log 'TSM'
     @timesignals = []
   init:()->
+    scope = this
+    $('button.view-toggle').click ->
+      ds = $(this).parents('event').find('datasignal').not('.template')
+      dom = $(this)
+      _.each ds, (s)-> 
+        ts = scope.resolve(s)
+        if _.isUndefined(ts) then return 
+        view = if ts.view == "hue" then "intensity" else "hue"
+        dom.parents('event').find('[class^=track]').data('codomain', view)
+
+        ts.toggle_visual(view)
     @populateHues()
     @initTimeSignals()
     @initSelection()
@@ -37,6 +48,7 @@ class window.TimeSignalManager
       tag = @tagName
       $(tag).removeClass 'selected'
       $(this).addClass 'selected'
+
   add: (ts)->
     @timesignals.push(ts)
     @activateDragAndDrop()
@@ -47,11 +59,13 @@ class window.TimeSignalManager
     scope = this
     $('.sortable').sortable
       placeholder: "ui-state-highlight"
+      scroll: false
 
 
     $('datasignal canvas.draggable').draggable
       revert: true
       appendTo: '#ui2'
+      scroll: false
       helper: ()->
         copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).attr('period'))
         return copy;

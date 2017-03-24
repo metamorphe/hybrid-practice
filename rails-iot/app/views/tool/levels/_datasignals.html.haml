@@ -15,12 +15,14 @@
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal.template
       %canvas.draggable{:data => "[0, 1, 0]", "period" => 1000}
-    / %datasignal
-    /   %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
-    / %datasignal
-    /   %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
-    / %datasignal
-    /   %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+    %datasignal
+      %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
+    %datasignal
+      %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
+    %datasignal
+      %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"
 %event#timecut.signal-design
   .vert
     %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
@@ -29,6 +31,8 @@
   .track-full.droppable{:data =>{:accept=> 1, :dragInPlace => "enabled", :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "disabled"}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"
 %event#adder.signal-design
   .vert
     %button#ts-adder.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
@@ -40,6 +44,8 @@
   #adder-track.track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"
 %event#timemorph.signal-design
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
@@ -48,6 +54,8 @@
   #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"
 
 
 

@@ -65,6 +65,7 @@ event.signal-design{
     }
     .track{
       @extend track;
+      position: relative;
       background: darken($sexy_yellow, 20%);
     }
     .track-unit{

@@ -43,8 +43,10 @@ event{
     align-content: center;
   }
   &.collapsed .vert.centered{
-    width: 36px;
+    width: 50px;
+    background: $sexy_green;
     button.trigger{
+      background: $sexy_green;
       border: none;
       border-radius: 0;
       height: 100%;
@@ -64,10 +66,19 @@ event{
     padding: 0px 1px;
     
   }
+  button.view-toggle{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    font-size: 9px;
+    line-height: 1;
+    padding: 0px 1px;
+    z-index: 1000;
+  }
   button.trash{
     position: absolute;
-    top: 5px;
-    right: 6px;
+    top: 0px;
+    right: 0px;
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;

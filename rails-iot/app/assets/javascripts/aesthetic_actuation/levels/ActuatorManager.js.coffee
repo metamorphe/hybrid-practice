@@ -122,6 +122,9 @@ class window.ActuatorManager
       paper: papel
       dom: dom)
     actuator = new ActuatorSimulator(props)
+    console.log "OP", op, actuator
+    if op 
+      console.log op.group
     if op and op.group
       actuator.makeGroup(op.group)
 
@@ -212,7 +215,8 @@ class window.ActuatorManager
     if op.clear then op.parent.html("")
     op.parent.append(act).addClass('accepted').removeClass('actuator-droppable')
     if op.activate
-      actor = @initActuator(act)
+      ops = if op.group then {group: op.group} else {}
+      actor = @initActuator(act, ops)
       @activate()
       if op.addSignalTrack
         bm.addSignalTrack(actor)

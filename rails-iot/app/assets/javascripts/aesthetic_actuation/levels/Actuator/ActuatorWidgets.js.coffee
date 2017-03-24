@@ -2,7 +2,7 @@ class window.Widget
   @bindings = {}
   @enable: ->
     $(".trash").click ()->
-      $(this).siblings().remove()
+      $(this).siblings().not('button').remove()
     $(document).keypress (event) ->
       _.each Widget.bindings, (func, key)->
         if event.which == parseInt(key)
@@ -57,11 +57,11 @@ class window.Saver extends Widget
     actuators = JSON.parse(ws.get(key))
     _.each actuators, (actuator)->
       console.log actuator
-      act = am.clone(null, actuator)
-      scope.op.track.append(act)
-      am.initActuator.apply(am, [act])
-    am.activate()
-    
+      actuatorops = _.extend actuator, 
+        parent: scope.op.track
+        activate: true
+      act = am.clone null, actuatorops
+      
 class window.Grouper extends Widget
   constructor: (@op)->
     scope = this
@@ -80,10 +80,12 @@ class window.Grouper extends Widget
         .value()
         console.log ids
         act = scope.op.track.find('actuator:first')
-        act = am.clone(act, {title: "Group"})
-        scope.op.result.html("").append(act).removeClass('actuator-droppable')
-        am.initActuator.apply(am, [act, {group: ids}]);
-        am.activate()
+        act = am.clone act, 
+          title: "Group"
+          group: ids
+          activate: true
+          clear: true
+          parent: scope.op.result
       return
     $('#name-button').on 'click', ->
       name = $(this).siblings('input').val()

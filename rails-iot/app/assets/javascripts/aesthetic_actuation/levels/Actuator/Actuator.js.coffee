@@ -50,6 +50,7 @@ class Actuator
     )
     @_visuals()
   makeGroup: (ids)->
+    console.log "MAKING GROUP", ids
     scope = this
     @hardware_id = []
     _.each ids, (id)-> 

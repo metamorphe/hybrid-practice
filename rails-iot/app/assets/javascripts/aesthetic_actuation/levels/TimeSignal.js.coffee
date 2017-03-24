@@ -230,27 +230,35 @@ class window.TimeSignal
     window.paper = @op.paper
     @visuals.remove();
     @_visuals()
-
+  toggle_visual: (view)->
+    switch view
+      when "intensity"
+        @_fill.opacity = 1
+        @_signal.opacity = 1
+        @_hue.opacity = 0
+      when "hue"
+        @_fill.opacity = 0
+        @_signal.opacity = 0
+        @_hue.opacity = 1
+    @view = view
   _visuals:(prop)->
 
 
     if @op.dom.height() < 30
       @op.signal.strokeWidth = 1.5
       @op.axes.strokeWidth = 1.5
-    switch prop.codomain
-      when "intensity"
-        fill = @signal_fill(@op.signal_fill)
-        @_signal = @signal(@op.signal)
-      when "hue"
-        @signal_hue()
-    
+    @_fill = @signal_fill(@op.signal_fill)
+    @_signal = @signal(@op.signal)
+    @_hue = @signal_hue()
     axes = @draw_axes(@op.axes)
+    @toggle_visual(prop.codomain)   
+    
 
 
     @visuals = new paper.Group
       name: "TIMESIGNAL:" + @id,
       time_signal_id: @id,  
-      children: _.flatten([fill, @_signal, axes])
+      children: _.flatten([@_fill, @_signal, axes])
     time = @_time_encoder(@visuals)
     play = @_play_button(@visuals)
     remove = @_remove_button(@visuals)
