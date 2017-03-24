@@ -5,10 +5,12 @@ class Actuator
   constructor: (@op) ->
     @paper = @op.paper
     hid = eval(@op.hardware_id)
+
     if _.isObject hid
       @hardware_id = hid
     else if _.isNumber hid
       @hardware_id = [hid]
+
     @setTitle()
     @init()
     @onCreate()

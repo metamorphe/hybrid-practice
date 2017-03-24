@@ -1,12 +1,16 @@
 %event#recorder.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
   .vert
     %button#record.design-title.btn-primary.trigger{:type => "trigger"}
-      RECORD
+      %span RECORD
       %span.command R
   #record-result.track-long{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal#result
       %canvas.skip
 %event#library.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       LIBRARY
@@ -24,6 +28,8 @@
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
 %event#timecut.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
   .vert
     %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span CUT
@@ -34,6 +40,8 @@
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
 %event#adder.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
   .vert
     %button#ts-adder.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span WELD
@@ -47,9 +55,11 @@
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
 %event#timemorph.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
   .vert
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
-      TIME MORPH 
+      FORGE
     %input#time-morph.sexy{:type=>"range", :min => 0, :max => 10000, :step => 100}
   #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %button.btn.btn-xs.btn-danger.trash

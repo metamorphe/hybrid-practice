@@ -15,12 +15,11 @@
         %button#port-connect.btn.btn-xs.btn-success
           = glyph "transfer"
 %event#project.full-hoz.tall.actuation-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
   .vert
     %button.design-title.btn-primary.trigger{:type => "trigger"}
       PROJECT
   #projectviewer
     %canvas
-  #actuator-generator.track-unit.result
-    %actuator.vert-centered
-      %h5 RESULT
-      %em.faint (CLICK ON AN ACTUATOR IN THE IMAGE)
+  %acceptor#actuator-generator.actuator{:data => {:accept=> 1}}

@@ -13,11 +13,11 @@ class window.ActuatorManager
      
       $('#actuators .track-full').append(act);
       return led
-    console.log "LEDs:", LEDS.length
+    # console.log "LEDs:", LEDS.length
 
     # HSB LEDS
     hsbLEDs = CanvasUtil.queryPrefix("NLED")
-    # hsbLEDs = hsbLEDs.slice(0, 2)
+    hsbLEDs = hsbLEDs.slice(0, 2)
     hsbLEDs = _.map hsbLEDs, (led, i)->
       led.type = "HSBLED"
       data = JSON.parse(CanvasUtil.getName(led))
@@ -32,7 +32,7 @@ class window.ActuatorManager
       
       $('#actuators .track-full').append(act);
       return led
-    console.log "hsbLEDs:", hsbLEDs.length
+    # console.log "hsbLEDs:", hsbLEDs.length
 
     # HEATERS
     heaters = CanvasUtil.queryPrefix("HEATER")
@@ -51,7 +51,7 @@ class window.ActuatorManager
       
       $('#actuators .track-full').append(act)
       return heater
-    console.log "heaters:", heaters.length
+    # console.log "heaters:", heaters.length
 
     motors = CanvasUtil.queryPrefix("MOTOR")
 
@@ -69,21 +69,37 @@ class window.ActuatorManager
       
       $('#actuators .track-full').append(act)
       return motor
-    console.log "motors:", motors.length
+    # console.log "motors:", motors.length
 
     actuators = _.flatten([LEDS, hsbLEDs, heaters, motors])
     _.each actuators, (actuator)->
       actuator.onClick = ()->
         act = am.getActuator(actuator.expresso_id)
-        act = am.clone(act.op.dom.parents("actuator"), {})
-        $("#actuator-generator").html("").append(act).removeClass('actuator-droppable');
-        am.initActuator.apply(am, [act]);
-        am.activate()
-        act.click()
+        act = am.clone act.op.dom.parents("actuator"),
+          activate: true
+          clear: true
+          parent: $("#actuator-generator")
+        act.op.dom.click()
     
   constructor: (@op) ->
     @actuators = []
-    
+  clone: (o, op)->
+    act = if op.type then $('actuator.template[name="'+op.type+'"]') else $('actuator.template[name="'+ o.attr('name')+'"]')
+    act = act.clone().removeClass('template')
+    if op.expression then act.data('color', op.expression) else act.data('color', o.data('color'))
+    if op.ids then act.data('hardware-id', op.ids) else act.data('hardware-id', o.data('hardware-id'))
+    if op.canvas_id then act.data('canvas-id', op.canvas_id) else act.data('canvas-id', o.data('canvas-id'))
+    if op.title then act.find("label.title:first").html(op.title.toUpperCase())
+    else act.find("label.title:first").html(o.find("label.title:first").html())
+    if op.clear then op.parent.html("")
+    op.parent.append(act).addClass('accepted').removeClass('actuator-droppable')
+    if op.activate
+      ops = if op.group then {group: op.group} else {}
+      actor = @initActuator(act, ops)
+      @activate()
+      if op.addSignalTrack
+        bm.addSignalTrack(actor)
+    return actor
   init:()->
     ActuatorManager.extract()
     @initActuators()
@@ -122,9 +138,7 @@ class window.ActuatorManager
       paper: papel
       dom: dom)
     actuator = new ActuatorSimulator(props)
-    console.log "OP", op, actuator
-    if op 
-      console.log op.group
+  
     if op and op.group
       actuator.makeGroup(op.group)
 
@@ -204,22 +218,7 @@ class window.ActuatorManager
       siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
       $(this).addClass('selected')
       return
-  clone: (o, op)->
-    act = if op.type then $('actuator.template[name="'+op.type+'"]') else $('actuator.template[name="'+ o.attr('name')+'"]')
-    act = act.clone().removeClass('template')
-    if op.expression then act.data('color', op.expression) else act.data('color', o.data('color'))
-    if op.ids then act.data('hardware-id', op.ids) else act.data('hardware-id', o.data('hardware-id'))
-    if op.canvas_id then act.data('canvas-id', op.canvas_id) else act.data('canvas-id', o.data('canvas-id'))
-    if op.title then act.find("p.actuator-title:first").html(op.title.toUpperCase())
-    else act.find("label.title:first").html(o.find("label.title:first").html())
-    if op.clear then op.parent.html("")
-    op.parent.append(act).addClass('accepted').removeClass('actuator-droppable')
-    if op.activate
-      ops = if op.group then {group: op.group} else {}
-      actor = @initActuator(act, ops)
-      @activate()
-      if op.addSignalTrack
-        bm.addSignalTrack(actor)
+  
    
   activateDragAndDrop: ()->
     scope = this

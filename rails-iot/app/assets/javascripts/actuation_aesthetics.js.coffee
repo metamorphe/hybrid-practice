@@ -51,7 +51,9 @@ class window.AestheticActuation
 			live_button: $('#slider-live')
 			slider: $('event#actuators input.master')
 		Widget.enable()
-		window.tw = TimeWidgets()
 		window.aw = new ActuatorWidgets()
 		aw.saver.load()
+		$('event.actuation-design button.toggle').click()
+		window.tw = TimeWidgets()
+
 		return

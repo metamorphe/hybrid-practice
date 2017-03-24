@@ -30,6 +30,54 @@ event{
   font-size: 1em;
   text-align: center;
   @include drop-shadow(0.43);
+  &.shrink{
+    height: 30px !important;
+    >*:not(.vert):not(.toggle):not(label):not([class^=track]){
+      display: none !important;
+    }
+    actuator canvas, actuator channels{
+      display: none !important;
+    } 
+
+    .vert *:not(.trigger):not(span){
+      display: none !important;
+    }
+    actuator{
+      width: auto;
+      margin-right: 5px;
+      div.simulation label.title{
+        display: block !important;
+        height: 100%;
+        font-size: 10pt;
+        background: $base;
+
+        font-weight: bold;
+      }
+      h5, em{
+        display: none;
+      }
+    }
+    .track-unit.result{
+      height: 100%;
+      border-radius: 0;
+    }
+    .toggle{
+      font-size: 20px;
+    }
+    .vert{
+      min-width: 150px;
+      height: 100%;
+    }
+    .trigger{
+      padding-top: 2px;
+      border-radius: 0 !important;
+      height: 100%;
+      border:none;
+      span:nth-child(2){
+        display: none;
+      }
+    }
+  }
   button.trigger{
       min-width: 120px;
       width: 90% !important;
@@ -41,12 +89,15 @@ event{
     justify-content: center;
     align-items: center;
     align-content: center;
+    background: $sexy_green;
+    button.trigger{
+      background: lighten($sexy_green, 10%);
+    }
   }
   &.collapsed .vert.centered{
     width: 50px;
-    background: $sexy_green;
     button.trigger{
-      background: $sexy_green;
+      
       border: none;
       border-radius: 0;
       height: 100%;
@@ -70,6 +121,15 @@ event{
     position: absolute;
     bottom: 0px;
     right: 0px;
+    font-size: 9px;
+    line-height: 1;
+    padding: 0px 1px;
+    z-index: 1000;
+  }
+  button.toggle{
+    position: absolute;
+    top: 0px;
+    left: 0px;
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;

@@ -97,6 +97,8 @@ class window.BehaviorManager
 		raw_commands = @compile()
 		t_start = @scrubberTime()
 		
+		if _.isEmpty raw_commands then return
+		 
 		# RESTART
 		commands = _.filter raw_commands, (command)-> command.t > t_start
 		if _.isEmpty commands 
