@@ -10,15 +10,17 @@
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       LIBRARY
+  #hues.track-full.droppable{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 1540, :tracks => 1, :exportable => "enabled", :codomain => "hue"}}
+
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
-    %datasignal
+    %datasignal.template
       %canvas.draggable{:data => "[0, 1, 0]", "period" => 1000}
-    %datasignal
-      %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
-    %datasignal
-      %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
-    %datasignal
-      %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+    / %datasignal
+    /   %canvas.draggable{:data => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}
+    / %datasignal
+    /   %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
+    / %datasignal
+    /   %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
 %event#timecut.signal-design
   .vert
     %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}

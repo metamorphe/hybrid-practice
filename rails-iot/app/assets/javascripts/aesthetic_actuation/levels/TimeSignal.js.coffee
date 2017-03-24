@@ -33,11 +33,10 @@ class window.TimeSignal
       tsm.add(ts)
       tsm.activateDragAndDrop()
       if op.dragInPlace
-        ts.op.dom.draggable({disabled: true})
         ts.op.dom.parent().draggable
-          axis: "x"
-          containment: ".track-full"
           scroll: false
+          containment: "parent"
+          axis: "x"        
       return ts
 
     return newDom
@@ -128,19 +127,23 @@ class window.TimeSignal
     @data = eval(@op.dom.attr('data'))
     t_op = {}
     container = @op.dom.parent().parent()
-    params = container.data()
-    accept = params.accept
+    params = container.data() 
+    accept = params.accept or 1
     semantic = params.semantic == "enabled"
-    tracks = params.tracks
-    timescale = params.timescale
+    tracks = params.tracks or 3
+    timescale = params.timescale 
+    codomain = params.codomain or "intensity"
+
     if not semantic
-      t_op.width = @period / timescale * container.width()
+      w = container.width()
+      t_op.width = @period/timescale * w
       t_op.height = TimeSignal.DEFAULT_HEIGHT / tracks
-      # console.log @period, timescale, t_op.width, t_op.height
+      
 
     @op.paper = Utility.paperSetup(@op.dom, t_op)
     @op.dom.parents('datasignal').data 'time_signal_id', @id
-    @_visuals()
+    @_visuals
+      codomain: codomain
    
   time_series: ->
     commands = @command_list()
@@ -228,14 +231,19 @@ class window.TimeSignal
     @visuals.remove();
     @_visuals()
 
-  _visuals:()->
+  _visuals:(prop)->
+
+
     if @op.dom.height() < 30
       @op.signal.strokeWidth = 1.5
       @op.axes.strokeWidth = 1.5
+    switch prop.codomain
+      when "intensity"
+        fill = @signal_fill(@op.signal_fill)
+        @_signal = @signal(@op.signal)
+      when "hue"
+        @signal_hue()
     
-    fill = @signal_fill(@op.signal_fill)
-
-    @_signal = @signal(@op.signal)
     axes = @draw_axes(@op.axes)
 
 
@@ -352,6 +360,25 @@ class window.TimeSignal
   to_visual: ->
     _.map @data, (datum, i) ->
       [[i, datum],[i + 1, datum]]
+  signal_hue:()->
+    scope = this
+    cl = @command_list()
+   
+    hue_signal = new paper.Group
+      name: "SIGNAL: hue"
+
+    _.each cl, (datum, i)->
+      h = new paper.Color("red")
+      h.saturation = 0.8
+      h.hue = parseInt(datum.param * 360)
+      step = datum.duration / scope.period
+      r = new paper.Path.Rectangle
+        parent: hue_signal
+        size: [step, 1]
+        fillColor: h
+        position: new paper.Point(i * step, 0)
+    @fitPath(hue_signal)
+
   signal_fill: (op) ->
 
     visual = @to_visual()
@@ -374,6 +401,8 @@ class window.TimeSignal
     p = @makePath(op)
   makePath: (op) ->
     p = new (paper.Path)(op)
+    return @fitPath(p)
+  fitPath: (p)->
     w =  if p.bounds.width < 1 then 1 else p.bounds.width
     h =  if p.bounds.height < 1 then 1 else p.bounds.height
     if @op.dom 

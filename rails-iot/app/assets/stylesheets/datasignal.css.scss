@@ -1,3 +1,6 @@
+.test{
+flex-flow: row nowrap;
+}
 acceptor.datasignal{
   @extend .hoz-left;
   flex-flow: row nowrap;

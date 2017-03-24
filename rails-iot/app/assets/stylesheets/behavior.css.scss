@@ -66,6 +66,7 @@ behavior{
     }
     acceptor.datasignals{
       @extend acceptor.datasignal;
+      position: relative;
       width: 100%;
       margin: 0px 0px 0px 0px;
       border-bottom: solid 3px darken($signal_base, 15%);

@@ -4,14 +4,23 @@ class window.TimeSignalManager
     TimeSignalManager.log 'TSM'
     @timesignals = []
   init:()->
+    @populateHues()
     @initTimeSignals()
     @initSelection()
     @activateDragAndDrop()
+  populateHues: ()->
+    template = $('datasignal.template')
+    hues  = _.map _.range(0, 360, 45), (h)->
+      h = h / 360
+      t = template.clone().removeClass("template")
+      t.find('canvas').attr("data", JSON.stringify([h, h, h]))
+      t.find('canvas').attr("period", 500)
+      return t
+    $('#hues').append(hues)
   initTimeSignals: ->
-    console.log("SIGNALS",@op.collection.length )
-    _.map @op.collection, (canvas, i) ->
+    console.log("SIGNALS",@op.collection().length )
+    _.map @op.collection(), (canvas, i) ->
       dom = $(canvas)
-      if dom.hasClass('skip') then return
       op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
       ts = new TimeSignal(op)
       tsm.add.apply(tsm, [ts])
@@ -72,7 +81,6 @@ class window.TimeSignalManager
         exportable = $(this).data().exportable == "enabled"
         composeable = $(this).data().composeable == "enabled"
         widget = $(this).parent('event').attr('id')
-        
 
         @ts = TimeSignal.copy
           clone: ui.draggable

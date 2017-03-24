@@ -41,7 +41,7 @@ class window.AestheticActuation
 		am.init()
 		# TIME SIGNAL MANAGER
 		window.tsm = new TimeSignalManager
-			collection: $('datasignal canvas[data]')
+			collection: ()-> $('datasignal').not('.template').find('canvas').not('.skip')
 		tsm.init()
 		window.bm = new BehaviorManager
 			scrubber: $('#scrubber')
