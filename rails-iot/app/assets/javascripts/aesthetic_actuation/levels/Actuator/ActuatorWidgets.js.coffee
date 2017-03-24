@@ -95,18 +95,17 @@ class window.Grouper extends Widget
       return
     @op.trigger.click (event)->
       ids = _.chain scope.op.track.find('actuator')
-        .map (dom)->
-          return $(dom).data 'hardware-id'
+        .map (dom)-> return $(dom).data 'hardware-id'
         .uniq()
         .value()
-        console.log ids
-        act = scope.op.track.find('actuator:first')
-        act = am.clone act, 
-          title: "Group"
-          group: ids
-          activate: true
-          clear: true
-          parent: scope.op.result
+      if _.isEmpty(ids) then return
+      act = scope.op.track.find('actuator:first')
+      act = am.clone act, 
+        title: "Group"
+        group: ids
+        activate: true
+        clear: true
+        parent: scope.op.result
       return
     $('#name-button').on 'click', ->
       name = $(this).siblings('input').val()

@@ -19,13 +19,7 @@
       %button#name-button.btn.btn-xs.btn-success{:type =>"button"}
         NAME
       
-    / %button#group-clear.sexy.btn.btn-xs.btn-danger
-    /   =glyph "trash"
-    /   CLEAR
-  #group-result.track-unit.result
-    %actuator.vert-centered
-      %h5 RESULT
-      %em.faint (ADD ACTUATORS TO THE RIGHT TO FORM A GROUP)
+  %acceptor#group-result.actuator{:data => {:accept=> 1}}  
   #actuator-group.track-full.droppable
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"

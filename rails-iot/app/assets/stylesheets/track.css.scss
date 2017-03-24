@@ -30,9 +30,10 @@ event{
   font-size: 1em;
   text-align: center;
   @include drop-shadow(0.43);
+ 
   &.shrink{
     height: 30px !important;
-    >*:not(.vert):not(.toggle):not(label):not([class^=track]){
+    >*:not(.vert):not(.toggle):not(label):not([class^=track]):not(acceptor){
       display: none !important;
     }
     actuator canvas, actuator channels{
@@ -64,11 +65,17 @@ event{
     .toggle{
       font-size: 20px;
     }
-    .vert{
+    &>.vert{
       min-width: 150px;
       height: 100%;
     }
+    
     .trigger{
+      text-align: left;
+      width: 100%;
+      margin: 0;
+      padding-left: 10px;
+      margin-left: 20px;
       padding-top: 2px;
       border-radius: 0 !important;
       height: 100%;
@@ -80,7 +87,8 @@ event{
   }
   button.trigger{
       min-width: 120px;
-      width: 90% !important;
+      max-width: 120px;
+      width: 90%;
       font-size: 12pt !important;
       border-radius: 16px;
   }

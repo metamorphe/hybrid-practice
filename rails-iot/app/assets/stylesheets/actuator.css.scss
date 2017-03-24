@@ -2,6 +2,7 @@ acceptor.actuator{
     @extend .hoz;
     @extend .vert-centered-sink-top;
     width: 180px;
+    min-width: 180px;
     height: 90px;
     max-height: 90px;
     color: white;
@@ -82,6 +83,9 @@ actuator{
             line-height: 14px;
             font-size: 0.8em;
             background: darken($actuator_base, 10%);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
             margin: 0;
             &.light{
                 position: relative;
