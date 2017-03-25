@@ -27,6 +27,7 @@ class window.TimeSignalManager
       t.find('canvas').data("signal", JSON.stringify([h, h, h]))
       t.find('canvas').data("period", 500)
       return t
+    console.log hues[0].data()
     $('#hues').append(hues)
   initTimeSignals: ->
     console.log("SIGNALS",@op.collection().length )
