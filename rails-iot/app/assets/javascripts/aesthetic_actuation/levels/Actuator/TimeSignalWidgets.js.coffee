@@ -74,14 +74,14 @@ class Stitcher extends Widget
   stitch: (ids)->
     ts = _.map ids, (id)-> return tsm.getTimeSignal(id)
     time_sum = _.reduce ts, ((memo, t)-> return memo + t.period), 0
-    series = _.map ts, (t)-> return t.time_series()
+    series = _.map ts, (t)-> return t.command_list()
 
     elapsed_time = 0
     data = _.map series, (s, i)->
       if i > 0
         prev_t = ts[i - 1].period
         elapsed_time += prev_t
-      return _.map s, (c, i)-> {t: c.t + elapsed_time, p: c.p}
+      return _.map s, (c, i)-> {t: c.t + elapsed_time, param: c.param}
 
     data = _.flatten(data) 
     data = TimeSignal.resample(data, time_sum)

@@ -14,10 +14,10 @@ class window.TimeSignal
     newDom = $('<datasignal><canvas></canvas></datasignal>')
     canvas = newDom.find("canvas")
     if op.clone
-      canvas.attr("data", op.clone.attr('data'))
-      canvas.attr("period", op.clone.attr('period'))
-    if op.data then canvas.attr("data", JSON.stringify(op.data))
-    if op.period then canvas.attr("period", op.period)
+      canvas.data("signal", op.clone.data('signal'))
+      canvas.data("period", op.clone.data('period'))
+    if op.data then canvas.data("signal", JSON.stringify(op.data))
+    if op.period then canvas.data("period", op.period)
     if op.exportable then canvas.addClass('draggable')
     if op.composeable then newDom.addClass('composeable')
     if op.clearParent then $(op.parent).children('datasignal').remove()
@@ -115,7 +115,7 @@ class window.TimeSignal
     @id = TimeSignal.COUNTER++
    
     if @op.dom
-      @period = if _.isUndefined(@op.dom.attr('period')) then TimeSignal.DEFAULT_PERIOD else parseFloat(@op.dom.attr('period')) 
+      @period = if _.isUndefined(@op.dom.data('period')) then TimeSignal.DEFAULT_PERIOD else parseFloat(@op.dom.data('period')) 
       @canvasInit()
       if tsm then tsm.initSelection()
     if @op.acceptor
@@ -143,9 +143,9 @@ class window.TimeSignal
       prev = cl[i-1] 
       # FILTER PERCEPTUAL INCAPABILITIES
       # SUPERFLUOUS COMMAND
-      console.log "STEP", i, "dt", curr.dt + dt_accum, dt_accum
-      console.log "PARAM THROW", curr.param == last_accepted_param
-      console.log "PERCEIVABLE?", curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
+      # console.log "STEP", i, "dt", curr.dt + dt_accum, dt_accum
+      # console.log "PARAM THROW", curr.param == last_accepted_param
+      # console.log "PERCEIVABLE?", curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
       if curr.param == last_accepted_param
         dt_accum += curr.dt 
         return null
@@ -165,7 +165,7 @@ class window.TimeSignal
     
     return signal
   canvasInit: ()->
-    @raw_data = eval(@op.dom.attr('data'))
+    @raw_data = eval(@op.dom.data('signal'))
     t_op = {}
     container = @op.dom.parent().parent()
     params = container.data() 
@@ -266,7 +266,7 @@ class window.TimeSignal
     r = _.range(0, data.length, 1)
     _.each r, (i)->
       scope.data[i + from] = data[i]
-    scope.op.dom.attr('data', JSON.stringify(@data))
+    scope.op.dom.data('signal', JSON.stringify(@data))
     window.paper = @op.paper
     @visuals.remove();
     @_visuals()
@@ -334,7 +334,7 @@ class window.TimeSignal
     if op.period then @period = op.period
     if @period < 100 then @period = 100
 
-    @op.dom.attr('period', @period)
+    @op.dom.data('period', @period)
     window.paper = @op.paper
     CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
     CanvasUtil.queryPrefix("SIGNAL")[0].fillColor = TimeSignal.temperatureColor(@period)

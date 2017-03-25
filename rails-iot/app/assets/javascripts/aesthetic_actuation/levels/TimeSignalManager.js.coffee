@@ -24,8 +24,8 @@ class window.TimeSignalManager
     hues  = _.map _.range(0, 360, 45), (h)->
       h = h / 360
       t = template.clone().removeClass("template")
-      t.find('canvas').attr("data", JSON.stringify([h, h, h]))
-      t.find('canvas').attr("period", 500)
+      t.find('canvas').data("signal", JSON.stringify([h, h, h]))
+      t.find('canvas').data("period", 500)
       return t
     $('#hues').append(hues)
   initTimeSignals: ->
@@ -67,7 +67,7 @@ class window.TimeSignalManager
       appendTo: '#ui2'
       scroll: false
       helper: ()->
-        copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).attr('period'))
+        copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).data('period'))
         return copy;
 
     _.each $('datasignal.composeable'), (signal)->
