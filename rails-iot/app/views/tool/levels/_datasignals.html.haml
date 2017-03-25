@@ -63,13 +63,9 @@
       %span FORGE
       %span.command
     %input#time-morph.sexy{:type=>"range", :min => 0, :max => 10000, :step => 100}
-  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
+  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled", :gamma_corrective => 0.5}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
 
-
-
-
-:css

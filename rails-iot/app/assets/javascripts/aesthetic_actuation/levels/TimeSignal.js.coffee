@@ -5,6 +5,7 @@ class window.TimeSignal
   @DEFAULT_RESOLUTION: 100 # ms/sample
   @MAX: 10000, 
   @MIN: 0,
+  @PERSISTENCE_OF_VISION: 1 / 30 * 1000
   @DEFAULT_STYLE: 
     signal_fill: {fillColor: '#FF9912'}
     signal: {strokeWidth: 3, strokeColor: '#333'}
@@ -12,8 +13,6 @@ class window.TimeSignal
   @copy:(op)->
     newDom = $('<datasignal><canvas></canvas></datasignal>')
     canvas = newDom.find("canvas")
-  
-
     if op.clone
       canvas.attr("data", op.clone.attr('data'))
       canvas.attr("period", op.clone.attr('period'))
@@ -69,11 +68,11 @@ class window.TimeSignal
     target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
     i = 0
     return _.map(target, (t)->
-      if i + 1 >= data.length then return data[i].p
-      if t <= data[i + 1].t then return data[i].p
+      if i + 1 >= data.length then return data[i].param
+      if t <= data[i + 1].t then return data[i].param
       else
         i++
-        return data[i].p
+        return data[i].param
     )
   @pretty_time: (time)->
     time = parseFloat time
@@ -123,8 +122,38 @@ class window.TimeSignal
       @period  = if _.isUndefined(@op.period) then TimeSignal.DEFAULT_PERIOD  else @op.period
       @acceptorInit()
     return
+  gamma_correction: (data, gamma)->
+    data = _.map data, (P)->
+      return Math.pow(P, 1 / gamma)
+  perceptual_correction: (data)->
+    # console.log JSON.stringify data
+    console.log @period
+    cl = @command_list_data data, {}
+    cl = _.map cl, (curr, i)->
+      if i == 0 then return curr
+      prev = cl[i-1] 
+      curr.dI = Math.abs(curr.param - prev.param)
+      curr.dt = curr.t - prev.t
+      return curr
+
+    dt_accum = 0
+    cl = _.map cl, (curr, i)->
+      if i == 0 then return curr
+      # FILTER PERCEPTUAL INCAPABILITIES
+      if curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
+        dt_accum = 0
+        return curr
+      else
+        dt_accum += curr.dt 
+        return null
+    
+    cl_u = _.compact(cl)
+    console.log "perceptual_correction removed", cl.length - cl_u.length, "out of", cl.length
+    signal = TimeSignal.resample(cl_u, @period)
+    
+    return signal
   canvasInit: ()->
-    @data = eval(@op.dom.attr('data'))
+    @raw_data = eval(@op.dom.attr('data'))
     t_op = {}
     container = @op.dom.parent().parent()
     params = container.data() 
@@ -133,6 +162,15 @@ class window.TimeSignal
     tracks = params.tracks or 3
     timescale = params.timescale 
     codomain = params.codomain or "intensity"
+
+    gamma = params.gammaCorrective or 1
+    if gamma != 1
+      data = @perceptual_correction(@raw_data)
+      data = @gamma_correction(data, gamma)
+      @data = data
+    else
+      @data = @raw_data
+
 
     if not semantic
       w = container.width()
@@ -145,13 +183,10 @@ class window.TimeSignal
     @_visuals
       codomain: codomain
    
-  time_series: ->
-    commands = @command_list()
-    return _.map commands, (c, i)->
-      return {t: c.t, p: c.param}
+  
   split: (t)->
     t = t * @period
-    data = TimeSignal.resample(@time_series(), @period)
+    data = TimeSignal.resample(@command_list(), @period)
     i = parseInt(t / @period * data.length)
     a = data.slice(0, i + 1)
     b = data.slice(i, data.length)
@@ -180,27 +215,19 @@ class window.TimeSignal
         signal_fill:
           fillColor: '#d9534f', 
 
-  updatePeriod: (op)->
-    if op.delta then @period += op.delta
-    if op.period then @period = op.period
-    if @period < 100 then @period = 100
 
-    @op.dom.attr('period', @period)
-    window.paper = @op.paper
-    CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
-    CanvasUtil.queryPrefix("SIGNAL")[0].fillColor = TimeSignal.temperatureColor(@period)
-    time = @_time_encoder(@visuals)
+
   acceptorInit: ()->
     window.paper = @op.paper
     @data = eval(@op.data)
     @op.acceptor.set({fillColor: "purple"})
     @op.acceptor.time_signal_id = @id
     @_visuals()
-  
-  command_list: (op) ->
-    t_scale = @period / @data.length
+  # OP SUPPORT OFFSETS
+  command_list_data: (data, op)->
+    t_scale = @period / data.length
     t_elapsed = 0
-    cl = _.map @data, (datum) ->
+    cl = _.map data, (datum) ->
       duration = 1 * t_scale
       t = t_elapsed
       t_elapsed += duration
@@ -209,10 +236,11 @@ class window.TimeSignal
         param: datum
         duration: duration
       }
-
     cm = TimeSignal.compile(cl)
     # console.log("COMPILATION SAVING", (cl.length - cm.length) / cl.length * 100, "%")
     cm
+  command_list: (op) ->
+    @command_list_data(@data, op)
   inject:(data, from, to)->
     if from < 0 or from > @period
       console.warn "ATTEMPTING TO RECORD AFTER PERIOD", from, to
@@ -289,11 +317,17 @@ class window.TimeSignal
     playGroup.onClick = (event)->
       scope.op.dom.click()
       cmp.op.signal_button.click()
+  updatePeriod: (op)->
+    if op.delta then @period += op.delta
+    if op.period then @period = op.period
+    if @period < 100 then @period = 100
 
+    @op.dom.attr('period', @period)
+    window.paper = @op.paper
+    CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove');
+    CanvasUtil.queryPrefix("SIGNAL")[0].fillColor = TimeSignal.temperatureColor(@period)
+    time = @_time_encoder(@visuals)
   _time_encoder: (group)->
-    # if @period != TimeSignal.DEFAULT_PERIOD
-    # SMART FORMAT
-    
     time = TimeSignal.pretty_time(@period)
     timeGroup = new paper.Group
       name: "TIME: time selector"

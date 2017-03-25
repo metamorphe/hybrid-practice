@@ -76,8 +76,8 @@ class window.Saver extends Widget
     key = @generateKey()
     actuators = JSON.parse(ws.get(key))
     console.log "LOADING", actuators.length, "FROM CACHE"
+    if scope.op.track.length == 0 then return 
     _.each actuators, (actuator)->
-     
       actuatorops = _.extend actuator, 
         parent: scope.op.track
         activate: true

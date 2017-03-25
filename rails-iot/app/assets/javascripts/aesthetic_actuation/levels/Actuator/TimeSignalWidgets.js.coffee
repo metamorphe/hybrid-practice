@@ -8,9 +8,9 @@ class window.TimeWidgets
     @timemorph = new TimeMorph
       time_track: $('#time-morph-track')
       time_slider: $('input#time-morph')
-    @recorder= new Recorder
-      recorder_button: $('button#record')
-      recorder_result: $('#record-result')
+    # @recorder= new Recorder
+    #   recorder_button: $('button#record')
+    #   recorder_result: $('#record-result')
 
 class Cutter extends Widget
   constructor: (@op)->
@@ -30,6 +30,7 @@ class Cutter extends Widget
       return
 class TimeMorph extends Widget
   constructor: (@op)->
+    console.log "FORGER"
     scope = this
     @op.time_slider.val(0)
     updateTime = ()->
