@@ -5,7 +5,7 @@ class window.TimeSignal
   @DEFAULT_RESOLUTION: 100 # ms/sample
   @MAX: 10000, 
   @MIN: 0,
-  @PERSISTENCE_OF_VISION: 1 / 30 * 1000
+  @PERSISTENCE_OF_VISION: 1 / 60 * 1000
   @DEFAULT_STYLE: 
     signal_fill: {fillColor: '#FF9912'}
     signal: {strokeWidth: 3, strokeColor: '#333'}
@@ -137,12 +137,24 @@ class window.TimeSignal
       return curr
 
     dt_accum = 0
+    last_accepted_param = cl[0].param
     cl = _.map cl, (curr, i)->
       if i == 0 then return curr
+      prev = cl[i-1] 
       # FILTER PERCEPTUAL INCAPABILITIES
+      # SUPERFLUOUS COMMAND
+      console.log "STEP", i, "dt", curr.dt + dt_accum, dt_accum
+      console.log "PARAM THROW", curr.param == last_accepted_param
+      console.log "PERCEIVABLE?", curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
+      if curr.param == last_accepted_param
+        dt_accum += curr.dt 
+        return null
+      # PERCEPTABLE
       if curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
+        last_accepted_param = curr.param
         dt_accum = 0
         return curr
+      # PERCEPTUAL SUPERFLUOUS
       else
         dt_accum += curr.dt 
         return null
@@ -166,7 +178,7 @@ class window.TimeSignal
     gamma = params.gammaCorrective or 1
     if gamma != 1
       data = @perceptual_correction(@raw_data)
-      data = @gamma_correction(data, gamma)
+      # data = @gamma_correction(data, gamma)
       @data = data
     else
       @data = @raw_data

@@ -25,7 +25,7 @@
     %datasignal
       %canvas.draggable{:data => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}
     %datasignal
-      %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
+      %canvas.draggable{:data => "[0, 1, 0, 1, 0, 1, 0]", "period" => 5000}
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
 %event#timecut.signal-design
@@ -62,7 +62,7 @@
     %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
       %span FORGE
       %span.command
-    %input#time-morph.sexy{:type=>"range", :min => 0, :max => 10000, :step => 100}
+    %input#time-morph.sexy{:type=>"range", :min => -100, :max => 10000, :step => 100}
   #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled", :gamma_corrective => 0.5}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
