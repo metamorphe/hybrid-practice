@@ -6,38 +6,37 @@ class window.TimeSignalManager
   init:()->
     scope = this
     $('button.view-toggle').click ->
-      ds = $(this).parents('event').find('datasignal').not('.template')
       dom = $(this)
+      ds = dom.parents('event').find('datasignal').not('.template')
+      view = dom.parents('[class^=track]').data('view')
+      n_view = if view == "hue" then "intensity" else "hue"
+      
       _.each ds, (s)-> 
         ts = scope.resolve(s)
         if _.isUndefined(ts) then return 
-        view = if ts.view == "hue" then "intensity" else "hue"
-        dom.parents('event').find('[class^=track]').data('codomain', view)
-
-        ts.toggle_visual(view)
+        ts.form =  {view: n_view}
+        dom.parents('event').find('[class^=track]').data('view', n_view)
     @populateHues()
     @initTimeSignals()
     @initSelection()
-    @activateDragAndDrop()
   populateHues: ()->
-    template = $('datasignal.template')
     hues  = _.map _.range(0, 360, 45), (h)->
       h = h / 360
-      t = template.clone().removeClass("template")
-      t.find('canvas').data("signal", JSON.stringify([h, h, h]))
-      t.find('canvas').data("period", 500)
-      return t
-    console.log hues[0].data()
-    $('#hues').append(hues)
+      dom = TimeSignal.create
+        clear: false
+        target: $('#hues')
+      setter = 
+        signal: [h, h, h]
+        period: 500
+      signal = new TimeSignal(dom, setter)
+
   initTimeSignals: ->
-    console.log("SIGNALS",@op.collection().length )
-    _.map @op.collection(), (canvas, i) ->
-      dom = $(canvas)
-      op = _.extend(_.clone(TimeSignal.DEFAULT_STYLE), {dom: dom})
-      ts = new TimeSignal(op)
-      tsm.add.apply(tsm, [ts])
+    collection = $('datasignal')
+    console.log("SIGNALS",collection.length )
+    _.map collection, (datasignalDOM, i) ->
+      ts = new TimeSignal($(datasignalDOM))
   resolve: (dom)->
-    @getTimeSignal($(dom).data('time_signal_id'))
+    @getTimeSignal($(dom).data('id'))
   getTimeSignal: (id)->
     @timesignals[id]
   getActiveTimeSignal: ()->
@@ -61,50 +60,47 @@ class window.TimeSignalManager
     $('.sortable').sortable
       placeholder: "ui-state-highlight"
       scroll: false
-
-
-    $('datasignal canvas.draggable').draggable
+    $('datasignal.exportable').draggable
       revert: true
       appendTo: '#ui2'
       scroll: false
       helper: ()->
         copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).data('period'))
         return copy;
+    $('datasignal.draggable').draggable
+      revert: false
+      scroll: false
+      containment: 'parent'
+      axis: 'x'
 
-    _.each $('datasignal.composeable'), (signal)->
-      tracks = $(signal).parent().data().tracks
-      $(signal).draggable
-        revert: false
-        containment: 'parent'
-        scroll: false
-        # snap: true
-        # snapMode: "outer"
-        # snapTolerance: 10
-        grid: [1, 87/tracks]
-        stack: 'datasignal.composeable'
+    # _.each $('datasignal.composeable'), (signal)->
+    #   tracks = $(signal).parent().data().tracks
+    #   $(signal).draggable
+    #     revert: false
+    #     containment: 'parent'
+    #     scroll: false
+    #     # snap: true
+    #     # snapMode: "outer"
+    #     # snapTolerance: 10
+    #     grid: [1, 87/tracks]
+    #     stack: 'datasignal.composeable'
 
 
   activateDrop: ()->
     scope = this  
 
     behavior = 
-      accept: "canvas.draggable", 
+      accept: "datasignal.exportable", 
       classes: { "droppable-active": "droppable-default"},
       drop: (event, ui) ->
         num_to_accept = $(this).data().accept
-        drag_in_place = $(this).data().draginplace == "enabled"
-        exportable = $(this).data().exportable == "enabled"
-        composeable = $(this).data().composeable == "enabled"
-        widget = $(this).parent('event').attr('id')
-
-        @ts = TimeSignal.copy
-          clone: ui.draggable
-          parent: $(this)
-          clearParent: num_to_accept == 1
-          activate: true
-          dragInPlace: drag_in_place
-          exportable: exportable
-          composeable: composeable
+        ts = scope.resolve(ui.draggable).form
+        
+        dom = TimeSignal.create
+          clear: num_to_accept == 1
+          target: $(this)
+        signal = new TimeSignal(dom)
+        signal.form = {signal: ts.signal, period: ts.period}
 
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)

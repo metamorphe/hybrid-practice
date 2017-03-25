@@ -15,19 +15,15 @@
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       %span LIBRARY
       %span.command
-  #hues.track-full.droppable{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 1540, :tracks => 1, :exportable => "enabled", :codomain => "hue"}}
+  #hues.track-full.droppable{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 4000, :tracks => 1, :exportable => "enabled", :view => "hue"}}
 
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
-    %datasignal.template
-      %canvas.draggable{:data => {:signal => "[0, 1]", "period" => 1000}}
-    %datasignal
-      %canvas.draggable{:data => {:signal => "[0, 1]", "period" => 3000}}
-    %datasignal
-      %canvas.draggable{:data => {:signal => "[0, 0.1, 0.2, 0.3, 0.4, 1]", "period" => 3000}}
-    %datasignal
-      %canvas.draggable{:data => {:signal => "[1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]", "period" => 3000}}
-    %datasignal
-      %canvas.draggable{:data => {:signal => "[0, 1, 0, 1, 0, 1, 0]", "period" => 5000}}
+    %datasignal{:data => {:signal => "[0,1,0,1,0,1,0,1,0,1,0,1]", "period" => 1000}}
+      %canvas
+    %datasignal{:data => {:signal => "[0,0.034482758620689655,0.06896551724137931,0.10344827586206896,0.13793103448275862,0.1724137931034483,0.20689655172413793,0.2413793103448276,0.27586206896551724,0.3103448275862069,0.3448275862068966,0.3793103448275862,0.41379310344827586,0.4482758620689655,0.4827586206896552,0.5172413793103449,0.5517241379310345,0.5862068965517241,0.6206896551724138,0.6551724137931034,0.6896551724137931,0.7241379310344828,0.7586206896551724,0.7931034482758621,0.8275862068965517,0.8620689655172413,0.896551724137931,0.9310344827586207,0.9655172413793104,1]", "period" => 1000}}
+      %canvas
+    %datasignal{:data => {:signal => "[1,0.9655172413793104,0.9310344827586207,0.896551724137931,0.8620689655172413,0.8275862068965517,0.7931034482758621,0.7586206896551724,0.7241379310344828,0.6896551724137931,0.6551724137931034,0.6206896551724138,0.5862068965517241,0.5517241379310345,0.5172413793103449,0.4827586206896552,0.4482758620689655,0.41379310344827586,0.3793103448275862,0.3448275862068966,0.3103448275862069,0.27586206896551724,0.2413793103448276,0.20689655172413793,0.1724137931034483,0.13793103448275862,0.10344827586206896,0.06896551724137931,0.034482758620689655,0]", "period" => 1000}}
+      %canvas
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
 %event#timecut.signal-design
@@ -37,7 +33,7 @@
     %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span CUT
       %span.command [X]
-  .track-full.droppable{:data =>{:accept=> 1, :dragInPlace => "enabled", :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "disabled"}}
+  .track-full.droppable{:data =>{:accept=> 1, :draggable => "enabled", :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "disabled"}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
     %button.btn.btn-xs.btn-primary.view-toggle
@@ -51,7 +47,7 @@
       %span.command [W]
   #add-result.track-unit{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal#result
-      %canvas.skip
+      %canvas
   #adder-track.track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
@@ -65,7 +61,7 @@
       %span FORGE
       %span.command
     %input#time-morph.sexy{:type=>"range", :min => -100, :max => 10000, :step => 100}
-  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled", :gamma_corrective => 0.5}}
+  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :force_period_flag => 'enabled', :exportable => "enabled", :gamma_corrective => 1.1, :perceptual => "enabled" }}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
     %button.btn.btn-xs.btn-primary.view-toggle

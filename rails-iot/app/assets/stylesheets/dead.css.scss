@@ -1,4 +1,11 @@
-/* # activate: (event, ui) ->
+/* acceptorInit: ()->
+    window.paper = @op.paper
+    @data = eval(@op.data)
+    @op.acceptor.set({fillColor: "purple"})
+    @op.acceptor.time_signal_id = @id
+    @_visuals()
+*/
+    /* # activate: (event, ui) ->
       #   if not sm then return
       #   sm.setAcceptorsActive(true)
       # deactivate: (event, ui) ->

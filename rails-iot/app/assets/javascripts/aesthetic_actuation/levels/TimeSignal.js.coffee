@@ -1,148 +1,164 @@
 class window.TimeSignal
-  @DEFAULT_HEIGHT: 84 # + 4 for BORDER ==> 88
+  @DEFAULT_HEIGHT: 74 # + 4 for BORDER ==> 88
+  @DEFAULT_WIDTH: 100 # + 4 for BORDER ==> 88
   @COUNTER: 0
   @DEFAULT_PERIOD: 3000
   @DEFAULT_RESOLUTION: 100 # ms/sample
   @MAX: 10000, 
-  @MIN: 0,
+  @RESOLUTION: 1/256
+  @MIN: 100,
   @PERSISTENCE_OF_VISION: 1 / 60 * 1000
   @DEFAULT_STYLE: 
     signal_fill: {fillColor: '#FF9912'}
-    signal: {strokeWidth: 3, strokeColor: '#333'}
-    axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5}
-  @copy:(op)->
-    newDom = $('<datasignal><canvas></canvas></datasignal>')
-    canvas = newDom.find("canvas")
-    if op.clone
-      canvas.data("signal", op.clone.data('signal'))
-      canvas.data("period", op.clone.data('period'))
-    if op.data then canvas.data("signal", JSON.stringify(op.data))
-    if op.period then canvas.data("period", op.period)
-    if op.exportable then canvas.addClass('draggable')
-    if op.composeable then newDom.addClass('composeable')
-    if op.clearParent then $(op.parent).children('datasignal').remove()
-    if op.parent then op.parent.addClass('accepted').append(newDom)
+    signal_stroke: {strokeWidth: 3, strokeColor: '#333'}
+    axes: {strokeWidth: 2, strokeColor: 'blue', opacity: 0.5} 
 
-    props = _.clone(TimeSignal.DEFAULT_STYLE)
-    props = _.extend props,{dom: canvas}
-    if op.style then _.extend props, op.style
-
-    if op.activate
-      ts = new TimeSignal(props)
-      tsm.add(ts)
-      tsm.activateDragAndDrop()
-      if op.dragInPlace
-        ts.op.dom.parent().draggable
-          scroll: false
-          containment: "parent"
-          axis: "x"        
-      return ts
-
-    return newDom
-  constructor: (@op)->
+  constructor: (@dom, set)->
+    set = set or {}
+    _.extend this, TimeSignal.DEFAULT_STYLE
     @id = TimeSignal.COUNTER++
+    @dom.data('id', @id)
+    @canvas = @dom.find('canvas')
+
+    # DEFAULTS
+    @period = TimeSignal.DEFAULT_PERIOD
+    @signal = [0, 0, 0]
+    @gamma = 1
+    @tracks = 1
+    @semantic = true
+    @perceptual = true
+    @timescale = 10000
+    @view = "intensity"
+    @gamma_corrected = true
+    @force_period = 1000
+    @force_period_flag = false
+    @exportable = true
    
-    if @op.dom
-      @period = @op.dom.data('period') or TimeSignal.DEFAULT_PERIOD
-      @canvasInit()
-      if tsm then tsm.initSelection()
-    if @op.acceptor
-      @period  = @op.period or TimeSignal.DEFAULT_PERIOD  
-      @acceptorInit()
-    return
+    # SETUP CONTAINER
+    @paper = Utility.paperSetup @canvas, {}
+    track_data = @processTrack @dom.parent()
 
-  canvasInit: ()->
-    @raw_data = eval(@op.dom.data().signal)
-   
-    container = @op.dom.parent().parent()
-    params = container.data() 
-    accept = params.accept or 1
-    semantic = params.semantic == "enabled"
-    tracks = params.tracks or 3
-    timescale = params.timescale 
-    codomain = params.codomain or "intensity"
+    ops = _.extend track_data, @dom.data()
+    ops = _.extend ops, set
+    @form = ops
+    tsm.add.apply(tsm, [this])
+    tsm.initSelection()
 
-    gamma = params.gammaCorrective or 1
-    if gamma != 1
-      data = @perceptual_correction(@raw_data)
-      data = @gamma_correction(data, gamma)
-      @data = data
-    else
-      @data = @raw_data
+  processTrack: (track)->
+    t = _.clone(track.data())
+    t.tracks =  t.tracks or @tracks
+    t.perceptual =  t.perceptual == "enabled" 
+    t.semantic =  t.semantic == "enabled" 
+    t.timescale =  t.timescale or @timescale
+    t.view =  t.view or @view
+    t.draggable =  t.draggable == "enabled" 
+    t.force_period_flag =  t.forcePeriodFlag == "enabled" 
+    t.force_period =  t.force_period or @force_period
+    t.gamma =  @gammaCorrective or @gamma
+    t.exportable =  t.exportable == "enabled" 
+    t.gamma_corrected =  t.gamma != 1
 
-    t_op = {}
-    if not semantic
-      w = container.width()
-      t_op.width = @period/timescale * w
-      t_op.height = TimeSignal.DEFAULT_HEIGHT / tracks
-      
+    delete t['forcePeriodFlag']
+    delete t['gammaCorrective']
+    return t
 
-    @op.paper = Utility.paperSetup(@op.dom, t_op)
-    @op.dom.parents('datasignal').data 'time_signal_id', @id
-    @_visuals
-      codomain: codomain
-   
-  
-  split: (t)->
-    t = t * @period
+  Object.defineProperties @prototype,
+    form:
+      get: -> 
+        view: @view
+        signal: @signal
+        period: @period
+        semantic: @semantic
+        perceptual: @perceptual
+        draggable: @draggable
+        timescale: @timescale 
+        tracks: @tracks 
+        force_period_flag: @force_period_flag 
+        gamma_corrected: @gamma_corrected 
+
+      set: (obj) ->
+        # console.log obj
+        scope = this
+        if _.isEmpty(obj) then return
+        window.paper = @paper
+        prev = @form
+        _.extend(this, obj)
+        if @force_period_flag then @period = @force_period
+
+        # NEEDS CANVAS REFRESH
+        canvas_refresh = ["semantic", "timescale", "tracks"]
+        canvas_refresh = _.some canvas_refresh, (t)-> return scope[t] != prev[t]
+        period_change = (not @semantic) and (@period != prev.period)
+        canvas_refresh or= period_change
+
+        if canvas_refresh
+          w = @dom.parent().width()
+          @canvas.remove()
+          @canvas = $("<canvas></canvas>")
+          @dom.append(@canvas)
+          if not @semantic
+            t_op = 
+              width: @period/@timescale * w
+              height: TimeSignal.DEFAULT_HEIGHT / @tracks
+          else
+            t_op = 
+              width: TimeSignal.DEFAULT_WIDTH
+              height: 'inherit'
+          @paper = Utility.paperSetup(@canvas, t_op)
+
+        if @exportable
+          @dom.addClass('exportable')
+        if @draggable
+          @dom.addClass('draggable')
+        # NEEDS VISUAL REFRESH
+        @p_signal = @perceptual_correction(@signal)
+        @p_signal = @resolution_correction(@p_signal)
+        @p_signal = if @gamma_corrected then @gamma_correction(@p_signal, @gamma) else @p_signal
+        @data = if @perceptual then @p_signal else @signal
+
+        @_visuals()
+        @dom.data @form
+        return @form
+  @create: (op)->
+    if op.clear then op.target.find('datasignal').remove()
+    dom = $('<datasignal><canvas></canvas></datasignal>')
+    op.target.append(dom)
+    return dom
+  split: (op)->
+    if op.p >= 1 or op.p <= 0 then return
+    t = op.p * @period
     data = TimeSignal.resample(@command_list(), @period)
     i = parseInt(t / @period * data.length)
-    a = data.slice(0, i + 1)
-    b = data.slice(i, data.length)
-
-    new_dom = TimeSignal.copy
-      data: a
+    # A
+    dom = TimeSignal.create
+      clear: true
+      target: op.target
+    setter = 
+      signal: data.slice(0, i + 1)
       period: t
       exportable: true
-      dragInPlace: false
-      parent: $('#timecut .track-full')
-      clearParent: true
-      activate: true
-      style:
-        signal_fill:
-          fillColor: '#d9534f', 
-
-    new_dom = TimeSignal.copy
-      data: b
+      draggable: false
+    signal = new TimeSignal(dom, setter)
+    
+    # B
+    setter = 
+      signal: data.slice(i, data.length)
       period: @period - t
       exportable: true
-      dragInPlace: false
-      parent: $('#timecut .track-full')
-      clearParent: false
-      activate: true
-      style:
-        signal_fill:
-          fillColor: '#d9534f', 
-  inject:(data, from, to)->
-    if from < 0 or from > @period
-      console.warn "ATTEMPTING TO RECORD AFTER PERIOD", from, to
-      return
-    if to > @period then to = @period
-    scope = this
-    from = parseInt((from / scope.period) * (scope.data.length - 1))
-    to = parseInt((to / scope.period) * (scope.data.length - 1))
-    data = _.fill(to - from, data)
-    r = _.range(0, data.length, 1)
-    _.each r, (i)->
-      scope.data[i + from] = data[i]
-    scope.op.dom.data('signal', JSON.stringify(@data))
-    window.paper = @op.paper
-    @visuals.remove();
-    @_visuals()
-  updatePeriod: (op)->
-    if op.delta then @period += op.delta
-    if op.period then @period = op.period
-    if @period < 100 then @period = 100
-
-    @op.dom.data('period', @period)
-    window.paper = @op.paper
-    CanvasUtil.call(CanvasUtil.queryPrefix("TIME"), 'remove')
-    console.log CanvasUtil.queryPrefix("SIGNAL").length
-    CanvasUtil.queryPrefix("SIGNAL")[0].fillColor = TimeSignal.temperatureColor(@period)
-    time = @_time_encoder(@visuals)
+      draggable: false
+    dom = TimeSignal.create
+      clear: false
+      target: op.target
+    signal = new TimeSignal(dom, setter)
+    
+  inject: (signal, delta_t)->
+    # AS LONG AS DELTA_T IS REGULAR, NOT AN ISSUE
+    prev = @form
+    prev.signal = prev.signal.concat(signal)
+    prev.period += delta_t
+    @form = prev
   command_list: (op) ->
     @command_list_data(@data, op)
-  # OP SUPPORT OFFSETS
   command_list_data: (data, op)->
     t_scale = @period / data.length
     t_elapsed = 0
@@ -158,8 +174,8 @@ class window.TimeSignal
     cm = TimeSignal.compile(cl)
     # console.log("COMPILATION SAVING", (cl.length - cm.length) / cl.length * 100, "%")
     cm
-  toggle_visual: (view)->
-    switch view
+  update_view: ()->
+    switch @view
       when "intensity"
         @_fill.opacity = 1
         @_signal.opacity = 1
@@ -168,26 +184,97 @@ class window.TimeSignal
         @_fill.opacity = 0
         @_signal.opacity = 0
         @_hue.opacity = 1
-    @view = view
-  _visuals:(prop)->
-    if @op.dom.height() < 30
-      @op.signal.strokeWidth = 1.5
-      @op.axes.strokeWidth = 1.5
-    @_fill = @signal_fill(@op.signal_fill)
-    @_signal = @signal(@op.signal)
+  _visuals:()->
+    window.paper = @paper
+    sig = CanvasUtil.queryPrefix("TIMESIGNAL")
+    sh = CanvasUtil.queryPrefix("SIGNAL_HUE")
+    te = CanvasUtil.queryPrefix("TIMEENCODE")
+    CanvasUtil.call _.flatten([sig, te, sh]), 'remove'
+
+    if @canvas.height() < 30
+      @signal_stroke.strokeWidth = 1.5
+      @axes.strokeWidth = 1.5
+    @_fill = @fill(@signal_fill)
+    @_signal = @stroke(@signal_stroke)
     @_hue = @signal_hue()
-    axes = @draw_axes(@op.axes)
-    @toggle_visual(prop.codomain)   
+    @_axes = @draw_axes(@axes)
+
+    @update_view()   
     @visuals = new paper.Group
       name: "TIMESIGNAL:" + @id,
       time_signal_id: @id,  
-      children: _.flatten([@_fill, @_signal, axes])
-    time = @_time_encoder(@visuals)
-    play = @_play_button(@visuals)
-    remove = @_remove_button(@visuals)
-    if not _.isUndefined(@op.acceptor)
-      @visuals.acceptor = @op.acceptor.id
-
+      children: _.flatten [@_fill, @_signal, @_axes]
+    @_time = @_time_encoder(@visuals)
+    @_play = @_play_button(@visuals)
+    @_remove = @_remove_button(@visuals)
+    @timeencode = new paper.Group
+      name: "TIMEENCODE:" + @id,
+      time_signal_id: @id,  
+      children: _.flatten [@_play, @_time, @_remove]
+  fill: (op) ->
+    visual = @to_visual()
+    time_signal = _.flatten visual, true 
+    time_signal = _.flatten([[[0, 0]], time_signal, [[@data.length, 0]]], true)
+    op = _.extend op,
+      name: "SIGNAL: Signal Fill"
+      segments: time_signal
+      closed: true
+      fillColor: TimeSignal.temperatureColor(@period)
+    p = new paper.Path op
+    return @fitPath(p)
+  stroke: (op) ->
+    visual = @to_visual()
+    time_signal = _.flatten visual, true
+    time_signal = _.flatten([[[0, 0]], time_signal, [[this.data.length, 0]]], true)
+    op = _.extend op,
+     segments: time_signal
+    p = new paper.Path op
+    return @fitPath(p)
+  signal_hue:()->
+    scope = this
+    cl = @command_list()
+    hue_signal = new paper.Group
+      name: "SIGNAL_HUE: hue"
+    _.each cl, (datum, i)->
+      h = new paper.Color("red")
+      h.saturation = 0.8
+      h.hue = parseInt(datum.param * 360)
+      step = datum.duration / scope.period
+      r = new paper.Path.Rectangle
+        parent: hue_signal
+        size: [step, 1]
+        fillColor: h
+        position: new paper.Point(i * step, 0)
+    return @fitPath(hue_signal)
+  draw_axes: (op) ->
+    offset = new (paper.Point)(0, -3)
+    axes = [
+      {
+        from: paper.view.bounds.topLeft.subtract(offset)
+        to: paper.view.bounds.topRight.subtract(offset)
+      }
+      {
+        from: paper.view.bounds.bottomLeft.add(offset)
+        to: paper.view.bounds.bottomRight.add(offset)
+      }
+    ]
+    _.map axes, (axis) ->
+      axis = _.extend op, axis
+      new (paper.Path.Line)(axis)
+  fitPath: (p)->
+    w =  if p.bounds.width < 1 then 1 else p.bounds.width
+    h =  if p.bounds.height < 1 then 1 else p.bounds.height
+    if @dom 
+      p.scaling.x = paper.view.bounds.width / w
+      p.scaling.y = -(paper.view.bounds.height - 6) / h
+      p.pivot = p.bounds.bottomCenter.clone()
+      p.position = paper.view.bounds.bottomCenter.clone().add(new paper.Point(0, -3))
+    else
+      p.scaling.x = @op.acceptor.bounds.width / w
+      p.scaling.y = -(@op.acceptor.bounds.height) / h
+      p.pivot = p.bounds.bottomCenter.clone()
+      p.position = @op.acceptor.bounds.bottomCenter.clone().add(new paper.Point(0, -3))
+    return p
   _play_button:(group)->
     scope = this
     playGroup = new paper.Group
@@ -212,7 +299,7 @@ class window.TimeSignal
     playGroup.onClick = (event)->
       scope.op.dom.click()
       cmp.op.signal_button.click()
-  
+    return playGroup
   _time_encoder: (group)->
     time = TimeSignal.pretty_time(@period)
     timeGroup = new paper.Group
@@ -238,7 +325,7 @@ class window.TimeSignal
     rect.sendToBack()
     timeGroup.pivot = timeGroup.bounds.topRight.clone()
     timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
-
+    return timeGroup
   _remove_button: (group)->
     scope = this
     removeGroup = new paper.Group
@@ -267,107 +354,11 @@ class window.TimeSignal
     removeGroup.pivot = removeGroup.bounds.topLeft.clone()
     removeGroup.position = group.bounds.expand(-18, -13).topLeft.clone()
     removeGroup.onClick = (event)->
-      scope.op.dom.parents('datasignal').remove()
-  draw_axes: (op) ->
-    offset = new (paper.Point)(0, -3)
-    axes = [
-      {
-        from: paper.view.bounds.topLeft.subtract(offset)
-        to: paper.view.bounds.topRight.subtract(offset)
-      }
-      {
-        from: paper.view.bounds.bottomLeft.add(offset)
-        to: paper.view.bounds.bottomRight.add(offset)
-      }
-    ]
-    _.map axes, (axis) ->
-      axis = _.extend(op, axis) 
-      new (paper.Path.Line)(axis)
+      scope.op.dom.remove()
+    return removeGroup
   to_visual: ->
     _.map @data, (datum, i) ->
       [[i, datum],[i + 1, datum]]
-  signal_hue:()->
-    scope = this
-    cl = @command_list()
-   
-    hue_signal = new paper.Group
-      name: "SIGNAL_HUE: hue"
-
-    _.each cl, (datum, i)->
-      h = new paper.Color("red")
-      h.saturation = 0.8
-      h.hue = parseInt(datum.param * 360)
-      step = datum.duration / scope.period
-      r = new paper.Path.Rectangle
-        parent: hue_signal
-        size: [step, 1]
-        fillColor: h
-        position: new paper.Point(i * step, 0)
-    @fitPath(hue_signal)
-  signal_fill: (op) ->
-    visual = @to_visual()
-    time_signal = _.flatten(visual, true);
-    time_signal = _.flatten([[[0, 0]], time_signal, [[this.data.length, 0]]], true)
-    op = _.extend(op,
-      segments: time_signal
-      closed: true)
-    op.name = "SIGNAL: fill me"
-    op.fillColor = TimeSignal.temperatureColor(@period)
-    p = @makePath(op)
-  signal: (op) ->
-    visual = @to_visual()
-    time_signal = _.flatten(visual, true)
-    time_signal = _.flatten([[[0, 0]], time_signal, [[this.data.length, 0]]], true)
-    op = _.extend(op, segments: time_signal)
-    p = @makePath(op)
-  makePath: (op) ->
-    p = new (paper.Path)(op)
-    return @fitPath(p)
-  fitPath: (p)->
-    w =  if p.bounds.width < 1 then 1 else p.bounds.width
-    h =  if p.bounds.height < 1 then 1 else p.bounds.height
-    if @op.dom 
-      p.scaling.x = paper.view.bounds.width / w
-      p.scaling.y = -(paper.view.bounds.height - 6) / h
-      p.pivot = p.bounds.bottomCenter.clone()
-      p.position = paper.view.bounds.bottomCenter.clone().add(new paper.Point(0, -3))
-    else
-      p.scaling.x = @op.acceptor.bounds.width / w
-      p.scaling.y = -(@op.acceptor.bounds.height) / h
-      p.pivot = p.bounds.bottomCenter.clone()
-      p.position = @op.acceptor.bounds.bottomCenter.clone().add(new paper.Point(0, -3))
-    return p
-  acceptorInit: ()->
-    window.paper = @op.paper
-    @data = eval(@op.data)
-    @op.acceptor.set({fillColor: "purple"})
-    @op.acceptor.time_signal_id = @id
-    @_visuals()
-  @temperatureColor: (v)->
-    max = TimeSignal.MAX
-    min = TimeSignal.MIN
-    p = (v - min) / (max - min);
-
-    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
-    if p > 1 then p = 1
-    if p < 0 then p = 0
-    # "#000000",
-    thermogram = [ "#380584", "#A23D5C", "#FAA503", "#FFFFFF"];
-    thermogram.reverse();
-    
-    thermogram = _.map thermogram, (t) -> return new paper.Color(t)
-    if p == 0 then return thermogram[0]
-    i = p * (thermogram.length - 1)
-    
-    a = Math.ceil(i)
-    b = a - 1
-    terp = a - i
-    red = thermogram[a]
-    blue = thermogram[b]    
-
-    c = red.multiply(1-terp).add(blue.multiply(terp))
-    c.saturation = 0.8
-    return c
   @resample: (data, period)->
     target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
     i = 0
@@ -417,9 +408,40 @@ class window.TimeSignal
    gamma_correction: (data, gamma)->
     data = _.map data, (P)->
       return Math.pow(P, 1 / gamma)
+  resolution_correction: (data)->
+    # console.log JSON.stringify data
+    cl = @command_list_data data, {}
+    cl = _.map cl, (curr, i)->
+      if i == 0 then return curr
+      prev = cl[i-1] 
+      curr.dI = Math.abs(curr.param - prev.param)
+      curr.dt = curr.t - prev.t
+      return curr
+
+    dI_accum = 0
+    last_accepted_param = cl[0].param
+    cl = _.map cl, (curr, i)->
+      if i == 0 then return curr
+      prev = cl[i-1] 
+      # SUPERFLUOUS COMMAND
+      if curr.param == last_accepted_param
+        dt_I += curr.dI
+        return null
+      # PERCEPTABLE
+      if curr.dI + dI_accum > TimeSignal.RESOLUTION or i == cl.length - 1
+        last_accepted_param = curr.param
+        dI_accum = 0
+        return curr
+      # PERCEPTUAL SUPERFLUOUS
+      else
+        dI_accum += curr.dI
+        return null
+    cl_u = _.compact(cl)
+    console.log "resolution_correction removed", cl.length - cl_u.length, "out of", cl.length
+    signal = TimeSignal.resample(cl_u, @period)
+    return signal
   perceptual_correction: (data)->
     # console.log JSON.stringify data
-    console.log @period
     cl = @command_list_data data, {}
     cl = _.map cl, (curr, i)->
       if i == 0 then return curr
@@ -433,11 +455,7 @@ class window.TimeSignal
     cl = _.map cl, (curr, i)->
       if i == 0 then return curr
       prev = cl[i-1] 
-      # FILTER PERCEPTUAL INCAPABILITIES
       # SUPERFLUOUS COMMAND
-      # console.log "STEP", i, "dt", curr.dt + dt_accum, dt_accum
-      # console.log "PARAM THROW", curr.param == last_accepted_param
-      # console.log "PERCEIVABLE?", curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
       if curr.param == last_accepted_param
         dt_accum += curr.dt 
         return null
@@ -450,12 +468,37 @@ class window.TimeSignal
       else
         dt_accum += curr.dt 
         return null
-    
     cl_u = _.compact(cl)
     console.log "perceptual_correction removed", cl.length - cl_u.length, "out of", cl.length
     signal = TimeSignal.resample(cl_u, @period)
-    
     return signal
+  @temperatureColor: (v)->
+    max = TimeSignal.MAX
+    min = TimeSignal.MIN
+    p = (v - min) / (max - min);
+
+    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
+    if p > 1 then p = 1
+    if p < 0 then p = 0
+    # "#000000",
+    # thermogram = [ "#380584", "#A23D5C", "#FAA503", "#FFFFFF"];
+    # thermogram.reverse();
+    
+    # thermogram = _.map thermogram, (t) -> return new paper.Color(t)
+    # if p == 0 then return thermogram[0]
+    # i = p * (thermogram.length - 1)
+    
+    # a = Math.ceil(i)
+    # b = a - 1
+    # terp = a - i
+    # red = thermogram[a]
+    # blue = thermogram[b]    
+
+    # c = red.multiply(1-terp).add(blue.multiply(terp))
+    # c.saturation = 0.8
+    c = new paper.Color("#00A8E1")
+    c.saturation = (p * 0.5) + 0.5
+    return c
   
 # ---
 # generated by js2coffee 2.2.0

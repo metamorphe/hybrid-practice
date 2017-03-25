@@ -1,108 +1,108 @@
 class window.TimeWidgets 
   constructor: ()->
-    @cutter = new Cutter()
+    @cutter = new Cutter
+      track: $('#timecut .track-full')
+      trigger: $('#ts-cutter')
+      bindKey: 'x'
     @stitcher = new Stitcher
       track: $('event#adder .track-full')
-      result: $('event#adder .track-unit')
+      target: $('event#adder .track-unit')
       trigger: $('#ts-adder')
+      bindKey: "w"
     @timemorph = new TimeMorph
-      time_track: $('#time-morph-track')
-      time_slider: $('input#time-morph')
+      track: $('#time-morph-track')
+      slider: $('input#time-morph')
+      bindKey: 't'
     # @recorder= new Recorder
     #   recorder_button: $('button#record')
     #   recorder_result: $('#record-result')
+    # bindKey: 'r'
 
-class Cutter extends Widget
-  constructor: (@op)->
-    Widget.bindKeypress "x", ()-> $('#ts-cutter').click()
-    $('#ts-cutter').click ->
-      ds = $('#timecut .track-full datasignal')
-      id = ds.data().time_signal_id
-      ts = tsm.getTimeSignal(id)
-      offsetP = ds.parent().offset()
-      offset = ds.offset()
-      cut_x = offsetP.left + ds.parent().width() / 2
-      padding = parseFloat(ds.parent().css('padding-left'))
-      cut_location = cut_x + padding - (offset.left)
-      cut_p = cut_location / ds.width()
-      if cut_p < 0 or cut_p >= 1 then return
-      ts.split cut_p
-      return
-class TimeMorph extends Widget
-  constructor: (@op)->
-    console.log "FORGER"
+class TimeWidget extends Widget
+  constructor: (op)->
     scope = this
-    @op.time_slider.val(0)
-    updateTime = ()->
-      ids = _.map scope.op.time_track.find('datasignal'), (dom)->
-        id = $(dom).data 'time_signal_id'
-        ts = tsm.getTimeSignal(id)
-        v = scope.op.time_slider.val()
-        props = 
-          period: parseFloat(v)
-        ts.updatePeriod.apply(ts, [props])
-
-    sampler = 0
-    @op.time_slider.on 'input', (event)->
-      sampler = updateTime()
-    # @op.time_slider.on 'mousedown', (event)->
-    #   sampler = _.repeat(updateTime, 100)
-      
-    # @op.time_slider.on 'mouseup', (event)->
-    #   clearTimeout(sampler);
-    #   console.log $(this).val()
-    #   that = $(this)
-    #   d = $(this).val()
-      
-      # animate = _.range(0, 700, 10)
-      # _.each animate, (t)->
-      #   p = t / 1000
-      #   p = 1 - p
-      #   p = p * p * p
-      #   _.delay((()-> that.val(p * d)), t)
-class Stitcher extends Widget
-  constructor: (@op)->
+    _.extend this, op
+    Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+  @resolveTrack: (track)->
+    _.map track.find('datasignal'), (d)-> return tsm.resolve(d)
+  resolveTrack: ()->
+    TimeWidget.resolveTrack(@track)
+class Cutter extends TimeWidget
+  constructor: (op)->
     scope = this
-    Widget.bindKeypress "w", ()->  scope.op.trigger.click()
-    
-    @op.trigger.click((event)->
-      ids = _.map(scope.op.track.find('datasignal'), (dom)->
-        return $(dom).data 'time_signal_id'
-      )
-      scope.stitch.apply(scope, [ids])
-    )
-  stitch: (ids)->
-    ts = _.map ids, (id)-> return tsm.getTimeSignal(id)
-    time_sum = _.reduce ts, ((memo, t)-> return memo + t.period), 0
-    series = _.map ts, (t)-> return t.command_list()
+    super(op)
+    @trigger.click ->
+      scope.split()
+  split: ()->
+    signals = @resolveTrack()
+    if _.isEmpty signals then return
+    signal = _.first signals
+    offsetP = signal.dom.parent().offset()
+    offset = signal.dom.offset()
+    cut_x = offsetP.left + signal.dom.parent().width() / 2
+    padding = parseFloat(signal.dom.parent().css('padding-left'))
+    cut_location = cut_x + padding - (offset.left)
+    cut_p = cut_location / signal.dom.width()
 
+    signal.split
+      p: cut_p
+      target: @track
+    return
+class TimeMorph extends TimeWidget
+  constructor: (op)->
+    scope = this
+    super(op)
+    @slider.val(0)
+    @track.data
+      force_period: 100
+    @slider.on 'input', (event)->
+      v = if this.value < TimeSignal.MIN then TimeSignal.MIN else this.value
+      sampler = scope.updateTime(v)
+  updateTime: (v)->
+    @track.data
+      force_period: v
+    signals = @resolveTrack()
+    if _.isEmpty signals then return
+    _.each signals, (signal)-> signal.form = {force_period: v}
+
+class Stitcher extends TimeWidget
+  constructor: (op)->
+    scope = this
+    super(op)
+    @trigger.click (event)->
+      scope.stitch()
+  stitch: ()->
+    signals = @resolveTrack()
+    if _.isEmpty signals then return
+    time_sum = _.reduce signals, ((memo, t)-> return memo + t.period), 0
+    series = _.map signals, (t)-> return t.command_list()
     elapsed_time = 0
     data = _.map series, (s, i)->
       if i > 0
-        prev_t = ts[i - 1].period
+        prev_t = signals[i - 1].period
         elapsed_time += prev_t
       return _.map s, (c, i)-> {t: c.t + elapsed_time, param: c.param}
 
     data = _.flatten(data) 
     data = TimeSignal.resample(data, time_sum)
-    new_dom = TimeSignal.copy
-      data: data
+
+    dom = TimeSignal.create
+      clear: true
+      target: @target
+    signal = new TimeSignal(dom)
+    signal.form = 
+      signal: data
       period: time_sum
-      exportable: true
-      dragInPlace: false
-      parent: @op.result
-      clearParent: true
-      activate: true
-      style:
-        signal_fill:
-          fillColor: '#d9534f', 
     return 
-class window.Recorder extends Widget
+
+
+class window.Recorder extends TimeWidget
   @DEFAULT_PERIOD: TimeSignal.MAX
   @DEFAULT_RESOLUTION: 100 # ms/sample
   @log: ()-> return#console.log.bind(console)
  
   constructor: (@op)->
+    scope = this
     Recorder.log "RECORDER"
     @sub_start = Date.now()
     @elapsed = 0
