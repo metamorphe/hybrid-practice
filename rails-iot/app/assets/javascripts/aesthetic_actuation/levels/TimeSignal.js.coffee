@@ -27,6 +27,7 @@ class window.TimeSignal
     @tracks = 1
     @semantic = true
     @perceptual = true
+    @composeable = false
     @timescale = 10000
     @view = "intensity"
     @gamma_corrected = true
@@ -48,13 +49,14 @@ class window.TimeSignal
     t = _.clone(track.data())
     t.tracks =  t.tracks or @tracks
     t.perceptual =  t.perceptual == "enabled" 
+    t.composeable =  t.composeable == "enabled" 
     t.semantic =  t.semantic == "enabled" 
     t.timescale =  t.timescale or @timescale
     t.view =  t.view or @view
     t.draggable =  t.draggable == "enabled" 
     t.force_period_flag =  t.forcePeriodFlag == "enabled" 
-    t.force_period =  t.force_period or @force_period
-    t.gamma =  @gammaCorrective or @gamma
+    t.force_period =  parseInt(t.force_period) or @force_period
+    t.gamma = if _.isUndefined @gammaCorrective then @gamma else parseFloat(@gammaCorrective)
     t.exportable =  t.exportable == "enabled" 
     t.gamma_corrected =  t.gamma != 1
 
@@ -71,6 +73,7 @@ class window.TimeSignal
         semantic: @semantic
         perceptual: @perceptual
         draggable: @draggable
+        composeable: @composeable
         timescale: @timescale 
         tracks: @tracks 
         force_period_flag: @force_period_flag 
@@ -83,7 +86,7 @@ class window.TimeSignal
         window.paper = @paper
         prev = @form
         _.extend(this, obj)
-        if @force_period_flag then @period = @force_period
+        if @force_period_flag then @period = parseInt(@force_period)
 
         # NEEDS CANVAS REFRESH
         canvas_refresh = ["semantic", "timescale", "tracks"]
@@ -110,6 +113,8 @@ class window.TimeSignal
           @dom.addClass('exportable')
         if @draggable
           @dom.addClass('draggable')
+        if @composeable
+          @dom.addClass('composeable')
         # NEEDS VISUAL REFRESH
         @p_signal = @perceptual_correction(@signal)
         @p_signal = @resolution_correction(@p_signal)
@@ -297,7 +302,7 @@ class window.TimeSignal
     playGroup.pivot = playGroup.bounds.bottomRight.clone()
     playGroup.position = group.bounds.bottomRight.clone().add(new paper.Point(0, 5))
     playGroup.onClick = (event)->
-      scope.op.dom.click()
+      scope.dom.click()
       cmp.op.signal_button.click()
     return playGroup
   _time_encoder: (group)->
@@ -354,7 +359,7 @@ class window.TimeSignal
     removeGroup.pivot = removeGroup.bounds.topLeft.clone()
     removeGroup.position = group.bounds.expand(-18, -13).topLeft.clone()
     removeGroup.onClick = (event)->
-      scope.op.dom.remove()
+      scope.dom.remove()
     return removeGroup
   to_visual: ->
     _.map @data, (datum, i) ->

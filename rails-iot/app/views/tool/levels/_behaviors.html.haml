@@ -66,13 +66,15 @@
         %acceptor.datasignals.template{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3, :exportable => "disabled", :composeable => "enabled"}}
           %button.btn.btn-xs.btn-danger.trash
             =glyph "trash"
+          %button.btn.btn-xs.btn-primary.view-toggle
+            =glyph "eye-open"
         %acceptor.datasignals.accepted{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3, :exportable => "disabled", :composeable => "enabled"}}
-          %datasignal.composeable
-            %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 1000}
-          %datasignal.composeable
-            %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 2000}
-          %datasignal.composeable
-            %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 3000}
+          %datasignal.composeable{:data =>{:signal => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 1000}}
+            %canvas
+          %datasignal.composeable{:data =>{:signal => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 2000}}
+            %canvas
+          %datasignal.composeable{:data =>{:signal => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 3000}}
+            %canvas
           %button.btn.btn-xs.btn-danger.trash
             =glyph "trash"
           %button.btn.btn-xs.btn-primary.view-toggle

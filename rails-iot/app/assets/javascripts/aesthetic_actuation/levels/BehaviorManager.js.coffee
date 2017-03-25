@@ -20,7 +20,8 @@ class window.BehaviorManager
 		console.log "TRACKS", tracks, actor
 		template.attr('data-tracks', tracks)
 		$('#timetrack').append(template)
-		tsm.activateDragAndDrop();
+		tsm.activateDragAndDrop()
+		tsm.activateTrackButtons()
 	playScrubber: (start, end)->
 		scope = this
 		duration = parseInt((end - start))

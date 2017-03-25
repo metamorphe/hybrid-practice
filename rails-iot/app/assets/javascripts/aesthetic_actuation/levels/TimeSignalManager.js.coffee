@@ -1,10 +1,19 @@
 class window.TimeSignalManager
+  @NUM_OF_COLORS: 360/7
   @log: ()-> return#console.log.bind(console)
   constructor: (@op) ->
     TimeSignalManager.log 'TSM'
     @timesignals = []
   init:()->
+    
+    @activateTrackButtons()
+    @populateHues()
+    @initTimeSignals()
+    @initSelection()
+  activateTrackButtons: ()->
     scope = this
+    $(".trash").click ()->
+      $(this).siblings().not('button').remove()
     $('button.view-toggle').click ->
       dom = $(this)
       ds = dom.parents('event').find('datasignal').not('.template')
@@ -16,11 +25,8 @@ class window.TimeSignalManager
         if _.isUndefined(ts) then return 
         ts.form =  {view: n_view}
         dom.parents('event').find('[class^=track]').data('view', n_view)
-    @populateHues()
-    @initTimeSignals()
-    @initSelection()
   populateHues: ()->
-    hues  = _.map _.range(0, 360, 45), (h)->
+    hues  = _.map _.range(0, 360, TimeSignalManager.NUM_OF_COLORS), (h)->
       h = h / 360
       dom = TimeSignal.create
         clear: false
@@ -40,8 +46,7 @@ class window.TimeSignalManager
   getTimeSignal: (id)->
     @timesignals[id]
   getActiveTimeSignal: ()->
-    id = $('datasignal.selected').data('time_signal_id')
-    @getTimeSignal(id)
+    @resolve($('datasignal.selected'))
   initSelection: ()->
     scope = this
     $('datasignal').click ->
@@ -73,17 +78,17 @@ class window.TimeSignalManager
       containment: 'parent'
       axis: 'x'
 
-    # _.each $('datasignal.composeable'), (signal)->
-    #   tracks = $(signal).parent().data().tracks
-    #   $(signal).draggable
-    #     revert: false
-    #     containment: 'parent'
-    #     scroll: false
-    #     # snap: true
-    #     # snapMode: "outer"
-    #     # snapTolerance: 10
-    #     grid: [1, 87/tracks]
-    #     stack: 'datasignal.composeable'
+    _.each $('datasignal.composeable'), (signal)->
+      tracks = $(signal).parent().data().tracks
+      $(signal).draggable
+        revert: false
+        containment: 'parent'
+        scroll: false
+        # snap: true
+        # snapMode: "outer"
+        # snapTolerance: 10
+        grid: [1, 87/tracks]
+        stack: 'datasignal.composeable'
 
 
   activateDrop: ()->
@@ -101,6 +106,7 @@ class window.TimeSignalManager
           target: $(this)
         signal = new TimeSignal(dom)
         signal.form = {signal: ts.signal, period: ts.period}
+        $(this).addClass('accepted')
 
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)

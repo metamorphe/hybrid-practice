@@ -13,6 +13,7 @@ class window.TimeWidgets
       track: $('#time-morph-track')
       slider: $('input#time-morph')
       bindKey: 't'
+    console.log "HERE"
     # @recorder= new Recorder
     #   recorder_button: $('button#record')
     #   recorder_result: $('#record-result')
@@ -74,18 +75,12 @@ class Stitcher extends TimeWidget
   stitch: ()->
     signals = @resolveTrack()
     if _.isEmpty signals then return
-    time_sum = _.reduce signals, ((memo, t)-> return memo + t.period), 0
-    series = _.map signals, (t)-> return t.command_list()
-    elapsed_time = 0
-    data = _.map series, (s, i)->
-      if i > 0
-        prev_t = signals[i - 1].period
-        elapsed_time += prev_t
-      return _.map s, (c, i)-> {t: c.t + elapsed_time, param: c.param}
-
-    data = _.flatten(data) 
-    data = TimeSignal.resample(data, time_sum)
-
+    time_sum = 0
+    data = _.map signals, (signal)->
+      time_sum += signal.form.period
+      return TimeSignal.resample(signal.command_list(), signal.form.period)
+    data = _.flatten(data)
+    console.log data
     dom = TimeSignal.create
       clear: true
       target: @target

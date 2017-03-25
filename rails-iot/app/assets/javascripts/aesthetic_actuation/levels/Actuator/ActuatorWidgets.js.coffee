@@ -1,8 +1,7 @@
 class window.Widget 
   @bindings = {}
   @enable: ->
-    $(".trash").click ()->
-      $(this).siblings().not('button').remove()
+
     $(".toggle").click ()->
       $(this).parent().toggleClass('shrink')
       state = $(this).parent().hasClass('shrink')
