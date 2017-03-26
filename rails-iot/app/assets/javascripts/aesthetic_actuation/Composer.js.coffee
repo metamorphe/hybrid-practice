@@ -31,12 +31,8 @@ class window.Composer
         cl = actor.perform(channel, command)
       commands =_.flatten(commands)
      
-
-
-      # console.log commands, act, channel
       scope.op.signal_button.css('background', '#d9534f')
       _.each commands, (command) ->
-        # consoel.log command
         _.delay(am.sendCommandTo, command.t + command.async_offset, command) 
         return
 

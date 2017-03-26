@@ -6,19 +6,19 @@ class ActuatorLight extends Actuator1D
           name: 'EMITTER: emit'
           position: paper.view.center
           size: [16, 8]
-          fillColor: @op.color)
+          fillColor: @constants.color)
       else
         c = new (paper.Path.Circle)(
           name: 'EMITTER: emit'
           position: paper.view.center
           radius: 8
-          fillColor: @op.color)
+          fillColor: @constants.color)
       
     ray_options = 
       emitter: c
       position: c.position
       boundaries: [ new (paper.Path.Rectangle)(paper.view.bounds) ]
-      color: @op.color
+      color: @constants.color
       max_ray_length: 30
 
     rays = @_createRays ray_options
@@ -54,7 +54,7 @@ class window.ActuatorLED extends ActuatorLight
 class window.ActuatorRGBLED extends ActuatorLED
   onCreate: ->
     # @expression = {red: 255, green: 0, blue: 0}
-    @expression = @op.color
+    @expression = @constants.color
     return
   _param2express: ->
     c = @channels
@@ -104,9 +104,10 @@ class window.ActuatorRGBLED extends ActuatorLED
     {flag: "C", args: [hid, r, g, b]}
 class window.ActuatorHSBLED extends ActuatorRGBLED
   onCreate: ->
-    @expression = @op.color
+    @expression = @constants.color
     return
   _param2express: ->
+    window.paper = @paper
     c = @channels
     c = new paper.Color({
       hue: c.hue.value

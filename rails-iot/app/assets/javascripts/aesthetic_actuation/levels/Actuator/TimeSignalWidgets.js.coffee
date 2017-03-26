@@ -13,7 +13,6 @@ class window.TimeWidgets
       track: $('#time-morph-track')
       slider: $('input#time-morph')
       bindKey: 't'
-    console.log "HERE"
     # @recorder= new Recorder
     #   recorder_button: $('button#record')
     #   recorder_result: $('#record-result')

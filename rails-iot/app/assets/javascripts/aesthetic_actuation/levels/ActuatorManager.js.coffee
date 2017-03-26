@@ -1,153 +1,98 @@
 class window.ActuatorManager
+  @DEFAULT_ASYNC: 30
+  @create: (op)->
+    if op.clear then op.target.find('actuator').remove()
+    dom = $('actuator.template[name="'+ op.actuator_type+'"]')
+      .clone().removeClass('template')
+    data = 
+      actuator_type: op.actuator_type
+      constants: op.constants
+      hardware_ids: op.hardware_ids
+      canvas_ids: op.canvas_ids
+      title: op.actuator_type
+      async_period: ActuatorManager.DEFAULT_ASYNC
+    dom.data
+      actuator_type: op.actuator_type
+      constants: op.constants
+      hardware_ids: op.hardware_ids
+      canvas_ids: op.canvas_ids
+      title: op.title or op.actuator_type
+      async_period: ActuatorManager.DEFAULT_ASYNC
+    op.target.append(dom)
+    op.target.addClass("accepted")
+    ActuatorType = op.actuator_type
+    ActuatorSimulator = eval('Actuator' + ActuatorType)
+    props = _.clone(eval(ActuatorType))
+    set = dom.data()
+    actuator = new ActuatorSimulator(dom, set, props)
+    if op.addSignalTrack then bm.addSignalTrack(actor)
+    return dom
+
   @extract: ()->
     console.info "EXTRACTING ACTUATORS FROM ARTWORK"
-    LEDS = _.map CanvasUtil.queryPrefix("LED"), (led, i)->
-      led.type = "LED"
-      led.color = CanvasUtil.getName(led)
-      # FIND TEMPLATE
-      act = $('actuator.template[name="'+led.type+'"]')
-        .clone().removeClass('template')
-        .data('color', led.color)
-        .data('canvas-id', led.id)
-        .data('hardware-id', i)
-     
-      $('#actuators .track-full').append(act);
-      return led
-    # console.log "LEDs:", LEDS.length
-
-    # HSB LEDS
     hsbLEDs = CanvasUtil.queryPrefix("NLED")
-    # hsbLEDs = hsbLEDs.slice(0, 2)
     hsbLEDs = _.map hsbLEDs, (led, i)->
-      led.type = "HSBLED"
-      data = JSON.parse(CanvasUtil.getName(led))
-      led.color = rgb2hex(new paper.Color(data.colorID).toCSS())
-      led.fillColor = led.color
-      # FIND TEMPLATE
-      act = $('actuator.template[name="'+led.type+'"]')
-        .clone().removeClass('template')
-        .data('color', led.color)
-        .data('canvas-id', led.id)
-        .data('hardware-id', led.lid)
-      
-      $('#actuators .track-full').append(act);
-      return led
-    # console.log "hsbLEDs:", hsbLEDs.length
-
-    # HEATERS
-    heaters = CanvasUtil.queryPrefix("HEATER")
-
-    heaters = _.map heaters, (heater, i)->
-      heater.type = "Heater"
-      data = JSON.parse(CanvasUtil.getName(heater))
-      heater.resistance = data.resistance
-      
-      # FIND TEMPLATE
-      act = $('actuator.template[name="'+heater.type+'"]')
-        .clone().removeClass('template')
-        .data('resistance', heater.resistance)
-        .data('canvas-id', heater.id)
-        .data('hardware-id', heater.id)
-      
-      $('#actuators .track-full').append(act)
-      return heater
-    # console.log "heaters:", heaters.length
-
-    motors = CanvasUtil.queryPrefix("MOTOR")
-
-    motors = _.map heaters, (motor, i)->
-      motor.type = "Stepper"
-      data = JSON.parse(CanvasUtil.getName(motor))
-      motor.max = data.max
-      
-      # FIND TEMPLATE
-      act = $('actuator.template[name="'+motor.type+'"]')
-        .clone().removeClass('template')
-        .data('resistance', motor.max)
-        .data('canvas-id', motor.id)
-        .data('hardware-id', motor.id)
-      
-      $('#actuators .track-full').append(act)
-      return motor
-    # console.log "motors:", motors.length
-
-    actuators = _.flatten([LEDS, hsbLEDs, heaters, motors])
-    _.each actuators, (actuator)->
-      actuator.onClick = ()->
-        act = am.getActuator(actuator.expresso_id)
-        act = am.clone act.op.dom.parents("actuator"),
-          activate: true
-          clear: true
-          parent: $("#actuator-generator")
-        act.op.dom.click()
+      data = JSON.parse(CanvasUtil.getName(led))   
+      ActuatorManager.create
+        clear: false
+        target: $('#actuators .track-full')
+        actuator_type: "HSBLED"
+        hardware_ids: [led.lid]
+        canvas_ids: [led.id]
+        constants: 
+          color: rgb2hex(new paper.Color(data.colorID).toCSS())
+   
     
   constructor: (@op) ->
     @actuators = []
-  clone: (o, op)->
-    act = if op.type then $('actuator.template[name="'+op.type+'"]') else $('actuator.template[name="'+ o.attr('name')+'"]')
-    act = act.clone().removeClass('template')
-    if op.expression then act.data('color', op.expression) else act.data('color', o.data('color'))
-    if op.ids then act.data('hardware-id', op.ids) else act.data('hardware-id', o.data('hardware-id'))
-    if op.canvas_id then act.data('canvas-id', op.canvas_id) else act.data('canvas-id', o.data('canvas-id'))
-    if op.title then act.find("label.title:first").html(op.title.toUpperCase())
-    else act.find("label.title:first").html(o.find("label.title:first").html())
-    if op.clear then op.parent.html("")
-    op.parent.append(act).addClass('accepted').removeClass('actuator-droppable')
-    if op.activate
-      ops = if op.group then {group: op.group} else {}
-      actor = @initActuator(act, ops)
-      @activate()
-      if op.addSignalTrack
-        bm.addSignalTrack(actor)
-    return actor
   init:()->
-    ActuatorManager.extract()
-    @initActuators()
+    # @initActuators() #PRELOAD
+    ActuatorManager.extract() #DYNAMIC
     @initBLRadio($('actuator channel'))
-    @activate()
-  activate: ()->
+      
+  initActuators: () ->
+    scope = this;
+    collection = $('actuator[name]:not(.template)')
+    console.info 'Initializing actuators', collection.length
+    _.each collection, (act, i) ->
+      scope.initActuator.apply(scope, [act])
+
+
+  add: (actuator)->
+    @actuators.push(actuator)
+    @updateChannels(actuator)
     @initSelection() 
     $(".remove").click ()->
       $(this).parents('acceptor').removeClass("accepted")   
       $(this).parents('actuator').remove()   
     @activateDragAndDrop()
-  initActuators: () ->
-    scope = this;
-    collection = $('actuator[name]:not(.template)')
+    @listen()
 
-    console.info 'Initializing actuators', collection.length
-    _.each collection, (act, i) ->
-      scope.initActuator.apply(scope, [act])
-  
+  listen: ->
+    $('[contenteditable]').on('focus', ()->
+      scope = $(this)
+      scope.data 'before', scope.html()
+      return scope;
+    ).on('blur keyup paste', ()->
+      scope = $(this);
+      if scope.data('before') != scope.html()
+        scope.data 'before', scope.html()
+        scope.trigger('change')
+      return scope;
+    )
+    $('label.title[contenteditable').on 'change', ()->
+      actor = am.resolve($(this).parents('actuator'))
+      actor.form =
+        title: $(this).html()
   initActuator: (act, op)->
     scope = this
-    act = $(act)
-    dom = act.find('canvas')
-    papel = Utility.paperSetup(dom)
-
-    ActuatorType = act.attr('name')
-    console.log ActuatorType
+    dom = $(act)
+    ActuatorType = dom.attr('name')
     ActuatorSimulator = eval('Actuator' + ActuatorType)
-
-    props = _.extend(_.clone(eval(ActuatorType)),
-      type: ActuatorType
-      color: act.data('color')
-      hardware_id: act.data('hardware-id')
-      resistance: act.data('resistance')
-      canvas_id: act.data('canvas-id')
-      paper: papel
-      dom: dom)
-    actuator = new ActuatorSimulator(props)
-  
-    if op and op.group
-      actuator.makeGroup(op.group)
-
-
-    scope.updateChannels(actuator)
+    props = _.clone(eval(ActuatorType))
+    set = dom.data()
+    actuator = new ActuatorSimulator(dom, set, props)
     
-    @actuators.push(actuator)
-    return actuator
-
   initBLRadio: (dom) ->
     scope = this
     dom.click ->
@@ -166,7 +111,7 @@ class window.ActuatorManager
     id = $('actuator.selected').data('id')
     @getActuator(id)
   getChannels:(actuator)->
-    channels = $(actuator.op.dom).parents('actuator').find('channel')
+    channels = $(actuator.dom).find('channel')
     _.map(channels, (channel)-> $(channel).attr('type'))
   getActiveChannel: ()->
     $('actuator.selected channels label.actuator.selected').parents('channel').attr('type');
@@ -174,12 +119,13 @@ class window.ActuatorManager
     val = actuator.channels[channel].value
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     query = 'channel[type="' + channel + '"]'
-    $(actuator.op.dom).parents('actuator').find(query).find('.dimension').html(val);
+    $(actuator.dom).find(query).find('.dimension').html(val);
   updateChannels: (actuator)->
     scope = this
     channels = @getChannels(actuator)
     _.each channels, (channel)->
       scope.updateChannel(actuator, channel)
+      
   updateActiveChannel: (val)->
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     $('actuator.selected channels label.actuator.selected').find('.dimension').html(val);
@@ -208,12 +154,14 @@ class window.ActuatorManager
       tag = @tagName
       $(tag).removeClass 'selected'
       $(this).addClass 'selected'
-      channel = am.getActiveChannel()
-      id = $('actuator.selected').data('id')
-      actuator = am.getActuator(id)
-      if actuator
-        value = actuator.getChannelParam(channel)
+
+      actor = am.resolve($(this))
+      if actor
+        channel = am.getActiveChannel()
+        value = actor.getChannelParam(channel)
         cmp.op.slider.val value
+        ch.select(actor.form.canvas_ids)
+
       return
     $('label.actuator').click ->
       siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
@@ -228,7 +176,7 @@ class window.ActuatorManager
       revert: true
       appendTo: '#ui2'
       helper: ()->
-        copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardwareId)
+        copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardware_ids.join(','))
         return copy;
     
     $('.actuation-design .droppable, acceptor.actuator').droppable
@@ -237,11 +185,14 @@ class window.ActuatorManager
       drop: (event, ui) ->
         empty = $(this).html() == ""
         num_to_accept = $(this).data().accept
-        act = scope.clone ui.draggable, 
-          parent: $(this)
+
+        actor = scope.resolve(ui.draggable)
+        ops = _.extend actor.form,
           clear: num_to_accept == 1
-          activate: true
+          target: $(this)
           addSignalTrack: $(this).is("acceptor") and empty
+        
+        ActuatorManager.create ops
         
       
       

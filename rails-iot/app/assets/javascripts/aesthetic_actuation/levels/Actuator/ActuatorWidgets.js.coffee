@@ -31,14 +31,49 @@ class window.Widget
 class window.ChoreographyWidget extends Widget
   @ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
   @NORMAL_SELECT = (path)->
-    name = Artwork.getPrefix path
+    name = CanvasUtil.getPrefix path
     path.set
       strokeWidth: 2
+      # fillColor: "#00A8E1"
       strokeColor: "#00A8E1"
-    
+      # shadowColor: "#00A8E1"
+      # shadowBlur: 12,
+      # shadowOffset: new Point(0, 0)
+  @STYLE_PARAMS = (path)->
+    # styles = ["fillColor", "strokeWidth", "strokeColor", "shadowColor", "shadowOffset", "shadowBlur"]
+    # return _.object(_.map styles, (s)-> [s, path[s]])
+    style = 
+      strokeColor: new paper.Color("black")
+      strokeWidth: 1
+    return style
+  deselect_all: ->
+    scope = this
+    flagged = CanvasUtil.query(paper.project, {flag: true})
+     #DESELECT ALL
+    _.each flagged, (el)->
+      el.set scope.buffer[el.id]
+      el.flag = false
+       
+  select: (ids)->
+    console.log ids
+    scope = this
+    window.paper = @paper
+    elements = CanvasUtil.getIDs(ids)
+    flagged = CanvasUtil.query(paper.project, {flag: true})
 
+    @deselect_all()
+    _.each elements, (el)->
+      if not el.flag
+        style = ChoreographyWidget.STYLE_PARAMS(el)
+        console.log style.strokeColor.toCSS()
+        scope.buffer[el.id] = style
+        ChoreographyWidget.NORMAL_SELECT(el)
+        el.flag = true
+     
   constructor: (op)->
+    scope = this
     console.log "ChoreographyWidget"
+    @buffer = {}
     scope = this
     _.extend this, op
     @canvas = @dom.find('canvas')
@@ -53,11 +88,12 @@ class window.ChoreographyWidget extends Widget
       actuators = ChoreographyWidget.ACTUATORS()
       ixts = CanvasUtil.getIntersections(sT.selectionPath, actuators)
       hits = _.map ixts, (ixt)-> 
-        ixt.path.selected = true
-        return ixt.path.lid
+        ChoreographyWidget.NORMAL_SELECT(ixt.path)
+        return ixt.path.id
       hits = _.flatten([hits, sT.selection])
       sT.selection = _.sortBy(_.uniq(hits))
-
+      scope.select(sT.selection)
+      
     sT.onMouseDown = (e)->
       sT.selection = []
       sT.selectionPath = new Path
@@ -73,18 +109,25 @@ class window.ChoreographyWidget extends Widget
       sT.collectSelection()
     sT.onMouseUp = (e)->
       sT.selectionPath.addSegment e.point
-      sT.collectSelection()
+      
       console.log sT.selection
       sT.selectionPath.remove()
       actuators = ChoreographyWidget.ACTUATORS()
       CanvasUtil.set(actuators, 'selected', false)
       
-      # act = am.getActuator(actuator.expresso_id)
-      # act = am.clone act.op.dom.parents("actuator"),
-      #     activate: true
-      #     clear: true
-      #     parent: $("#actuator-generator")
-      # act.op.dom.click()
+      hids = CanvasUtil.getIDs(sT.selection)
+      hids = _.map hids, (el)-> return el.lid;
+      ops =
+        clear: true
+        target: $("#actuator-generator")
+        actuator_type: "HSBLED"
+        hardware_ids: hids
+        title: hids.join(',')
+        constants: 
+          color: "#FFFFFF"
+      
+      dom = ActuatorManager.create ops   
+      dom.click()
 
     @tools.selection = sT
     @canvas.hover ()-> 
@@ -134,16 +177,12 @@ class window.Saver extends Widget
 
     @op.trigger.click (event)->
       info = _.chain scope.op.track.find('actuator')
-        .map (dom)->  
-          act = am.getActuator(parseInt($(dom).data 'id'))
-          ids: act.hardware_id
-          canvas_id: act.canvas_id
-          expression: rgb2hex(act.expression.toCSS())
-          type: act.op.type
-          title: act.getTitle()
-          file: fs.getName()
+        .map (actor)->  
+          actor = am.resolve(actor)
+          return _.extend actor.serialize(),
+            file: fs.getName()
         .value()
-      # console.log "INFO", info
+      console.log "INFO", info
       scope.save(info)
   generateKey: ->
     return [fs.getName(), @name].join(':')
@@ -155,62 +194,37 @@ class window.Saver extends Widget
     scope = this
     key = @generateKey()
     actuators = JSON.parse(ws.get(key))
-    console.log "LOADING", actuators.length, "FROM CACHE"
-    if scope.op.track.length == 0 then return 
     _.each actuators, (actuator)->
-      actuatorops = _.extend actuator, 
-        parent: scope.op.track
-        activate: true
-      act = am.clone null, actuatorops
+      # console.log "\tLOAD", actuator
+      ops = 
+        clear: false
+        target: scope.op.track
+      ops = _.extend(ops, actuator)
+      ActuatorManager.create ops
       
 class window.Grouper extends Widget
   constructor: (@op)->
     scope = this
     console.log "GroupMaker"
-    $('[contenteditable]').on('focus', ()->
-      scope = $(this)
-      scope.data 'before', scope.html()
-      return scope;
-    ).on('blur keyup paste', ()->
-      scope = $(this);
-      if scope.data('before') != scope.html()
-        scope.data 'before', scope.html()
-        scope.trigger('change')
-      return scope;
-    )
-    $('label.title[contenteditable').on 'change', ()->
-      actor = am.resolve($(this).parents('actuator'))
+    Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
+    @op.trigger.click (event)->
+      acts = scope.op.track.find('actuator')
+      ids = _.chain acts
+        .map (dom)-> return am.resolve(dom).form.hardware_ids
+        .flatten()
+        .uniq()
+        .sortBy()
+        .value()
+      if _.isEmpty(ids) then return
+      # # ALL HAVE TO BE THE SAME TYPE...
+      ops = _.extend am.resolve(_.first(acts)).form, 
+        clear: true
+        target: scope.op.result
+        hardware_ids: ids
+      ActuatorManager.create ops      
+      return
 
     
+    
 
-    Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
-    # @op.clear.click (event)->
-    #   console.log "CLEARING"
-    #   scope.op.track.html("")
-    #   scope.op.result.html("")
-    #   return
-    # @op.trigger.click (event)->
-    #   ids = _.chain scope.op.track.find('actuator')
-    #     .map (dom)-> return $(dom).data 'hardware-id'
-    #     .flatten()
-    #     .uniq()
-    #     .value()
-    #     .sort()
-    #   if _.isEmpty(ids) then return
-    #   act = scope.op.track.find('actuator:first')
-    #   act = am.clone act, 
-    #     title: "Group"
-    #     group: ids
-    #     activate: true
-    #     clear: true
-    #     parent: scope.op.result
-    #   return
-    # $('#name-button').on 'click', ->
-    #   name = $(this).siblings('input').val()
-    #   $(this).parents('event').find('.track-unit').find('label.title:first').html name
-    #   return
-    # $('#group input').on 'input', ->
-    #   name = $(this).val()
-    #   $(this).parents('event').find('.track-unit').find('label.title:first').html name
-    #   return
     

@@ -2,35 +2,82 @@ actuator_counter = 0;
 
 # ABSTRACT INTERFACE
 class Actuator
-  constructor: (@op) ->
-    @paper = @op.paper
-    @async_period = 30
-    hid = eval(@op.hardware_id)
-    if _.isObject hid
-      @hardware_id = hid
-    else if _.isNumber hid
-      @hardware_id = [hid]
-    if @op.title then @setTitle(title)
+  @COUNTER: 0
+  @DEFAULT_ASYNC: 30
+  @RAY_RESOLUTION: 30
+  constructor: (@dom, set, @op) ->
+    set = set or {}
+    @id = Actuator.COUNTER++
+    @dom.data('id', @id)
+    @canvas = @dom.find('canvas')
 
-    @op.dom.parents('actuator').data('hardware-id', JSON.stringify(@hardware_id))
-
-    @setTitle()
-    @init()
-    @onCreate()
-  init: ->
+    # DEFAULTS
+    @actuator_type = "Actuator"
+    @hardware_ids = []
+    @canvas_ids = []
+    @title = ""
+    @async_period = Actuator.DEFAULT_ASYNC
+    @constants = {}
+    @paper = Utility.paperSetup @canvas, {}
+    
     @visuals = []
-    @id = actuator_counter++;
-    window.paper = fs.op.paper
-    @op.dom.parents('actuator').data('id', @id)
-    @canvas_id = @op.canvas_id
-    cE = CanvasUtil.queryID(@op.canvas_id)
-    if _.isUndefined cE.expresso_id then cE.expresso_id = @id
-    window.paper = @paper
-    @visuals = []
+    @_visuals()
     @channels = _.mapObject(@op.channels, (actuator) ->
       new ActuationParam(actuator)
     )
-    @_visuals()
+    @form = set
+    @onCreate()
+    am.add(this)
+  serialize: ->
+    @form
+  Object.defineProperties @prototype,
+    form: 
+      get: ->
+        actuator_type: @actuator_type
+        hardware_ids: @hardware_ids
+        canvas_ids:  @canvas_ids
+        title: @title
+        async_period:  @async_period
+        constants: @constants
+      set:(obj)->
+        scope = this
+        if _.isEmpty(obj) then return
+        window.paper = @paper
+        prev = @form
+        if _.has(obj, 'canvas_ids') then delete obj['canvas_ids']
+        _.extend(this, obj)
+        @dom.data @form
+        if @title != prev.title then @setTitle(@title)
+        # POPULATE CANVAS IDs MANUALLY
+        window.paper = ch.paper
+        @canvas_ids = _.map @hardware_ids, (hid)->
+          match = CanvasUtil.query paper.project, {lid: hid}
+          if _.isEmpty match then return null
+          return _.first(match).id
+        
+
+    expression:
+      get: -> 
+        @_expression
+      set: (value) ->
+        scope = this;
+        if _.isObject value
+          if _.has(value, "parameterized")
+            @_pobj value
+          else
+            @_obj value
+        else if _.isNumber value
+          @_num value
+        else if _.isColorString value
+          @_color value
+        else
+          @_warn value
+        @_expression = @_param2express()
+        @_updateVisuals(@expression)
+
+  setTitle: (title)->
+    @dom.find("label.title:first").html(title)
+  
   perform: (channel, command)->
     window.paper = @op.paper
     query = 
@@ -39,7 +86,7 @@ class Actuator
     query[channel] = command.param
     @expression = query
     scope = this
-    return _.map @hardware_id, (hid)->
+    return _.map @hardware_ids, (hid)->
       command = scope.async(hid, channel, command)
       return command
   async: (hid, channel, command)->
@@ -55,12 +102,7 @@ class Actuator
   physical_channels: ()->
     _.pick @channels, (val)->
       return val.op.modality != "derived"
-  toData: ->
-    console.warn "NOT IMPLEMENTED"
-  getTitle:->
-    title = @op.dom.parents('actuator').find("label.title:first").html()
-  setTitle: (title)->
-    @op.dom.parents('actuator').find("label.title:first").html(title)
+  
   onCreate: ->
     return
   getChannelValue: (name)->
@@ -88,7 +130,7 @@ class Actuator
   _warn: (val)->
     console.warn "Set", typeof val, "not supported for", @constructor.name
   _createRays: (opt) ->
-    rays = _.range(-180, 180, RAY_RESOLUTION)
+    rays = _.range(-180, 180, Actuator.RAY_RESOLUTION)
     _.map rays, (theta) ->
       point = new (paper.Point)(1, 0)
       point.length = Ruler.mm2pts(opt.max_ray_length)
@@ -111,26 +153,9 @@ class Actuator
         line.lastSegment.point = closestIxT.point.clone()
       line
   _setBackground: ->
-    @op.dom.css 'background', 'black'
+    @canvas.css 'background', 'black'
     return
-  Object.defineProperties @prototype,
-    expression:
-      get: -> @_expression
-      set: (value) ->
-        scope = this;
-        if _.isObject value
-          if _.has(value, "parameterized")
-            @_pobj value
-          else
-            @_obj value
-        else if _.isNumber value
-          @_num value
-        else if _.isColorString value
-          @_color value
-        else
-          @_warn value
-        @_expression = @_param2express()
-        @_updateVisuals(@expression)
+  
         
 class window.Actuator1D extends Actuator
   init:->
