@@ -12,16 +12,15 @@ class window.Widget
         $(this).find('span').removeClass('glyphicon-collapse-down')
         $(this).find('span').addClass('glyphicon-collapse-up')
     
-    Widget.bindKeypress "U", ()-> $('event button.toggle').click()
-    Widget.bindKeypress "I", ()-> $('event.actuation-design button.toggle').click()
-    Widget.bindKeypress "O", ()-> $('event.signal-design button.toggle').click()
-    Widget.bindKeypress "P", ()-> $('event.composition-design button.toggle').click()
+    Widget.bindKeypress 96, (()-> $('event button.toggle').click()), true
+    Widget.bindKeypress 49, (()-> $('event.actuation-design button.toggle').click()), true
+    Widget.bindKeypress 50, (()-> $('event.signal-design button.toggle').click()), true
+    Widget.bindKeypress 51, (()-> $('event.composition-design button.toggle').click()), true
 
     $(document).keypress (event) ->
       _.each Widget.bindings, (func, key)->
-        if event.shiftKey
-          if event.which == parseInt(key)
-            func(event)
+        if event.which == parseInt(key)
+          func(event)
     return
   @bindKeypress: (key, func, ascii = false)->
     if not ascii
@@ -157,11 +156,11 @@ class window.ActuatorWidgets
       result: $("#group-result") 
       trigger: $("#group-button.trigger")
       clear: $("#group-clear")
-      bindKey: 'G'
+      bindKey: 'g'
     @saver = new Saver
       track: $("#library.actuation-design .track-full")
       trigger: $("#library.actuation-design button.trigger")
-      bindKey: 'S'
+      bindKey: 's'
 
 class window.Saver extends Widget
   constructor: (@op)->

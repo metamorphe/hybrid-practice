@@ -69,14 +69,14 @@ class window.ActuatorManager
       scope = $(this)
       scope.data 'before', scope.html()
       return scope;
-    ).on('blur keyup paste', ()->
+    ).on('blur keyup paste', (e)->
       scope = $(this);
       if scope.data('before') != scope.html()
         scope.data 'before', scope.html()
         scope.trigger('change')
       return scope;
     )
-    $('label.title[contenteditable').on 'change', ()->
+    $('label.title[contenteditable').on 'change', (e)->
       actor = am.resolve($(this).parents('actuator'))
       actor.form =
         title: $(this).html()
