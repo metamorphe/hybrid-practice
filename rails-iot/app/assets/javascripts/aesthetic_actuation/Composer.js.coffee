@@ -23,13 +23,21 @@ class window.Composer
     scope = this
     @op.signal_button.click((event)->
       ts = tsm.getActiveTimeSignal()
-      commands = ts.command_list.apply(ts)
-      act = am.getActiveActuator()
+      actor = am.getActiveActuator()
       channel = am.getActiveChannel()
+
+      commands = ts.command_list.apply(ts)
+      commands = _.map commands, (command) -> 
+        cl = actor.perform(channel, command)
+      commands =_.flatten(commands)
+     
+
+
       # console.log commands, act, channel
       scope.op.signal_button.css('background', '#d9534f')
       _.each commands, (command) ->
-        _.delay(am.sendCommandTo, command.t, act, channel, command.param) 
+        # consoel.log command
+        _.delay(am.sendCommandTo, command.t + command.async_offset, command) 
         return
 
       turnBack = ()->
@@ -40,10 +48,14 @@ class window.Composer
     Composer.log "BINDING BL"
     scope = this;
     dom.on 'input', ->
-      act = am.getActiveActuator()
+      actor = am.getActiveActuator()
       channel = am.getActiveChannel()
       param = parseFloat($(this).val())  
-      _.delay(am.sendCommandTo, 0, act, channel, param)
+      command = {t: 0, param: param}
+      commands = actor.perform(channel, command)
+      commands =_.flatten(commands)
+      _.each commands, (command) ->
+        _.delay(am.sendCommandTo, command.t + command.async_offset, command)
       return
     return
  

@@ -61,7 +61,7 @@ class window.BehaviorManager
 				timescale = signal_track.data().timescale
 				height = signal_track.height()
 				width = signal_track.width()
-				_.chain signals
+				commands = _.chain signals
 					.map (signal, j)->
 						# CENTER LEFT CORNER POSITION VECTOR
 						a = $(signal).parent().offset()
@@ -81,13 +81,23 @@ class window.BehaviorManager
 						# COMPILING INSTRUCTIONS PER CHANNEL
 						commands = tsm.resolve(signal).command_list({offset: offset})
 						commands = _.map commands, (command) -> 
-							cl = actor.perform(channel, command.param)
-							_.extend command, {channel: channel, actuator: actor.id, commands: cl.commands, expression: cl.expression}
+							cl = actor.perform(channel, command)
+							# console.log "C", cl
+							return cl
+						commands =_.flatten(commands)
+						# _.each commands, (command)->
+							# console.log "I", command.api.args.join(',')
+						commands
 					.flatten()
+					# .tap (c)-> console.log "C", c
 					.value()
 			.flatten()
 			.sortBy("t")
 			.value()
+		# _.each choreography, (c)->
+			# console.log c.api.args.join ","
+		
+		return choreography
 	play: ()->
 		if @playing
 			@pause()
@@ -97,7 +107,6 @@ class window.BehaviorManager
 		scope = this
 		raw_commands = @compile()
 		t_start = @scrubberTime()
-		
 		if _.isEmpty raw_commands then return
 		 
 		# RESTART
@@ -112,7 +121,7 @@ class window.BehaviorManager
 
 		scope.play_ids = _.map commands, (command) ->
 			actuator = am.getActuator(command.actuator)
-			id = _.delay(am.sendCommandTo, command.t, actuator, command.channel, command.param)
+			id = _.delay(am.sendCommandTo, command.t + command.async_offset, command)
 			return id
 		scope.playScrubber(start, end)
 		@playing = true

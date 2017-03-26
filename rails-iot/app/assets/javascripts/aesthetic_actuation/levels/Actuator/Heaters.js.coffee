@@ -16,10 +16,8 @@ class window.ActuatorHeater extends Actuator1D
       @channel.param = obj[@op.dimension]
     @channels.temperatureF.value = 72 + (@channel.param * 20)
     @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
-  toAPI: ->
-    scope = this
-    _.map @hardware_id, (hid)->
-      {flag: "H", args: [hid, scope.expression]}
+  toAPI: (hid)->
+    {flag: "H", args: [hid, @expression]}
   _updateVisuals: (p)->
     scope = this
     param = @channel.param

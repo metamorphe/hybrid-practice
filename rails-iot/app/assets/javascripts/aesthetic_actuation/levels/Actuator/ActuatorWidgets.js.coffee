@@ -29,6 +29,32 @@ class window.Widget
     # console.log "Binding", key
     Widget.bindings[key] = func;
 
+class window.ChoreographyWidget extends Widget
+  constructor: (op)->
+    console.log "ChoreographyWidget"
+    _.extend this, op
+    window.paper = @paper
+    @dist = @extractDistanceMetric()
+  extractDistanceMetric: ()->
+    window.paper = @paper 
+    c = new paper.Path.Circle
+      fillColor: "red"
+      radius: 5
+      position: paper.view.center
+    actuators = ["NLED", "LED", "HEATER", "MOTOR"]
+    actuators = CanvasUtil.query paper.project, {prefix: actuators}
+    dist = _.map actuators, (actuator)->
+      hid: actuator.lid
+      distance: c.position.getDistance(actuator.position)
+    min = (_.min dist, (d)-> d.distance).distance
+    max = (_.max dist, (d)-> d.distance).distance
+    range = max - min
+    dist = _.each dist, (d)-> 
+      d.distance = (d.distance - min)/range
+    dist = _.map dist, (d)-> [d.hid, d.distance]
+    dist = _.object(dist)
+    return dist
+
 
 class window.ActuatorWidgets 
   constructor: ()->
@@ -95,8 +121,10 @@ class window.Grouper extends Widget
     @op.trigger.click (event)->
       ids = _.chain scope.op.track.find('actuator')
         .map (dom)-> return $(dom).data 'hardware-id'
+        .flatten()
         .uniq()
         .value()
+        .sort()
       if _.isEmpty(ids) then return
       act = scope.op.track.find('actuator:first')
       act = am.clone act, 

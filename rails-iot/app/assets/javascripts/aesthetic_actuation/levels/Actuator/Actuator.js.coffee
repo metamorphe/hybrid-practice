@@ -4,6 +4,7 @@ actuator_counter = 0;
 class Actuator
   constructor: (@op) ->
     @paper = @op.paper
+    @async_period = 30
     hid = eval(@op.hardware_id)
 
     if _.isObject hid
@@ -14,16 +15,27 @@ class Actuator
     @setTitle()
     @init()
     @onCreate()
-  perform: (channel, param)->
+  perform: (channel, command)->
     window.paper = @op.paper
     query = 
       parameterized: true
       viz_update: true
-    query[channel] = param
-   
+    query[channel] = command.param
     @expression = query
-    commands = @toAPI()
-    return {commands: commands, expression: @expression}
+    scope = this
+    return _.map @hardware_id, (hid)->
+      command = scope.async(hid, channel, command)
+      return command
+  async: (hid, channel, command)->
+    sia = ch.extractDistanceMetric()
+    i = if _.isUndefined sia[hid] then 0 else sia[hid]
+    command = _.clone(command)
+    return _.extend command, 
+      actuator: this
+      async_offset:  i * @async_period
+      api: @toAPI(hid)
+      expression: @expression
+      channel: channel
   physical_channels: ()->
     _.pick @channels, (val)->
       return val.op.modality != "derived"

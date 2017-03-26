@@ -34,8 +34,10 @@
 //= require aesthetic_actuation/levels/Actuator/Keyframe
 
 class window.AestheticActuation
-	@enable: ->
+	@enable: (artwork_paper)->
 		console.info "AestheticActuation PROJECT"
+		window.ch = new ChoreographyWidget
+			paper: artwork_paper
 		# ACTUATIOR MANAGER
 		window.am = new ActuatorManager
 		am.init()
@@ -55,5 +57,6 @@ class window.AestheticActuation
 		aw.saver.load()
 		# $('event.signal-design button.toggle').click()
 		window.tw = new TimeWidgets()
+
 
 		return

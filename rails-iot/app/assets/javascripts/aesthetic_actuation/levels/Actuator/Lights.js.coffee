@@ -46,9 +46,8 @@ class window.ActuatorLED extends ActuatorLight
   toCommand: ->
     v = parseInt(@expression.brightness * 255)
     return "\t" + @op.name + ".set("+ v + ");\n";
-  toAPI: ->
-    _.map @hardware_id, (hid)->
-      {flag: "C", args: [hid, @expression.brightness]}
+  toAPI: (hid)->
+    {flag: "C", args: [hid, @expression.brightness]}
     
   
     
@@ -97,13 +96,12 @@ class window.ActuatorRGBLED extends ActuatorLED
       parseInt(val * 255)
     )
     return "\t" + @op.name + ".set("+ v.join(', ') + ");\n";
-  toAPI: ->
+  toAPI: (hid)->
     c = @expression
     r = parseInt(c.red * 255)
     g = parseInt(c.green * 255)
     b = parseInt(c.blue * 255)
-    _.map @hardware_id, (hid)->
-      {flag: "C", args: [hid, r, g, b]}
+    {flag: "C", args: [hid, r, g, b]}
 class window.ActuatorHSBLED extends ActuatorRGBLED
   onCreate: ->
     @expression = @op.color

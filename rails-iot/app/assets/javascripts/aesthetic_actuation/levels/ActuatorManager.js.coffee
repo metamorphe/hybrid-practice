@@ -17,7 +17,7 @@ class window.ActuatorManager
 
     # HSB LEDS
     hsbLEDs = CanvasUtil.queryPrefix("NLED")
-    hsbLEDs = hsbLEDs.slice(0, 2)
+    # hsbLEDs = hsbLEDs.slice(0, 2)
     hsbLEDs = _.map hsbLEDs, (led, i)->
       led.type = "HSBLED"
       data = JSON.parse(CanvasUtil.getName(led))
@@ -183,15 +183,16 @@ class window.ActuatorManager
   updateActiveChannel: (val)->
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     $('actuator.selected channels label.actuator.selected').find('.dimension').html(val);
-  sendCommandTo: (actuator, channel, param)->
-    if _.isUndefined actuator
+  sendCommandTo: (command)->
+    if _.isUndefined command.actuator
       console.warn("FORGOT TO SELECT AN ACTUATOR!")
-      return
-    cl = actuator.perform(channel, param)
-    if cmp and sc
-      _.each cl.commands, (command)->
-        sc.sendMessage(command, {live: cmp.live}) 
-    am.updateChannels(actuator)
+      return 
+    actuator = command.actuator
+    cl = actuator.perform(command.channel, command)
+    if cmp and sc 
+      # console.log command.api.args.join(','), "@", command.t, command.async_offset
+      sc.sendMessage(command.api, {live: cmp.live}) 
+    am.updateChannels(actuator) 
     return actuator.toCommand()
   sendCommandById: (a_id, channel, ts_id)->
     scope = this
