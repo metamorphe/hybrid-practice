@@ -74,6 +74,7 @@ actuator{
             margin: 0;
         }
         label.title{
+            position: relative;
             display: block;
             height: 25%;
             width: 100%;
@@ -91,9 +92,21 @@ actuator{
                 position: relative;
                 background: darken($actuator_base, 0%);
             }
-            &.saved{
-                background: $sexy_green
+            .save-status{
+                position: absolute;
+                top: calc(50% - 6px);
+                left: 4px;
+                width: 10px;
+                height: 10px;
+                display: block;
+                background: $sexy_red;
+                border: 1px solid black;
+                border-radius: 100px;
+                &.saved{
+                    background: $sexy_green
+                }
             }
+            
         }
         channels{
             width: 100px; 

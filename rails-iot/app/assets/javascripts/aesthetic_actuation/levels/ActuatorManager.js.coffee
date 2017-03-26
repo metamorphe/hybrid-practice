@@ -34,6 +34,7 @@ class window.ActuatorManager
         actuator_type: "HSBLED"
         hardware_ids: [led.lid]
         canvas_ids: [led.id]
+        saved: true
         constants: 
           color: rgb2hex(new paper.Color(data.colorID).toCSS())
    

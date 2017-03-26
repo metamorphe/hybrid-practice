@@ -82,9 +82,9 @@ class Actuator
   setTitle: (title, saved)->
     title = @dom.find("label.title:first").html(title)
     if saved
-      title.addClass('saved')
+      @dom.find(".save-status").addClass('saved')
     else
-      title.removeClass('saved')
+      @dom.find(".save-status").removeClass('saved')
   
   perform: (channel, command)->
     window.paper = @op.paper
