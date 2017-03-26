@@ -91,6 +91,9 @@ actuator{
                 position: relative;
                 background: darken($actuator_base, 0%);
             }
+            &.saved{
+                background: $sexy_green
+            }
         }
         channels{
             width: 100px; 

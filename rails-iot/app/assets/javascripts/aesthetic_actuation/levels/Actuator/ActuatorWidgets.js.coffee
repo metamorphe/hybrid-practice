@@ -12,15 +12,16 @@ class window.Widget
         $(this).find('span').removeClass('glyphicon-collapse-down')
         $(this).find('span').addClass('glyphicon-collapse-up')
     
-    Widget.bindKeypress "u", ()-> $('event button.toggle').click()
-    Widget.bindKeypress "i", ()-> $('event.actuation-design button.toggle').click()
-    Widget.bindKeypress "o", ()-> $('event.signal-design button.toggle').click()
-    Widget.bindKeypress "p", ()-> $('event.composition-design button.toggle').click()
+    Widget.bindKeypress "U", ()-> $('event button.toggle').click()
+    Widget.bindKeypress "I", ()-> $('event.actuation-design button.toggle').click()
+    Widget.bindKeypress "O", ()-> $('event.signal-design button.toggle').click()
+    Widget.bindKeypress "P", ()-> $('event.composition-design button.toggle').click()
 
     $(document).keypress (event) ->
       _.each Widget.bindings, (func, key)->
-        if event.which == parseInt(key)
-          func(event)
+        if event.shiftKey
+          if event.which == parseInt(key)
+            func(event)
     return
   @bindKeypress: (key, func, ascii = false)->
     if not ascii
@@ -34,11 +35,7 @@ class window.ChoreographyWidget extends Widget
     name = CanvasUtil.getPrefix path
     path.set
       strokeWidth: 2
-      # fillColor: "#00A8E1"
       strokeColor: "#00A8E1"
-      # shadowColor: "#00A8E1"
-      # shadowBlur: 12,
-      # shadowOffset: new Point(0, 0)
   @STYLE_PARAMS = (path)->
     # styles = ["fillColor", "strokeWidth", "strokeColor", "shadowColor", "shadowOffset", "shadowBlur"]
     # return _.object(_.map styles, (s)-> [s, path[s]])
@@ -55,7 +52,6 @@ class window.ChoreographyWidget extends Widget
       el.flag = false
        
   select: (ids)->
-    console.log ids
     scope = this
     window.paper = @paper
     elements = CanvasUtil.getIDs(ids)
@@ -65,7 +61,6 @@ class window.ChoreographyWidget extends Widget
     _.each elements, (el)->
       if not el.flag
         style = ChoreographyWidget.STYLE_PARAMS(el)
-        console.log style.strokeColor.toCSS()
         scope.buffer[el.id] = style
         ChoreographyWidget.NORMAL_SELECT(el)
         el.flag = true
@@ -109,14 +104,14 @@ class window.ChoreographyWidget extends Widget
       sT.collectSelection()
     sT.onMouseUp = (e)->
       sT.selectionPath.addSegment e.point
-      
-      console.log sT.selection
       sT.selectionPath.remove()
       actuators = ChoreographyWidget.ACTUATORS()
       CanvasUtil.set(actuators, 'selected', false)
       
       hids = CanvasUtil.getIDs(sT.selection)
       hids = _.map hids, (el)-> return el.lid;
+
+      if _.isEmpty(hids) then return
       ops =
         clear: true
         target: $("#actuator-generator")
@@ -162,11 +157,11 @@ class window.ActuatorWidgets
       result: $("#group-result") 
       trigger: $("#group-button.trigger")
       clear: $("#group-clear")
-      bindKey: 'g'
+      bindKey: 'G'
     @saver = new Saver
       track: $("#library.actuation-design .track-full")
       trigger: $("#library.actuation-design button.trigger")
-      bindKey: 's'
+      bindKey: 'S'
 
 class window.Saver extends Widget
   constructor: (@op)->
@@ -179,6 +174,7 @@ class window.Saver extends Widget
       info = _.chain scope.op.track.find('actuator')
         .map (actor)->  
           actor = am.resolve(actor)
+          actor.form = {saved: true}
           return _.extend actor.serialize(),
             file: fs.getName()
         .value()
@@ -221,6 +217,7 @@ class window.Grouper extends Widget
         clear: true
         target: scope.op.result
         hardware_ids: ids
+        title: ids.join(',')
       ActuatorManager.create ops      
       return
 

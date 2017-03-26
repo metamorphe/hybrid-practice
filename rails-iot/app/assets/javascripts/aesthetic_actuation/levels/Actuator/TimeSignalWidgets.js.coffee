@@ -3,16 +3,16 @@ class window.TimeWidgets
     @cutter = new Cutter
       track: $('#timecut .track-full')
       trigger: $('#ts-cutter')
-      bindKey: 'x'
+      bindKey: 'X'
     @stitcher = new Stitcher
       track: $('event#adder .track-full')
       target: $('event#adder .track-unit')
       trigger: $('#ts-adder')
-      bindKey: "w"
+      bindKey: "W"
     @timemorph = new TimeMorph
       track: $('#time-morph-track')
       slider: $('input#time-morph')
-      bindKey: 't'
+      bindKey: 'T'
     # @recorder= new Recorder
     #   recorder_button: $('button#record')
     #   recorder_result: $('#record-result')

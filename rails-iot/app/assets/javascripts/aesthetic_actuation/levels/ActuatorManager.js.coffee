@@ -9,15 +9,10 @@ class window.ActuatorManager
       constants: op.constants
       hardware_ids: op.hardware_ids
       canvas_ids: op.canvas_ids
-      title: op.actuator_type
-      async_period: ActuatorManager.DEFAULT_ASYNC
-    dom.data
-      actuator_type: op.actuator_type
-      constants: op.constants
-      hardware_ids: op.hardware_ids
-      canvas_ids: op.canvas_ids
       title: op.title or op.actuator_type
+      saved: op.saved
       async_period: ActuatorManager.DEFAULT_ASYNC
+    dom.data data
     op.target.append(dom)
     op.target.addClass("accepted")
     ActuatorType = op.actuator_type
@@ -190,7 +185,7 @@ class window.ActuatorManager
         ops = _.extend actor.form,
           clear: num_to_accept == 1
           target: $(this)
-          addSignalTrack: $(this).is("acceptor") and empty
+          addSignalTrack: $(this).parents(".composition-design").length != 0 and empty
         
         ActuatorManager.create ops
         

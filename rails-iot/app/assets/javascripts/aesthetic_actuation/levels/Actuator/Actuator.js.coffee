@@ -16,6 +16,7 @@ class Actuator
     @hardware_ids = []
     @canvas_ids = []
     @title = ""
+    @saved = false
     @async_period = Actuator.DEFAULT_ASYNC
     @constants = {}
     @paper = Utility.paperSetup @canvas, {}
@@ -39,6 +40,7 @@ class Actuator
         title: @title
         async_period:  @async_period
         constants: @constants
+        saved: @saved
       set:(obj)->
         scope = this
         if _.isEmpty(obj) then return
@@ -47,7 +49,9 @@ class Actuator
         if _.has(obj, 'canvas_ids') then delete obj['canvas_ids']
         _.extend(this, obj)
         @dom.data @form
-        if @title != prev.title then @setTitle(@title)
+        console.log @saved, prev.saved
+        if @title != prev.title then @setTitle(@title, @saved)
+        if @saved != prev.saved then @setTitle(@title, @saved)
         # POPULATE CANVAS IDs MANUALLY
         window.paper = ch.paper
         @canvas_ids = _.map @hardware_ids, (hid)->
@@ -75,8 +79,12 @@ class Actuator
         @_expression = @_param2express()
         @_updateVisuals(@expression)
 
-  setTitle: (title)->
-    @dom.find("label.title:first").html(title)
+  setTitle: (title, saved)->
+    title = @dom.find("label.title:first").html(title)
+    if saved
+      title.addClass('saved')
+    else
+      title.removeClass('saved')
   
   perform: (channel, command)->
     window.paper = @op.paper
