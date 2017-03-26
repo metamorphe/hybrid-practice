@@ -15,9 +15,6 @@
       %span GROUP
       %span.command [G]
     .full-hoz.sexy-input-group
-      %input.sexy{:type => "text", :placeholder =>"GROUP"}
-      %button#name-button.btn.btn-xs.btn-success{:type =>"button"}
-        NAME
       
   %acceptor#group-result.actuator{:data => {:accept=> 1}}  
   #actuator-group.track-full.droppable
@@ -34,9 +31,7 @@
   .track-full
     %actuator.draggable.template{name: "RGBLED"}
       %div.simulation
-        %label.title
-          %span.swatch
-          %span RGBLED
+        %label.title{:contenteditable=> "true"} RGBLED
         %canvas{:type=>"RGBLED"}
       %channels.scroll-list
         %label.title.light CHANNELS
@@ -54,7 +49,7 @@
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "HSBLED"}
       %div.simulation
-        %label.title HSBLED
+        %label.title{:contenteditable=> "true"} HSBLED
         %canvas{:type=>"HSBLED"}
       %channels.scroll-list
         %label.title.light 
@@ -75,7 +70,7 @@
             %span.dimension.pull-right 0      
     %actuator.draggable.template{name: "LED"}
       %div.simulation
-        %label.title LED
+        %label.title{:contenteditable=> "true"} LED
         %canvas{:type=>"LED"}
       %channels.scroll-list
         %label.title.light CHANNELS
@@ -85,7 +80,7 @@
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "Stepper"}
       %div.simulation
-        %label.title STEPPER
+        %label.title{:contenteditable=> "true"} STEPPER
         %canvas{:type=>"Stepper"}
       %channels.scroll-list
         %label.title.light CHANNELS
@@ -99,7 +94,7 @@
             %span.dimension.pull-right 2
     %actuator.draggable.template{name: "Stepper360"}
       %div.simulation
-        %label.title 360-STEPPER
+        %label.title{:contenteditable=> "true"} 360-STEPPER
         %canvas{:type=>"Stepper360"}
       %channels.scroll-list
         %label.title.light CHANNELS
@@ -109,7 +104,7 @@
             %span.dimension.pull-right 0
     %actuator.draggable.template{name: "Heater"}
       %div.simulation
-        %label.title HEATER
+        %label.title{:contenteditable=> "true"} HEATER
         %canvas{:type=>"Heater"}
       %channels.scroll-list
         %label.title.light CHANNELS

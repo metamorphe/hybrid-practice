@@ -1,7 +1,7 @@
 :javascript
   const ports = #{@ports.to_json.html_safe};
   const files = #{@files.to_json.html_safe};
-  var act, sc, ws, fs, cmp, tsm, sm, am, record, aw, gm, tw;
+  var act, sc, ws, fs, cmp, tsm, sm, am, record, aw, gm, tw, vm;
 
   var PROJECT = {
     CANVAS_COLOR: "rgb(245, 244, 240)"
@@ -39,8 +39,8 @@
   %group.vert
     = render :partial => "tool/levels/file_selectors"
     = render :partial => "tool/levels/actuators"
-    = render :partial => "tool/levels/datasignals"
-    = render :partial => "tool/levels/behaviors"
+    - render :partial => "tool/levels/datasignals"
+    - render :partial => "tool/levels/behaviors"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"
     - render :partial => "tool/levels/distributed"

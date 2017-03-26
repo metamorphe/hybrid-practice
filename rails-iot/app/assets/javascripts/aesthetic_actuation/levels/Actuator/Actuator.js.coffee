@@ -6,15 +6,31 @@ class Actuator
     @paper = @op.paper
     @async_period = 30
     hid = eval(@op.hardware_id)
-
     if _.isObject hid
       @hardware_id = hid
     else if _.isNumber hid
       @hardware_id = [hid]
+    if @op.title then @setTitle(title)
+
+    @op.dom.parents('actuator').data('hardware-id', JSON.stringify(@hardware_id))
 
     @setTitle()
     @init()
     @onCreate()
+  init: ->
+    @visuals = []
+    @id = actuator_counter++;
+    window.paper = fs.op.paper
+    @op.dom.parents('actuator').data('id', @id)
+    @canvas_id = @op.canvas_id
+    cE = CanvasUtil.queryID(@op.canvas_id)
+    if _.isUndefined cE.expresso_id then cE.expresso_id = @id
+    window.paper = @paper
+    @visuals = []
+    @channels = _.mapObject(@op.channels, (actuator) ->
+      new ActuationParam(actuator)
+    )
+    @_visuals()
   perform: (channel, command)->
     window.paper = @op.paper
     query = 
@@ -43,36 +59,8 @@ class Actuator
     console.warn "NOT IMPLEMENTED"
   getTitle:->
     title = @op.dom.parents('actuator').find("label.title:first").html()
-  setTitle: ->
-    title = @op.dom.parents('actuator').find("label.title:first")
-    if _.contains title.html(), ":" 
-      title.html([title.html().split(":")[0], ":",@hardware_id.join(',')].join(''))
-    else
-      title.html([title.html(), ":", @hardware_id.join(',')].join(''))
-  init: ->
-    @visuals = []
-    @id = actuator_counter++;
-    window.paper = fs.op.paper
-    @op.dom.parents('actuator').data('id', @id)
-    @canvas_id = @op.canvas_id
-    cE = CanvasUtil.queryID(@op.canvas_id)
-    if _.isUndefined cE.expresso_id then cE.expresso_id = @id
-    window.paper = @paper
-    @visuals = []
-    @channels = _.mapObject(@op.channels, (actuator) ->
-      new ActuationParam(actuator)
-    )
-    @_visuals()
-  makeGroup: (ids)->
-    console.log "MAKING GROUP", ids
-    scope = this
-    @hardware_id = []
-    _.each ids, (id)-> 
-      scope.addMember id
-    @op.dom.parents('actuator').data('hardware-id', JSON.stringify(@hardware_id))
-    @setTitle()
-  addMember: (id)->
-    @hardware_id.push(id)
+  setTitle: (title)->
+    @op.dom.parents('actuator').find("label.title:first").html(title)
   onCreate: ->
     return
   getChannelValue: (name)->

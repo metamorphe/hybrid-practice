@@ -224,6 +224,7 @@ class window.ActuatorManager
   activateDragAndDrop: ()->
     scope = this
     $('actuator.draggable').draggable
+      handle: 'canvas'
       revert: true
       appendTo: '#ui2'
       helper: ()->

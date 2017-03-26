@@ -1,7 +1,6 @@
 class window.Widget 
   @bindings = {}
   @enable: ->
-
     $(".toggle").click ()->
       $(this).parent().toggleClass('shrink')
       state = $(this).parent().hasClass('shrink')
@@ -30,19 +29,75 @@ class window.Widget
     Widget.bindings[key] = func;
 
 class window.ChoreographyWidget extends Widget
+  @ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
+  @NORMAL_SELECT = (path)->
+    name = Artwork.getPrefix path
+    path.set
+      strokeWidth: 2
+      strokeColor: "#00A8E1"
+    
+
   constructor: (op)->
     console.log "ChoreographyWidget"
+    scope = this
     _.extend this, op
+    @canvas = @dom.find('canvas')
+    
+
     window.paper = @paper
-    @dist = @extractDistanceMetric()
+
+    @tools = {}
+    
+    sT = new paper.Tool()
+    sT.collectSelection = ()->
+      actuators = ChoreographyWidget.ACTUATORS()
+      ixts = CanvasUtil.getIntersections(sT.selectionPath, actuators)
+      hits = _.map ixts, (ixt)-> 
+        ixt.path.selected = true
+        return ixt.path.lid
+      hits = _.flatten([hits, sT.selection])
+      sT.selection = _.sortBy(_.uniq(hits))
+
+    sT.onMouseDown = (e)->
+      sT.selection = []
+      sT.selectionPath = new Path
+        strokeColor: "#00A8E1"
+        strokeWidth: 4
+        segments: [e.point]
+      sT.collectSelection()
+    sT.onMouseDrag = (e)->
+      sT.selectionPath.addSegment e.point
+      sT.selectionPath.smooth
+        type: "asymmetric"
+        factor: 0.9
+      sT.collectSelection()
+    sT.onMouseUp = (e)->
+      sT.selectionPath.addSegment e.point
+      sT.collectSelection()
+      console.log sT.selection
+      sT.selectionPath.remove()
+      actuators = ChoreographyWidget.ACTUATORS()
+      CanvasUtil.set(actuators, 'selected', false)
+      
+      # act = am.getActuator(actuator.expresso_id)
+      # act = am.clone act.op.dom.parents("actuator"),
+      #     activate: true
+      #     clear: true
+      #     parent: $("#actuator-generator")
+      # act.op.dom.click()
+
+    @tools.selection = sT
+    @canvas.hover ()-> 
+      window.paper = scope.paper
+      # paper.tool = scope.tools.selection
+
   extractDistanceMetric: ()->
     window.paper = @paper 
     c = new paper.Path.Circle
       fillColor: "red"
       radius: 5
       position: paper.view.center
-    actuators = ["NLED", "LED", "HEATER", "MOTOR"]
-    actuators = CanvasUtil.query paper.project, {prefix: actuators}
+    actuators = ChoreographyWidget.ACTUATORS()
     dist = _.map actuators, (actuator)->
       hid: actuator.lid
       distance: c.position.getDistance(actuator.position)
@@ -112,34 +167,50 @@ class window.Grouper extends Widget
   constructor: (@op)->
     scope = this
     console.log "GroupMaker"
+    $('[contenteditable]').on('focus', ()->
+      scope = $(this)
+      scope.data 'before', scope.html()
+      return scope;
+    ).on('blur keyup paste', ()->
+      scope = $(this);
+      if scope.data('before') != scope.html()
+        scope.data 'before', scope.html()
+        scope.trigger('change')
+      return scope;
+    )
+    $('label.title[contenteditable').on 'change', ()->
+      actor = am.resolve($(this).parents('actuator'))
+
+    
+
     Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
-    @op.clear.click (event)->
-      console.log "CLEARING"
-      scope.op.track.html("")
-      scope.op.result.html("")
-      return
-    @op.trigger.click (event)->
-      ids = _.chain scope.op.track.find('actuator')
-        .map (dom)-> return $(dom).data 'hardware-id'
-        .flatten()
-        .uniq()
-        .value()
-        .sort()
-      if _.isEmpty(ids) then return
-      act = scope.op.track.find('actuator:first')
-      act = am.clone act, 
-        title: "Group"
-        group: ids
-        activate: true
-        clear: true
-        parent: scope.op.result
-      return
-    $('#name-button').on 'click', ->
-      name = $(this).siblings('input').val()
-      $(this).parents('event').find('.track-unit').find('label.title:first').html name
-      return
-    $('#group input').on 'input', ->
-      name = $(this).val()
-      $(this).parents('event').find('.track-unit').find('label.title:first').html name
-      return
+    # @op.clear.click (event)->
+    #   console.log "CLEARING"
+    #   scope.op.track.html("")
+    #   scope.op.result.html("")
+    #   return
+    # @op.trigger.click (event)->
+    #   ids = _.chain scope.op.track.find('actuator')
+    #     .map (dom)-> return $(dom).data 'hardware-id'
+    #     .flatten()
+    #     .uniq()
+    #     .value()
+    #     .sort()
+    #   if _.isEmpty(ids) then return
+    #   act = scope.op.track.find('actuator:first')
+    #   act = am.clone act, 
+    #     title: "Group"
+    #     group: ids
+    #     activate: true
+    #     clear: true
+    #     parent: scope.op.result
+    #   return
+    # $('#name-button').on 'click', ->
+    #   name = $(this).siblings('input').val()
+    #   $(this).parents('event').find('.track-unit').find('label.title:first').html name
+    #   return
+    # $('#group input').on 'input', ->
+    #   name = $(this).val()
+    #   $(this).parents('event').find('.track-unit').find('label.title:first').html name
+    #   return
     

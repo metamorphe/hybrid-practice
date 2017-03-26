@@ -46,6 +46,7 @@ class window.TimeSignal
     tsm.initSelection()
 
   processTrack: (track)->
+    if _.isUndefined track then return {}
     t = _.clone(track.data())
     t.tracks =  t.tracks or @tracks
     t.perceptual =  t.perceptual == "enabled" 

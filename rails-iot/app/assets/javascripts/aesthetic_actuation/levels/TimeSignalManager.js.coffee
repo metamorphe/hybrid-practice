@@ -26,6 +26,7 @@ class window.TimeSignalManager
         ts.form =  {view: n_view}
         dom.parents('event').find('[class^=track]').data('view', n_view)
   populateHues: ()->
+    if $('#hues').length == 0 then return
     hues  = _.map _.range(0, 360, TimeSignalManager.NUM_OF_COLORS), (h)->
       h = h / 360
       dom = TimeSignal.create

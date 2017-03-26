@@ -36,8 +36,10 @@
 class window.AestheticActuation
 	@enable: (artwork_paper)->
 		console.info "AestheticActuation PROJECT"
+		
 		window.ch = new ChoreographyWidget
 			paper: artwork_paper
+			dom: $('projectviewer')
 		# ACTUATIOR MANAGER
 		window.am = new ActuatorManager
 		am.init()

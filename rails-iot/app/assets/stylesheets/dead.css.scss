@@ -1,3 +1,10 @@
+/*  
+  setTitle: ->
+    title = @op.dom.parents('actuator').find("label.title:first")
+    if _.contains title.html(), ":" 
+      title.html([title.html().split(":")[0], ":",@hardware_id.join(',')].join(''))
+    else
+      title.html([title.html(), ":", @hardware_id.join(',')].join(''))*/
 /* acceptorInit: ()->
     window.paper = @op.paper
     @data = eval(@op.data)
