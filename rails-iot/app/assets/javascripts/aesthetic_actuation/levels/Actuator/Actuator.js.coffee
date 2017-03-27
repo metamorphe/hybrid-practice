@@ -51,6 +51,8 @@ class Actuator
         @dom.data @form
         if @title != prev.title then @setTitle(@title, @saved)
         if @saved != prev.saved then @setTitle(@title, @saved)
+        if @async_period != prev.async_period then @setAsync(@async_period)
+        
         # POPULATE CANVAS IDs MANUALLY
         window.paper = ch.paper
         @canvas_ids = _.map @hardware_ids, (hid)->
@@ -77,7 +79,9 @@ class Actuator
           @_warn value
         @_expression = @_param2express()
         @_updateVisuals(@expression)
-
+  setAsync: (t)->
+    text = TimeSignal.pretty_time(t)
+    @dom.find('label.async').html(text)
   setTitle: (title, saved)->
     title = @dom.find("label.title:first").html(title)
     if saved

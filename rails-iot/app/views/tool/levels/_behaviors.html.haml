@@ -1,4 +1,12 @@
-
+%event#async.actuation-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#asyncher.design-title.btn-primary.trigger{:type => "trigger"}
+      %span ASYNC
+      %span.command
+    %input.sexy{:type=>"range", :min => 0, :max => 1000, :step => 10}
+  .track-full.droppable
 %event#behaviors.composition-design.playground
   %button.btn.btn-xs.btn-info.toggle
     =glyph "collapse-up"

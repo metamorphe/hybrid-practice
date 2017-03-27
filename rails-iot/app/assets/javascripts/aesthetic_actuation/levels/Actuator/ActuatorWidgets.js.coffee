@@ -161,8 +161,32 @@ class window.ActuatorWidgets
       track: $("#library.actuation-design .track-full")
       trigger: $("#library.actuation-design button.trigger")
       bindKey: 's'
+    @async = new AsynchMorph
+      track: $("#async .track-full")
+      trigger: $("#async button")
+      bindKey: 'a'
+      slider: $("#async input")
+class window.ActuatorWidget
+  @resolveTrack: (track)->
+    _.map track.find('actuator'), (act)-> return am.resolve(act)
+  resolveTrack: ()->
+    ActuatorWidget.resolveTrack(@track)
 
-class window.Saver extends Widget
+class window.AsynchMorph extends ActuatorWidget
+  @MIN: 0
+  @MAX: 1000
+  constructor: (op)->
+    console.log "Async"
+    scope = this
+    _.extend this, op
+    Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+    @slider.on 'input', (e)->
+      v = if this.value < AsynchMorph.MIN then AsynchMorph.MIN else this.value
+      console.log v
+      _.each scope.resolveTrack(), (actuator)->
+        actuator.form = {async_period: parseInt(v)}
+
+class window.Saver extends ActuatorWidget
   constructor: (@op)->
     console.log "Saver"
     scope = this
@@ -214,7 +238,7 @@ class window.Saver extends Widget
       ActuatorManager.create ops
   generateKey: (name)->
     return [fs.getName(), name].join(':')
-class window.Grouper extends Widget
+class window.Grouper extends ActuatorWidget
   constructor: (@op)->
     scope = this
     console.log "GroupMaker"
