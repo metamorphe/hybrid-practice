@@ -226,31 +226,54 @@ class window.Saver extends ActuatorWidget
     
     @track = "actuator_group_library"
     @stage = "behavior_stage"
+    @ts_library = "ts_library"
+
+    
+
+    # SAVE BEHAVIORS
     @op.trigger.click (event)->
       track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
-      scope.saveActuators(scope.track, track_actuators)
+      scope.saveActors(scope.track, track_actuators)
       stage_actuators = bm.getActors()
-      scope.saveActuators(scope.stage, stage_actuators)
+      scope.saveActors(scope.stage, stage_actuators)
+
+
+
+      signal_tracks = $(".signal-design .track-full").not("#hues")
+      signal_tracks = _.map signal_tracks, (track)->
+        signals = TimeWidget.resolveTrack(track) 
+        track_id = $(track).parent('event').attr('id')
+        scope.saveActors(scope.ts_library + ":" + track_id, signals)
+
+
       Alerter.warn
         strong: "SAVED!"
         msg: "We won't forget a thing!"
         delay: 2000
         color: 'alert-success'
 
-
-  
-  saveActuators: (name, actors)->
-    console.log "SAVING", name, actors.length
-    data = _.map actors, (actor)-> 
-      actor.form = {saved: true}
-      return _.extend actor.serialize(),
-        file: fs.getName()
-    console.log data
-    @save(name, data)
   save: (name, data)->
     key = @generateKey(name)
     if ws then ws.set(key, JSON.stringify(data))
-  loadActuator: (name, loadFN)->
+  load:()->
+    scope = this
+    @trackLoad()
+    @stageLoad()
+    @signalLoad()
+    
+         
+
+  
+  saveActors: (name, actors)->
+    console.log "SAVING", name, actors.length
+    data = _.map actors, (actor)-> 
+      actor.form = {saved: true}
+      return _.extend actor.form,
+        file: fs.getName()
+    @save(name, data)
+  
+  
+  loadActors: (name, loadFN)->
     scope = this
     key = @generateKey(name)
     rtn = ws.get(key)
@@ -259,16 +282,25 @@ class window.Saver extends ActuatorWidget
     _.each actuators, (actuator)->
       loadFN(actuator)
     return actuators
-  load:()->
-    @trackLoad()
-    @stageLoad()
+  
+  signalLoad: ()->
+    scope = this
+    signal_tracks = $(".signal-design .track-full").not("#hues")
+    signal_tracks = _.map signal_tracks, (track)->
+      track_id = $(track).parent('event').attr('id')
+      console.log "LOADING", track_id
+      scope.loadActors scope.ts_library + ":" + track_id, (signal)->
+        dom = TimeSignal.create
+          clear: false
+          target: $(track)
+        signal = new TimeSignal dom, signal
   stageLoad: ()->
     scope = this
-    @loadActuator @stage, (actuator)->
+    @loadActors @stage, (actuator)->
       bm.loadStage(actuator)
   trackLoad: ()->
     scope = this
-    @loadActuator @track, (actuator)->
+    @loadActors @track, (actuator)->
       ops = 
         clear: false
         target: scope.op.track

@@ -1,5 +1,5 @@
 class window.Scheduler 
-	@quanta: 500
+	@quanta: 50
 	@pretty_print: (commands)->
 		console.log "------- RAW_COMMANDS ---------"
 		console.log "t", "offset", "hid", "channel", "value"

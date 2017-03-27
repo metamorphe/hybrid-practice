@@ -53,7 +53,7 @@ class window.AestheticActuation
 		window.cmp = new Composer
 			signal_button: $('#apply-signal')
 			live_button: $('#slider-live')
-			slider: $('event#actuators input.master')
+			slider: $('event#project input.master')
 		Widget.enable()
 		window.aw = new ActuatorWidgets()
 		aw.saver.load()

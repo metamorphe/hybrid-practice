@@ -46,10 +46,12 @@
       .vert
         %button.design-title.btn-primary.trigger{:type => "trigger"}
           PROJECT
+        %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
       .full-hoz.fill_height
         .project-container
           #projectviewer
             %canvas
+
         .actuator-container.vert-centered
           = render :partial => "tool/levels/actuators"
     = render :partial => "tool/levels/datasignals"
