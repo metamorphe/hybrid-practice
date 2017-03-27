@@ -33,14 +33,18 @@ class window.ChoreographyWidget extends Widget
   @NORMAL_SELECT = (path)->
     name = CanvasUtil.getPrefix path
     path.set
-      strokeWidth: 2
-      strokeColor: "#00A8E1"
+      strokeColor: "yellow"
+      strokeWidth: 3
+      shadowColor: "#00A8E1"
+      shadowBlur: 5
   @STYLE_PARAMS = (path)->
     # styles = ["fillColor", "strokeWidth", "strokeColor", "shadowColor", "shadowOffset", "shadowBlur"]
     # return _.object(_.map styles, (s)-> [s, path[s]])
     style = 
-      strokeColor: new paper.Color("black")
+      strokeColor: "black"
       strokeWidth: 1
+      shadowColor: "#00A8E1"
+      shadowBlur: 0
     return style
   deselect_all: ->
     scope = this
@@ -63,7 +67,10 @@ class window.ChoreographyWidget extends Widget
         scope.buffer[el.id] = style
         ChoreographyWidget.NORMAL_SELECT(el)
         el.flag = true
-     
+  darken: ()->   
+    @canvas.css('background', "#111111")
+    diffs = CanvasUtil.queryPrefix('DIF')
+    CanvasUtil.set diffs, 'opacity', 0
   constructor: (op)->
     scope = this
     console.log "ChoreographyWidget"
@@ -71,9 +78,10 @@ class window.ChoreographyWidget extends Widget
     scope = this
     _.extend this, op
     @canvas = @dom.find('canvas')
-    
-
     window.paper = @paper
+    @darken()
+
+    
 
     @tools = {}
     

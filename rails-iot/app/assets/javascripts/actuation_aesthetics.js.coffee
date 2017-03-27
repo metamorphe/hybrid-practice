@@ -39,7 +39,7 @@ class window.AestheticActuation
 		
 		window.ch = new ChoreographyWidget
 			paper: artwork_paper
-			dom: $('projectviewer')
+			dom: $('#projectviewer')
 		# ACTUATIOR MANAGER
 		window.am = new ActuatorManager
 		am.init()

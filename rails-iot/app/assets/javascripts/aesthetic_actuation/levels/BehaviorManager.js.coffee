@@ -16,8 +16,11 @@ class window.Scheduler
 	@sendCommandTo: (command, simulation=true)->
 		actuator = command.actuator
 		if _.isUndefined actuator
-			console.warn("FORGOT TO SELECT AN ACTUATOR!")
-			return
+			Alerter.warn
+		      strong: "HEADS UP"
+		      msg: "DON'T FORGET TO SELECT AN ACTUATOR"
+		      delay: 2000
+	      return 
 		if simulation   
 			actuator.perform(command.channel, command)
 			am.updateChannels(actuator)
@@ -90,42 +93,45 @@ class window.BehaviorManager
 			.map (actor, i)->
 				actor = am.resolve(actor)
 				channels = _.keys(actor.physical_channels()).sort()
-				signal_track = $(signal_tracks[i])
-				signals = signal_track.find('datasignal')
-				tracks = signal_track.data().tracks
-				timescale = signal_track.data().timescale
-				height = signal_track.height()
-				width = signal_track.width()
-				commands = _.chain signals
-					.map (signal, j)->
-						# CENTER LEFT CORNER POSITION VECTOR
-						a = $(signal).parent().offset()
-						b = $(signal).offset()
-						pos = {top: b.top - a.top, left: b.left - a.left}
-						pos.top += $(signal).height() / 2.0;
+				if i < signal_tracks.length
+					signal_track = $(signal_tracks[i])
+					signals = signal_track.find('datasignal')
+					tracks = signal_track.data().tracks
+					timescale = signal_track.data().timescale
+					height = signal_track.height()
+					width = signal_track.width()
+					commands = _.chain signals
+						.map (signal, j)->
+							# CENTER LEFT CORNER POSITION VECTOR
+							a = $(signal).parent().offset()
+							b = $(signal).offset()
+							pos = {top: b.top - a.top, left: b.left - a.left}
+							pos.top += $(signal).height() / 2.0;
 
-						# COLLAPSING TO INDEX 
-						i = Math.floor(pos.top / height * tracks)
+							# COLLAPSING TO INDEX 
+							i = Math.floor(pos.top / height * tracks)
 
-						# RESOLVING CHANNEL
-						channel = channels[i]
+							# RESOLVING CHANNEL
+							channel = channels[i]
 
-						# TIME OFFSET
-						offset = (pos.left / width) * timescale
+							# TIME OFFSET
+							offset = (pos.left / width) * timescale
 
-						# COMPILING INSTRUCTIONS PER CHANNEL
-						commands = tsm.resolve(signal).command_list({offset: offset})
-						commands = _.map commands, (command) -> 
-							cl = actor.perform(channel, command)
-							# console.log "C", cl
-							return cl
-						commands =_.flatten(commands)
-						# _.each commands, (command)->
-							# console.log "I", command.api.args.join(',')
-						commands
-					.flatten()
-					# .tap (c)-> console.log "C", c
-					.value()
+							# COMPILING INSTRUCTIONS PER CHANNEL
+							commands = tsm.resolve(signal).command_list({offset: offset})
+							commands = _.map commands, (command) -> 
+								cl = actor.perform(channel, command)
+								# console.log "C", cl
+								return cl
+							commands =_.flatten(commands)
+							# _.each commands, (command)->
+								# console.log "I", command.api.args.join(',')
+							commands
+						.flatten()
+						# .tap (c)-> console.log "C", c
+						.value()
+				else
+					return []
 			.flatten()
 			.sortBy("t")
 			.value()
@@ -142,6 +148,7 @@ class window.BehaviorManager
 		scope = this
 		raw_commands = @compile()
 		Scheduler.pretty_print(raw_commands)
+
 		t_start = @scrubberTime()
 		if _.isEmpty raw_commands then return
 		 
@@ -155,7 +162,7 @@ class window.BehaviorManager
 		commands = _.each commands, (command)->
 			command.t = command.t - t_start
 
-		scope.play_ids = Scheduler.schedule(commands, false)
+		scope.play_ids = Scheduler.schedule(commands, true)
 		scope.playScrubber(start, end)
 		@playing = true
 	pause: ()->
