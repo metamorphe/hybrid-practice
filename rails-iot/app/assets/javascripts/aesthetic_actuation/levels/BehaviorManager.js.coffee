@@ -1,3 +1,29 @@
+class window.Scheduler 
+	@quanta: 500
+	@pretty_print: (commands)->
+		console.log "------- RAW_COMMANDS ---------"
+		console.log "t", "offset", "hid", "channel", "value"
+		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
+		_.each commands_by_quanta, (command_set, q, i)->
+			console.log "\tQUANTA", q
+			_.each command_set, (c)->
+				console.log "\t\t", c.t.toFixed(0), c.async_offset.toFixed(0), c.hid, c.channel[0], c.param
+	@schedule: (commands)->
+		return play_ids = _.map commands, (command) ->
+			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation=true)
+			return id
+
+	@sendCommandTo: (command, simulation=true)->
+	    if _.isUndefined command.actuator
+	      console.warn("FORGOT TO SELECT AN ACTUATOR!")
+	      return
+	    if simulation   
+	    	actuator = command.actuator
+	    	actuator.perform(command.channel, command)
+	    	am.updateChannels(actuator)
+	    if cmp and sc 
+	    	sc.sendMessage(command.api, {live: cmp.live})  
+	    return actuator.toCommand()
 class window.BehaviorManager
 	constructor: (@op) ->
 		scope = this
@@ -110,15 +136,6 @@ class window.BehaviorManager
 			# console.log c.api.args.join ","
 		
 		return choreography
-	@quanta: 1000
-	pretty_print: (commands)->
-		console.log "------- RAW_COMMANDS ---------"
-		console.log "t", "offset", "hid", "channel", "value"
-		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / BehaviorManager.quanta)
-		_.each commands_by_quanta, (command_set, q, i)->
-			console.log "\tQUANTA", q
-			_.each command_set, (c)->
-				console.log "\t\t", c.t.toFixed(0), c.async_offset.toFixed(0), c.hid, c.channel[0], c.param
 	play: ()->
 		if @playing
 			@pause()
@@ -127,7 +144,7 @@ class window.BehaviorManager
 
 		scope = this
 		raw_commands = @compile()
-		@pretty_print(raw_commands)
+		Scheduler.pretty_print(raw_commands)
 		t_start = @scrubberTime()
 		if _.isEmpty raw_commands then return
 		 
@@ -141,10 +158,7 @@ class window.BehaviorManager
 		commands = _.each commands, (command)->
 			command.t = command.t - t_start
 
-		scope.play_ids = _.map commands, (command) ->
-			actuator = am.getActuator(command.actuator)
-			id = _.delay(am.sendCommandTo, command.t + command.async_offset, command)
-			return id
+		scope.play_ids = Scheduler.schedule(commands)
 		scope.playScrubber(start, end)
 		@playing = true
 	pause: ()->

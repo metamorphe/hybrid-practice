@@ -21,7 +21,7 @@ class window.Composer
   bindSignalButton:()->
     Composer.log "BINDING SIGNAL SENDER"
     scope = this
-    @op.signal_button.click((event)->
+    @op.signal_button.click (event)->
       ts = tsm.getActiveTimeSignal()
       actor = am.getActiveActuator()
       channel = am.getActiveChannel()
@@ -30,16 +30,8 @@ class window.Composer
       commands = _.map commands, (command) -> 
         cl = actor.perform(channel, command)
       commands =_.flatten(commands)
-     
-      scope.op.signal_button.css('background', '#d9534f')
-      _.each commands, (command) ->
-        _.delay(am.sendCommandTo, command.t + command.async_offset, command) 
-        return
-
-      turnBack = ()->
-        scope.op.signal_button.css('background', '#2d6a96')
-      _.delay(turnBack, 3000)
-    )
+      Scheduler.schedule(commands)
+  
   initBLSlider: (dom)->
     Composer.log "BINDING BL"
     scope = this;

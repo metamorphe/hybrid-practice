@@ -125,25 +125,15 @@ class window.ActuatorManager
   updateActiveChannel: (val)->
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
     $('actuator.selected channels label.actuator.selected').find('.dimension').html(val);
-  sendCommandTo: (command)->
-    if _.isUndefined command.actuator
-      console.warn("FORGOT TO SELECT AN ACTUATOR!")
-      return 
-    actuator = command.actuator
-    cl = actuator.perform(command.channel, command)
-    if cmp and sc 
-      # console.log command.api.args.join(','), "@", command.t, command.async_offset
-      sc.sendMessage(command.api, {live: cmp.live}) 
-    am.updateChannels(actuator) 
-    return actuator.toCommand()
-  sendCommandById: (a_id, channel, ts_id)->
-    scope = this
-    act = @getActuator(a_id)
-    ts = tsm.getTimeSignal(ts_id)
-    commands = ts.command_list.apply(ts)
-    _.each commands, (command) ->
-      _.delay(am.sendCommandTo, command.t, act, channel, command.param) 
-      return
+  
+  # sendCommandById: (a_id, channel, ts_id)->
+  #   scope = this
+  #   act = @getActuator(a_id)
+  #   ts = tsm.getTimeSignal(ts_id)
+  #   commands = ts.command_list.apply(ts)
+  #   _.each commands, (command) ->
+  #     _.delay(am.sendCommandTo, command.t, act, channel, command.param) 
+  #     return
   initSelection: ()->
     scope = this
     $('actuator').click ->
