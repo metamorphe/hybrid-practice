@@ -70,3 +70,17 @@ http://localhost:3000/tool/actuation_aesthetics
   ```
   But linking keg-only openssl means you may end up linking against the insecure, deprecated system OpenSSL while using the headers from Homebrew's openssl. Instead, install eventmachine 1.0.9 instead (see error #1 for instructions).
   
+  2. Error message while running Arduino server for Actuation Aesthetics
+  ```
+  $ ruby ArduinoServer.rb 
+/Users/molecule/.rbenv/versions/2.3.1/lib/ruby/2.3.0/rubygems/core_ext/kernel_require.rb:55:in `require': cannot load such file -- em-websocket (LoadError)
+	from /Users/molecule/.rbenv/versions/2.3.1/lib/ruby/2.3.0/rubygems/core_ext/kernel_require.rb:55:in `require'
+	from ArduinoServer.rb:1:in `<main>'
+  ```
+  
+  Fix: 
+  
+  ```
+  gem install em-websocket
+  gem install serialport
+  ```
