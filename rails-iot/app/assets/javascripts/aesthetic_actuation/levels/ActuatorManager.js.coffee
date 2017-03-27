@@ -165,18 +165,20 @@ class window.ActuatorManager
         copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardware_ids.join(','))
         return copy;
     
-    $('.actuation-design .droppable, acceptor.actuator').droppable
+    $('.actuation-design .droppable, #async .droppable, acceptor.actuator').droppable
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->
         empty = $(this).html() == ""
+        sync = $(this).parents('#async').length == 0
+        compose = $(this).parents(".composition-design").length != 0
         num_to_accept = $(this).data().accept
 
         actor = scope.resolve(ui.draggable)
         ops = _.extend actor.form,
           clear: num_to_accept == 1
           target: $(this)
-          addSignalTrack: $(this).parents(".composition-design").length != 0 and empty
+          addSignalTrack: sync and compose and empty
         
         ActuatorManager.create ops
         
