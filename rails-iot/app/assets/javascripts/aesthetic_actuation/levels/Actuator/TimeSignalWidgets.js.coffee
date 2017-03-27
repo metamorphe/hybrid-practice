@@ -13,10 +13,10 @@ class window.TimeWidgets
       track: $('#time-morph-track')
       slider: $('input#time-morph')
       bindKey: 't'
-    # @recorder= new Recorder
-    #   recorder_button: $('button#record')
-    #   recorder_result: $('#record-result')
-    # bindKey: 'r'
+    @recorder= new Recorder
+      recorder_button: $('button#record')
+      recorder_result: $('#record-result')
+      bindKey: 'r'
 
 class TimeWidget extends Widget
   constructor: (op)->
@@ -102,19 +102,7 @@ class window.Recorder extends TimeWidget
     @elapsed = 0
     @curr_elapsed = 0
     @record = false
-    op = 
-      data: _.zeros(parseInt(Recorder.DEFAULT_PERIOD/Recorder.DEFAULT_RESOLUTION))
-      period: Recorder.DEFAULT_PERIOD
-      exportable: true
-      dragInPlace: false
-      parent: @op.recorder_result
-      clearParent: true
-      activate: true
-      style: 
-        signal_fill:
-          fillColor: '#d9534f'
-    @ts = TimeSignal.copy op
-      
+    @ts = tsm.resolve($('#recorder datasignal'))
     @bindButton()
   bindButton: ()->
     scope = this
@@ -136,12 +124,16 @@ class window.Recorder extends TimeWidget
     Recorder.log "STARTED RECORDING"
     @sub_0 = Date.now()
     @sub_start = @sub_0
+    @prev_param = 0
     scope.curr_elapsed = 0
     @subscription_key = sc.subscribe "output", (command)->
       now = Date.now()
       dt = now  - scope.sub_start
       if command.flag == "C"
-        scope.ts.inject.apply(scope.ts, [command.args[1]/255.0, scope.elapsed + scope.curr_elapsed, scope.elapsed + scope.curr_elapsed + dt]) 
+        signal = TimeSignal.resample([{t: dt, param: scope.prev_param}], dt)
+        scope.ts.inject(signal, dt)
+        scope.prev_param = command.args[1]/255.0
+        # scope.ts.inject.apply(scope.ts, [command.args[1]/255.0, scope.elapsed + scope.curr_elapsed, scope.elapsed + scope.curr_elapsed + dt]) 
       scope.curr_elapsed += dt
       scope.sub_start = now
       return

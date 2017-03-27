@@ -26,6 +26,9 @@ class window.Composer
       actor = am.getActiveActuator()
       channel = am.getActiveChannel()
 
+      if _.isUndefined actor
+        console.warn("FORGOT TO SELECT AN ACTUATOR!")
+        return
       commands = ts.command_list.apply(ts)
       commands = _.map commands, (command) -> 
         cl = actor.perform(channel, command)
@@ -37,6 +40,9 @@ class window.Composer
     scope = this;
     dom.on 'input', ->
       actor = am.getActiveActuator()
+      if _.isUndefined actor
+        console.warn("FORGOT TO SELECT AN ACTUATOR!")
+        return
       channel = am.getActiveChannel()
       param = parseFloat($(this).val())  
       command = {t: 0, param: param}

@@ -33,6 +33,10 @@ event{
  
   &.shrink{
     height: 40px !important;
+    >*:not(.vert):not(.toggle){
+      display: none !important;
+    }
+
     >*:not(.vert):not(.toggle):not(label):not([class^=track]):not(acceptor){
       display: none !important;
     }
