@@ -157,10 +157,12 @@ class window.TimeSignal
       target: op.target
     signal = new TimeSignal(dom, setter)
     
-  inject: (signal, delta_t)->
+  inject: (command_list, delta_t)->
     # AS LONG AS DELTA_T IS REGULAR, NOT AN ISSUE
     prev = @form
-    prev.signal = prev.signal.concat(signal)
+    a = TimeSignal.resample(@command_list(), prev.period)
+    b = TimeSignal.resample(command_list, delta_t)
+    prev.signal = a.concat(b)
     prev.period += delta_t
     @form = prev
   command_list: (op) ->
@@ -378,7 +380,8 @@ class window.TimeSignal
     _.map @data, (datum, i) ->
       [[i, datum],[i + 1, datum]]
   @resample: (data, period)->
-    target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
+    if period == 0 then return [0]
+    target = numeric.linspace(0, period, period)
     i = 0
     return _.map(target, (t)->
       if i + 1 >= data.length then return data[i].param

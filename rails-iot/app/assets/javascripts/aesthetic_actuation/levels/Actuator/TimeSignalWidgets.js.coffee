@@ -74,20 +74,16 @@ class Stitcher extends TimeWidget
   stitch: ()->
     signals = @resolveTrack()
     if _.isEmpty signals then return
-    time_sum = 0
-    data = _.map signals, (signal)->
-      time_sum += signal.form.period
-      return TimeSignal.resample(signal.command_list(), signal.form.period)
-    data = _.flatten(data)
-    console.log data
     dom = TimeSignal.create
       clear: true
       target: @target
-    signal = new TimeSignal(dom)
-    signal.form = 
-      signal: data
-      period: time_sum
-    return 
+    signal = new TimeSignal dom, 
+      signal: [0, 0, 0]
+      period: 0
+
+    data = _.map signals, (subsignal)->
+      signal.inject(subsignal.command_list(), subsignal.form.period)
+  
 
 
 class window.Recorder extends TimeWidget
