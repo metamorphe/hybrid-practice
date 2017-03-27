@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 240.9 229.1" style="enable-background:new 0 0 240.9 229.1;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st1{fill:#DDD0D0;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#000000;stroke-width:3;stroke-miterlimit:10;}
+</style>
+<title>user160_production</title>
+<path id="BASE:_STAR_BASE" class="st0" d="M1,1.1v227h239V1.1H1z"/>
+<polygon id="DIF:_STAR" class="st1" points="176.5,191.7 120.4,162.2 64.4,191.7 75.1,129.3 29.8,85.1 92.4,76 120.4,19.2 148.5,76 
+	211.1,85.1 165.8,129.3 "/>
+<polygon id="DDS:_SOFT" class="st2" points="120.4,130.7 120.4,162.2 64.4,191.7 75.1,129.3 29.8,85.1 92.4,76 "/>
+<polygon id="DDS:_SOFT-2" class="st2" points="148.5,76 120.4,130.7 92.4,76 120.4,19.2 "/>
+<polygon id="DDS:_STAR" class="st2" points="165.8,129.3 176.5,191.7 120.4,162.2 120.4,130.7 148.5,76 211.1,85.1 "/>
+</svg>
