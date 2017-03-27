@@ -63,8 +63,10 @@ class window.SocketControl
     return
   connect: ->
     scope = this
-   
-    @ws = new WebSocket('ws://localhost:' + @op.socket_port)
+    
+    params = GET()
+    @host = if GET().ip then GET().ip else "localhost"
+    @ws = new WebSocket('ws://'+ @host+':' + @op.socket_port)
 
     scope.state = @ws.readyState
 

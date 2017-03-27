@@ -36,7 +36,15 @@ window.rgb2hex = (rgb) ->
 window.rgb2hex2 = (rgb) ->
   rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i)
   if rgb and rgb.length == 4 then '0x' + ('0' + parseInt(rgb[1], 10).toString(16)).slice(-2) + ('0' + parseInt(rgb[2], 10).toString(16)).slice(-2) + ('0' + parseInt(rgb[3], 10).toString(16)).slice(-2) else ''
-
+transformToAssocArray = (prmstr) ->
+  params = {}
+  prmarr = prmstr.split('&')
+  i = 0
+  while i < prmarr.length
+    tmparr = prmarr[i].split('=')
+    params[tmparr[0]] = tmparr[1]
+    i++
+  params
 window.GET = ->
   prmstr = window.location.search.substr(1)
   if prmstr != null and prmstr != '' then transformToAssocArray(prmstr) else {}
