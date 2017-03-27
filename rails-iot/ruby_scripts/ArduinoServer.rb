@@ -8,7 +8,16 @@ EventMachine.run do
   baud_fast = 9600 * 12
   baud_normal = 9600
   @baud = baud_fast
-  @sp = SerialPort.new('/dev/tty.usbmodem1411', @baud, 8, 1, SerialPort::NONE)
+  @usb = Dir.glob("/dev/tty.usb*")
+  if @usb.length == 0 
+    puts "NO PORTS DETECTED"
+    return
+  else
+    puts "RUNNING " + @usb[0]
+    @usb = @usb[0]
+  end
+
+  @sp = SerialPort.new(@usb, @baud, 8, 1, SerialPort::NONE)
   @sid = nil
   EM::defer do
     loop do
