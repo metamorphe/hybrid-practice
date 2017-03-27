@@ -214,6 +214,8 @@ CanvasUtil.getName = (item) ->
   name = name.replaceAll("_x2C_", ',')
   if name[0] == "_" then name = name.slice(1)
   if name[name.length - 1] == "_" then name = name.slice(0, -3) #NEEDS TO BE _X_ matched
+  if name[name.length - 1] == "_" then name = name.slice(0, -1) #NEEDS TO BE _X_ matched
+  
   name
   # x5F__x7B__x22_colorID_x22_
 # _{"colorID":[0.90196,0.09804,0.09804],"target":43,"forceTarget":38}

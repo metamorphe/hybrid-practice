@@ -27,6 +27,7 @@ class window.Composer
   @log: ()-> return #console.log.bind(console)
   constructor: (@op) ->
     @init()
+    @now = Date.now()
     Alerter.hide()
   warn: ()->
     # console.warn("FORGOT TO SELECT AN ACTUATOR!")
@@ -71,6 +72,11 @@ class window.Composer
     Composer.log "BINDING BL"
     scope = this;
     dom.on 'input', ->
+      diff = Date.now() - scope.now
+      if(diff < 50)
+        return
+      else 
+        scope.now = Date.now()
       actor = am.getActiveActuator()
       if _.isUndefined actor
         scope.warn()
