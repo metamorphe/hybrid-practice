@@ -23,22 +23,8 @@ python -m SimpleHTTPServer
 http://localhost:3000/tool/designer
 ```
 
-## Upgrading to rails 5.0
-1. Edit the Gemfile, and update the version on rails:
-``` 
-Change this:
- gem 'rails', '4.2.8'
-To this:
- gem 'rails', '5.0.0'
-```
-2. Also remove the version on coffee-rails
-``` 
-Change this:
- gem 'sass-rails', <version number>
-To this:
-gem 'sass-rails'
-```
-3. ```bundle update```
+## Upgrading when pulling a version from Git
+1.```bundle update``
 
 
 # Troubleshooting
