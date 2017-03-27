@@ -27,7 +27,7 @@ You'll need to be running this path as a server.
 http://localhost:3000/tool/designer
 ```
 
-#Troubleshooting
+# Troubleshooting
 1. Error message:
 
   ```
