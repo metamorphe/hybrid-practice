@@ -1,7 +1,7 @@
 actuator_counter = 0;
 
 # ABSTRACT INTERFACE
-class Actuator
+class window.Actuator
   @COUNTER: 0
   @DEFAULT_ASYNC: 0
   @RAY_RESOLUTION: 30
@@ -60,7 +60,7 @@ class Actuator
           match = CanvasUtil.query paper.project, {lid: hid}
           if _.isEmpty match then return null
           return _.first(match).id
-        
+    
 
     expression:
       get: -> 
@@ -80,6 +80,11 @@ class Actuator
           @_warn value
         @_expression = @_param2express()
         @_updateVisuals(@expression)
+        if ch
+          window.paper = ch.paper
+          elements = CanvasUtil.queryIDs @canvas_ids
+          CanvasUtil.set elements, "fillColor", @expression
+          window.paper = @paper
   setAsync: (t)->
     text = TimeSignal.pretty_time(t)
     @dom.find('label.async').html(text)

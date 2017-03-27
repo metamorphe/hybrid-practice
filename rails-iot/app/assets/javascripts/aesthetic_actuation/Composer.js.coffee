@@ -1,5 +1,5 @@
 class window.Composer
-  @log: ()-> return#console.log.bind(console)
+  @log: ()-> return #console.log.bind(console)
   constructor: (@op) ->
     @init()
   init:()->

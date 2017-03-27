@@ -22,7 +22,7 @@ class window.Scheduler
 			actuator.perform(command.channel, command)
 			am.updateChannels(actuator)
 		if cmp and sc 
-			sc.sendMessage(command.api, {live: cmp.live})  
+			sc.sendMessage(command.api, {live: aw.comm.live})  
 		return actuator.toCommand()
 class window.BehaviorManager
 	constructor: (@op) ->

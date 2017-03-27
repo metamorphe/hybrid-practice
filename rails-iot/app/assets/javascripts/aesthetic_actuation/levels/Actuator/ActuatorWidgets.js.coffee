@@ -97,9 +97,9 @@ class window.ChoreographyWidget extends Widget
       sT.collectSelection()
     sT.onMouseDrag = (e)->
       sT.selectionPath.addSegment e.point
-      sT.selectionPath.smooth
-        type: "asymmetric"
-        factor: 0.9
+      # sT.selectionPath.smooth
+        # type: "asymmetric"
+        # factor: 0.9
       sT.collectSelection()
     sT.onMouseUp = (e)->
       sT.selectionPath.addSegment e.point
@@ -107,10 +107,11 @@ class window.ChoreographyWidget extends Widget
       actuators = ChoreographyWidget.ACTUATORS()
       CanvasUtil.set(actuators, 'selected', false)
       
-      hids = CanvasUtil.getIDs(sT.selection)
-      hids = _.map hids, (el)-> return el.lid;
+      elements = CanvasUtil.getIDs(sT.selection)
+      hids = _.map elements, (el)-> return el.lid;
 
       if _.isEmpty(hids) then return
+      console.log rgb2hex(elements[0].fillColor.toCSS())
       ops =
         clear: true
         target: $("#group-result")
@@ -118,7 +119,7 @@ class window.ChoreographyWidget extends Widget
         hardware_ids: hids
         title: hids.join(',')
         constants: 
-          color: "#FFFFFF"
+          color: rgb2hex(elements[0].fillColor.toCSS())
       
       dom = ActuatorManager.create ops   
       dom.click()
@@ -166,11 +167,27 @@ class window.ActuatorWidgets
       trigger: $("#async button")
       bindKey: 'a'
       slider: $("#async input")
+    @comm = new Communicator
+      trigger: $('button#live-connect')
+      bindKey: 'l'
 class window.ActuatorWidget
   @resolveTrack: (track)->
     _.map track.find('actuator'), (act)-> return am.resolve(act)
   resolveTrack: ()->
     ActuatorWidget.resolveTrack(@track)
+
+class window.Live extends ActuatorWidget
+  constructor: (op)->
+    scope = this
+    @live = false
+    _.extend this, op
+    @update()
+    Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+    @trigger.click (event)->
+      scope.live = not scope.live
+      scope.update()
+  update: ()->
+    if @live then @trigger.addClass('btn-success') else @trigger.removeClass('btn-success')
 
 class window.AsynchMorph extends ActuatorWidget
   @MIN: 0
@@ -185,6 +202,7 @@ class window.AsynchMorph extends ActuatorWidget
       console.log v
       _.each scope.resolveTrack(), (actuator)->
         actuator.form = {async_period: parseInt(v)}
+
 
 class window.Saver extends ActuatorWidget
   constructor: (@op)->

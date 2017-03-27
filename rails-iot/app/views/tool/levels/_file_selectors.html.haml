@@ -14,3 +14,11 @@
         %select.form-control#port-selector.sexy
         %button#port-connect.btn.btn-xs.btn-success
           = glyph "transfer"
+  #port-select.hoz-left.mpadding{width: 30}
+    .vert-left.full-w
+      %span.status-label
+        LIVE?
+      .full-hoz
+        / %select.form-control#port-selector.sexy
+        %button#live-connect.btn.btn-xs.btn-success
+          = glyph "send"

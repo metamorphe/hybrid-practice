@@ -289,14 +289,15 @@ class window.TimeSignal
       position: group.bounds.center.clone()
     rect = new paper.Path.Rectangle
       parent: playGroup
-      rectangle: new paper.Size 15,10
+      rectangle: new paper.Size 15 + 10,10 + 10
       fillColor: "#00A8E1"
-      opacity: 0.5
+      opacity: 0.8
+      radius: 4
       position: playGroup.bounds.center.clone()
     tri = new paper.Path.RegularPolygon
       parent: playGroup
       sides: 3
-      radius: 3
+      radius: 3 + 2
       rotation: 90
       fillColor: "white"
     tri.position = rect.bounds.center.clone()
