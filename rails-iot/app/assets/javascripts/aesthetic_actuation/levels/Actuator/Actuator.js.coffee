@@ -3,7 +3,7 @@ actuator_counter = 0;
 # ABSTRACT INTERFACE
 class Actuator
   @COUNTER: 0
-  @DEFAULT_ASYNC: 30
+  @DEFAULT_ASYNC: 0
   @RAY_RESOLUTION: 30
   constructor: (@dom, set, @op) ->
     set = set or {}
@@ -49,7 +49,6 @@ class Actuator
         if _.has(obj, 'canvas_ids') then delete obj['canvas_ids']
         _.extend(this, obj)
         @dom.data @form
-        console.log @saved, prev.saved
         if @title != prev.title then @setTitle(@title, @saved)
         if @saved != prev.saved then @setTitle(@title, @saved)
         # POPULATE CANVAS IDs MANUALLY
@@ -105,6 +104,7 @@ class Actuator
       actuator: this
       async_offset:  i * @async_period
       api: @toAPI(hid)
+      hid: hid
       expression: @expression
       channel: channel
   physical_channels: ()->

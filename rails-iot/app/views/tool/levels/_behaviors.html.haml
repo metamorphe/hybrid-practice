@@ -15,50 +15,6 @@
     %behavior.hoz
       #stage.vert-centered-sink-top
         %acceptor.actuator.template{:data => {:accept=> 1}}
-        %acceptor.actuator.accepted{:data => {:accept=> 1}}
-          %actuator.draggable{name: "HSBLED", :data => {"canvas-id" => 24, "hardware-id" => 5, :color => "#00A8E1"}}
-            %div.simulation
-              %label.title HSBLED
-              %canvas{:type=>"HSBLED"}
-            %channels.scroll-list
-              %label.title.light 
-                CHANNELS
-                %button.btn.btn-xs.btn-danger.remove
-                  =glyph "remove"
-              %channel.full-hoz{type: "brightness"}
-                %label.actuator.selected
-                  %span BRIGHTNESS
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "hue"}
-                %label.actuator
-                  %span HUE
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "saturation"}
-                %label.actuator
-                  %span SATURATION
-                  %span.dimension.pull-right 0
-             
-         
-        / %acceptor.actuator.accepted{:accept=> 1}
-        /   %actuator.draggable{name: "Heater","data-resistance": 60, "data-canvas-id": 24, "data-hardware-id": 10}
-        /     %div.simulation
-        /       %label.title HEATER
-        /       %canvas{:type=>"Heater"}
-        /     %channels.scroll-list
-        /       %label.title.light CHANNELS
-        /       %channel.full-hoz{type: "voltage"}
-        /         %label.actuator.selected
-        /           %span VOLTAGE
-        /           %span.dimension.pull-right 4
-        /       %channel.full-hoz{type: "temperatureF"}
-        /         %label.actuator
-        /           %span TEMP (˚F)
-        /           %span.dimension.pull-right 93.2
-        /       %channel.full-hoz{type: "temperatureC"}
-        /         %label.actuator
-        /           %span TEMP (˚C)
-        /           %span.dimension.pull-right 34.0
-      
       #timetrack.vert-centered-sink-top
         #scrubber.vert-centered-sink-top
           #handle
@@ -79,16 +35,3 @@
             =glyph "trash"
           %button.btn.btn-xs.btn-primary.view-toggle
             =glyph "eye-open"
-
-          / %datasignal.composeable
-          /   %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 4000}
-          / %datasignal.composeable
-          /   %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 5000}
-          / %datasignal.composeable
-          /   %canvas{:data => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 6000}
-       
-        / %acceptor.datasignals{:accept=> 100}
-    / %button.btn.btn-xxs.track-button
-    /   =glyph "play"
-
-/ 

@@ -166,37 +166,54 @@ class window.Saver extends Widget
   constructor: (@op)->
     console.log "Saver"
     scope = this
-    @name = "actuator_group_library"
     Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
-
+    
+    @track = "actuator_group_library"
+    @stage = "behavior_stage"
     @op.trigger.click (event)->
-      info = _.chain scope.op.track.find('actuator')
-        .map (actor)->  
-          actor = am.resolve(actor)
-          actor.form = {saved: true}
-          return _.extend actor.serialize(),
-            file: fs.getName()
-        .value()
-      console.log "INFO", info
-      scope.save(info)
-  generateKey: ->
-    return [fs.getName(), @name].join(':')
-  save: (data)->
-    console.log "SAVING"
-    key = @generateKey()
+      track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
+      scope.saveActuators(scope.track, track_actuators)
+      stage_actuators = bm.getActors()
+      scope.saveActuators(scope.stage, stage_actuators)
+
+  
+  saveActuators: (name, actors)->
+    console.log "SAVING", name, actors.length
+    data = _.map actors, (actor)-> 
+      actor.form = {saved: true}
+      return _.extend actor.serialize(),
+        file: fs.getName()
+    console.log data
+    @save(name, data)
+  save: (name, data)->
+    key = @generateKey(name)
     if ws then ws.set(key, JSON.stringify(data))
-  load: ->
+  loadActuator: (name, loadFN)->
     scope = this
-    key = @generateKey()
-    actuators = JSON.parse(ws.get(key))
+    key = @generateKey(name)
+    rtn = ws.get(key)
+    actuators = if _.isNull(rtn) then [] else JSON.parse(rtn)
+    console.log name, actuators.length, "FOUND"
     _.each actuators, (actuator)->
-      # console.log "\tLOAD", actuator
+      loadFN(actuator)
+    return actuators
+  load:()->
+    @trackLoad()
+    @stageLoad()
+  stageLoad: ()->
+    scope = this
+    @loadActuator @stage, (actuator)->
+      bm.loadStage(actuator)
+  trackLoad: ()->
+    scope = this
+    @loadActuator @track, (actuator)->
       ops = 
         clear: false
         target: scope.op.track
       ops = _.extend(ops, actuator)
       ActuatorManager.create ops
-      
+  generateKey: (name)->
+    return [fs.getName(), name].join(':')
 class window.Grouper extends Widget
   constructor: (@op)->
     scope = this

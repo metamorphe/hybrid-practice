@@ -20,7 +20,7 @@ class window.ActuatorManager
     props = _.clone(eval(ActuatorType))
     set = dom.data()
     actuator = new ActuatorSimulator(dom, set, props)
-    if op.addSignalTrack then bm.addSignalTrack(actor)
+    if op.addSignalTrack then bm.addSignalTrack(actuator)
     return dom
 
   @extract: ()->
@@ -42,13 +42,13 @@ class window.ActuatorManager
   constructor: (@op) ->
     @actuators = []
   init:()->
-    # @initActuators() #PRELOAD
+    @initActuators() #PRELOAD
     ActuatorManager.extract() #DYNAMIC
     @initBLRadio($('actuator channel'))
       
   initActuators: () ->
     scope = this;
-    collection = $('actuator[name]:not(.template)')
+    collection = $('.composition-design actuator[name]:not(.template)')
     console.info 'Initializing actuators', collection.length
     _.each collection, (act, i) ->
       scope.initActuator.apply(scope, [act])

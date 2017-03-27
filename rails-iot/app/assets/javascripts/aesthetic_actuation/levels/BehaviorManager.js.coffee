@@ -9,11 +9,23 @@ class window.BehaviorManager
 		Widget.bindKeypress 32,((event) ->
 			event.preventDefault()
 			$('#compose').click()), true
-			
+	getActors: ()->
+		actuators = _.map $('#stage').find('actuator'), (actor)-> return am.resolve(actor)		
+	loadStage: (actuator)->
+		console.log "STAGE LOAD", actuator
+		template = bm.addStage()
+		console.log "HERE"
+		ops = 
+			clear: false
+			target: template
+		console.log ops
+		ops = _.extend(ops, actuator)
+		ActuatorManager.create ops	
 	addStage: ()->
 		template = $('acceptor.actuator.template').clone().removeClass('template');
 		$('#stage').append(template)
 		am.activateDragAndDrop()
+		return template
 	addSignalTrack: (actor)->
 		template = $('acceptor.datasignals.template').clone().removeClass('template');
 		tracks = _.keys(actor.physical_channels()).length
@@ -98,6 +110,15 @@ class window.BehaviorManager
 			# console.log c.api.args.join ","
 		
 		return choreography
+	@quanta: 1000
+	pretty_print: (commands)->
+		console.log "------- RAW_COMMANDS ---------"
+		console.log "t", "offset", "hid", "channel", "value"
+		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / BehaviorManager.quanta)
+		_.each commands_by_quanta, (command_set, q, i)->
+			console.log "\tQUANTA", q
+			_.each command_set, (c)->
+				console.log "\t\t", c.t.toFixed(0), c.async_offset.toFixed(0), c.hid, c.channel[0], c.param
 	play: ()->
 		if @playing
 			@pause()
@@ -106,6 +127,7 @@ class window.BehaviorManager
 
 		scope = this
 		raw_commands = @compile()
+		@pretty_print(raw_commands)
 		t_start = @scrubberTime()
 		if _.isEmpty raw_commands then return
 		 

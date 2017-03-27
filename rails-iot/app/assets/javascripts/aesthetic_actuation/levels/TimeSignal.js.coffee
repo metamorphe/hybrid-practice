@@ -443,7 +443,7 @@ class window.TimeSignal
         dI_accum += curr.dI
         return null
     cl_u = _.compact(cl)
-    console.log "resolution_correction removed", cl.length - cl_u.length, "out of", cl.length
+    # console.log "resolution_correction removed", cl.length - cl_u.length, "out of", cl.length
     signal = TimeSignal.resample(cl_u, @period)
     return signal
   perceptual_correction: (data)->
@@ -475,7 +475,7 @@ class window.TimeSignal
         dt_accum += curr.dt 
         return null
     cl_u = _.compact(cl)
-    console.log "perceptual_correction removed", cl.length - cl_u.length, "out of", cl.length
+    # console.log "perceptual_correction removed", cl.length - cl_u.length, "out of", cl.length
     signal = TimeSignal.resample(cl_u, @period)
     return signal
   @temperatureColor: (v)->
