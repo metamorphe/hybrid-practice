@@ -1,24 +1,20 @@
 # Hybrid Practice
 ## Paper Skeleton
 You'll need to be running this path as a server. 
-``` python -m SimpleHTTPServer ```
+``` 
+python -m SimpleHTTPServer 
+```
 
 ## Prerequisites
 1. Install rails and configure github 4.2.6 by following [these instructions.](https://gorails.com/setup/osx/10.11-el-capitan)
 2. Clone this repo into <top directory> somewhere on your machine.
 3. CD into <top directory>/rails-iot
 4. Run ```bundle install``` (see Troubleshooting section if you get error messages)
-3. Handle the migration
-  ```
-  bin/rake db:migrate RAILS_ENV=development
-  ```
+3. Handle the migration ``` bin/rake db:migrate RAILS_ENV=development ```
   
 ## Control server
 1. Navigate to rails-iot/
-2. To start the server, run
-  ```
-  rails server
-  ```
+2. To start the server, run ``` rails server ```
 3. To stop the server, type ```ctrl-c``` in the window where you started the server.
 
 ## Navigate to "Light as Material" light design tool
@@ -26,6 +22,24 @@ You'll need to be running this path as a server.
 ```
 http://localhost:3000/tool/designer
 ```
+
+## Upgrading to rails 5.0
+1. Edit the Gemfile, and update the version on rails:
+``` 
+Change this:
+ gem 'rails', '4.2.8'
+To this:
+ gem 'rails', '5.0.0'
+```
+2. Also remove the version on coffee-rails
+``` 
+Change this:
+ gem 'sass-rails', <version number>
+To this:
+gem 'sass-rails'
+```
+3. ```bundle update```
+
 
 # Troubleshooting
 1. Error message:
