@@ -32,6 +32,7 @@ class window.BehaviorManager
 		scope = this
 		@play_ids = []
 		@playing = false
+		@scrub_ids = []
 		@activateDragAndDrop()
 		$("button#compose").click(()-> scope.play())
 		$("button#add-stage").click(()-> scope.addStage())
@@ -67,10 +68,8 @@ class window.BehaviorManager
 		@op.scrubber.css
 			transition: 'left '+ duration+'ms linear'
 			left: Math.round(@scrubberPos(end))
-
-		_.delay(()-> scope.op.scrubber.css
-			transition : 'left 0s linear'
-		, duration);
+		id = _.delay (()-> scope.pause()), duration
+		@scrub_ids.push id
 	scrubberSet: (x)->
 		@op.scrubber.css
 			transition : 'left 0s linear'
@@ -86,6 +85,49 @@ class window.BehaviorManager
 		t = timescale * @op.scrubber.position().left / w
 		return t
 	
+	play: ()->
+		if @playing
+			@pause()
+			return
+
+		scope = this
+		raw_commands = @compile()
+		if _.isEmpty raw_commands then return
+
+		Scheduler.pretty_print(raw_commands)
+		t_start = @scrubberTime()
+		
+		# RESTART
+		commands = _.filter raw_commands, (command)-> command.t > t_start
+		if _.isEmpty commands 
+			t_start = 0
+			commands = raw_commands
+
+		start = _.first(commands).t
+		end = _.last(commands).t + _.last(commands).duration
+		commands = _.each commands, (command)-> command.t = command.t - t_start
+
+		scope.play_ids = Scheduler.schedule(commands, true)
+		scope.playScrubber(start, end)
+		@playing = true
+	pause: ()->
+		@op.scrubber.css
+			transition : 'left 0s linear'
+		pos = @scrubberPos(@scrubberTime())
+		@scrubberSet(pos)
+		_.each _.flatten([@scrub_ids, @play_ids]), (id)->
+			clearTimeout(id)
+		@play_ids = []
+		@playing = false
+
+
+	activateDragAndDrop: ()->
+		scope = this
+		@op.scrubber.draggable
+			containment: "parent"
+			axis: "x"
+			grid: [ 5, 200 ]
+			scroll: false
 	compile: ()->
 		actors = $("#stage actuator").not(".template")
 		signal_tracks = $("#timetrack acceptor").not(".template")
@@ -121,61 +163,14 @@ class window.BehaviorManager
 							commands = tsm.resolve(signal).command_list({offset: offset})
 							commands = _.map commands, (command) -> 
 								cl = actor.perform(channel, command)
-								# console.log "C", cl
 								return cl
 							commands =_.flatten(commands)
-							# _.each commands, (command)->
-								# console.log "I", command.api.args.join(',')
 							commands
 						.flatten()
-						# .tap (c)-> console.log "C", c
 						.value()
 				else
 					return []
 			.flatten()
 			.sortBy("t")
 			.value()
-		# _.each choreography, (c)->
-			# console.log c.api.args.join ","
-		
 		return choreography
-	play: ()->
-		if @playing
-			@pause()
-			@playing = false
-			return
-
-		scope = this
-		raw_commands = @compile()
-		Scheduler.pretty_print(raw_commands)
-
-		t_start = @scrubberTime()
-		if _.isEmpty raw_commands then return
-		 
-		# RESTART
-		commands = _.filter raw_commands, (command)-> command.t > t_start
-		if _.isEmpty commands 
-			t_start = 0
-			commands = raw_commands
-		start = _.first(commands).t
-		end = _.last(commands).t + _.last(commands).duration
-		commands = _.each commands, (command)->
-			command.t = command.t - t_start
-
-		scope.play_ids = Scheduler.schedule(commands, true)
-		scope.playScrubber(start, end)
-		@playing = true
-	pause: ()->
-		pos = @scrubberPos(@scrubberTime())
-		@scrubberSet(pos)
-		_.each @play_ids, (id)->
-			clearTimeout(id)
-		@play_ids = []
-
-	activateDragAndDrop: ()->
-		scope = this
-		@op.scrubber.draggable
-			containment: "parent"
-			axis: "x"
-			grid: [ 5, 200 ]
-			scroll: false
