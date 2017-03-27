@@ -33,6 +33,7 @@ class window.SocketControl
     # ADD INTERACTIVITY
     if success
       @op.trigger.click ->
+        $(this).blur()
         switch scope.state
           when SocketControl.DISCONNECTED
             scope.connect()

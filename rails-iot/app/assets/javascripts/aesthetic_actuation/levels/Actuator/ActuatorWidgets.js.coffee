@@ -192,10 +192,16 @@ class window.Communicator extends ActuatorWidget
     @update()
     Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
     @trigger.click (event)->
+      event.preventDefault()
+      $(this).blur()
       scope.live = not scope.live
       scope.update()
   update: ()->
-    if @live then @trigger.addClass('btn-success') else @trigger.removeClass('btn-success')
+    if @live
+      @trigger.addClass('btn-success') 
+      if sc.state == 0
+        $('#port-connect').click()
+    else @trigger.removeClass('btn-success')
 
 class window.AsynchMorph extends ActuatorWidget
   @MIN: 0
