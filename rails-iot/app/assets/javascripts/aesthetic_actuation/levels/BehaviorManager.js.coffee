@@ -40,11 +40,9 @@ class window.BehaviorManager
 	loadStage: (actuator)->
 		console.log "STAGE LOAD", actuator
 		template = bm.addStage()
-		console.log "HERE"
 		ops = 
 			clear: false
 			target: template
-		console.log ops
 		ops = _.extend(ops, actuator)
 		ActuatorManager.create ops	
 	addStage: ()->
@@ -55,7 +53,6 @@ class window.BehaviorManager
 	addSignalTrack: (actor)->
 		template = $('acceptor.datasignals.template').clone().removeClass('template');
 		tracks = _.keys(actor.physical_channels()).length
-		console.log "TRACKS", tracks, actor
 		template.attr('data-tracks', tracks)
 		$('#timetrack').append(template)
 		tsm.activateDragAndDrop()

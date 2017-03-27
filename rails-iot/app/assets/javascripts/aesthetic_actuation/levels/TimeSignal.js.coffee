@@ -294,6 +294,17 @@ class window.TimeSignal
       opacity: 0.8
       radius: 4
       position: playGroup.bounds.center.clone()
+    rect.onMouseEnter = ()->
+      this.fillColor.brightness = 0.8
+    rect.onMouseLeave = ()->
+      this.fillColor.brightness = 1
+    rect.onMouseDown = ()->
+      this.fillColor = "#d9534f"
+      that = this
+      change_back = ()->
+        that.fillColor = "#00A8E1"
+      _.delay change_back, scope.period
+
     tri = new paper.Path.RegularPolygon
       parent: playGroup
       sides: 3

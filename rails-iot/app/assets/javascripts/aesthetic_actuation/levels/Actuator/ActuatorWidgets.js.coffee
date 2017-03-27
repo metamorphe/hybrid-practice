@@ -176,7 +176,7 @@ class window.ActuatorWidget
   resolveTrack: ()->
     ActuatorWidget.resolveTrack(@track)
 
-class window.Live extends ActuatorWidget
+class window.Communicator extends ActuatorWidget
   constructor: (op)->
     scope = this
     @live = false
