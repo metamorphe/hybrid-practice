@@ -217,6 +217,12 @@ class window.Saver extends ActuatorWidget
       scope.saveActuators(scope.track, track_actuators)
       stage_actuators = bm.getActors()
       scope.saveActuators(scope.stage, stage_actuators)
+      Alerter.warn
+        strong: "SAVED!"
+        msg: "We won't forget a thing!"
+        delay: 2000
+        color: 'alert-success'
+
 
   
   saveActuators: (name, actors)->
