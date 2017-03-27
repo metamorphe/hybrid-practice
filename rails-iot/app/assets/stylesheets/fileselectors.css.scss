@@ -11,10 +11,19 @@ group{
     @include inset-shadow(0.43);
     @include drop-shadow(0.83);
   }
-  event:nth-child(2){
+  #project{
     margin-top: 40px;
     padding-top: 10px;
+    /*position: fixed;
+    top: 0;
+    z-index: 100000;
+    top: 42px;
+    @include drop-shadow(0.83);*/
   }
+  /*event:nth-child(3){
+    margin-top: 440px;
+    padding-top: 10px;
+  }*/
  .status-label{
     color: #00A8E1;
     /*font-weight: bold;*/

@@ -1,3 +1,22 @@
+#projectviewer{
+    @extend commandlist;
+    width: 400px !important;
+    height: 100% !important;
+    cursor: pointer;
+    canvas{
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+.project-container{
+    width: 32%;
+    padding: 10px;
+    height: 100% !important;
+}
+.actuator-container{
+    width: 58%;
+    height: 100% !important;
+}
 acceptor.actuator{
     @extend .hoz;
     @extend .vert-centered-sink-top;

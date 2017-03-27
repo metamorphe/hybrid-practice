@@ -42,9 +42,7 @@ class window.Composer
       command = {t: 0, param: param}
       commands = actor.perform(channel, command)
       commands =_.flatten(commands)
-      _.each commands, (command) ->
-        _.delay(am.sendCommandTo, command.t + command.async_offset, command)
-      return
+      Scheduler.schedule(commands)
     return
  
   

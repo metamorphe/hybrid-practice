@@ -8,22 +8,22 @@ class window.Scheduler
 			console.log "\tQUANTA", q
 			_.each command_set, (c)->
 				console.log "\t\t", c.t.toFixed(0), c.async_offset.toFixed(0), c.hid, c.channel[0], c.param
-	@schedule: (commands)->
+	@schedule: (commands, simulation = true)->
 		return play_ids = _.map commands, (command) ->
-			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation=true)
+			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation)
 			return id
 
 	@sendCommandTo: (command, simulation=true)->
-	    if _.isUndefined command.actuator
-	      console.warn("FORGOT TO SELECT AN ACTUATOR!")
-	      return
-	    if simulation   
-	    	actuator = command.actuator
-	    	actuator.perform(command.channel, command)
-	    	am.updateChannels(actuator)
-	    if cmp and sc 
-	    	sc.sendMessage(command.api, {live: cmp.live})  
-	    return actuator.toCommand()
+		actuator = command.actuator
+		if _.isUndefined actuator
+			console.warn("FORGOT TO SELECT AN ACTUATOR!")
+			return
+		if simulation   
+			actuator.perform(command.channel, command)
+			am.updateChannels(actuator)
+		if cmp and sc 
+			sc.sendMessage(command.api, {live: cmp.live})  
+		return actuator.toCommand()
 class window.BehaviorManager
 	constructor: (@op) ->
 		scope = this
@@ -158,7 +158,7 @@ class window.BehaviorManager
 		commands = _.each commands, (command)->
 			command.t = command.t - t_start
 
-		scope.play_ids = Scheduler.schedule(commands)
+		scope.play_ids = Scheduler.schedule(commands, false)
 		scope.playScrubber(start, end)
 		@playing = true
 	pause: ()->

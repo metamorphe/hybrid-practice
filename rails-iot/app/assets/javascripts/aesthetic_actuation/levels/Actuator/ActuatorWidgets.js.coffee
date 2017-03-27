@@ -113,7 +113,7 @@ class window.ChoreographyWidget extends Widget
       if _.isEmpty(hids) then return
       ops =
         clear: true
-        target: $("#actuator-generator")
+        target: $("#group-result")
         actuator_type: "HSBLED"
         hardware_ids: hids
         title: hids.join(',')

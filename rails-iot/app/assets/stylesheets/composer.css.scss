@@ -25,16 +25,7 @@ commandlist{
 
 
 
-#projectviewer{
-	@extend commandlist;
-	width: 400px !important;
-	height: 100% !important;
-	cursor: pointer;
-	canvas{
-		width: 100% !important;
-		height: 100% !important;
-	}
-}
+
 
 input.sexy{
 	width: 80%;

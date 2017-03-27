@@ -38,7 +38,18 @@
 #ui2
   %group.vert
     = render :partial => "tool/levels/file_selectors"
-    = render :partial => "tool/levels/actuators"
+    %event#project.full-hoz.tall.actuation-design
+      %button.btn.btn-xs.btn-info.toggle
+        =glyph "collapse-up"
+      .vert
+        %button.design-title.btn-primary.trigger{:type => "trigger"}
+          PROJECT
+      .full-hoz.fill_height
+        .project-container
+          #projectviewer
+            %canvas
+        .actuator-container.vert-centered
+          = render :partial => "tool/levels/actuators"
     = render :partial => "tool/levels/datasignals"
     = render :partial => "tool/levels/behaviors"
     - render :partial => "tool/levels/composition"
