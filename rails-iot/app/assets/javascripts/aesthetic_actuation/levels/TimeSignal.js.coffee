@@ -133,34 +133,44 @@ class window.TimeSignal
   split: (op)->
     if op.p >= 1 or op.p <= 0 then return
     t = op.p * @period
+
     data = TimeSignal.resample(@command_list(), @period)
+
     i = parseInt(t / @period * data.length)
+
     # A
     dom = TimeSignal.create
       clear: true
       target: op.target
+    a = data.slice(0, i + 1)
+    b = data.slice(i, data.length)
+    
     setter = 
-      signal: data.slice(0, i + 1)
+      signal: a
       period: t
       exportable: true
       draggable: false
     signal = new TimeSignal(dom, setter)
     
+   
     # B
     setter = 
-      signal: data.slice(i, data.length)
+      signal: b
       period: @period - t
       exportable: true
       draggable: false
+
     dom = TimeSignal.create
       clear: false
       target: op.target
     signal = new TimeSignal(dom, setter)
     
-  inject: (signal, delta_t)->
+  inject: (command_list, delta_t)->
     # AS LONG AS DELTA_T IS REGULAR, NOT AN ISSUE
     prev = @form
-    prev.signal = prev.signal.concat(signal)
+    a = TimeSignal.resample(@command_list(), prev.period)
+    b = TimeSignal.resample(command_list, delta_t)
+    prev.signal = a.concat(b)
     prev.period += delta_t
     @form = prev
   command_list: (op) ->
@@ -378,7 +388,9 @@ class window.TimeSignal
     _.map @data, (datum, i) ->
       [[i, datum],[i + 1, datum]]
   @resample: (data, period)->
-    target = numeric.linspace(0, period, TimeSignal.DEFAULT_RESOLUTION)
+    period = parseInt(period)
+    if period == 0 then return [0]
+    target = numeric.linspace(0, period, period)
     i = 0
     return _.map(target, (t)->
       if i + 1 >= data.length then return data[i].param

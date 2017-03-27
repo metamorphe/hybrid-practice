@@ -1,3 +1,12 @@
+.alert{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  margin: 0px 0%;
+  z-index: 100000000;
+  @include drop-shadow(0.5);
+}
 
 
 track{

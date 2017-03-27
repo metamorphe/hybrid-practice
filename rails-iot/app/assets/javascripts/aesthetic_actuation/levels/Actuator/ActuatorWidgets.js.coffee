@@ -33,14 +33,18 @@ class window.ChoreographyWidget extends Widget
   @NORMAL_SELECT = (path)->
     name = CanvasUtil.getPrefix path
     path.set
-      strokeWidth: 2
-      strokeColor: "#00A8E1"
+      strokeColor: "yellow"
+      strokeWidth: 3
+      shadowColor: "#00A8E1"
+      shadowBlur: 5
   @STYLE_PARAMS = (path)->
     # styles = ["fillColor", "strokeWidth", "strokeColor", "shadowColor", "shadowOffset", "shadowBlur"]
     # return _.object(_.map styles, (s)-> [s, path[s]])
     style = 
-      strokeColor: new paper.Color("black")
+      strokeColor: "black"
       strokeWidth: 1
+      shadowColor: "#00A8E1"
+      shadowBlur: 0
     return style
   deselect_all: ->
     scope = this
@@ -63,7 +67,10 @@ class window.ChoreographyWidget extends Widget
         scope.buffer[el.id] = style
         ChoreographyWidget.NORMAL_SELECT(el)
         el.flag = true
-     
+  darken: ()->   
+    @canvas.css('background', "#111111")
+    diffs = CanvasUtil.queryPrefix('DIF')
+    CanvasUtil.set diffs, 'opacity', 0
   constructor: (op)->
     scope = this
     console.log "ChoreographyWidget"
@@ -71,9 +78,10 @@ class window.ChoreographyWidget extends Widget
     scope = this
     _.extend this, op
     @canvas = @dom.find('canvas')
-    
-
     window.paper = @paper
+    @darken()
+
+    
 
     @tools = {}
     
@@ -184,10 +192,16 @@ class window.Communicator extends ActuatorWidget
     @update()
     Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
     @trigger.click (event)->
+      event.preventDefault()
+      $(this).blur()
       scope.live = not scope.live
       scope.update()
   update: ()->
-    if @live then @trigger.addClass('btn-success') else @trigger.removeClass('btn-success')
+    if @live
+      @trigger.addClass('btn-success') 
+      if sc.state == 0
+        $('#port-connect').click()
+    else @trigger.removeClass('btn-success')
 
 class window.AsynchMorph extends ActuatorWidget
   @MIN: 0
@@ -212,25 +226,54 @@ class window.Saver extends ActuatorWidget
     
     @track = "actuator_group_library"
     @stage = "behavior_stage"
+    @ts_library = "ts_library"
+
+    
+
+    # SAVE BEHAVIORS
     @op.trigger.click (event)->
       track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
-      scope.saveActuators(scope.track, track_actuators)
+      scope.saveActors(scope.track, track_actuators)
       stage_actuators = bm.getActors()
-      scope.saveActuators(scope.stage, stage_actuators)
+      scope.saveActors(scope.stage, stage_actuators)
 
-  
-  saveActuators: (name, actors)->
-    console.log "SAVING", name, actors.length
-    data = _.map actors, (actor)-> 
-      actor.form = {saved: true}
-      return _.extend actor.serialize(),
-        file: fs.getName()
-    console.log data
-    @save(name, data)
+
+
+      signal_tracks = $(".signal-design .track-full").not("#hues")
+      signal_tracks = _.map signal_tracks, (track)->
+        signals = TimeWidget.resolveTrack(track) 
+        track_id = $(track).parent('event').attr('id')
+        scope.saveActors(scope.ts_library + ":" + track_id, signals)
+
+
+      Alerter.warn
+        strong: "SAVED!"
+        msg: "We won't forget a thing!"
+        delay: 2000
+        color: 'alert-success'
+
   save: (name, data)->
     key = @generateKey(name)
     if ws then ws.set(key, JSON.stringify(data))
-  loadActuator: (name, loadFN)->
+  load:()->
+    scope = this
+    @trackLoad()
+    @stageLoad()
+    @signalLoad()
+    
+         
+
+  
+  saveActors: (name, actors)->
+    console.log "SAVING", name, actors.length
+    data = _.map actors, (actor)-> 
+      actor.form = {saved: true}
+      return _.extend actor.form,
+        file: fs.getName()
+    @save(name, data)
+  
+  
+  loadActors: (name, loadFN)->
     scope = this
     key = @generateKey(name)
     rtn = ws.get(key)
@@ -239,16 +282,25 @@ class window.Saver extends ActuatorWidget
     _.each actuators, (actuator)->
       loadFN(actuator)
     return actuators
-  load:()->
-    @trackLoad()
-    @stageLoad()
+  
+  signalLoad: ()->
+    scope = this
+    signal_tracks = $(".signal-design .track-full").not("#hues")
+    signal_tracks = _.map signal_tracks, (track)->
+      track_id = $(track).parent('event').attr('id')
+      console.log "LOADING", track_id
+      scope.loadActors scope.ts_library + ":" + track_id, (signal)->
+        dom = TimeSignal.create
+          clear: false
+          target: $(track)
+        signal = new TimeSignal dom, signal
   stageLoad: ()->
     scope = this
-    @loadActuator @stage, (actuator)->
+    @loadActors @stage, (actuator)->
       bm.loadStage(actuator)
   trackLoad: ()->
     scope = this
-    @loadActuator @track, (actuator)->
+    @loadActors @track, (actuator)->
       ops = 
         clear: false
         target: scope.op.track

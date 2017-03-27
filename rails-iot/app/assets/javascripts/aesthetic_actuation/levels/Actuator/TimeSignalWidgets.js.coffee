@@ -18,13 +18,13 @@ class window.TimeWidgets
       recorder_result: $('#record-result')
       bindKey: 'r'
 
-class TimeWidget extends Widget
+class window.TimeWidget extends Widget
   constructor: (op)->
     scope = this
     _.extend this, op
     Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
   @resolveTrack: (track)->
-    _.map track.find('datasignal'), (d)-> return tsm.resolve(d)
+    _.map $(track).find('datasignal'), (d)-> return tsm.resolve(d)
   resolveTrack: ()->
     TimeWidget.resolveTrack(@track)
 class Cutter extends TimeWidget
@@ -43,7 +43,7 @@ class Cutter extends TimeWidget
     padding = parseFloat(signal.dom.parent().css('padding-left'))
     cut_location = cut_x + padding - (offset.left)
     cut_p = cut_location / signal.dom.width()
-
+    console.log cut_p
     signal.split
       p: cut_p
       target: @track
@@ -74,20 +74,16 @@ class Stitcher extends TimeWidget
   stitch: ()->
     signals = @resolveTrack()
     if _.isEmpty signals then return
-    time_sum = 0
-    data = _.map signals, (signal)->
-      time_sum += signal.form.period
-      return TimeSignal.resample(signal.command_list(), signal.form.period)
-    data = _.flatten(data)
-    console.log data
     dom = TimeSignal.create
       clear: true
       target: @target
-    signal = new TimeSignal(dom)
-    signal.form = 
-      signal: data
-      period: time_sum
-    return 
+    signal = new TimeSignal dom, 
+      signal: [0, 0, 0]
+      period: 0
+
+    data = _.map signals, (subsignal)->
+      signal.inject(subsignal.command_list(), subsignal.form.period)
+  
 
 
 class window.Recorder extends TimeWidget

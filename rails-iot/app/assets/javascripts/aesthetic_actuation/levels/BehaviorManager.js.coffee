@@ -1,5 +1,5 @@
 class window.Scheduler 
-	@quanta: 500
+	@quanta: 50
 	@pretty_print: (commands)->
 		console.log "------- RAW_COMMANDS ---------"
 		console.log "t", "offset", "hid", "channel", "value"
@@ -16,8 +16,11 @@ class window.Scheduler
 	@sendCommandTo: (command, simulation=true)->
 		actuator = command.actuator
 		if _.isUndefined actuator
-			console.warn("FORGOT TO SELECT AN ACTUATOR!")
-			return
+			Alerter.warn
+		      strong: "HEADS UP"
+		      msg: "DON'T FORGET TO SELECT AN ACTUATOR"
+		      delay: 2000
+	      return 
 		if simulation   
 			actuator.perform(command.channel, command)
 			am.updateChannels(actuator)
@@ -29,6 +32,7 @@ class window.BehaviorManager
 		scope = this
 		@play_ids = []
 		@playing = false
+		@scrub_ids = []
 		@activateDragAndDrop()
 		$("button#compose").click(()-> scope.play())
 		$("button#add-stage").click(()-> scope.addStage())
@@ -64,10 +68,8 @@ class window.BehaviorManager
 		@op.scrubber.css
 			transition: 'left '+ duration+'ms linear'
 			left: Math.round(@scrubberPos(end))
-
-		_.delay(()-> scope.op.scrubber.css
-			transition : 'left 0s linear'
-		, duration);
+		id = _.delay (()-> scope.pause()), duration
+		@scrub_ids.push id
 	scrubberSet: (x)->
 		@op.scrubber.css
 			transition : 'left 0s linear'
@@ -83,87 +85,41 @@ class window.BehaviorManager
 		t = timescale * @op.scrubber.position().left / w
 		return t
 	
-	compile: ()->
-		actors = $("#stage actuator").not(".template")
-		signal_tracks = $("#timetrack acceptor").not(".template")
-		choreography = _.chain actors
-			.map (actor, i)->
-				actor = am.resolve(actor)
-				channels = _.keys(actor.physical_channels()).sort()
-				signal_track = $(signal_tracks[i])
-				signals = signal_track.find('datasignal')
-				tracks = signal_track.data().tracks
-				timescale = signal_track.data().timescale
-				height = signal_track.height()
-				width = signal_track.width()
-				commands = _.chain signals
-					.map (signal, j)->
-						# CENTER LEFT CORNER POSITION VECTOR
-						a = $(signal).parent().offset()
-						b = $(signal).offset()
-						pos = {top: b.top - a.top, left: b.left - a.left}
-						pos.top += $(signal).height() / 2.0;
-
-						# COLLAPSING TO INDEX 
-						i = Math.floor(pos.top / height * tracks)
-
-						# RESOLVING CHANNEL
-						channel = channels[i]
-
-						# TIME OFFSET
-						offset = (pos.left / width) * timescale
-
-						# COMPILING INSTRUCTIONS PER CHANNEL
-						commands = tsm.resolve(signal).command_list({offset: offset})
-						commands = _.map commands, (command) -> 
-							cl = actor.perform(channel, command)
-							# console.log "C", cl
-							return cl
-						commands =_.flatten(commands)
-						# _.each commands, (command)->
-							# console.log "I", command.api.args.join(',')
-						commands
-					.flatten()
-					# .tap (c)-> console.log "C", c
-					.value()
-			.flatten()
-			.sortBy("t")
-			.value()
-		# _.each choreography, (c)->
-			# console.log c.api.args.join ","
-		
-		return choreography
 	play: ()->
 		if @playing
 			@pause()
-			@playing = false
 			return
 
 		scope = this
 		raw_commands = @compile()
+		if _.isEmpty raw_commands then return
+
 		Scheduler.pretty_print(raw_commands)
 		t_start = @scrubberTime()
-		if _.isEmpty raw_commands then return
-		 
+		
 		# RESTART
 		commands = _.filter raw_commands, (command)-> command.t > t_start
 		if _.isEmpty commands 
 			t_start = 0
 			commands = raw_commands
+
 		start = _.first(commands).t
 		end = _.last(commands).t + _.last(commands).duration
-		commands = _.each commands, (command)->
-			command.t = command.t - t_start
+		commands = _.each commands, (command)-> command.t = command.t - t_start
 
-		scope.play_ids = Scheduler.schedule(commands, false)
+		scope.play_ids = Scheduler.schedule(commands, true)
 		scope.playScrubber(start, end)
 		@playing = true
 	pause: ()->
+		@op.scrubber.css
+			transition : 'left 0s linear'
 		pos = @scrubberPos(@scrubberTime())
 		@scrubberSet(pos)
-		_.each @play_ids, (id)->
+		_.each _.flatten([@scrub_ids, @play_ids]), (id)->
 			clearTimeout(id)
 		@play_ids = []
+		@playing = false
+
 
 	activateDragAndDrop: ()->
 		scope = this
@@ -172,3 +128,49 @@ class window.BehaviorManager
 			axis: "x"
 			grid: [ 5, 200 ]
 			scroll: false
+	compile: ()->
+		actors = $("#stage actuator").not(".template")
+		signal_tracks = $("#timetrack acceptor").not(".template")
+		choreography = _.chain actors
+			.map (actor, i)->
+				actor = am.resolve(actor)
+				channels = _.keys(actor.physical_channels()).sort()
+				if i < signal_tracks.length
+					signal_track = $(signal_tracks[i])
+					signals = signal_track.find('datasignal')
+					tracks = signal_track.data().tracks
+					timescale = signal_track.data().timescale
+					height = signal_track.height()
+					width = signal_track.width()
+					commands = _.chain signals
+						.map (signal, j)->
+							# CENTER LEFT CORNER POSITION VECTOR
+							a = $(signal).parent().offset()
+							b = $(signal).offset()
+							pos = {top: b.top - a.top, left: b.left - a.left}
+							pos.top += $(signal).height() / 2.0;
+
+							# COLLAPSING TO INDEX 
+							i = Math.floor(pos.top / height * tracks)
+
+							# RESOLVING CHANNEL
+							channel = channels[i]
+
+							# TIME OFFSET
+							offset = (pos.left / width) * timescale
+
+							# COMPILING INSTRUCTIONS PER CHANNEL
+							commands = tsm.resolve(signal).command_list({offset: offset})
+							commands = _.map commands, (command) -> 
+								cl = actor.perform(channel, command)
+								return cl
+							commands =_.flatten(commands)
+							commands
+						.flatten()
+						.value()
+				else
+					return []
+			.flatten()
+			.sortBy("t")
+			.value()
+		return choreography
