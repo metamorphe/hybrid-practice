@@ -11,7 +11,7 @@ class window.ActuatorManager
       canvas_ids: op.canvas_ids
       title: op.title or op.actuator_type
       saved: op.saved
-      async_period: op.async_period or ActuatorManager.DEFAULT_ASYNC
+      async_period: op.async_period
     dom.data data
     op.target.append(dom)
     op.target.addClass("accepted")

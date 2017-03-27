@@ -51,7 +51,8 @@ class Actuator
         @dom.data @form
         if @title != prev.title then @setTitle(@title, @saved)
         if @saved != prev.saved then @setTitle(@title, @saved)
-        if @async_period != prev.async_period then @setAsync(@async_period)
+        
+        @setAsync(@async_period)
         
         # POPULATE CANVAS IDs MANUALLY
         window.paper = ch.paper

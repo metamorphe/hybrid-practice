@@ -1,9 +1,19 @@
+group{
+  position: relative;
+}
 /* FILE SELECTOR */
   #selectors{
+    position: fixed;
+    top: 0;
+    z-index: 100000;
     padding: 2px 1px 6px 1px;
-    background: $base;
+    background: #333;
     @include inset-shadow(0.43);
-    @include drop-shadow(0.43);
+    @include drop-shadow(0.83);
+  }
+  event:nth-child(2){
+    margin-top: 40px;
+    padding-top: 10px;
   }
  .status-label{
     color: #00A8E1;
