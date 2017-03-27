@@ -10,7 +10,7 @@ python -m SimpleHTTPServer
 2. Clone this repo into <top directory> somewhere on your machine.
 3. CD into <top directory>/rails-iot
 4. Run ```bundle install``` (see Troubleshooting section if you get error messages)
-3. Handle the migration ``` bin/rake db:migrate RAILS_ENV=development ```
+3. Handle the migration ```rake db:migrate ```
   
 ## Control server
 1. Navigate to rails-iot/
@@ -21,6 +21,12 @@ python -m SimpleHTTPServer
 1. Open a browser, and navigate to
 ```
 http://localhost:3000/tool/designer
+```
+
+## Navigate to "Actuation Aesthetics" light design tool
+1. Open a browser, and navigate to
+```
+http://localhost:3000/tool/actuation_aesthetics
 ```
 
 ## Upgrading when pulling a version from Git
