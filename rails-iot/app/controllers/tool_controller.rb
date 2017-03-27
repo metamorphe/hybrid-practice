@@ -118,7 +118,7 @@ class ToolController < ApplicationController
  # HELPER METHODS
  
   def get_ports
-    ports = ["/dev/tty.usbmodem*"] #"/dev/tty.HC*", 
+    ports = ["/dev/tty.usb*"] #"/dev/tty.HC*", 
     ports.map!{|p| Dir[p]}
     ports.flatten!
   end
