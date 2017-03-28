@@ -45,7 +45,7 @@ void color_change(){
   Serial.println(r);
   Serial.print("g: ");
   Serial.println(g);
-  Serial.print("g: ");
+  Serial.print("b: ");
   Serial.println(b);
   strip.setPixelColor(id, r, g, b);  
 }
@@ -60,6 +60,8 @@ void findCommandEnd(){
 }
 
 void api_call(char prefix){
+   Serial.print("prefix: ");
+   Serial.println(prefix);
    switch (prefix) {
     case 'u': 
       update();
