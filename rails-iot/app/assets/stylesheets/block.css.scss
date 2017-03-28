@@ -17,9 +17,37 @@ block{
     cursor: hand!important;
 
     @include drop-shadow(0.93);
-    &.selected:not(.acceptor){
-        @include drop-highlight(0.72);
+    &.selected:not(.acceptor)::before{
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: calc(50% - 22px);
+        width: 0; 
+        height: 0; 
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 12px solid yellow;
+        z-index: 100000000;
     }
+    &.selected:not(.acceptor)::after{
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: calc(50% - 20px);
+        width: 0; 
+        height: 0; 
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 12px solid yellow;
+        z-index: 100000000;
+    }
+    &.selected:not(.acceptor){
+        border: 1px solid yellow;
+        padding: 0px;
+        @include drop-highlight-color(rgba(255,255,0,0.72));
+    }
+    
+
 }
 
 .dragbox{

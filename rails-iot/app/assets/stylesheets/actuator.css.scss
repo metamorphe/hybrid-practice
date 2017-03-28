@@ -83,6 +83,7 @@ actuator{
     font-size: 9pt;
     text-align: center;
     z-index: 10;
+    border: 1px solid $actuator_base;
 
     @include drop-shadow(0.93);  
 

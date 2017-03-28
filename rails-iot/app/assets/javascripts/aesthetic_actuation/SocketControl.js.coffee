@@ -1,3 +1,6 @@
+class window.USBControl
+  @constructor: ()->
+    
 class window.SocketControl
   @DISCONNECTED: 0
   @ERROR : 1
