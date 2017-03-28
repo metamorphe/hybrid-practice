@@ -77,6 +77,7 @@ void api_call(char prefix){
     case 'u': 
       update();
       findCommandEnd();
+      break;
     case 'c':
       color_change();
       findCommandEnd(); 
