@@ -38,7 +38,7 @@ class window.Composer
   init:()->
     @live = false
     Composer.log "COMPOSER INITIALIZED"
-    @initBLSlider @op.slider
+    # @initBLSlider @op.slider
     @bindLiveButton()
     @bindSignalButton()
   bindLiveButton:()->
@@ -68,31 +68,31 @@ class window.Composer
       commands =_.flatten(commands)
       Scheduler.schedule(commands)
   
-  initBLSlider: (dom)->
-    Composer.log "BINDING BL"
-    scope = this;
-    dom.on 'input', ->
-      diff = Date.now() - scope.now
-      if(diff < 50)
-        return
-      else 
-        scope.now = Date.now()
-      actor = am.getActiveActuator()
-      if _.isUndefined actor
-        scope.warn()
-        return
-      actor.form = {saved: false}
-      channel = am.getActiveChannel()
-      param = parseFloat($(this).val())  
-      command = {t: 0, param: param}
-      commands = actor.perform(channel, command)
-      commands =_.flatten(commands)
-      Scheduler.schedule(commands)
-    return
+ #  initBLSlider: (dom)->
+ #    Composer.log "BINDING BL"
+ #    scope = this;
+ #    dom.on 'input', ->
+ #      diff = Date.now() - scope.now
+ #      if(diff < 50)
+ #        return
+ #      else 
+ #        scope.now = Date.now()
+ #      actor = am.getActiveActuator()
+ #      if _.isUndefined actor
+ #        scope.warn()
+ #        return
+ #      actor.form = {saved: false}
+ #      channel = am.getActiveChannel()
+ #      param = parseFloat($(this).val())  
+ #      command = {t: 0, param: param}
+ #      commands = actor.perform(channel, command)
+ #      commands =_.flatten(commands)
+ #      Scheduler.schedule(commands)
+ #    return
  
   
   
   
     
 
- 
+ # 

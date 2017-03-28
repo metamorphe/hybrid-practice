@@ -1,16 +1,15 @@
 group{
   position: relative;
-  width: calc(100% - 130px);
+  width: calc(100% - 250px);
   left: 130px;
+  right: 130px;
   /*height: 100%;*/
   flex-wrap: nowrap !important;
   flex-direction: column;
   justify-content: flex-start;
   overflow-x: hidden;
-  overflow-y: scroll
-    /*flex-direction: column;*/
-  /*width: calc(100% - $actuator-width - 20px);*/
-  /*margin-left: calc($actuator-width + 20px);*/
+  overflow-y: scroll;
+  @include inset-shadow(0.8);
 }
 /* FILE SELECTOR */
   #selectors{

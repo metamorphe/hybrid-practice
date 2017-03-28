@@ -29,9 +29,9 @@ $actuator_width: 110px;
 	box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);
 }
 @mixin drop-shadow($opacity){
-	-webkit-box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
-	-moz-box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
-	box-shadow: 0px 4px 12px -5px rgba(0,0,0,$opacity);
+	-webkit-box-shadow: 4px 4px 12px -5px rgba(0,0,0,$opacity);
+	-moz-box-shadow: 4px 4px 12px -5px rgba(0,0,0,$opacity);
+	box-shadow: 4px 4px 12px -5px rgba(0,0,0,$opacity);
 }
 @mixin drop-highlight-color($color){
 	-webkit-box-shadow: 0px 8px 12px -5px $color;

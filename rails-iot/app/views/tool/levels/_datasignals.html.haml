@@ -11,13 +11,13 @@
   .track-full{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     
 
-%event#library.signal-design
-  %button.btn.btn-xs.btn-info.toggle
-    =glyph "collapse-up"
+%event#library.signal-design.column
+  / %button.btn.btn-xs.btn-info.toggle
+  /   =glyph "collapse-up"
   .vert
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
-      %span LIBRARY
-      %span.command
+      %span SIGNALS
+      %span.command [S]
 
 
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}

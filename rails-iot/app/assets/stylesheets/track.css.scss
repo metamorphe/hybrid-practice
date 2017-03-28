@@ -12,7 +12,6 @@
 track{
   @extend .hoz;
   height: 90%;
-  min-height: 100px;
   margin: 0 6px;
   /*max-height: 90px;*/
   padding: 0 6px;
@@ -23,20 +22,37 @@ track{
 }
 
 event.column{
+  padding-top: 8px;
+  @include drop-shadow(0.5);
   @extend .vert-centered-sink-top;
   position: fixed;
   left: 0;
   top: 43px;
   height: 100%;
   width: 130px !important;
-  z-index: 100;
+  z-index: 100000;
   .track-full{
-    width: 96%;
+    width: 96% !important;
     margin-top: 8px;
     padding-top: 6px;
     justify-content: flex-start!important;
     flex-wrap: nowrap !important;
     flex-direction: column !important;
+    actuator{
+      margin-bottom: 4px;
+    }
+  }
+}
+event.column.signal-design{
+  width: 140px;
+  right: 0;
+  left: auto;
+  .track-full{
+    /*padding-left: 2px!important;*/
+    datasignal{
+      width: 100%;
+      margin-bottom: 4px;
+    }
   }
 }
 event{

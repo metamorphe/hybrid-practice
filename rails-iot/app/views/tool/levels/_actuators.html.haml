@@ -1,25 +1,25 @@
 %event#project.full-hoz.tall.actuation-design
   %button.btn.btn-xs.btn-info.toggle
     =glyph "collapse-up"
-  .vert
+  .vert-centered.fill_height
     %button.design-title.btn-primary.trigger{:type => "trigger"}
       PROJECT
-    %input.master.sexy{:type=>"range", :min => 0, :max => 1, :step => 0.01}
+    %acceptor#group-result.actuator{:data => {:accept=> 1}}  
   .full-hoz.fill_height
     .project-container
       #projectviewer
         %canvas
 
 %event#library.actuation-design.column.vert-centered-sink-top
-  %button.btn.btn-xs.btn-info.toggle
-    =glyph "collapse-up"
+  / %button.btn.btn-xs.btn-info.toggle
+  /   =glyph "collapse-up"
   .vert
     %button.design-title.btn-primary.trigger{:type => "trigger"}
-      %span SAVED
+      %span ACTUATORS
       %span.command [S]
   .track-full.droppable
 
-%event#group.actuation-design
+%event#group.actuation-design.shrink
   %button.btn.btn-xs.btn-info.toggle
     =glyph "collapse-up"
   .vert
