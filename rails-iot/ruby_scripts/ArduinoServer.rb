@@ -26,7 +26,9 @@ EventMachine.run do
       @channel.push data
     end
   end
-  EM::WebSocket.start(:host => "0.0.0.0", :port => @port) do |ws|
+  ip = Socket.ip_address_list.find {|a| a.ipv4? ? !(a.ipv4_private? || a.ipv4_loopback?) : !(a.ipv6_sitelocal? || a.ipv6_linklocal? || a.ipv6_loopback?) }.ip_address
+  print ip
+  EM::WebSocket.start(:host => ip, :port => @port) do |ws|
     ws.onopen{
       print "OPENED!\n"
       @sid = @channel.subscribe { |msg| ws.send msg }
