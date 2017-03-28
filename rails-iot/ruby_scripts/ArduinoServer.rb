@@ -17,7 +17,7 @@ EventMachine.run do
     @usb = @usb[0]
   end
 
-  @sp = SerialPort.new(@usb, @baud, 8, 1, SerialPort::NONE)
+  @sp = SerialPort.new(@usb, @baud, 8, 1, SerialPort::EVEN)
   @sid = nil
   EM::defer do
     loop do

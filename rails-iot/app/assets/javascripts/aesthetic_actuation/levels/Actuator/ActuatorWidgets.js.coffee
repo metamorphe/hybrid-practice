@@ -138,6 +138,7 @@ class window.ChoreographyWidget extends Widget
       # paper.tool = scope.tools.selection
   extractDistanceMetric: ()->
     return @extractDistanceMetricTheta()
+    # return @extractDistanceMetricFromCenter()
   extractDistanceMetricTheta: ()->
     window.paper = @paper 
     c = new paper.Path.Circle

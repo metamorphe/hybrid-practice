@@ -48,6 +48,7 @@ class window.TimeSignal
   processTrack: (track)->
     if _.isUndefined track then return {}
     t = _.clone(track.data())
+    console.log track.data()
     t.tracks =  t.tracks or @tracks
     t.perceptual =  t.perceptual == "enabled" 
     t.composeable =  t.composeable == "enabled" 
@@ -57,10 +58,10 @@ class window.TimeSignal
     t.draggable =  t.draggable == "enabled" 
     t.force_period_flag =  t.forcePeriodFlag == "enabled" 
     t.force_period =  parseInt(t.force_period) or @force_period
-    t.gamma = if _.isUndefined @gammaCorrective then @gamma else parseFloat(@gammaCorrective)
+    t.gamma = if _.isUndefined t.gammaCorrective then @gamma else parseFloat(t.gammaCorrective)
     t.exportable =  t.exportable == "enabled" 
     t.gamma_corrected =  t.gamma != 1
-
+    console.log "GAMMA", t.gamma_corrected, t.gamma
     delete t['forcePeriodFlag']
     delete t['gammaCorrective']
     return t
@@ -507,7 +508,7 @@ class window.TimeSignal
     min = TimeSignal.MIN
     p = (v - min) / (max - min);
 
-    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
+    # if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
     if p > 1 then p = 1
     if p < 0 then p = 0
     # "#000000",

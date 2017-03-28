@@ -190,7 +190,8 @@ class window.BehaviorManager
 							offset = (pos.left / width) * timescale
 
 							# COMPILING INSTRUCTIONS PER CHANNEL
-							commands = tsm.resolve(signal).command_list({offset: offset})
+							ts = tsm.resolve(signal)
+							commands = ts.command_list_data(ts.p_signal,{offset: offset})
 							commands = _.map commands, (command) -> 
 								cl = actor.perform(channel, command)
 								return cl

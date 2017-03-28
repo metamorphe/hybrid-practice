@@ -1,5 +1,5 @@
 class window.TimeSignalManager
-  @NUM_OF_COLORS: 360/7
+  
   @log: ()-> return#console.log.bind(console)
   constructor: (@op) ->
     TimeSignalManager.log 'TSM'
@@ -7,7 +7,6 @@ class window.TimeSignalManager
   init:()->
     
     @activateTrackButtons()
-    @populateHues()
     @initTimeSignals()
     @initSelection()
   activateTrackButtons: ()->
@@ -25,18 +24,7 @@ class window.TimeSignalManager
         if _.isUndefined(ts) then return 
         ts.form =  {view: n_view}
         dom.parents('event').find('[class^=track]').data('view', n_view)
-  populateHues: ()->
-    if $('#hues').length == 0 then return
-    hues  = _.map _.range(0, 360, TimeSignalManager.NUM_OF_COLORS), (h)->
-      h = h / 360
-      dom = TimeSignal.create
-        clear: false
-        target: $('#hues')
-      setter = 
-        signal: [h, h, h]
-        period: 500
-      signal = new TimeSignal(dom, setter)
-
+  
   initTimeSignals: ->
     collection = $('datasignal')
     console.log("SIGNALS",collection.length )
