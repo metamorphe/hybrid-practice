@@ -4,7 +4,7 @@
  */
  
 #include <Adafruit_NeoPixel.h>
-#define BAUD 115200
+#define BAUD 9600
 
 // SENSORS AND ACTUATOR PINS
 #define NUMPIXELS 12 // Number of LEDs in strip
