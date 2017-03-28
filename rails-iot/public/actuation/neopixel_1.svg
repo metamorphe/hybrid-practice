@@ -3,56 +3,59 @@
 <svg version="1.1" id="ELD:_Neopixel_Ring" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" viewBox="0 0 129 165.1" style="enable-background:new 0 0 129 165.1;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#C69C6D;stroke:#A67C52;stroke-miterlimit:10;}
-	.st1{fill:#0076B6;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
-	.st2{fill:#E6E7E8;stroke:#231F20;stroke-linecap:round;stroke-miterlimit:10;}
-	.st3{fill:none;stroke:#FFFF00;stroke-linecap:round;stroke-miterlimit:10;}
-	.st4{fill:#FFFF00;}
+	.st0{fill:none;stroke:#A67C52;stroke-miterlimit:10;}
+	.st1{fill:#C69C6D;stroke:#A67C52;stroke-miterlimit:10;}
+	.st2{fill:#0076B6;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
+	.st3{fill:#E6E7E8;stroke:#231F20;stroke-linecap:round;stroke-miterlimit:10;}
+	.st4{fill:none;stroke:#FFFF00;stroke-linecap:round;stroke-miterlimit:10;}
+	.st5{fill:#FFFF00;}
 </style>
-<g>
-	<line class="st0" x1="60.2" y1="42.1" x2="60.2" y2="0"/>
-	<rect x="58.7" y="0" class="st0" width="3" height="42.1"/>
+<g id="DEVICE:_x7B_id:1_x7D_">
+	<g>
+		<line class="st0" x1="60.2" y1="42.1" x2="60.2" y2="0"/>
+		<rect x="58.7" class="st1" width="3" height="42.1"/>
+	</g>
+	<g>
+		<line class="st0" x1="63.2" y1="42.1" x2="63.2" y2="0"/>
+		<rect x="61.7" class="st1" width="3" height="42.1"/>
+	</g>
+	<g>
+		<line class="st0" x1="66.2" y1="42.1" x2="66.2" y2="0"/>
+		<rect x="64.7" class="st1" width="3" height="42.1"/>
+	</g>
+	<g>
+		<line class="st0" x1="69.2" y1="42.1" x2="69.2" y2="0"/>
+		<rect x="67.7" class="st1" width="3" height="42.1"/>
+	</g>
+	<path id="BASE:_base_x5F_path" class="st2" d="M64.4,39.6C32.7,39.6,7,65.2,7,96.9s25.7,57.3,57.3,57.3s57.3-25.7,57.3-57.3
+		S96,39.6,64.4,39.6z M64.4,133.9c-20.4,0-37-16.6-37-37s16.6-37,37-37s37,16.6,37,37S84.8,133.9,64.4,133.9z"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D_" class="st3" points="82.2,61.1 68.7,56.8 73,43.3 86.5,47.6 
+		84.7,53.4 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__1_" class="st3" points="61.6,57.1 47.8,60.2 44.8,46.3 
+		58.6,43.3 59.9,49.1 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__2_" class="st3" points="41.9,64.3 31.5,73.9 21.9,63.4 
+		32.4,53.9 36.4,58.3 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__3_" class="st3" points="28.1,80.1 23.9,93.6 10.4,89.4 
+		14.6,75.8 20.4,77.6 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__4_" class="st3" points="25,100.7 28.1,114.5 14.3,117.6 
+		11.1,103.8 17,102.5 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__5_" class="st3" points="31.7,119.9 41.4,130.3 31,140 
+		21.3,129.6 25.7,125.5 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__6_" class="st3" points="47.6,133.5 61.1,137.6 57,151.2 
+		43.4,147 45.2,141.3 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__7_" class="st3" points="67.9,136.8 81.7,133.6 85,147.4 
+		71.2,150.6 69.8,144.7 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__8_" class="st3" points="87.4,129.6 97.7,119.9 107.4,130.2 
+		97.1,140 93,135.6 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__9_" class="st3" points="100.4,113.8 104.5,100.3 
+		118.1,104.3 114,117.9 108.2,116.2 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__10_" class="st3" points="103.9,93.9 100.6,80.1 114.4,76.8 
+		117.7,90.6 111.8,92 	"/>
+	<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__11_" class="st3" points="97.8,74.5 88,64.2 98.2,54.4 
+		108,64.7 103.7,68.8 	"/>
+	<path id="CP:_CircuitPath" class="st4" d="M50.6,145c-4.5-1.5-12.9-5-20.6-12.9c-1.7-1.7-8.8-9.3-12.6-21.8
+		c-1.5-5-4.1-13.6-1.6-24.3c3-12.5,11.1-20,13.9-22.4c17.4-15.4,40.1-11.7,42-11.3c1.8,0.3,28.3,5.6,37.3,29.5
+		c5.1,13.5,1.8,25.4,0.8,28.7c-6.6,22.5-28,31.3-31.9,32.8c-5.4,2.1-10.2,2.9-13.4,3.2"/>
+	<circle id="BI:_Breakin" class="st5" cx="50.6" cy="145" r="1.8"/>
 </g>
-<g>
-	<line class="st0" x1="63.2" y1="42.1" x2="63.2" y2="0"/>
-	<rect x="61.7" y="0" class="st0" width="3" height="42.1"/>
-</g>
-<g>
-	<line class="st0" x1="66.2" y1="42.1" x2="66.2" y2="0"/>
-	<rect x="64.7" y="0" class="st0" width="3" height="42.1"/>
-</g>
-<g>
-	<line class="st0" x1="69.2" y1="42.1" x2="69.2" y2="0"/>
-	<rect x="67.7" class="st0" width="3" height="42.1"/>
-</g>
-<path id="BASE:_base_x5F_path" class="st1" d="M64.4,39.6C32.7,39.6,7,65.2,7,96.9s25.7,57.3,57.3,57.3s57.3-25.7,57.3-57.3
-	S96,39.6,64.4,39.6z M64.4,133.9c-20.4,0-37-16.6-37-37s16.6-37,37-37s37,16.6,37,37S84.8,133.9,64.4,133.9z"/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D_" class="st2" points="82.2,61.1 68.7,56.8 73,43.3 86.5,47.6 
-	84.7,53.4 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__1_" class="st2" points="61.6,57.1 47.8,60.2 44.8,46.3 
-	58.6,43.3 59.9,49.1 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__2_" class="st2" points="41.9,64.3 31.5,73.9 21.9,63.4 
-	32.4,53.9 36.4,58.3 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__3_" class="st2" points="28.1,80.1 23.9,93.6 10.4,89.4 
-	14.6,75.8 20.4,77.6 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__4_" class="st2" points="25,100.7 28.1,114.5 14.3,117.6 
-	11.1,103.8 17,102.5 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__5_" class="st2" points="31.7,119.9 41.4,130.3 31,140 
-	21.3,129.6 25.7,125.5 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__6_" class="st2" points="47.6,133.5 61.1,137.6 57,151.2 
-	43.4,147 45.2,141.3 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__7_" class="st2" points="67.9,136.8 81.7,133.6 85,147.4 
-	71.2,150.6 69.8,144.7 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__8_" class="st2" points="87.4,129.6 97.7,119.9 107.4,130.2 
-	97.1,140 93,135.6 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__9_" class="st2" points="100.4,113.8 104.5,100.3 118.1,104.3 
-	114,117.9 108.2,116.2 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__10_" class="st2" points="103.9,93.9 100.6,80.1 114.4,76.8 
-	117.7,90.6 111.8,92 "/>
-<polygon id="NLED:_x7B__x22_colorID_x22_:_x22__x23_FFFF00_x22__x7D__11_" class="st2" points="97.8,74.5 88,64.2 98.2,54.4 
-	108,64.7 103.7,68.8 "/>
-<path id="CP:_CircuitPath" class="st3" d="M50.6,145c-4.5-1.5-12.9-5-20.6-12.9c-1.7-1.7-8.8-9.3-12.6-21.8
-	c-1.5-5-4.1-13.6-1.6-24.3c3-12.5,11.1-20,13.9-22.4c17.4-15.4,40.1-11.7,42-11.3c1.8,0.3,28.3,5.6,37.3,29.5
-	c5.1,13.5,1.8,25.4,0.8,28.7c-6.6,22.5-28,31.3-31.9,32.8c-5.4,2.1-10.2,2.9-13.4,3.2"/>
-<circle id="BI:_Breakin" class="st4" cx="50.6" cy="145" r="1.8"/>
 </svg>
