@@ -43,7 +43,6 @@ class window.TimeSignal
     ops = _.extend ops, set
     @form = ops
     tsm.add.apply(tsm, [this])
-    tsm.initSelection()
 
   processTrack: (track)->
     if _.isUndefined track then return {}
@@ -125,10 +124,42 @@ class window.TimeSignal
 
         @_visuals()
         @dom.data @form
+        @dom.data
+          content: TimeSignal.pretty_time(@period)
         return @form
+
+  @popover: (dom)->
+    dom.data
+      content: "500ms"
+      placement: 'right'
+      template: '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div><input min="0" max="10000" step="100" type="range"/></div>'
+    # dom.popover()
+    
+    dom.click (event)->  
+      $('datasignal').not(this).popover('hide')
+      popover = $('.popover')
+    
+      tag = this.tagName
+      $(this).focus()
+      $(tag).removeClass 'selected'
+      $(this).addClass 'selected'
+    return dom
+
+  popover_behavior: (event)->
+    scope = this
+    $('datasignal').not(@dom).popover('hide')
+    @dom.popover('show')
+    $('.popover').find('input').val(@period)
+    $('.popover').find('input').on 'input', ()->
+      pop = $(this).parents('.popover')
+      t = $(this).val()
+      pop.find('.popover-content').html(TimeSignal.pretty_time(t))
+      scope.form = {period: t}
+    
   @create: (op)->
     if op.clear then op.target.find('datasignal').remove()
     dom = $('<datasignal><canvas></canvas></datasignal>')
+    dom = TimeSignal.popover(dom)
     op.target.append(dom)
     return dom
   split: (op)->
@@ -174,6 +205,7 @@ class window.TimeSignal
     prev.signal = a.concat(b)
     prev.period += delta_t
     @form = prev
+  
   command_list: (op) ->
     @command_list_data(@data, op)
   command_list_data: (data, op)->
@@ -330,6 +362,7 @@ class window.TimeSignal
       cmp.op.signal_button.click()
     return playGroup
   _time_encoder: (group)->
+    scope = this
     time = TimeSignal.pretty_time(@period)
     timeGroup = new paper.Group
       name: "TIME: time selector"
@@ -354,6 +387,8 @@ class window.TimeSignal
     rect.sendToBack()
     timeGroup.pivot = timeGroup.bounds.topRight.clone()
     timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
+    timeGroup.onClick = (event)->
+      scope.popover_behavior(event)
     return timeGroup
   _remove_button: (group)->
     scope = this

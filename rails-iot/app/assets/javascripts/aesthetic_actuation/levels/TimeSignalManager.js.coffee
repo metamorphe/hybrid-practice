@@ -5,10 +5,8 @@ class window.TimeSignalManager
     TimeSignalManager.log 'TSM'
     @timesignals = []
   init:()->
-    
     @activateTrackButtons()
     @initTimeSignals()
-    @initSelection()
   activateTrackButtons: ()->
     scope = this
     $(".trash").click ()->
@@ -29,20 +27,15 @@ class window.TimeSignalManager
     collection = $('datasignal')
     console.log("SIGNALS",collection.length )
     _.map collection, (datasignalDOM, i) ->
-      ts = new TimeSignal($(datasignalDOM))
+      dom = $(datasignalDOM)
+      dom = TimeSignal.popover(dom)
+      ts = new TimeSignal(dom)
   resolve: (dom)->
     @getTimeSignal($(dom).data('id'))
   getTimeSignal: (id)->
     @timesignals[id]
   getActiveTimeSignal: ()->
     @resolve($('datasignal.selected'))
-  initSelection: ()->
-    scope = this
-    $('datasignal').click ->
-      tag = @tagName
-      $(tag).removeClass 'selected'
-      $(this).addClass 'selected'
-
   add: (ts)->
     @timesignals.push(ts)
     @activateDragAndDrop()
