@@ -1,13 +1,16 @@
-%event#recorder.signal-design
+
+%event#hues.signal-design
   %button.btn.btn-xs.btn-info.toggle
     =glyph "collapse-up"
   .vert
-    %button#record.design-title.btn-primary.trigger{:type => "trigger"}
-      %span RECORD
-      %span.command R
-  #record-result.track-long{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
-    %datasignal#result
-      %canvas.skip
+    %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
+      %span SWATCHES
+      
+    %span.command 300ms
+    %input.sexy{:type=>"range", :min => 0, :max => 1000, :step => 100}
+  .track-full{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
+    
+
 %event#library.signal-design
   %button.btn.btn-xs.btn-info.toggle
     =glyph "collapse-up"
@@ -15,7 +18,7 @@
     %button#apply-signal.design-title.btn-primary.trigger{:type => "trigger"}
       %span LIBRARY
       %span.command
-  #hues.track-full.droppable{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 4000, :tracks => 1, :exportable => "enabled", :view => "hue"}}
+
 
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal.default{:data => {:signal => "[0,1,0,1,0,1,0,1,0,1,0,1]", "period" => 1000}}
@@ -38,6 +41,8 @@
       =glyph "trash"
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
+
+
 %event#adder.signal-design
   %button.btn.btn-xs.btn-info.toggle
     =glyph "collapse-up"
@@ -53,17 +58,5 @@
       =glyph "trash"
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
-%event#timemorph.signal-design
-  %button.btn.btn-xs.btn-info.toggle
-    =glyph "collapse-up"
-  .vert
-    %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
-      %span FORGE
-      %span.command
-    %input#time-morph.sexy{:type=>"range", :min => -100, :max => 10000, :step => 100}
-  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :force_period_flag => 'enabled', :exportable => "enabled", :gamma_corrective => 1.1, :perceptual => "enabled" }}
-    %button.btn.btn-xs.btn-danger.trash
-      =glyph "trash"
-    %button.btn.btn-xs.btn-primary.view-toggle
-      =glyph "eye-open"
+
 

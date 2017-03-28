@@ -1,6 +1,26 @@
-.test{
-flex-flow: row nowrap;
+#hues{
+  @extend .noselect;
+  height: 65px;
+  cursor: pointer;
+  .trigger{
+    padding: 2px;
+    height: 30px;
+    margin-bottom: 5px;
+  }
+  .swatch{
+    height: 90%;
+    width: 20px;
+  }
+  input{
+    margin: -6px 0;
+  }
+  .command{
+    font-size: 7pt;
+    margin-bottom: 2px;
+  }
 }
+
+
 acceptor.datasignal{
   @extend .hoz-left;
   flex-flow: row nowrap;

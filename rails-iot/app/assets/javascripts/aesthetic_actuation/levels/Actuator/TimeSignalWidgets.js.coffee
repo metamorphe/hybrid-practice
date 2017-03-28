@@ -13,20 +13,69 @@ class window.TimeWidgets
       track: $('#time-morph-track')
       slider: $('input#time-morph')
       bindKey: 't'
-    @recorder= new Recorder
-      recorder_button: $('button#record')
-      recorder_result: $('#record-result')
-      bindKey: 'r'
-
+    
+    @recorder= new HueWidget
+      track: $('event#hues .track-full')
+      slider: $('event#hues input')
+      status: $('event#hues .command')
+      target: $('event#adder .track-full')
+      
 class window.TimeWidget extends Widget
   constructor: (op)->
     scope = this
     _.extend this, op
-    Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+    if @bindKey
+      Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
   @resolveTrack: (track)->
     _.map $(track).find('datasignal'), (d)-> return tsm.resolve(d)
   resolveTrack: ()->
     TimeWidget.resolveTrack(@track)
+
+class HueWidget extends TimeWidget
+  @NUM_OF_COLORS: 360/50
+  @SHADES_OF_GREY: 1/20
+  constructor:(op)->
+    super op
+    scope = this
+    @period = 500
+    @populate()
+    @update(@period)
+    @slider.on 'input', (event)->
+      t = $(this).val()
+      scope.update(t)
+  update:(t)->
+    @status.html(TimeSignal.pretty_time(t))
+    @period = t
+  populate: ()->
+    scope = this
+    greys  = _.map _.range(0, 1, HueWidget.SHADES_OF_GREY), (g)->
+      swatch = $('<div></div>').addClass('swatch')
+      c = new paper.Color("white")
+      c.brightness = g
+      swatch.data('intensity', g)
+      swatch.css('background', c.toCSS())
+      return swatch
+    @track.append(greys)
+    hues  = _.map _.range(0, 360, HueWidget.NUM_OF_COLORS), (h)->
+      swatch = $('<div></div>').addClass('swatch')
+      c = new paper.Color("red")
+      c.hue = h
+      swatch.data('intensity', h/360)
+      swatch.css('background', c.toCSS())
+      return swatch
+    @track.append(hues)
+    
+    $('.swatch').click ()->
+      i = $(this).data().intensity
+      dom = TimeSignal.create
+        clear: false
+        target: scope.target
+      setter = 
+        signal: [i, i, i]
+        period: scope.period
+      signal = new TimeSignal(dom, setter)
+
+
 class Cutter extends TimeWidget
   constructor: (op)->
     scope = this
@@ -48,6 +97,7 @@ class Cutter extends TimeWidget
       p: cut_p
       target: @track
     return
+
 class TimeMorph extends TimeWidget
   constructor: (op)->
     scope = this
@@ -86,33 +136,7 @@ class Stitcher extends TimeWidget
   
 
 
-class window.Recorder extends TimeWidget
-  @DEFAULT_PERIOD: TimeSignal.MAX
-  @DEFAULT_RESOLUTION: 100 # ms/sample
-  @log: ()-> return#console.log.bind(console)
- 
-  constructor: (@op)->
-    scope = this
-    Recorder.log "RECORDER"
-    @sub_start = Date.now()
-    @elapsed = 0
-    @curr_elapsed = 0
-    @record = false
-    @ts = tsm.resolve($('#recorder datasignal'))
-    @bindButton()
-  bindButton: ()->
-    scope = this
-    @op.recorder_button.click(()->
-      scope.record = not scope.record
-      if scope.record 
-        $(this).addClass('active');
-        scope.start()  
-      else
-        $(this).removeClass('active');
-        scope.stop()  
-      )
-    Widget.bindKeypress "r", ()-> scope.op.recorder_button.click()
-    
+
 
   start: ()->
     scope = this
