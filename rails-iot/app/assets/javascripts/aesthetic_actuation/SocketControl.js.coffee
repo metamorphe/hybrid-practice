@@ -69,6 +69,7 @@ class window.SocketControl
     
     params = GET()
     @host = if GET().ip then GET().ip else "localhost"
+    @host = if _.contains @host, ":" then "localhost" else @host
     @ws = new WebSocket('ws://'+ @host+':' + @op.socket_port)
 
     scope.state = @ws.readyState
@@ -109,7 +110,12 @@ class window.SocketControl
       _.each scope.subscribers.output, (fan)->
         fan(command)  
       if op.live
-        if not scope.ws then console.warn "NOT CONNECTED TO A WEBSOCKET"
+        if not scope.ws 
+          Alerter.warn
+            strong: "HEADS UP"
+            msg: "NOT CONNECTED TO A WEBSOCKET"
+            delay: 2000
+          return
         else scope.ws.send msgString
       if op.update then op.update()
       if not op.delay then op.delay = 0
@@ -168,5 +174,4 @@ class window.SocketControl
       
   commandToString: (command) ->
     c = [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"
-    console.log "TO ARD", c
     return c

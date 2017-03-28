@@ -6,7 +6,7 @@
 #include <Adafruit_DotStar.h>
 #include <SPI.h>         // COMMENT OUT THIS LINE FOR GEMMA OR TRINKET
 //#include <avr/power.h> // ENABLE THIS LINE FOR GEMMA OR TRINKET
-#define BAUD 115200
+#define BAUD 9600
 // SENSORS AND ACTUATOR PINS
 #define NUMPIXELS 25 // Number of LEDs in strip
 #define DATAPIN    3
@@ -93,6 +93,7 @@ void api_call(char prefix){
     case 'u': 
       update();
       findCommandEnd();
+      break;
     case 'c':
       color_change();
       findCommandEnd(); 

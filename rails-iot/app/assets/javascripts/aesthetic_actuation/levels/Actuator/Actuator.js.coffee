@@ -2,6 +2,7 @@ actuator_counter = 0;
 
 # ABSTRACT INTERFACE
 class window.Actuator
+  @SIMULATE: false
   @COUNTER: 0
   @DEFAULT_ASYNC: 0
   @RAY_RESOLUTION: 30
@@ -22,7 +23,7 @@ class window.Actuator
     @paper = Utility.paperSetup @canvas, {}
     
     @visuals = []
-    @_visuals()
+    if Actuator.SIMULATE then @_visuals()
     @channels = _.mapObject(@op.channels, (actuator) ->
       new ActuationParam(actuator)
     )
@@ -56,12 +57,13 @@ class window.Actuator
         
         # POPULATE CANVAS IDs MANUALLY
         window.paper = ch.paper
-        @canvas_ids = _.map @hardware_ids, (hid)->
-          match = CanvasUtil.query paper.project, {lid: hid}
-          if _.isEmpty match then return null
-          return _.first(match).id
+        if @hardware_ids != prev.hardware_ids
+          @sia = ch.extractDistanceMetric()
+          @canvas_ids = _.map @hardware_ids, (hid)->
+            match = CanvasUtil.query paper.project, {lid: hid}
+            if _.isEmpty match then return null
+            return _.first(match).id
     
-
     expression:
       get: -> 
         @_expression
@@ -79,7 +81,7 @@ class window.Actuator
         else
           @_warn value
         @_expression = @_param2express()
-        @_updateVisuals(@expression)
+        if Actuator.SIMULATE then @_updateVisuals @expression
         if ch
           window.paper = ch.paper
           elements = CanvasUtil.queryIDs @canvas_ids
@@ -107,8 +109,7 @@ class window.Actuator
       command = scope.async(hid, channel, command)
       return command
   async: (hid, channel, command)->
-    sia = ch.extractDistanceMetric()
-    i = if _.isUndefined sia[hid] then 0 else sia[hid]
+    i = if _.isUndefined @sia[hid] then 0 else @sia[hid]
     command = _.clone(command)
     return _.extend command, 
       actuator: this

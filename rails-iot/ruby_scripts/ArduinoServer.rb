@@ -7,7 +7,7 @@ EventMachine.run do
   @port = 3015
   baud_fast = 9600 * 12
   baud_normal = 9600
-  @baud = baud_fast
+  @baud = baud_normal
   @usb = Dir.glob("/dev/tty.usb*")
   if @usb.length == 0 
     puts "NO PORTS DETECTED"
@@ -27,8 +27,9 @@ EventMachine.run do
     end
   end
   ip = Socket.ip_address_list.find {|a| a.ipv4? ? !(a.ipv4_private? || a.ipv4_loopback?) : !(a.ipv6_sitelocal? || a.ipv6_linklocal? || a.ipv6_loopback?) }.ip_address
-  print ip
-  EM::WebSocket.start(:host => ip, :port => @port) do |ws|
+
+  print ip + "\n"
+  EM::WebSocket.start(:host => "localhost", :port => @port) do |ws|
     ws.onopen{
       print "OPENED!\n"
       @sid = @channel.subscribe { |msg| ws.send msg }

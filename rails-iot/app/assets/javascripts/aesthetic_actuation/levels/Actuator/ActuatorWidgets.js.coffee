@@ -73,7 +73,7 @@ class window.ChoreographyWidget extends Widget
     CanvasUtil.set diffs, 'opacity', 0
   constructor: (op)->
     scope = this
-    console.log "ChoreographyWidget"
+    # console.log "ChoreographyWidget"
     @buffer = {}
     scope = this
     _.extend this, op
@@ -136,8 +136,21 @@ class window.ChoreographyWidget extends Widget
     @canvas.hover ()-> 
       window.paper = scope.paper
       # paper.tool = scope.tools.selection
-
   extractDistanceMetric: ()->
+    return @extractDistanceMetricTheta()
+  extractDistanceMetricTheta: ()->
+    window.paper = @paper 
+    c = new paper.Path.Circle
+      fillColor: "red"
+      radius: 5
+      position: paper.view.center
+    actuators = ChoreographyWidget.ACTUATORS()
+    dist = _.map actuators, (actuator)->
+      hid: actuator.lid
+      distance: actuator.position.clone().subtract(c.position).angle
+    return @normalize(dist)
+
+  extractDistanceMetricFromCenter: ()->
     window.paper = @paper 
     c = new paper.Path.Circle
       fillColor: "red"
@@ -147,6 +160,8 @@ class window.ChoreographyWidget extends Widget
     dist = _.map actuators, (actuator)->
       hid: actuator.lid
       distance: c.position.getDistance(actuator.position)
+    return @normalize(dist)
+  normalize: (dist)->
     min = (_.min dist, (d)-> d.distance).distance
     max = (_.max dist, (d)-> d.distance).distance
     range = max - min
@@ -207,13 +222,13 @@ class window.AsynchMorph extends ActuatorWidget
   @MIN: 0
   @MAX: 1000
   constructor: (op)->
-    console.log "Async"
+    # console.log "Async"
     scope = this
     _.extend this, op
     Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
     @slider.on 'input', (e)->
       v = if this.value < AsynchMorph.MIN then AsynchMorph.MIN else this.value
-      console.log v
+      # console.log v
       _.each scope.resolveTrack(), (actuator)->
         actuator.form = {async_period: parseInt(v)}
 
@@ -265,7 +280,7 @@ class window.Saver extends ActuatorWidget
 
   
   saveActors: (name, actors)->
-    console.log "SAVING", name, actors.length
+    # console.log "SAVING", name, actors.length
     data = _.map actors, (actor)-> 
       actor.form = {saved: true}
       return _.extend actor.form,
@@ -278,7 +293,7 @@ class window.Saver extends ActuatorWidget
     key = @generateKey(name)
     rtn = ws.get(key)
     actuators = if _.isNull(rtn) then [] else JSON.parse(rtn)
-    console.log name, actuators.length, "FOUND"
+    # console.log name, actuators.length, "FOUND"
     _.each actuators, (actuator)->
       loadFN(actuator)
     return actuators
@@ -288,7 +303,7 @@ class window.Saver extends ActuatorWidget
     signal_tracks = $(".signal-design .track-full").not("#hues")
     signal_tracks = _.map signal_tracks, (track)->
       track_id = $(track).parent('event').attr('id')
-      console.log "LOADING", track_id
+      # console.log "LOADING", track_id
       scope.loadActors scope.ts_library + ":" + track_id, (signal)->
         dom = TimeSignal.create
           clear: false
@@ -311,7 +326,7 @@ class window.Saver extends ActuatorWidget
 class window.Grouper extends ActuatorWidget
   constructor: (@op)->
     scope = this
-    console.log "GroupMaker"
+    # console.log "GroupMaker"
     Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
     @op.trigger.click (event)->
       acts = scope.op.track.find('actuator')
