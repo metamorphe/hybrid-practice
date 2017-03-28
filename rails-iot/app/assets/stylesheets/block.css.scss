@@ -36,7 +36,7 @@ block{
 
     @include drop-shadow(0.93);
     &.selected:not(.acceptor)::before{
-        content: '';
+       content: '';
         position: absolute;
         top: -5px;
         left: calc(50% - 15px);

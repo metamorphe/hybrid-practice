@@ -54,8 +54,6 @@ datasignal{
 	@extend vert-centered;
 	position: relative;
 	&.selected{@extend block.selected;}
-  min-height: 76px;
-  max-height: 76px;
 }
 
 
