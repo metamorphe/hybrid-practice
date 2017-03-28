@@ -10,130 +10,129 @@
       #projectviewer
         %canvas
 
-    .actuator-container.vert-centered
-      %event#library.actuation-design
-        %button.btn.btn-xs.btn-info.toggle
-          =glyph "collapse-up"
-        .vert
-          %button.design-title.btn-primary.trigger{:type => "trigger"}
-            %span SAVED
-            %span.command [S]
-        .track-full.droppable
+%event#library.actuation-design.column.vert-centered-sink-top
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button.design-title.btn-primary.trigger{:type => "trigger"}
+      %span SAVED
+      %span.command [S]
+  .track-full.droppable
 
-      %event#group.actuation-design
-        %button.btn.btn-xs.btn-info.toggle
-          =glyph "collapse-up"
-        .vert
-          %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
-            %span GROUP
-            %span.command [G]
-          .full-hoz.sexy-input-group
-            
-        %acceptor#group-result.actuator{:data => {:accept=> 1}}  
-        #actuator-group.track-full.droppable
-          %button.btn.btn-xs.btn-danger.trash
-            =glyph "trash"
-         
-      %event#actuators.actuation-design
-        %button.btn.btn-xs.btn-info.toggle
-          =glyph "collapse-up"
-        .vert
-          %button#slider-live.design-title.btn-primary.trigger{:type => "trigger"}
-            ACTUATOR
-        .track-full
-          %actuator.draggable.template{name: "RGBLED"}
-            %div.simulation
-              %label.title{:contenteditable=> "true"} RGBLED
-              %canvas{:type=>"RGBLED"}
-            %channels.scroll-list
-              %label.title.light CHANNELS
-              %channel.full-hoz{type: "red"}
-                %label.actuator.selected 
-                  %span RED
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "green"}
-                %label.actuator 
-                  %span GREEN
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "blue"}
-                %label.actuator
-                  %span BLUE
-                  %span.dimension.pull-right 0
-          %actuator.draggable.template{name: "HSBLED"}
-            %div.simulation
+%event#group.actuation-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
+      %span GROUP
+      %span.command [G]
+    .full-hoz.sexy-input-group
+      
+  %acceptor#group-result.actuator{:data => {:accept=> 1}}  
+  #actuator-group.track-full.droppable
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
+   
+%event#actuators.actuation-design.template
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#slider-live.design-title.btn-primary.trigger{:type => "trigger"}
+      ACTUATOR
+  .track-full
+    %actuator.draggable.template{name: "RGBLED"}
+      %div.simulation
+        %label.title{:contenteditable=> "true"} RGBLED
+        %canvas{:type=>"RGBLED"}
+      %channels.scroll-list
+        %label.title.light CHANNELS
+        %channel.full-hoz{type: "red"}
+          %label.actuator.selected 
+            %span RED
+            %span.dimension.pull-right 0
+        %channel.full-hoz{type: "green"}
+          %label.actuator 
+            %span GREEN
+            %span.dimension.pull-right 0
+        %channel.full-hoz{type: "blue"}
+          %label.actuator
+            %span BLUE
+            %span.dimension.pull-right 0
+    %actuator.draggable.template{name: "HSBLED"}
+      %div.simulation
 
-              %label.title
-                %span{:contenteditable=> "true"} HSBLED
-                %span.save-status 
-              %canvas{:type=>"HSBLED"}
-              %label.async 100
-            %channels.scroll-list
-              %label.title.light 
-                %span CHANNELS
-                %button.btn.btn-xs.btn-danger.remove
-                  =glyph "remove"
-              %channel.full-hoz{type: "brightness"}
-                %label.actuator.selected
-                  %span BRIGHTNESS
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "hue"}
-                %label.actuator
-                  %span HUE
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "saturation"}
-                %label.actuator
-                  %span SATURATION
-                  %span.dimension.pull-right 0      
-          %actuator.draggable.template{name: "LED"}
-            %div.simulation
-              %label.title{:contenteditable=> "plaintext-only"} LED
-              %canvas{:type=>"LED"}
-            %channels.scroll-list
-              %label.title.light CHANNELS
-              %channel.full-hoz{type: "brightness"}
-                %label.actuator.selected
-                  %span BRIGHTNESS
-                  %span.dimension.pull-right 0
-          %actuator.draggable.template{name: "Stepper"}
-            %div.simulation
-              %label.title{:contenteditable=> "true"} STEPPER
-              %canvas{:type=>"Stepper"}
-            %channels.scroll-list
-              %label.title.light CHANNELS
-              %channel.full-hoz{type: "angle"}
-                %label.actuator.selected
-                  %span ANGLE
-                  %span.dimension.pull-right 0
-              %channel.full-hoz{type: "speed"}
-                %label.actuator
-                  %span SPEED
-                  %span.dimension.pull-right 2
-          %actuator.draggable.template{name: "Stepper360"}
-            %div.simulation
-              %label.title{:contenteditable=> "true"} 360-STEPPER
-              %canvas{:type=>"Stepper360"}
-            %channels.scroll-list
-              %label.title.light CHANNELS
-              %channel.full-hoz{type: "angle"}
-                %label.actuator.selected
-                  %span ANGLE
-                  %span.dimension.pull-right 0
-          %actuator.draggable.template{name: "Heater"}
-            %div.simulation
-              %label.title{:contenteditable=> "true"} HEATER
-              %canvas{:type=>"Heater"}
-            %channels.scroll-list
-              %label.title.light CHANNELS
-              %channel.full-hoz{type: "voltage"}
-                %label.actuator.selected
-                  %span VOLTAGE
-                  %span.dimension.pull-right 4
-              %channel.full-hoz{type: "temperatureF"}
-                %label.actuator
-                  %span TEMP (˚F)
-                  %span.dimension.pull-right 93.2
-              %channel.full-hoz{type: "temperatureC"}
-                %label.actuator
-                  %span TEMP (˚C)
-                  %span.dimension.pull-right 34.0
+        %label.title
+          %span{:contenteditable=> "true"} HSBLED
+          %span.save-status 
+        %canvas{:type=>"HSBLED"}
+        %label.async 100
+      %channels.scroll-list
+        %label.title.light 
+          %span CHANNELS
+          %button.btn.btn-xs.btn-danger.remove
+            =glyph "remove"
+        %channel.full-hoz{type: "brightness"}
+          %label.actuator.selected
+            %span BRIGHTNESS
+            %span.dimension.pull-right 0
+        %channel.full-hoz{type: "hue"}
+          %label.actuator
+            %span HUE
+            %span.dimension.pull-right 0
+        %channel.full-hoz{type: "saturation"}
+          %label.actuator
+            %span SATURATION
+            %span.dimension.pull-right 0      
+    %actuator.draggable.template{name: "LED"}
+      %div.simulation
+        %label.title{:contenteditable=> "plaintext-only"} LED
+        %canvas{:type=>"LED"}
+      %channels.scroll-list
+        %label.title.light CHANNELS
+        %channel.full-hoz{type: "brightness"}
+          %label.actuator.selected
+            %span BRIGHTNESS
+            %span.dimension.pull-right 0
+    %actuator.draggable.template{name: "Stepper"}
+      %div.simulation
+        %label.title{:contenteditable=> "true"} STEPPER
+        %canvas{:type=>"Stepper"}
+      %channels.scroll-list
+        %label.title.light CHANNELS
+        %channel.full-hoz{type: "angle"}
+          %label.actuator.selected
+            %span ANGLE
+            %span.dimension.pull-right 0
+        %channel.full-hoz{type: "speed"}
+          %label.actuator
+            %span SPEED
+            %span.dimension.pull-right 2
+    %actuator.draggable.template{name: "Stepper360"}
+      %div.simulation
+        %label.title{:contenteditable=> "true"} 360-STEPPER
+        %canvas{:type=>"Stepper360"}
+      %channels.scroll-list
+        %label.title.light CHANNELS
+        %channel.full-hoz{type: "angle"}
+          %label.actuator.selected
+            %span ANGLE
+            %span.dimension.pull-right 0
+    %actuator.draggable.template{name: "Heater"}
+      %div.simulation
+        %label.title{:contenteditable=> "true"} HEATER
+        %canvas{:type=>"Heater"}
+      %channels.scroll-list
+        %label.title.light CHANNELS
+        %channel.full-hoz{type: "voltage"}
+          %label.actuator.selected
+            %span VOLTAGE
+            %span.dimension.pull-right 4
+        %channel.full-hoz{type: "temperatureF"}
+          %label.actuator
+            %span TEMP (˚F)
+            %span.dimension.pull-right 93.2
+        %channel.full-hoz{type: "temperatureC"}
+          %label.actuator
+            %span TEMP (˚C)
+            %span.dimension.pull-right 34.0
 

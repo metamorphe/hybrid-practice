@@ -12,6 +12,7 @@
 track{
   @extend .hoz;
   height: 90%;
+  min-height: 100px;
   margin: 0 6px;
   /*max-height: 90px;*/
   padding: 0 6px;
@@ -21,6 +22,23 @@ track{
   @include inset-shadow(0.5);
 }
 
+event.column{
+  @extend .vert-centered-sink-top;
+  position: fixed;
+  left: 0;
+  top: 43px;
+  height: 100%;
+  width: 130px !important;
+  z-index: 100;
+  .track-full{
+    width: 96%;
+    margin-top: 8px;
+    padding-top: 6px;
+    justify-content: flex-start!important;
+    flex-wrap: nowrap !important;
+    flex-direction: column !important;
+  }
+}
 event{
   @extend .full-hoz;
   overflow-y: hidden;
