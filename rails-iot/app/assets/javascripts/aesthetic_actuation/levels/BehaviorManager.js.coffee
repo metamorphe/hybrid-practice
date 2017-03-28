@@ -7,8 +7,24 @@ class window.Scheduler
 		_.each commands_by_quanta, (command_set, q, i)->
 			console.log "\tQUANTA", q
 			_.each command_set, (c)->
-				console.log "\t\t", c.t.toFixed(0), c.async_offset.toFixed(0), c.hid, c.channel[0], c.param
+				console.log "C", c
+				console.log "\t\t", c.api.flag, c.t.toFixed(0), c.async_offset.toFixed(0), c.hid, c.channel[0], c.param
+	@quanta_update: (commands)->
+		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
+		commands_by_quanta = _.mapObject commands_by_quanta, (commands, q)->
+			console.log commands
+			update_command = _.clone(_.last(commands))
+			update_command.api = 
+				flag: "U"
+				args: []
+			commands.push(update_command)
+			return commands
+		commands_by_quanta = _.values(commands_by_quanta)
+		commands = _.flatten(commands_by_quanta)
+		return commands
 	@schedule: (commands, simulation = true)->
+		commands = Scheduler.quanta_update(commands)
+		Scheduler.pretty_print(commands)
 		return play_ids = _.map commands, (command) ->
 			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation)
 			return id
