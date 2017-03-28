@@ -6,10 +6,83 @@ class window.Actuator
   @COUNTER: 0
   @DEFAULT_ASYNC: 0
   @RAY_RESOLUTION: 30
+
+  popover_setup: ()->
+    scope = this
+    channels = @physical_channels()
+    sorted_channels = _.sortBy(_.keys(channels))
+    channels = _.map sorted_channels, (channel)-> 
+      return '<input name="'+ channel+'"min="0" max="1" step="0.01" value="'+ channels[channel].param+'" type="range"/>'
+    channels = channels.join('')
+    @dom.data
+      content: rgb2hex(@expression.toCSS()).toUpperCase()
+      placement: 'right'
+      template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div>'+channels+'</div>'
+    
+    @dom.click (event)-> scope.click_behavior(event)
+
+  click_behavior: (event)->
+    scope = this
+    @popover_behavior(event)
+    $('actuator').click ->
+      $('actuator').not(this).popover('hide')
+
+      tag = this.tagName
+      $(this).focus()
+      $(tag).removeClass 'selected'
+      $(this).addClass 'selected'
+
+      actor = am.resolve($(this))
+      if actor
+        channel = am.getActiveChannel()
+        value = actor.getChannelParam(channel)
+        cmp.op.slider.val value
+        ch.select(actor.form.canvas_ids)
+      return
+
+    $('label.actuator').click ->
+      siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
+      $(this).addClass('selected')
+      return
+  popover_behavior: (event)->
+    scope = this
+    $('actuator').not(@dom).popover('hide')
+    @dom.popover('show')
+    inputs = $('.actuator.popover').find('input')
+    _.each inputs, (input)->
+      input = $(input)
+      channel = $(input).attr('name')
+      console.log channel, scope.channels[channel].param
+      scope.bind_slider_behavior(input, channel)
+
+    # $('.actuator.popover').find('input').val(@period)
+    # $('.actuator.popover').find('input').on 'input', ()->
+    #   pop = $(this).parents('.popover')
+    #   t = $(this).val()
+    #   pop.find('.popover-content').html(TimeSignal.pretty_time(t))
+    #   scope.form = {period: t}
+
+  bind_slider_behavior: (input, channel)->
+    scope = this;
+    input.on 'input', ->
+      diff = Date.now() - scope.now
+      if(diff < 50)
+        return
+      else 
+        scope.now = Date.now()
+      scope.form = {saved: false}
+      param = parseFloat($(this).val())  
+      command = {t: 0, param: param}
+      commands = scope.perform(channel, command)
+      commands =_.flatten(commands)
+      Scheduler.schedule(commands)
+    return
   constructor: (@dom, set, @op) ->
+    scope = this
     set = set or {}
     @id = Actuator.COUNTER++
     @dom.data('id', @id)
+   
     @canvas = @dom.find('canvas')
 
     # DEFAULTS
@@ -27,8 +100,10 @@ class window.Actuator
     @channels = _.mapObject(@op.channels, (actuator) ->
       new ActuationParam(actuator)
     )
+    
     @form = set
     @onCreate()
+    @popover_setup()
     am.add(this)
   serialize: ->
     @form
@@ -91,7 +166,7 @@ class window.Actuator
     text = TimeSignal.pretty_time(t)
     @dom.find('label.async').html(text)
   setTitle: (title, saved)->
-    title = @dom.find("label.title:first").html(title)
+    title = @dom.find("label.title:first span:first").html(title)
     if saved
       @dom.find(".save-status").addClass('saved')
     else
@@ -121,6 +196,7 @@ class window.Actuator
   physical_channels: ()->
     _.pick @channels, (val)->
       return val.op.modality != "derived"
+
   
   onCreate: ->
     return

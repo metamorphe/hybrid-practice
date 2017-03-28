@@ -81,6 +81,7 @@ class window.Composer
       if _.isUndefined actor
         scope.warn()
         return
+      actor.form = {saved: false}
       channel = am.getActiveChannel()
       param = parseFloat($(this).val())  
       command = {t: 0, param: param}

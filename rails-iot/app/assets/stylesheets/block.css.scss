@@ -16,12 +16,7 @@
 }
 
 
-datasignal.selected:not(.acceptor)::after{
-    left: calc(50% - 15px) !important;
-}
-datasignal.selected:not(.acceptor)::before{
-    left: calc(50% - 15px) !important;
-}
+
 block{
 	@extend .vert-centered-sink-top;
   	width: 100px;
@@ -44,7 +39,7 @@ block{
         content: '';
         position: absolute;
         top: -5px;
-        left: calc(50% - 22px);
+        left: calc(50% - 15px);
         width: 0; 
         height: 0; 
         border-left: 12px solid transparent;
@@ -56,7 +51,7 @@ block{
         content: '';
         position: absolute;
         bottom: -5px;
-        left: calc(50% - 20px);
+        left: calc(50% - 15px);
         width: 0; 
         height: 0; 
         border-left: 12px solid transparent;

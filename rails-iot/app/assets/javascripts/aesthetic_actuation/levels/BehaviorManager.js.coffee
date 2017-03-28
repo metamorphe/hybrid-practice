@@ -56,6 +56,8 @@ class window.Scheduler
 			sc.sendMessage(command.api, {live: aw.comm.live}) 
 		else
 			actuator.perform(command.channel, command)
+			$('.popover.actuator .popover-content').html(rgb2hex(actuator.expression.toCSS()).toUpperCase())
+			
 			am.updateChannels(actuator)
 			 
 class window.BehaviorManager

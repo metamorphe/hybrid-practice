@@ -21,7 +21,7 @@ $signal_base: darken(desaturate($sexy_yellow, 100%), 40%);
 $actuator_base: darken(desaturate($base, 30%), 5%);
 
 $time_signal_width: 110px;
-$actuator_width: 190px;
+$actuator_width: 110px;
 
 @mixin inset-shadow($opacity){
 	-webkit-box-shadow: inset 2px 2px 12px 0px rgba(0,0,0,$opacity);

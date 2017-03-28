@@ -1,9 +1,13 @@
 class window.ActuatorManager
   @DEFAULT_ASYNC: 30
+  
+
   @create: (op)->
     if op.clear then op.target.find('actuator').remove()
     dom = $('actuator.template[name="'+ op.actuator_type+'"]')
       .clone().removeClass('template')
+    
+
     data = 
       actuator_type: op.actuator_type
       constants: op.constants
@@ -57,7 +61,6 @@ class window.ActuatorManager
   add: (actuator)->
     @actuators.push(actuator)
     @updateChannels(actuator)
-    @initSelection() 
     $(".remove").click ()->
       $(this).parents('acceptor').removeClass("accepted")   
       $(this).parents('actuator').remove()   
@@ -76,10 +79,16 @@ class window.ActuatorManager
         scope.trigger('change')
       return scope;
     )
-    $('label.title[contenteditable').on 'change', (e)->
+    $('label.title span[contenteditable').on 'focus', (e)->
+      Widget.bindings_on = false
+    $('label.title span[contenteditable').on 'blur', (e)->
+      Widget.bindings_on = true
       actor = am.resolve($(this).parents('actuator'))
       actor.form =
         title: $(this).html()
+        saved: false
+      
+      
   initActuator: (act, op)->
     scope = this
     dom = $(act)
@@ -134,31 +143,13 @@ class window.ActuatorManager
   #   _.each commands, (command) ->
   #     _.delay(am.sendCommandTo, command.t, act, channel, command.param) 
   #     return
-  initSelection: ()->
-    scope = this
-    $('actuator').click ->
-      tag = @tagName
-      $(tag).removeClass 'selected'
-      $(this).addClass 'selected'
-
-      actor = am.resolve($(this))
-      if actor
-        channel = am.getActiveChannel()
-        value = actor.getChannelParam(channel)
-        cmp.op.slider.val value
-        ch.select(actor.form.canvas_ids)
-
-      return
-    $('label.actuator').click ->
-      siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
-      $(this).addClass('selected')
-      return
+  
   
    
   activateDragAndDrop: ()->
     scope = this
     $('actuator.draggable').draggable
-      handle: 'canvas'
+      handle: 'channels'
       revert: true
       appendTo: '#ui2'
       helper: ()->

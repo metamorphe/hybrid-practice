@@ -132,12 +132,11 @@ class window.TimeSignal
     dom.data
       content: "500ms"
       placement: 'right'
-      template: '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div><input min="0" max="10000" step="100" type="range"/></div>'
+      template: '<div class="timesignal popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div><input min="0" max="10000" step="100" type="range"/></div>'
     # dom.popover()
     
     dom.click (event)->  
       $('datasignal').not(this).popover('hide')
-      popover = $('.popover')
     
       tag = this.tagName
       $(this).focus()
@@ -149,8 +148,8 @@ class window.TimeSignal
     scope = this
     $('datasignal').not(@dom).popover('hide')
     @dom.popover('show')
-    $('.popover').find('input').val(@period)
-    $('.popover').find('input').on 'input', ()->
+    $('.timesignal.popover').find('input').val(@period)
+    $('.timesignal.popover').find('input').on 'input', ()->
       pop = $(this).parents('.popover')
       t = $(this).val()
       pop.find('.popover-content').html(TimeSignal.pretty_time(t))

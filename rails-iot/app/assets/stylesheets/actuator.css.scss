@@ -20,10 +20,10 @@
 acceptor.actuator{
     @extend .hoz;
     @extend .vert-centered-sink-top;
-    width: 180px;
-    min-width: 180px;
-    height: 90px;
-    max-height: 90px;
+    width: $actuator_width;
+    min-width: $actuator_width;
+    height: 90%;
+    /*max-height: 90px;*/
     color: white;
     line-height: 100%;
     font-weight: normal;
@@ -68,10 +68,11 @@ actuator{
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
-    @extend .hoz;
+    /*@extend .vert;*/
     @extend .vert-centered-sink-top;
     position: relative;
-    width: 180px;
+    width: $actuator_width;
+    min-width: $actuator_width;
     height: 90%;
 
 
@@ -92,15 +93,18 @@ actuator{
     
         div.simulation{
             @extend .vert;
-            height: 100%;
-            width: 80px;
+            /*height: 100%;*/
+            /*width: 80px;*/
+            width: 100%;
         }
         canvas{
+            display: none;
             width: 100% !important;
             height: 75%;
             margin: 0;
         }
         label.async{
+            display: none;
             width: 50px;
             padding: none;
             position: absolute;
@@ -130,6 +134,7 @@ actuator{
             overflow: hidden;
             margin: 0;
             &.light{
+                display: none;
                 position: relative;
                 background: darken($actuator_base, 0%);
             }
@@ -151,8 +156,9 @@ actuator{
         }
         channels{
             @extend .noselect;
-            width: 100px; 
-            height: 100%;
+            /*width: 100px; */
+            /*height: 100%;*/
+            width: 100%;
             background: darken($actuator_base, 10%);
         }
         channel{

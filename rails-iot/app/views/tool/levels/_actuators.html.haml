@@ -61,12 +61,14 @@
                   %span.dimension.pull-right 0
           %actuator.draggable.template{name: "HSBLED"}
             %div.simulation
-              %label.title{:contenteditable=> "true"} HSBLED
+
+              %label.title
+                %span{:contenteditable=> "true"} HSBLED
+                %span.save-status 
               %canvas{:type=>"HSBLED"}
               %label.async 100
             %channels.scroll-list
               %label.title.light 
-                %span.save-status 
                 %span CHANNELS
                 %button.btn.btn-xs.btn-danger.remove
                   =glyph "remove"
@@ -84,7 +86,7 @@
                   %span.dimension.pull-right 0      
           %actuator.draggable.template{name: "LED"}
             %div.simulation
-              %label.title{:contenteditable=> "true"} LED
+              %label.title{:contenteditable=> "plaintext-only"} LED
               %canvas{:type=>"LED"}
             %channels.scroll-list
               %label.title.light CHANNELS

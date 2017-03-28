@@ -1,5 +1,6 @@
 class window.Widget 
   @bindings = {}
+  @bindings_on = true
   @enable: ->
     $(".toggle").click ()->
       $(this).parent().toggleClass('shrink')
@@ -18,9 +19,10 @@ class window.Widget
     Widget.bindKeypress 51, (()-> $('event.composition-design button.toggle').click()), true
 
     $(document).keypress (event) ->
-      _.each Widget.bindings, (func, key)->
-        if event.which == parseInt(key)
-          func(event)
+      if Widget.bindings_on
+        _.each Widget.bindings, (func, key)->
+          if event.which == parseInt(key)
+            func(event)
     return
   @bindKeypress: (key, func, ascii = false)->
     if not ascii
