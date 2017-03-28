@@ -164,4 +164,6 @@ class window.SocketControl
       return {flag: flag, args: args}
       
   commandToString: (command) ->
-      return [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"
+    c = [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"
+    console.log "TO ARD", c
+    return c
