@@ -39,8 +39,15 @@ void color_change(){
   r = Serial.parseInt();
   g = Serial.parseInt();
   b = Serial.parseInt();
+  Serial.print("id: ");
+  Serial.println(id);
+  Serial.print("r: ");
+  Serial.println(r);
+  Serial.print("g: ");
+  Serial.println(g);
+  Serial.print("g: ");
+  Serial.println(b);
   strip.setPixelColor(id, r, g, b);  
-  update();
 }
 
 void findCommandEnd(){
