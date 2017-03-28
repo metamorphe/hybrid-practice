@@ -6,18 +6,30 @@
 #include <Adafruit_NeoPixel.h>
 #define BAUD 9600
 
+#define NUM_DEVICES 2
+
 // SENSORS AND ACTUATOR PINS
 #define NUMPIXELS 12 // Number of LEDs in strip
-#define NEOPIXEL_PIN 6
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+#define NEOPIXEL_PIN_ZERO 6
+#define NEOPIXEL_PIN_ONE 7
+
+
+Adafruit_NeoPixel earrings[NUM_DEVICES] = {
+  Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN_ZERO, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN_ONE, NEO_GRB + NEO_KHZ800)
+};
 
 void update() {
-  strip.show();
+  for(int i = 0; i < NUM_DEVICES; i++) {
+    earrings[i].show();
+  }
 }
 
 void registerActuators() {
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
+  for(int i = 0; i < NUM_DEVICES; i++) {
+    earrings[i].begin();
+    earrings[i].show(); // Initialize all pixels to 'off'
+  }
 }
 
 void registerSensors() {
@@ -27,6 +39,7 @@ void registerSensors() {
 // API PROCESSING
 char prefix = 0;
 char buffer = ' ';
+uint16_t devID = 0;
 uint16_t id = 0;
 uint8_t r = 0;
 uint8_t g = 0;
@@ -35,10 +48,13 @@ uint8_t b = 0;
 
 /* SANDBOX API */
 void color_change(){
+  devID = Serial.parseInt();
   id = Serial.parseInt();
   r = Serial.parseInt();
   g = Serial.parseInt();
   b = Serial.parseInt();
+  Serial.print("devID: ");
+  Serial.println(devID);
   Serial.print("id: ");
   Serial.println(id);
   Serial.print("r: ");
@@ -47,7 +63,7 @@ void color_change(){
   Serial.println(g);
   Serial.print("b: ");
   Serial.println(b);
-  strip.setPixelColor(id, r, g, b);  
+  earrings[devID].setPixelColor(id, r, g, b);
 }
 
 void findCommandEnd(){
