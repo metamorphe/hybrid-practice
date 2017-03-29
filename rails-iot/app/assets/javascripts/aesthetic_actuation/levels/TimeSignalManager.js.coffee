@@ -35,14 +35,16 @@ class window.TimeSignalManager
       signal = new TimeSignal(dom)
       signal.form = {signal: datasignal, period: 1000}
       signal.easing = true
-      datasignal = numeric.linspace(1, 0, 40)
-      datasignal = _.map datasignal, (s)-> easing(s)
-      dom = TimeSignal.create
-          clear: false
-          target: $('#library.signal-design .track-full')
-      signal = new TimeSignal(dom)
-      signal.form = {signal: datasignal, period: 1000}
-      signal.easing = true
+
+      if v != "off"
+        datasignal = numeric.linspace(1, 0, 40)
+        datasignal = _.map datasignal, (s)-> easing(s)
+        dom = TimeSignal.create
+            clear: false
+            target: $('#library.signal-design .track-full')
+        signal = new TimeSignal(dom)
+        signal.form = {signal: datasignal, period: 1000}
+        signal.easing = true
 
   initTimeSignals: ->
     collection = $('datasignal')
@@ -115,6 +117,8 @@ class window.TimeSignalManager
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
     $('acceptor.datasignals').droppable(behavior)
   @EasingFunctions =
+    off: (t) ->
+      return 0
     linear: (t) ->
       t
     easeInQuad: (t) ->

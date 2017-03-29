@@ -16,11 +16,11 @@ class window.Actuator
     channels = channels.join('')
     @dom.data
       content: rgb2hex(@expression.toCSS()).toUpperCase()
-      placement: 'right'
+      placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
     
     @dom.click (event)-> scope.click_behavior(event)
-    @dom.find('.save-status ').click (event)-> scope.popover_behavior(event)
+    @dom.find('label.title').click (event)-> scope.popover_behavior(event)
 
   click_behavior: (event)->
     scope = this
@@ -45,20 +45,23 @@ class window.Actuator
       $(this).addClass('selected')
       return
   popover_behavior: (event)->
-    event.stopPropagation()
-    event.preventDefault()
+    console.log "POPOVER BOUND"
+    
     scope = this
     $('actuator').not(@dom).popover('hide')
     @dom.popover('show')
     $('.actuator .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
 
     inputs = $('.actuator.popover').find('input')
+    console.log "INPUTs", inputs.length
     _.each inputs, (input)->
       input = $(input)
       channel = $(input).attr('name')
       console.log channel, scope.channels[channel].param
       scope.bind_slider_behavior(input, channel)
 
+    event.stopPropagation()
+    event.preventDefault()
     # $('.actuator.popover').find('input').val(@period)
     # $('.actuator.popover').find('input').on 'input', ()->
     #   pop = $(this).parents('.popover')
@@ -70,7 +73,7 @@ class window.Actuator
     scope = this;
     input.on 'input', ->
       diff = Date.now() - scope.now
-      if(diff < 50)
+      if(diff < 300)
         return
       else 
         scope.now = Date.now()

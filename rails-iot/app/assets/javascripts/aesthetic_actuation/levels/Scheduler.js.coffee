@@ -1,14 +1,20 @@
 class window.Scheduler 
 	@quanta: 50
+	@pretty_print_flag = false
 	@pretty_print: (commands, info, full=false)->
-		if full 
-			console.log "------- RAW_COMMANDS ---------"
-			console.log "t", "offset", "hid", "channel", "value"
-			commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
-			_.each commands_by_quanta, (command_set, q, i)->
-				console.log "\tQUANTA", q
-				_.each command_set, (c)->
-					console.log ["\t\t" + c.api.flag, "@" + c.t.toFixed(0) + "+" + c.async_offset.toFixed(0), "#" + c.hid + "->" + c.channel[0]+":"+c.param.toFixed(2)].join(' ')
+		if Scheduler.pretty_print_flag 
+			_.each commands, (command)->
+				args = command.api.args.join(',')
+				if args != ""
+					args = args.split(':').join(',')
+				console.log command.api.flag+ "(" + args + ");"
+			# console.log "------- RAW_COMMANDS ---------"
+			# console.log "t", "offset", "hid", "channel", "value"
+			# commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
+			# _.each commands_by_quanta, (command_set, q, i)->
+			# 	console.log "\tQUANTA", q
+			# 	_.each command_set, (c)->
+			# 		console.log ["\t\t" + c.api.flag, "@" + c.t.toFixed(0) + "+" + c.async_offset.toFixed(0), "#" + c.hid + "->" + c.channel[0]+":"+c.param.toFixed(2)].join(' ')
 		total_quanta = info.idle + info.non_idle
 		utilization = info.non_idle / total_quanta * 100
 		utilization = utilization.toFixed(1) +  "% util"
@@ -36,10 +42,10 @@ class window.Scheduler
 			time: total_time
 
 
-	@schedule: (commands, simulation = true)->
+	@schedule: (commands, simulation = true, final_print=false)->
 		info = Scheduler.quanta_update(commands)
 		commands = info.commands
-		Scheduler.pretty_print(commands, info.stats)
+		Scheduler.pretty_print(commands, info.stats, final_print)
 		
 		return play_ids = _.map commands, (command) ->
 			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation)
@@ -55,12 +61,13 @@ class window.Scheduler
 		    return 
 		if sc and aw.comm.live   
 			sc.sendMessage(command.api, {live: aw.comm.live}) 
+			actuator.perform(command.channel, command, false)
+			am.updateChannels(actuator)
 		else
 			window.paper = ch.paper
 			e = CanvasUtil.queryID(command.cid)
 			if e then e.fillColor = command.expression
 			expression = command.expression
 			actuator.perform(command.channel, command, false)
-			
 			$('.popover.actuator .popover-content').html(rgb2hex(actuator.expression.toCSS()).toUpperCase())
 			am.updateChannels(actuator)

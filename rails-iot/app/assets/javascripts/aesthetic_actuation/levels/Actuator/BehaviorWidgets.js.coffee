@@ -178,6 +178,7 @@ class window.ChoreographyWidget extends Widget
       cT.arrows = CanvasUtil.getIDs(ids)
       CanvasUtil.set(cT.arrows, "opacity", 1)
     cT.onMouseDown = (e)->
+
       cT.arrow = new paper.Group
         name: "ARROW: arrow"
         t_0: 0
@@ -253,11 +254,21 @@ class window.ChoreographyWidget extends Widget
       scope.select(sT.selection)
       
     sT.onMouseDown = (e)->
-      sT.selection = []
+
+      actuators = ChoreographyWidget.ACTUATORS()
+      direct_click = _.filter actuators, (actuator)->
+        return actuator.contains(e.point)
+      if not _.isEmpty direct_click
+        console.log "direct_click"
+        sT.selection = _.map direct_click, (path)-> return path.id
+      else
+        sT.selection = []
+      
       sT.selectionPath = new Path
         strokeColor: "#00A8E1"
         strokeWidth: 4
         segments: [e.point]
+     
       sT.collectSelection()
     sT.onMouseDrag = (e)->
       sT.selectionPath.addSegment e.point

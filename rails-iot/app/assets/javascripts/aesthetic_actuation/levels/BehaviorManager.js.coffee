@@ -31,9 +31,12 @@ class window.Choreography
 		return Choreography.CHOREOGRAPHIES[s.data().id]
 	popover: ()->
 		scope = this
+		dir = 'left'
+		# if @dom.hasClass('default')
+			# dir = 'right'
 		@dom.data
 			content: "500ms"
-			placement: 'left'
+			placement: 'dir'
 			template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
 
 		@dom.click (event)-> 
