@@ -84,7 +84,12 @@ class window.ActuatorManager
           scope.data 'before', scope.html()
           scope.trigger('change')
         return scope;
+      ).on("keydown", (e)->
+        key = e.keyCode || e.charCode
+        if key == 13
+          $(this).blur()
       )
+      
       $(this).on 'focus', (e)->
         Widget.bindings_on = false
       $(this).on 'blur', (e)->
