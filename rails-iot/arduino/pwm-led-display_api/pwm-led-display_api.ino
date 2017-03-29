@@ -15,6 +15,7 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
+#define DEBUG 0
 
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
@@ -67,8 +68,10 @@ void findCommandEnd(){
 }
 
 void api_call(char prefix){
-   Serial.print("prefix: ");
-   Serial.println(prefix);
+  if (DEBUG) {
+    Serial.print("prefix: ");
+    Serial.println(prefix);
+  }
    switch (prefix) {
     case 'u': 
       update();
@@ -88,7 +91,9 @@ void api_call(char prefix){
 
 void setup() {
   Serial.begin(BAUD);
-  Serial.println("16 channel PWM test!");
+  if (DEBUG) {
+    Serial.println("16 channel PWM test!");
+  }
   registerActuators();
 }
 

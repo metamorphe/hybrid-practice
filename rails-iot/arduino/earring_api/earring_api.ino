@@ -2,6 +2,8 @@
  *  Updated 27 March 2017
  *  Author: Molly Nicholas
  */
+
+#define DEBUG 0
  
 #include <Adafruit_NeoPixel.h>
 #define BAUD 9600
@@ -53,16 +55,19 @@ void color_change(){
   r = Serial.parseInt();
   g = Serial.parseInt();
   b = Serial.parseInt();
-  Serial.print("devID: ");
-  Serial.println(devID);
-  Serial.print("id: ");
-  Serial.println(id);
-  Serial.print("r: ");
-  Serial.println(r);
-  Serial.print("g: ");
-  Serial.println(g);
-  Serial.print("b: ");
-  Serial.println(b);
+  if (DEBUG) {
+    Serial.print("devID: ");
+    Serial.println(devID);
+    Serial.print("id: ");
+    Serial.println(id);
+    Serial.print("r: ");
+    Serial.println(r);
+    Serial.print("g: ");
+    Serial.println(g);
+    Serial.print("b: ");
+    Serial.println(b);
+  }
+
   earrings[devID].setPixelColor(id, r, g, b);
 }
 
@@ -76,8 +81,10 @@ void findCommandEnd(){
 }
 
 void api_call(char prefix){
-   Serial.print("prefix: ");
-   Serial.println(prefix);
+  if (DEBUG) {
+    Serial.print("prefix: ");
+    Serial.println(prefix);
+  }
    switch (prefix) {
     case 'u': 
       update();
@@ -97,7 +104,9 @@ void api_call(char prefix){
 
 void setup() {
   Serial.begin(BAUD);
-  Serial.println("Aesthetic Actuation Controller - Earring");
+  if (DEBUG) {
+    Serial.println("Aesthetic Actuation Controller - Earring");
+  }
   registerActuators();
 }
 
