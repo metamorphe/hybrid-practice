@@ -169,7 +169,7 @@ class window.ChoreographyWidget extends Widget
       return session
     cT.getSession = ()->
       ids = _.map cT.arrows, (arrow)-> return arrow.id
-      console.log "ids", ids, "stored"
+
       return ids
     cT.loadSession = (ids)->
       if ids.length == 0 

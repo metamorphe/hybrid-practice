@@ -22,6 +22,8 @@ class window.Choreography
 	    return c
 	@COUNTER: 0
 	@CHOREOGRAPHIES: []
+	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
+	@get: (dom)-> return Choreography.CHOREOGRAPHIES[dom.data().id]
 	@ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
 	@selected: ()->
 		s = $('choreography.selected')
@@ -35,8 +37,7 @@ class window.Choreography
 			template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
 
 		@dom.click (event)-> 
-			
-			console.log "CH", ch
+			$(this).blur()			
 			event.stopPropagation()
 			$('choreography').not(this).popover('hide')
 			tag = this.tagName
@@ -70,6 +71,7 @@ class window.Choreography
 
 		Choreography.CHOREOGRAPHIES.push(this)
 		@popover()
+		@resolve()
 	view_order: (actuators)->
 		window.paper = ch.paper
 		order = @resolve(actuators)
@@ -78,30 +80,31 @@ class window.Choreography
 			e[0].fillColor = Choreography.temperatureColor(p)
 
 	resolve: (actuators)->
+		window.paper = ch.paper
 		actuators = actuators or Choreography.ACTUATORS()
 		arrows = CanvasUtil.getIDs(@ids)
-
 		dist = _.map actuators, (actuator)->
-			if arrows.length == 0
+			if arrows.length != 0
+				closest_arrow = _.min arrows, (arrow)->
+					arrow = arrow.pathway
+					npt = arrow.getNearestPoint(actuator.position)
+					return npt.getDistance(actuator.position)
+				
+				closest_arrow = closest_arrow.pathway
+				npt = closest_arrow.getNearestPoint(actuator.position)
+				offset = closest_arrow.getOffsetOf(npt)
+				distance =  offset / closest_arrow.length
+				rtn = 
+					hid: actuator.lid
+					distance: distance
+			else 
 				rtn = 
 					hid: actuator.lid
 					distance: 0
-				return rtn
+			return rtn
 
-			closest_arrow = _.min arrows, (arrow)->
-				arrow = arrow.pathway
-				npt = arrow.getNearestPoint(actuator.position)
-				return npt.getDistance(actuator.position)
-			
-			closest_arrow = closest_arrow.pathway
-			npt = closest_arrow.getNearestPoint(actuator.position)
-			offset = closest_arrow.getOffsetOf(npt)
-			distance =  offset / closest_arrow.length
-			rtn = 
-				hid: actuator.lid
-				distance: distance
-
-		return @normalize(dist)
+		@sia = @normalize(dist)
+		return @sia
 
 	normalize: (dist)->
 	    min = (_.min dist, (d)-> d.distance).distance
@@ -134,8 +137,7 @@ class window.Choreography
   
 	setAsync: (t)->
 		@dom.find('.async').html(TimeSignal.pretty_time(t))
-		console.log "SETTING ASYNC TO ", t
-
+		
 class window.BehaviorManager
 	constructor: (@op) ->
 		$(document).click ()->
@@ -246,6 +248,7 @@ class window.BehaviorManager
 	compile: ()->
 		actors = $("#stage actuator").not(".template")
 		signal_tracks = $("#timetrack acceptor").not(".template")
+		choreos = $("#choreography-binders choreography")
 		choreography = _.chain actors
 			.map (actor, i)->
 				actor = am.resolve(actor)

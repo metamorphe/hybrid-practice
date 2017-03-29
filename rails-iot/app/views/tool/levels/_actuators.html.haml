@@ -15,18 +15,20 @@
       #projectviewer
         %canvas
     .vert-centered-sink-top.fill_height_padding
-      .vert
-        %button#selection-tool.btn
-          =glyph "screenshot"
-          %span.info SELECTION TOOL
-        %span#add-arrows.btn
-          =glyph "random"
-          %span.info INACTIVE
+      
+      %button#selection-tool.btn
+        =glyph "screenshot"
+        %span.info SELECTION TOOL
+     
        
       <hr>
-      %button#view-order.btn.btn-primary.btn-block
-        =glyph "tasks"
-        %span VIEW ORDERING
+        
+      / %button#view-order.btn.btn-primary.btn-block
+      /   =glyph "tasks"
+      /   %span VIEW ORDERING
+      %span#add-arrows.btn
+        =glyph "random"
+        %span.info INACTIVE
       %button#remove-arrows.btn.btn-danger.btn-block
         =glyph "trash"
         %span CLEAR ARROWS

@@ -94,7 +94,7 @@ class window.Actuator
     @async_period = Actuator.DEFAULT_ASYNC
     @constants = {}
     @paper = Utility.paperSetup @canvas, {}
-    
+    @choreo = Choreography.default()
     @visuals = []
     if Actuator.SIMULATE then @_visuals()
     @channels = _.mapObject(@op.channels, (actuator) ->
@@ -127,13 +127,13 @@ class window.Actuator
         @dom.data @form
         if @title != prev.title then @setTitle(@title, @saved)
         if @saved != prev.saved then @setTitle(@title, @saved)
-        
+        @async_period = @choreo.async_period
         @setAsync(@async_period)
         
         # POPULATE CANVAS IDs MANUALLY
         window.paper = ch.paper
         if @hardware_ids != prev.hardware_ids
-          @sia = ch.extractDistanceMetric()
+          @sia = @choreo.sia
           @canvas_ids = _.map @hardware_ids, (hid)->
             match = CanvasUtil.query paper.project, {lid: hid}
             if _.isEmpty match then return null
@@ -173,6 +173,7 @@ class window.Actuator
       @dom.find(".save-status").removeClass('saved')
   
   perform: (channel, command)->
+    choreo = choreo or Choreography.default()
     window.paper = @op.paper
     query = 
       parameterized: true
@@ -184,6 +185,8 @@ class window.Actuator
       command = scope.async(hid, channel, command)
       return command
   async: (hid, channel, command)->
+    @sia = @choreo.sia
+    @async_period = @choreo.async_period
     i = if _.isUndefined @sia[hid] then 0 else @sia[hid]
     command = _.clone(command)
     return _.extend command, 
