@@ -1,0 +1,59 @@
+%event#timemorph.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
+      %span FORGE
+      %span.command
+    %input#time-morph.sexy{:type=>"range", :min => -100, :max => 10000, :step => 100}
+  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :force_period_flag => 'enabled', :exportable => "enabled", :gamma_corrective => 1.1, :perceptual => "enabled" }}
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"
+
+
+/ RECORDER
+%event#recorder.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#record.design-title.btn-primary.trigger{:type => "trigger"}
+      %span RECORD
+      %span.command R
+  #record-result.track-long{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
+    %datasignal#result
+      %canvas.skip
+
+javascript: 
+	@recorder= new Recorder
+		recorder_button: $('button#record')
+		recorder_result: $('#record-result')
+		bindKey: 'r'
+	class window.Recorder extends TimeWidget
+	  @DEFAULT_PERIOD: TimeSignal.MAX
+	  @DEFAULT_RESOLUTION: 100 # ms/sample
+	  @log: ()-> return#console.log.bind(console)
+	 
+	  constructor: (@op)->
+	    scope = this
+	    Recorder.log "RECORDER"
+	    @sub_start = Date.now()
+	    @elapsed = 0
+	    @curr_elapsed = 0
+	    @record = false
+	    @ts = tsm.resolve($('#recorder datasignal'))
+	    @bindButton()
+	  bindButton: ()->
+	    scope = this
+	    @op.recorder_button.click(()->
+	      scope.record = not scope.record
+	      if scope.record 
+	        $(this).addClass('active');
+	        scope.start()  
+	      else
+	        $(this).removeClass('active');
+	        scope.stop()  
+	      )
+	    Widget.bindKeypress "r", ()-> scope.op.recorder_button.click()
+    

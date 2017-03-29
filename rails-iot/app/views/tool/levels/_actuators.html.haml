@@ -9,6 +9,16 @@
     .project-container
       #projectviewer
         %canvas
+    .vert-centered-sink-top.fill_height_padding
+      .btn-group-vertical
+        %button#selection-tool.btn
+          =glyph "screenshot"
+        %button#add-arrows.btn
+          =glyph "random"
+       
+      <hr>
+      %button#remove-arrows.btn.btn-danger
+        =glyph "trash"
 
 %event#library.actuation-design.column.vert-centered-sink-top
   / %button.btn.btn-xs.btn-info.toggle

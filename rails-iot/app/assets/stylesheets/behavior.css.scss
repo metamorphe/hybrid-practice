@@ -21,6 +21,12 @@ behavior{
 	border: 1px solid darken($composition_base, 55%);
 	@include drop-shadow(0.93);
 	&.selected{@extend block.selected;}
+  #choreography-binders{
+    padding: 0px 4px;
+  }
+  choreography{
+    height: 83.52px;
+  }
   #stage{
     background: darken($composition_base, 10%);
     width: $actuator_width;
