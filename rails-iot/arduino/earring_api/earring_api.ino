@@ -110,12 +110,18 @@ void setup() {
   registerActuators();
 }
 
+void loop() {
+  enable_api(); // always on
+}
+
 void enable_api(){
   if (Serial.available() > 0) {
        prefix = Serial.read();
        api_call(prefix);
   }
 }
+
+
 
 void non_block_delay(char s, int delay){
   Serial.print("T:");
@@ -126,7 +132,5 @@ void non_block_delay(char s, int delay){
 }
 
 
-void loop() {
-  enable_api(); // always on
-}
+
 
