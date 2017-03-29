@@ -13,6 +13,7 @@ class window.Artwork
 		rays: CanvasUtil.queryPrefix("RAY"), 
 		nuts: CanvasUtil.queryPrefix("NUT"), 
 		gray: CanvasUtil.queryPrefix("DDS") 
+		devices: CanvasUtil.queryPrefix("DEVICE") 
 	constructor: (@file, @loadFN, @cloned) ->
 		@svg = null
 		if _.isUndefined @cloned then @import @loadFN else @clone()
@@ -65,31 +66,39 @@ class window.Artwork
 		CanvasUtil.set _.flatten(hide), "visible", false
 
 	orderLeds: ->
-		leds = CanvasUtil.queryPrefix('NLED')
-		cp = CanvasUtil.queryPrefix('CP')
-		bi = CanvasUtil.queryPrefix('BI')
-		# CHECKS
-		if _.isEmpty leds
-			console.warn("NO LEDS DETECTED")
-			return 
-		if _.isEmpty cp
-			console.warn("NO PATH; CAN'T ENUMERATE LEDS")
-			return 
-		if _.isEmpty bi
-			console.warn("NO BREAKIN; CAN'T ENUMERATE LEDS")
-			return
-		cp = cp[0]
-		bi = bi[0]
-		forward = cp.firstSegment.point.getDistance(bi.firstSegment.point)
-		backward = cp.lastSegment.point.getDistance(bi.firstSegment.point)
-		polarity = if backward < forward then -1 else 1
-		_.each leds, (led) ->
-			cpPoint = cp.getNearestPoint(led.position)
-			led.offset = polarity * cp.getOffsetOf(cpPoint)
-			return
-		leds = _.sortBy leds, 'offset'
-		_.each leds, (led, id) ->
-			led.lid = id
+		devices = CanvasUtil.queryPrefix('DEVICE')
+		if devices.length == 0 then console.warn "NO DEVICES!"
+		_.each devices, (device, i)->
+			device_id = CanvasUtil.getName(device)
+			device_id = eval(device_id)
+
+			# id = eval(id).id
+			leds = CanvasUtil.query(device, {prefix: ['NLED']})
+			cp = CanvasUtil.query(device, {prefix: ['CP']})
+			bi = CanvasUtil.query(device, {prefix: ['BI']})
+			# CHECKS
+			if _.isEmpty leds
+				console.warn("NO LEDS DETECTED")
+				return 
+			if _.isEmpty cp
+				console.warn("NO PATH; CAN'T ENUMERATE LEDS")
+				return 
+			if _.isEmpty bi
+				console.warn("NO BREAKIN; CAN'T ENUMERATE LEDS")
+				return
+			cp = cp[0]
+			bi = bi[0]
+			forward = cp.firstSegment.point.getDistance(bi.firstSegment.point)
+			backward = cp.lastSegment.point.getDistance(bi.firstSegment.point)
+			polarity = if backward < forward then -1 else 1
+			_.each leds, (led) ->
+				cpPoint = cp.getNearestPoint(led.position)
+				led.offset = polarity * cp.getOffsetOf(cpPoint)
+				return
+			leds = _.sortBy leds, 'offset'
+			_.each leds, (led, id) ->
+				led.lid = device_id+":"+id
+				led.device = device_id
 
 	# loadLEDS: (scope) ->
 	# 	leds = scope.queryPrefix('NLED')

@@ -173,5 +173,5 @@ class window.SocketControl
       return {flag: flag, args: args}
       
   commandToString: (command) ->
-    c = [command.flag.toLowerCase().trim(), 0, command.args.join(' ')].join(" ") + "\n"
+    c = [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"
     return c

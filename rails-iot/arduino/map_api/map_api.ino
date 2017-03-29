@@ -47,6 +47,7 @@ void registerSensors(){
 // API PROCESSING
 char prefix = 0;
 char buffer = ' ';
+uint16_t d_id = 0;
 uint16_t id = 0;
 uint8_t r = 0;
 uint8_t g = 0;
@@ -55,6 +56,7 @@ uint8_t b = 0;
 
 /* SANDBOX API */
 void color_change(){
+  d_id = Serial.parseInt();
   id = Serial.parseInt();
   r = Serial.parseInt();
   g = Serial.parseInt();
