@@ -17,7 +17,7 @@ class window.Actuator
     @dom.data
       content: rgb2hex(@expression.toCSS()).toUpperCase()
       placement: 'right'
-      template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div>'+channels+'</div>'
+      template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
     
     @dom.click (event)-> scope.click_behavior(event)
     @dom.find('.save-status ').click (event)-> scope.popover_behavior(event)
@@ -50,6 +50,8 @@ class window.Actuator
     scope = this
     $('actuator').not(@dom).popover('hide')
     @dom.popover('show')
+    $('.actuator .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
+
     inputs = $('.actuator.popover').find('input')
     _.each inputs, (input)->
       input = $(input)

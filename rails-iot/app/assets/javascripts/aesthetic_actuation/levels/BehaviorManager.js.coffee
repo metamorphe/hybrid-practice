@@ -34,7 +34,7 @@ class window.Choreography
 		@dom.data
 			content: "500ms"
 			placement: 'left'
-			template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
+			template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
 
 		@dom.click (event)-> 
 			$(this).blur()			
@@ -48,6 +48,7 @@ class window.Choreography
 			ch.update()
 			$('#add-arrows span.info').html("#" + scope.id)
 			scope.dom.popover('show')
+			$('.choreography .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
 			$('.choreography.popover').find('input').val(@async_period)
 			$('.choreography.popover').find('input').on 'click', (event)->
 				event.stopPropagation()
