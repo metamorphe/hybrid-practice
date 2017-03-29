@@ -86,6 +86,11 @@ class window.SocketControl
 
     @ws.onerror = ->
       scope.state = SocketControl.ERROR
+      Alerter.warn
+        strong: "HOLD ON!"
+        msg: "It looks like the server can't connect. Try restarting it."
+        delay: 2000
+        color: 'alert-danger'
       scope.update()
       return
 

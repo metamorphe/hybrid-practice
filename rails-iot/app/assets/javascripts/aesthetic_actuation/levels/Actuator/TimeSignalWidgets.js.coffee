@@ -25,7 +25,9 @@ class window.TimeWidget extends Widget
     scope = this
     _.extend this, op
     if @bindKey
-      Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+      Widget.bindKeypress @bindKey, ()-> 
+        if scope.trigger
+          scope.trigger.click()
   @resolveTrack: (track)->
     _.map $(track).find('datasignal'), (d)-> return tsm.resolve(d)
   resolveTrack: ()->
