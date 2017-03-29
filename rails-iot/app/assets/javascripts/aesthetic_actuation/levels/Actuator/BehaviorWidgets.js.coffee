@@ -23,21 +23,34 @@ class window.ChoreographyWidget extends Widget
   # load_choreography: (ids)->
   #   CanvasUtil.set(CanvasUtil.getIDs(ids), "opacity", 1)
   update: ()->
-    if @prev_mode == @mode then return
-    @prev_mode = @mode
     if @mode == "choreography"
-      @selection_trigger.removeClass('btn-success')
-      @chor_trigger.addClass('btn-success')
       @paper.tool = @tools.choreography
-      @paper.tool.initSession()
-      @paper.tool.loadSession(@last_session)
-    if @mode == "selection" 
-      @chor_trigger.removeClass('btn-success')
-      @selection_trigger.addClass('btn-success')
-      @last_session = if @paper.tool.clearSession then @paper.tool.clearSession()
+
+      s = Choreography.selected()
+      if s and @prev_selected.id != s.id
+        @prev_selected.form = {ids: @paper.tool.clearSession()}
+        @prev_selected = s
+      else
+        @paper.tool.loadSession(s.form.ids)
+      @selection_trigger.removeClass('btn-success')
+      $('#remove-arrows').prop('disabled', false)
+      $('#view-order').prop('disabled', false)
+    if @mode == "selection"
+      s = Choreography.selected()
+      if s and @paper.tool.clearSession
+        s.form = {ids: @paper.tool.clearSession()}
+      $('choreography').removeClass('selected')
+      $('#add-arrows span.info').html("INACTIVE")
+      $('#remove-arrows').prop('disabled', true)
+      $('#view-order').prop('disabled', true)
       @paper.tool = @tools.selection
 
-      CanvasUtil.set(CanvasUtil.queryPrefix("CHOR"), "opacity", 0)
+      # @chor_trigger.removeClass('btn-success')
+      @selection_trigger.addClass('btn-success')
+      # @last_session = if @paper.tool.clearSession then @paper.tool.clearSession()
+      # console.log "SAVING CHOREO TO ", @active
+      # if @active then @active.data('ids', @last_session)
+     
 
   deselect_all: ->
     scope = this
@@ -66,18 +79,22 @@ class window.ChoreographyWidget extends Widget
     CanvasUtil.set diffs, 'opacity', 0
   constructor: (op)->
     scope = this
-    @mode = "choreography"
-    @prev_mode = "selection"
+    @mode = "selection"
+    @prev_selected = {id: -1}
+    @prev_mode = "choreography"
     @chor_trigger = $('#add-arrows')
     @chor_clear = $('#remove-arrows')
     @selection_trigger = $('#selection-tool')
-
+    $('#view-order').click ()->
+      s = Choreography.selected()
+      if s
+        s.view_order()
     @selection_trigger.click ()->
       scope.mode = "selection"
       scope.update()
-    @chor_trigger.click ()->
-      scope.mode = "choreography"
-      scope.update()
+    # @chor_trigger.click ()->
+    #   scope.mode = "choreography"
+    #   scope.update()
     @chor_clear.click ()->
       if scope.mode != "choreography"
         Alerter.warn
@@ -86,8 +103,8 @@ class window.ChoreographyWidget extends Widget
           delay: 2000
           color: 'alert-danger'
         return
-
       scope.paper.tool.clearSession()
+      CanvasUtil.set ChoreographyWidget.ACTUATORS(), 'fillColor', '#ffffff'
 
 
     
@@ -155,6 +172,9 @@ class window.ChoreographyWidget extends Widget
       console.log "ids", ids, "stored"
       return ids
     cT.loadSession = (ids)->
+      if ids.length == 0 
+        cT.initSession()
+        return
       cT.arrows = CanvasUtil.getIDs(ids)
       CanvasUtil.set(cT.arrows, "opacity", 1)
     cT.onMouseDown = (e)->
@@ -165,11 +185,13 @@ class window.ChoreographyWidget extends Widget
       cT.arrows.push(cT.arrow)
       cT.arrow_path = new paper.Path
         parent: cT.arrow
+        name: "ARROWPATH"
         strokeColor: ChoreographyWidget.ARROW_COLOR
         strokeWidth: 5
         shadowColor: "#000000"
         shadowBlur: 5
         segments: [e.point]
+      cT.arrow.pathway = cT.arrow_path
       cT.ink_blot = new paper.Path.Circle
         parent: cT.arrow
         fillColor: ChoreographyWidget.ARROW_COLOR
@@ -210,6 +232,10 @@ class window.ChoreographyWidget extends Widget
         pivot: arrow_head.bounds.bottomCenter.clone()
         position: lastPoint
       arrow_head.rotation = v.angle + 90
+      s = Choreography.selected()
+      if s and cT.getSession
+        s.form = {ids: cT.getSession()}
+        s.view_order()
 
       
     return cT

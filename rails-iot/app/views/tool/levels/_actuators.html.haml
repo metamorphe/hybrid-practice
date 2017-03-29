@@ -4,21 +4,32 @@
   .vert-centered.fill_height
     %button.design-title.btn-primary.trigger{:type => "trigger"}
       PROJECT
-    %acceptor#group-result.actuator{:data => {:accept=> 1}}  
+    %acceptor#group-result.actuator{:data => {:accept=> 1}}
+    %choreography.vert-centered.default
+      %span DEFAULT
+      %button.btn.btn-primary
+        =glyph "random"
+        %span.async 500ms  
   .full-hoz.fill_height
     .project-container
       #projectviewer
         %canvas
     .vert-centered-sink-top.fill_height_padding
-      .btn-group-vertical
+      .vert
         %button#selection-tool.btn
           =glyph "screenshot"
-        %button#add-arrows.btn
+          %span.info SELECTION TOOL
+        %span#add-arrows.btn
           =glyph "random"
+          %span.info INACTIVE
        
       <hr>
-      %button#remove-arrows.btn.btn-danger
+      %button#view-order.btn.btn-primary.btn-block
+        =glyph "tasks"
+        %span VIEW ORDERING
+      %button#remove-arrows.btn.btn-danger.btn-block
         =glyph "trash"
+        %span CLEAR ARROWS
 
 %event#library.actuation-design.column.vert-centered-sink-top
   / %button.btn.btn-xs.btn-info.toggle

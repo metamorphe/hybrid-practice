@@ -23,10 +23,26 @@ behavior{
 	&.selected{@extend block.selected;}
   #choreography-binders{
     padding: 0px 4px;
+    min-width: 94px;
+    choreography{
+      button{
+        width: 100%;
+      }
+      button{
+       
+      }
+      &.selected button{
+         background: darken(#337ab7, 20%);
+         /*border: 2px solid #00A8E1;*/
+         @include inset-shadow(0.8)
+      }
+      button:focus{
+        outline: none;
+      }
+      height: 83.52px;
+    }
   }
-  choreography{
-    height: 83.52px;
-  }
+
   #stage{
     background: darken($composition_base, 10%);
     width: $actuator_width;
