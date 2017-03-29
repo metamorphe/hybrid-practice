@@ -7,6 +7,7 @@ class window.TimeSignalManager
   init:()->
     @activateTrackButtons()
     @initTimeSignals()
+    @initEasings()
   activateTrackButtons: ()->
     scope = this
     $(".trash").click ()->
@@ -22,7 +23,27 @@ class window.TimeSignalManager
         if _.isUndefined(ts) then return 
         ts.form =  {view: n_view}
         dom.parents('event').find('[class^=track]').data('view', n_view)
-  
+  initEasings: ->
+    console.log "EASING"
+    easings = TimeSignalManager.EasingFunctions
+    _.each easings, (easing, v)->
+      datasignal = numeric.linspace(0, 1, 40)
+      datasignal = _.map datasignal, (s)-> easing(s)
+      dom = TimeSignal.create
+          clear: false
+          target: $('#library.signal-design .track-full')
+      signal = new TimeSignal(dom)
+      signal.form = {signal: datasignal, period: 1000}
+      signal.easing = true
+      datasignal = numeric.linspace(1, 0, 40)
+      datasignal = _.map datasignal, (s)-> easing(s)
+      dom = TimeSignal.create
+          clear: false
+          target: $('#library.signal-design .track-full')
+      signal = new TimeSignal(dom)
+      signal.form = {signal: datasignal, period: 1000}
+      signal.easing = true
+
   initTimeSignals: ->
     collection = $('datasignal')
     console.log("SIGNALS",collection.length )
@@ -93,4 +114,31 @@ class window.TimeSignalManager
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
     $('acceptor.datasignals').droppable(behavior)
+  @EasingFunctions =
+    linear: (t) ->
+      t
+    easeInQuad: (t) ->
+      t * t
+    easeOutQuad: (t) ->
+      t * (2 - t)
+    easeInOutQuad: (t) ->
+      if t < .5 then 2 * t * t else -1 + (4 - (2 * t)) * t
+    easeInCubic: (t) ->
+      t * t * t
+    easeOutCubic: (t) ->
+      --t * t * t + 1
+    # easeInOutCubic: (t) ->
+    #   if t < .5 then 4 * t * t * t else (t - 1) * (2 * t - 2) * (2 * t - 2) + 1
+    # easeInQuart: (t) ->
+    #   t * t * t * t
+    # easeOutQuart: (t) ->
+    #   1 - (--t * t * t * t)
+    # easeInOutQuart: (t) ->
+    #   if t < .5 then 8 * t * t * t * t else 1 - (8 * --t * t * t * t)
+    # easeInQuint: (t) ->
+    #   t * t * t * t * t
+    # easeOutQuint: (t) ->
+    #   1 + --t * t * t * t * t
+    # easeInOutQuint: (t) ->
+    #   if t < .5 then 16 * t * t * t * t * t else 1 + 16 * --t * t * t * t * t
 
