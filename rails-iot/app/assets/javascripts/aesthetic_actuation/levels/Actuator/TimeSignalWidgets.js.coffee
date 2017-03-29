@@ -127,15 +127,18 @@ class Stitcher extends TimeWidget
   stitch: ()->
     signals = @resolveTrack()
     if _.isEmpty signals then return
+
+    base_signal = signals[0]
     dom = TimeSignal.create
       clear: true
       target: @target
-    signal = new TimeSignal dom, 
-      signal: [0, 0, 0]
-      period: 0
+    base_signal = new TimeSignal dom, 
+      signal: base_signal.form.signal
+      period: base_signal.form.period
+    signals = signals.slice(1)
 
     data = _.map signals, (subsignal)->
-      signal.inject(subsignal.command_list(), subsignal.form.period)
+      base_signal.inject(subsignal.command_list(), subsignal.form.period)
   
 
 

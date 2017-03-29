@@ -161,7 +161,6 @@ class window.BehaviorManager
 	getActors: ()->
 		actuators = _.map $('#stage').find('actuator'), (actor)-> return am.resolve(actor)		
 	loadStage: (actuator)->
-		console.log actuator
 		if _.isUndefined(actuator.parent)
 			template = bm.addStage()
 		else

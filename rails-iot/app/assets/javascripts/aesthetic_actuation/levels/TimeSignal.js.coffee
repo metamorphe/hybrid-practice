@@ -60,7 +60,7 @@ class window.TimeSignal
     t.gamma = if _.isUndefined t.gammaCorrective then @gamma else parseFloat(t.gammaCorrective)
     t.exportable =  t.exportable == "enabled" 
     t.gamma_corrected =  t.gamma != 1
-    console.log "GAMMA", t.gamma_corrected, t.gamma
+    # console.log "GAMMA", t.gamma_corrected, t.gamma
     delete t['forcePeriodFlag']
     delete t['gammaCorrective']
     return t
@@ -201,6 +201,7 @@ class window.TimeSignal
     signal = new TimeSignal(dom, setter)
     
   inject: (command_list, delta_t)->
+    delta_t = parseInt(delta_t)
     # AS LONG AS DELTA_T IS REGULAR, NOT AN ISSUE
     prev = @form
     a = TimeSignal.resample(@command_list(), prev.period)
@@ -426,10 +427,12 @@ class window.TimeSignal
   to_visual: ->
     _.map @data, (datum, i) ->
       [[i, datum],[i + 1, datum]]
+  @SAMPLING_RESOLUTION: 5
   @resample: (data, period)->
     period = parseInt(period)
+    resolution = parseInt(period/TimeSignal.SAMPLING_RESOLUTION)
     if period == 0 then return [0]
-    target = numeric.linspace(0, period, period)
+    target = numeric.linspace(0, period, resolution)
     i = 0
     return _.map(target, (t)->
       if i + 1 >= data.length then return data[i].param
