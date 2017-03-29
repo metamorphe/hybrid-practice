@@ -139,12 +139,12 @@ actuator{
                 position: relative;
                 background: darken($actuator_base, 0%);
             }
-            .save-status{
+            .save-status{    
                 position: absolute;
-                top: calc(50% - 6px);
-                left: 4px;
-                width: 10px;
-                height: 10px;
+                top: calc(50% - 7px);
+                left: 1px;
+                width: 23px;
+                height: 13px;
                 display: block;
                 background: $sexy_red;
                 border: 1px solid black;
@@ -153,6 +153,9 @@ actuator{
                     background: $sexy_green
                 }
             }
+
+
+            
             
         }
         channels{

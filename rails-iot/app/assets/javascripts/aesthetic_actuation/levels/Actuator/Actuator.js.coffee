@@ -20,10 +20,10 @@ class window.Actuator
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div>'+channels+'</div>'
     
     @dom.click (event)-> scope.click_behavior(event)
+    @dom.find('.save-status ').click (event)-> scope.popover_behavior(event)
 
   click_behavior: (event)->
     scope = this
-    @popover_behavior(event)
     $('actuator').click ->
       $('actuator').not(this).popover('hide')
 
@@ -46,6 +46,7 @@ class window.Actuator
       return
   popover_behavior: (event)->
     event.stopPropagation()
+    event.preventDefault()
     scope = this
     $('actuator').not(@dom).popover('hide')
     @dom.popover('show')

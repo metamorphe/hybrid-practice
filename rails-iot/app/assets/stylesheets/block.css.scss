@@ -1,5 +1,6 @@
 /* INTERACTION */
 .popover{
+    z-index: 10000000000000000000 !important;
     @extend .noselect;
     .popover-content{
         cursor: pointer;

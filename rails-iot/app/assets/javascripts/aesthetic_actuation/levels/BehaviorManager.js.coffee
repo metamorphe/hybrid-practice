@@ -140,8 +140,9 @@ class window.Choreography
 		
 class window.BehaviorManager
 	constructor: (@op) ->
-		$(document).click ()->
-			$('.popover').fadeOut(100)
+		# $("*").not('.popover').not('actuator').not('datasignal').not('track-full').not('.track-unit').click (event)->
+		# 	console.log this
+		# 	$('.popover').fadeOut(100)
 		scope = this
 		@play_ids = []
 		@playing = false

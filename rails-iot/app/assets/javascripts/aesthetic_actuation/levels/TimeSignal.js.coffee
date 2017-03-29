@@ -131,12 +131,13 @@ class window.TimeSignal
   @popover: (dom)->
     dom.data
       content: "500ms"
-      placement: 'right'
+      placement: 'left'
       template: '<div class="timesignal popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div><input min="0" max="10000" step="100" type="range"/></div>'
+      trigger: 'focus'
     # dom.popover()
     
     dom.click (event)->  
-      event.stopPropagation()
+      # event.stopPropagation()
       $('datasignal').not(this).popover('hide')
     
       tag = this.tagName
