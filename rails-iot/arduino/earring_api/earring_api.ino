@@ -3,7 +3,7 @@
  *  Author: Molly Nicholas
  */
 
-#define DEBUG 1
+#define DEBUG 0
  
 #include <Adafruit_NeoPixel.h>
 #define BAUD 9600
@@ -55,7 +55,7 @@ void color_change(){
   r = Serial.parseInt();
   g = Serial.parseInt();
   b = Serial.parseInt();
-  if (DEBUG) {
+  if (DEBUG == 1) {
     Serial.print("devID: ");
     Serial.println(devID);
     Serial.print("id: ");
@@ -81,7 +81,7 @@ void findCommandEnd(){
 }
 
 void api_call(char prefix){
-  if (DEBUG) {
+  if (DEBUG == 1) {
     Serial.print("prefix: ");
     Serial.println(prefix);
   }
@@ -104,7 +104,7 @@ void api_call(char prefix){
 
 void setup() {
   Serial.begin(BAUD);
-  if (DEBUG) {
+  if (DEBUG == 1) {
     Serial.println("Aesthetic Actuation Controller - Earring");
   }
   registerActuators();
