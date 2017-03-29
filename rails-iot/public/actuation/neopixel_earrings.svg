@@ -10,7 +10,7 @@
 	.st4{fill:none;stroke:#FFFF00;stroke-linecap:round;stroke-miterlimit:10;}
 	.st5{fill:#FFFF00;}
 </style>
-<g id="DEVICE:_x7B__x22_id_x22_:1_x7D_">
+<g id="DEVICE:_x7B__x27_id_x27_:1_x7D_">
 	<g>
 		<line class="st0" x1="205.2" y1="42.1" x2="205.2" y2="0"/>
 		<rect x="203.7" class="st1" width="3" height="42.1"/>
@@ -58,7 +58,7 @@
 		c-19.6-12.8-21.9-35.9-22.2-40c-0.4-5.8,0.2-10.6,0.8-13.8"/>
 	<circle id="BI:_Breakin" class="st5" cx="162.8" cy="87.2" r="1.8"/>
 </g>
-<g id="DEVICE:_x7B__x22_id_x22_:0_x7D__1_">
+<g id="DEVICE:_x7B__x27_id_x27_:0_x7D_">
 	<g>
 		<line class="st0" x1="69.8" y1="42.1" x2="69.8" y2="0"/>
 		<rect x="68.3" class="st1" width="3" height="42.1"/>

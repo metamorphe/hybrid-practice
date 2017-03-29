@@ -3,7 +3,7 @@
  *  Author: Molly Nicholas
  */
 
-#define DEBUG 0
+#define DEBUG 1
  
 #include <Adafruit_NeoPixel.h>
 #define BAUD 9600

@@ -76,7 +76,7 @@ class window.Choreography
 		window.paper = ch.paper
 		order = @resolve(actuators)
 		_.each order, (p, k)->			
-			e = CanvasUtil.query(paper.project, {lid: parseInt(k)})
+			e = CanvasUtil.query(paper.project, {lid: k})
 			e[0].fillColor = Choreography.temperatureColor(p)
 
 	resolve: (actuators)->
