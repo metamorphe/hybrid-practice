@@ -136,6 +136,7 @@ class window.TimeSignal
     # dom.popover()
     
     dom.click (event)->  
+      event.stopPropagation()
       $('datasignal').not(this).popover('hide')
     
       tag = this.tagName
@@ -146,6 +147,7 @@ class window.TimeSignal
 
   popover_behavior: (event)->
     scope = this
+
     $('datasignal').not(@dom).popover('hide')
     @dom.popover('show')
     $('.timesignal.popover').find('input').val(@period)

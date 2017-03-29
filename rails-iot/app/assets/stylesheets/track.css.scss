@@ -1,3 +1,7 @@
+.popover{
+  z-index:  100000000000;
+  position: fixed;
+}
 .alert{
   position: absolute;
   top: 0;
@@ -30,7 +34,7 @@ event.column{
   top: 43px;
   height: 100%;
   width: 130px !important;
-  z-index: 100000;
+  z-index: 0;
   
   .track-full{
     width: 96% !important;

@@ -45,6 +45,7 @@ class window.Actuator
       $(this).addClass('selected')
       return
   popover_behavior: (event)->
+    event.stopPropagation()
     scope = this
     $('actuator').not(@dom).popover('hide')
     @dom.popover('show')
