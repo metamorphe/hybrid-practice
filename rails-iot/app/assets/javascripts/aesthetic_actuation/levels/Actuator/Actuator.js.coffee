@@ -20,10 +20,10 @@ class window.Actuator
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div>'+channels+'</div>'
     
     @dom.click (event)-> scope.click_behavior(event)
-
+    @dom.dblclick (event)-> scope.popover_behavior(event)
   click_behavior: (event)->
     scope = this
-    @popover_behavior(event)
+    
     $('actuator').click ->
       $('actuator').not(this).popover('hide')
 
@@ -34,9 +34,9 @@ class window.Actuator
 
       actor = am.resolve($(this))
       if actor
-        channel = am.getActiveChannel()
-        value = actor.getChannelParam(channel)
-        cmp.op.slider.val value
+        # channel = am.getActiveChannel()
+        # value = actor.getChannelParam(channel)
+        # cmp.op.slider.val value
         ch.select(actor.form.canvas_ids)
       return
 
@@ -158,11 +158,11 @@ class window.Actuator
           @_warn value
         @_expression = @_param2express()
         if Actuator.SIMULATE then @_updateVisuals @expression
-        if ch
-          window.paper = ch.paper
-          elements = CanvasUtil.queryIDs @canvas_ids
-          CanvasUtil.set elements, "fillColor", @expression
-          window.paper = @paper
+        # if ch
+          # window.paper = ch.paper
+          # elements = CanvasUtil.queryIDs @canvas_ids
+          # CanvasUtil.set elements, "fillColor", @expression
+          # window.paper = @paper
   setAsync: (t)->
     text = TimeSignal.pretty_time(t)
     @dom.find('label.async').html(text)
@@ -173,19 +173,20 @@ class window.Actuator
     else
       @dom.find(".save-status").removeClass('saved')
   
-  perform: (channel, command)->
+  perform: (channel, command, generate_command=true)->
     choreo = choreo or Choreography.default()
-    window.paper = @op.paper
+    # window.paper = @op.paper
     query = 
       parameterized: true
       viz_update: true
     query[channel] = command.param
     @expression = query
     scope = this
-    return _.map @hardware_ids, (hid)->
-      command = scope.async(hid, channel, command)
+    if not generate_command then return
+    return _.map @hardware_ids, (hid, i)->
+      command = scope.async hid, channel, command, scope.canvas_ids[i]
       return command
-  async: (hid, channel, command)->
+  async: (hid, channel, command, cid)->
     @sia = @choreo.sia
     @async_period = @choreo.async_period
     i = if _.isUndefined @sia[hid] then 0 else @sia[hid]
@@ -195,8 +196,10 @@ class window.Actuator
       async_offset:  i * @async_period
       api: @toAPI(hid)
       hid: hid
+      cid: cid
       expression: @expression
       channel: channel
+
   physical_channels: ()->
     _.pick @channels, (val)->
       return val.op.modality != "derived"

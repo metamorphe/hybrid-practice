@@ -98,12 +98,11 @@ class window.ActuatorRGBLED extends ActuatorLED
     )
     return "\t" + @op.name + ".set("+ v.join(', ') + ");\n";
   toAPI: (hid)->
-    d = hid.split(":")
     c = @expression
     r = parseInt(c.red * 255)
     g = parseInt(c.green * 255)
     b = parseInt(c.blue * 255)
-    {flag: "C", args: [d[0], d[1], r, g, b]}
+    {flag: "C", args: [hid, r, g, b]}
 class window.ActuatorHSBLED extends ActuatorRGBLED
   onCreate: ->
     @expression = @constants.color

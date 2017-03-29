@@ -155,7 +155,10 @@ class window.ActuatorManager
       revert: true
       appendTo: '#ui2'
       helper: ()->
-        copy = $('<p></p>').addClass("dragbox").html($(this).attr('name') + " #" + $(this).data().hardware_ids.join(','))
+        a = scope.resolve($(this))
+        title = a.title
+        # $(this).attr('name') + " #" + $(this).data().hardware_ids.join(',')
+        copy = $('<p></p>').addClass("dragbox").html(a.title)
         return copy;
     
     $('.actuation-design .droppable, #async .droppable, acceptor.actuator').droppable
@@ -181,7 +184,8 @@ class window.ActuatorManager
         ops = _.extend actor.form,
           clear: num_to_accept == 1
           target: $(this)
-          addSignalTrack: sync and compose and empty
+          # addSignalTrack: sync and compose and empty
+          addSignalTrack: false
           choreo: choreo
         
         ActuatorManager.create ops
