@@ -151,6 +151,7 @@ class window.TimeSignal
 
     $('datasignal').not(@dom).popover('hide')
     @dom.popover('show')
+    $('.timesignal .popover-content').click ()-> $(this).parents('.popover').fadeOut(100)
     $('.timesignal.popover').find('input').val(@period)
     $('.timesignal.popover').find('input').on 'input', ()->
       pop = $(this).parents('.popover')

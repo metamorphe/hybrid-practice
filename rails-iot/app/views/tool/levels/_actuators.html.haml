@@ -65,7 +65,7 @@
   .track-full
     %actuator.draggable.template{name: "RGBLED"}
       %div.simulation
-        %label.title{:contenteditable=> "true"} RGBLED
+        %label.title.content-editable{:contenteditable=> "false"} RGBLED
         %canvas{:type=>"RGBLED"}
       %channels.scroll-list
         %label.title.light CHANNELS
@@ -85,7 +85,7 @@
       %div.simulation
 
         %label.title
-          %span{:contenteditable=> "true"} HSBLED
+          %span.content-editable HSBLED
           %span.save-status 
         %canvas{:type=>"HSBLED"}
         %label.async 100

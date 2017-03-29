@@ -70,25 +70,33 @@ class window.ActuatorManager
     @listen()
 
   listen: ->
-    $('[contenteditable]').on('focus', ()->
-      scope = $(this)
-      scope.data 'before', scope.html()
-      return scope;
-    ).on('blur keyup paste', (e)->
-      scope = $(this);
-      if scope.data('before') != scope.html()
+    $('.content-editable').dblclick ()->
+      $(this).attr('contenteditable', 'plaintext-only')
+      # Widget.bindings_on = false
+
+      $('[contenteditable]').on('focus', ()->
+        scope = $(this)
         scope.data 'before', scope.html()
-        scope.trigger('change')
-      return scope;
-    )
-    $('label.title span[contenteditable').on 'focus', (e)->
-      Widget.bindings_on = false
-    $('label.title span[contenteditable').on 'blur', (e)->
-      Widget.bindings_on = true
-      actor = am.resolve($(this).parents('actuator'))
-      actor.form =
-        title: $(this).html()
-        saved: false
+        return scope;
+      ).on('blur keyup paste', (e)->
+        scope = $(this);
+        if scope.data('before') != scope.html()
+          scope.data 'before', scope.html()
+          scope.trigger('change')
+        return scope;
+      )
+      $(this).on 'focus', (e)->
+        Widget.bindings_on = false
+      $(this).on 'blur', (e)->
+        Widget.bindings_on = true
+        actor = am.resolve($(this).parents('actuator'))
+        actor.form =
+          title: $(this).html()
+          saved: false
+        $(this).unbind('blur')
+        $(this).unbind('focus')
+        $(this).prop('contenteditable', false)
+      $(this).focus()
       
       
   initActuator: (act, op)->
@@ -151,7 +159,6 @@ class window.ActuatorManager
   activateDragAndDrop: ()->
     scope = this
     $('actuator.draggable').draggable
-      handle: 'channels'
       revert: true
       appendTo: '#ui2'
       helper: ()->
