@@ -94,7 +94,7 @@ class window.Actuator
     @async_period = Actuator.DEFAULT_ASYNC
     @constants = {}
     @paper = Utility.paperSetup @canvas, {}
-    @choreo = Choreography.default()
+    @choreo = set.choreo or Choreography.default()
     @visuals = []
     if Actuator.SIMULATE then @_visuals()
     @channels = _.mapObject(@op.channels, (actuator) ->

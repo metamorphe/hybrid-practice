@@ -9,11 +9,31 @@
   #behavior_environment.vert-centered-sink-top
     %label{:contenteditable => true} BEHAVIOR NAME
     #timeruler.hoz
-      %button#add-stage.btn-xxs.btn-danger
-        =glyph "plus"
-        ADD
+      / %button#add-stage.btn-xxs.btn-danger
+      /   =glyph "plus"
+      /   ADD
     %behavior.hoz
       #choreography-binders.vert-centered-sink-top.fill_height
+        %choreography.vert-centered
+          / %span.async 500ms
+          %button.btn.btn-primary
+            =glyph "random"
+            %span.async 500ms
+        %choreography.vert-centered
+          / %span.async 500ms
+          %button.btn.btn-primary
+            =glyph "random"
+            %span.async 500ms
+        %choreography.vert-centered
+          / %span.async 500ms
+          %button.btn.btn-primary
+            =glyph "random"
+            %span.async 500ms
+        %choreography.vert-centered
+          / %span.async 500ms
+          %button.btn.btn-primary
+            =glyph "random"
+            %span.async 500ms
         %choreography.vert-centered
           / %span.async 500ms
           %button.btn.btn-primary
@@ -22,6 +42,11 @@
 
       #stage.vert-centered-sink-top
         %acceptor.actuator.template{:data => {:accept=> 1}}
+        %acceptor.actuator{:data => {:id=> 0, :accept=> 1}}
+        %acceptor.actuator{:data => {:id=> 1, :accept=> 1}}
+        %acceptor.actuator{:data => {:id=> 2, :accept=> 1}}
+        %acceptor.actuator{:data => {:id=> 3, :accept=> 1}}
+        %acceptor.actuator{:data => {:id=> 4, :accept=> 1}}
       #timetrack.vert-centered-sink-top
         #scrubber.vert-centered-sink-top
           #handle
@@ -38,6 +63,26 @@
             %canvas
           %datasignal.composeable{:data =>{:signal => "[0, 1, 0, 1, 0, 1, 0.5]", "period" => 3000}}
             %canvas
+          %button.btn.btn-xs.btn-danger.trash
+            =glyph "trash"
+          %button.btn.btn-xs.btn-primary.view-toggle
+            =glyph "eye-open"
+        %acceptor.datasignals{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3, :exportable => "disabled", :composeable => "enabled"}}
+          %button.btn.btn-xs.btn-danger.trash
+            =glyph "trash"
+          %button.btn.btn-xs.btn-primary.view-toggle
+            =glyph "eye-open"
+        %acceptor.datasignals{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3, :exportable => "disabled", :composeable => "enabled"}}
+          %button.btn.btn-xs.btn-danger.trash
+            =glyph "trash"
+          %button.btn.btn-xs.btn-primary.view-toggle
+            =glyph "eye-open"
+        %acceptor.datasignals{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3, :exportable => "disabled", :composeable => "enabled"}}
+          %button.btn.btn-xs.btn-danger.trash
+            =glyph "trash"
+          %button.btn.btn-xs.btn-primary.view-toggle
+            =glyph "eye-open"
+        %acceptor.datasignals{:data =>{:accept=> 100, :semantic => "disabled", :timescale => 10000, :tracks => 3, :exportable => "disabled", :composeable => "enabled"}}
           %button.btn.btn-xs.btn-danger.trash
             =glyph "trash"
           %button.btn.btn-xs.btn-primary.view-toggle

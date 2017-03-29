@@ -144,8 +144,13 @@ class window.Saver extends ActuatorWidget
     # console.log "SAVING", name, actors.length
     data = _.map actors, (actor)-> 
       actor.form = {saved: true}
-      return _.extend actor.form,
+      
+      rtn =  _.extend actor.form,
         file: fs.getName()
+        parent: actor.dom.parent().data().id
+        test: ""
+      console.log "SAVING", rtn.parent
+      return rtn
     @save(name, data)
   
   

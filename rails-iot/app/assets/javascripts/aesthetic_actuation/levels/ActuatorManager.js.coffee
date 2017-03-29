@@ -23,6 +23,8 @@ class window.ActuatorManager
     ActuatorSimulator = eval('Actuator' + ActuatorType)
     props = _.clone(eval(ActuatorType))
     set = dom.data()
+    if op.choreo
+      set.choreo = op.choreo
     actuator = new ActuatorSimulator(dom, set, props)
     if op.addSignalTrack then bm.addSignalTrack(actuator)
     return dom
@@ -163,6 +165,16 @@ class window.ActuatorManager
         empty = $(this).html() == ""
         sync = $(this).parents('#async').length == 0
         compose = $(this).parents(".composition-design").length != 0
+        choreo = Choreography.default()
+        if compose 
+          idx = $('#stage acceptor').index(this) - 1
+          choreos = $("#choreography-binders choreography")
+          console.log "ALMOST", idx, choreos.length
+          if idx < choreos.length
+            potential = Choreography.get($(choreos[idx]))
+            if potential
+              choreo = potential
+
         num_to_accept = $(this).data().accept
 
         actor = scope.resolve(ui.draggable)
@@ -170,7 +182,7 @@ class window.ActuatorManager
           clear: num_to_accept == 1
           target: $(this)
           addSignalTrack: sync and compose and empty
-          
+          choreo: choreo
         
         ActuatorManager.create ops
         

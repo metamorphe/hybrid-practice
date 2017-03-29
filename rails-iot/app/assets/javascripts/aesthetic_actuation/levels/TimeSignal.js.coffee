@@ -47,7 +47,7 @@ class window.TimeSignal
   processTrack: (track)->
     if _.isUndefined track then return {}
     t = _.clone(track.data())
-    console.log track.data()
+
     t.tracks =  t.tracks or @tracks
     t.perceptual =  t.perceptual == "enabled" 
     t.composeable =  t.composeable == "enabled" 
