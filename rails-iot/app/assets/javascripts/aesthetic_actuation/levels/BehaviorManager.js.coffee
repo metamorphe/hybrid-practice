@@ -12,6 +12,7 @@ class window.BehaviorManager
 		Widget.bindKeypress 32,((event) ->
 			event.preventDefault()
 			$('#compose').click()), true
+		
 	getActors: ()->
 		actuators = _.map $('#stage').find('actuator'), (actor)-> return am.resolve(actor)		
 	loadStage: (actuator)->
