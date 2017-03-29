@@ -28,8 +28,9 @@ class window.TimeWidget extends Widget
       Widget.bindKeypress @bindKey, ()-> 
         if scope.trigger
           scope.trigger.click()
-  @resolveTrack: (track)->
-    _.map $(track).find('datasignal'), (d)-> return tsm.resolve(d)
+  @resolveTrack: (track, exclude)->
+    exclude = exclude or ""
+    _.map $(track).find('datasignal').not(exclude), (d)-> return tsm.resolve(d)
   resolveTrack: ()->
     TimeWidget.resolveTrack(@track)
 

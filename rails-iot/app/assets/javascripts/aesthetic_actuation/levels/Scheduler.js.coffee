@@ -40,6 +40,7 @@ class window.Scheduler
 		info = Scheduler.quanta_update(commands)
 		commands = info.commands
 		Scheduler.pretty_print(commands, info.stats)
+		
 		return play_ids = _.map commands, (command) ->
 			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation)
 			return id
@@ -55,7 +56,11 @@ class window.Scheduler
 		if sc and aw.comm.live   
 			sc.sendMessage(command.api, {live: aw.comm.live}) 
 		else
-			actuator.perform(command.channel, command)
-			$('.popover.actuator .popover-content').html(rgb2hex(actuator.expression.toCSS()).toUpperCase())
+			window.paper = ch.paper
+			e = CanvasUtil.queryID(command.cid)
+			if e then e.fillColor = command.expression
+			expression = command.expression
+			actuator.perform(command.channel, command, false)
 			
+			$('.popover.actuator .popover-content').html(rgb2hex(actuator.expression.toCSS()).toUpperCase())
 			am.updateChannels(actuator)

@@ -47,7 +47,7 @@ block{
         border-top: 12px solid $sexy_select;
         z-index: 100000000;
     }
-    &.selected:not(.acceptor)::after{
+   /* &.selected:not(.acceptor)::after{
         content: '';
         position: absolute;
         bottom: -5px;
@@ -58,7 +58,7 @@ block{
         border-right: 12px solid transparent;
         border-bottom: 12px solid $sexy_select;
         z-index: 100000000;
-    }
+    }*/
     
     &.selected:not(.acceptor){
         border: 2px solid $sexy_select;

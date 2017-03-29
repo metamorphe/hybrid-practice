@@ -117,7 +117,7 @@ class window.Saver extends ActuatorWidget
 
       signal_tracks = $(".signal-design .track-full").not("#hues")
       signal_tracks = _.map signal_tracks, (track)->
-        signals = TimeWidget.resolveTrack(track) 
+        signals = TimeWidget.resolveTrack(track, '.easing, .default')
         track_id = $(track).parent('event').attr('id')
         scope.saveActors(scope.ts_library + ":" + track_id, signals)
 
@@ -142,15 +142,17 @@ class window.Saver extends ActuatorWidget
   
   saveActors: (name, actors)->
     # console.log "SAVING", name, actors.length
+
     data = _.map actors, (actor)-> 
       actor.form = {saved: true}
-      
+      if actor.easing then return null
       rtn =  _.extend actor.form,
         file: fs.getName()
         parent: actor.dom.parent().data().id
         test: ""
-      console.log "SAVING", rtn.parent
+      # console.log "SAVING", rtn.parent
       return rtn
+    data = _.compact(data)
     @save(name, data)
   
   
