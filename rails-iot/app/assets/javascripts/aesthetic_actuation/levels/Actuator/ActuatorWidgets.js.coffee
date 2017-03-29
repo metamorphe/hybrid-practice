@@ -72,6 +72,18 @@ class window.Communicator extends ActuatorWidget
       $(this).blur()
       scope.live = not scope.live
       scope.update()
+      if sc and sc.state == 1 and scope.live
+        Alerter.warn
+          strong: "YOU ARE LIVE!"
+          msg: "Look at the device. Things won't update on the screen anymore."
+          delay: 4000
+          color: 'alert-success'
+      else if not scope.live
+        Alerter.warn
+          strong: "ENTERING SIMULATION!"
+          msg: "The simulation will now update. The device is no longer in use."
+          delay: 4000
+          color: 'alert-info'
   update: ()->
     if @live
       @trigger.addClass('btn-success') 

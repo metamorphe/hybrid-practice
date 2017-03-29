@@ -76,6 +76,11 @@ class window.SocketControl
 
     @ws.onopen = ->
       scope.state = SocketControl.CONNECTED
+      Alerter.warn
+          strong: "WE ARE CONNECTED!"
+          msg: "Look at the device. Things won't update on the screen anymore."
+          delay: 4000
+          color: 'alert-success'
       scope.update()
       return
 
