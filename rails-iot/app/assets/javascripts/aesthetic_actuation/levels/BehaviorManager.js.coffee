@@ -1,147 +1,5 @@
-class window.Choreography
-	@COUNTER: 0
-	@CHOREOGRAPHIES: []
-	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
-	@get: (dom)-> return Choreography.CHOREOGRAPHIES[dom.data().id]
-	@ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
-	@selected: ()->
-		s = $('choreography.selected')
-		if s.length == 0 then return null
-		return Choreography.CHOREOGRAPHIES[s.data().id]	
-	@temperatureColor: (p)->
-	    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
-	    if p > 1 then p = 1
-	    if p < 0 then p = 0
-	    # "#000000",
-	    thermogram = [ "#380584", "#A23D5C", "#FAA503", "#FFFFFF"];
-	    thermogram.reverse();
-	    
-	    thermogram = _.map thermogram, (t) -> return new paper.Color(t)
-	    if p == 0 then return thermogram[0]
-	    i = p * (thermogram.length - 1)
-	    
-	    a = Math.ceil(i)
-	    b = a - 1
-	    terp = a - i
-	    red = thermogram[a]
-	    blue = thermogram[b]    
 
-	    c = red.multiply(1-terp).add(blue.multiply(terp))
-	    c.saturation = 0.8
-	    return c
-	
-	popover: ()->
-		scope = this
-		dir = 'left'
-		# if @dom.hasClass('default')
-			# dir = 'right'
-		@dom.data
-			content: "500ms"
-			placement: 'dir'
-			template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
 
-		@dom.click (event)-> 
-			$(this).blur()			
-			event.stopPropagation()
-			$('choreography').not(this).popover('hide')
-			tag = this.tagName
-			$(tag).removeClass 'selected'
-
-			$(this).addClass 'selected'
-			ch.mode = "choreography"
-			ch.update()
-			$('#add-arrows span.info').html("#" + scope.id)
-			scope.dom.popover('show')
-			$('.choreography .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
-			$('.choreography.popover').find('input').val(@async_period)
-			$('.choreography.popover').find('input').on 'click', (event)->
-				event.stopPropagation()
-			$('.choreography.popover').find('input').on 'input', (event)->
-				pop = $(this).parents('.popover')
-				t = $(this).val()
-				pop.find('.popover-content').html(TimeSignal.pretty_time(t))
-				scope.form = {async_period: t}
-	constructor: (op)->
-		_.extend this, op
-		@id = Choreography.COUNTER++
-		@dom.data('id', @id)
-		@trigger = @dom.find('button')
-
-		# DEFAULTS
-		@ids = []
-		@async_period = 500
-		@saved = false
-		@dom.data
-			content: TimeSignal.pretty_time @async_period
-
-		Choreography.CHOREOGRAPHIES.push(this)
-		@popover()
-		@resolve()
-	view_order: (actuators)->
-		window.paper = ch.paper
-		order = @resolve(actuators)
-		_.each order, (p, k)->			
-			e = CanvasUtil.query(paper.project, {lid: k})
-			e[0].fillColor = Choreography.temperatureColor(p)
-
-	resolve: (actuators)->
-		window.paper = ch.paper
-		actuators = actuators or Choreography.ACTUATORS()
-		arrows = CanvasUtil.getIDs(@ids)
-		dist = _.map actuators, (actuator)->
-			if arrows.length != 0
-				closest_arrow = _.min arrows, (arrow)->
-					arrow = arrow.pathway
-					npt = arrow.getNearestPoint(actuator.position)
-					return npt.getDistance(actuator.position)
-				
-				closest_arrow = closest_arrow.pathway
-				npt = closest_arrow.getNearestPoint(actuator.position)
-				offset = closest_arrow.getOffsetOf(npt)
-				distance =  offset / closest_arrow.length
-				rtn = 
-					hid: actuator.lid
-					distance: distance
-			else 
-				rtn = 
-					hid: actuator.lid
-					distance: 0
-			return rtn
-
-		@sia = @normalize(dist)
-		return @sia
-
-	normalize: (dist)->
-	    min = (_.min dist, (d)-> d.distance).distance
-	    max = (_.max dist, (d)-> d.distance).distance
-	    range = max - min
-	    if range != 0
-		    dist = _.each dist, (d)-> 
-		      d.distance = (d.distance - min)/range
-
-	    dist = _.map dist, (d)-> [d.hid, d.distance]
-	    dist = _.object(dist)
-	    return dist
-    
-	Object.defineProperties @prototype,
-    form: 
-      get: ->
-        ids: @ids
-        async_period:  @async_period
-        saved: @saved
-      set:(obj)->
-        scope = this
-        if _.isEmpty(obj) then return        
-        prev = @form
-
-        _.extend(this, obj)
-      
-        @dom.data @form  
-        @setAsync(@async_period)
-        
-  
-	setAsync: (t)->
-		@dom.find('.async').html(TimeSignal.pretty_time(t))
 		
 class window.BehaviorManager
 	constructor: (@op) ->
@@ -159,9 +17,6 @@ class window.BehaviorManager
 			event.preventDefault()
 			$('#compose').click()), true
 
-		BehaviorManager.CHOREOGRAPHIES = _.map $("choreography"), (dom)-> 
-			return new Choreography
-				dom: $(dom)
 
 	getActors: ()->
 		actuators = _.map $('#stage').find('actuator'), (actor)-> return am.resolve(actor)		
@@ -257,7 +112,6 @@ class window.BehaviorManager
 	compile: ()->
 		actors = $("#stage actuator").not(".template")
 		signal_tracks = $("#timetrack acceptor").not(".template")
-		choreos = $("#choreography-binders choreography")
 		choreography = _.chain actors
 			.map (actor, i)->
 				actor = am.resolve(actor)

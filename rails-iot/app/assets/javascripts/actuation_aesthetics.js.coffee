@@ -31,6 +31,7 @@
 //= require aesthetic_actuation/levels/Actuator/ActuatorWidgets
 //= require aesthetic_actuation/levels/Actuator/TimeSignalWidgets
 //= require aesthetic_actuation/levels/Actuator/BehaviorWidgets
+//= require aesthetic_actuation/levels/Choreography
 //= require aesthetic_actuation/levels/Scheduler
 # COMPOSITIOn
 //= require aesthetic_actuation/levels/Actuator/Keyframe

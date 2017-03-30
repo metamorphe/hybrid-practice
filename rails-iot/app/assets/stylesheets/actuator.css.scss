@@ -29,7 +29,7 @@ acceptor.actuator{
     font-weight: normal;
     font-size: 9pt;
     text-align: center;
-    z-index: 10;
+    z-index: 0;
     margin: 0px 0px 0px 0px;
 
     /*@extend actuator;*/
@@ -84,7 +84,7 @@ actuator{
     font-weight: normal;
     font-size: 9pt;
     text-align: center;
-    z-index: 10;
+    z-index: 0;
     border: 1px solid $actuator_base;
 
     @include drop-shadow(0.93);  

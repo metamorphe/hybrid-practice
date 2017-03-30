@@ -1,6 +1,7 @@
 /* INTERACTION */
 .popover{
-    z-index: 10000000000000000000 !important;
+    position: fixed;
+    z-index: 500 !important;
     @extend .noselect;
     .popover-content{
         cursor: pointer;
@@ -46,7 +47,7 @@ block{
         border-left: 12px solid transparent;
         border-right: 12px solid transparent;
         border-top: 12px solid $sexy_select;
-        z-index: 100000000;
+        z-index: 0110;
     }
    /* &.selected:not(.acceptor)::after{
         content: '';
@@ -78,7 +79,7 @@ block{
     background: darken($base, 30%);
     width: 100px;
     height: 60px;
-    z-index: 200;
+    z-index: 300;
     opacity: 1.0;
     border-radius: 5px;
     cursor: -webkit-grabbing; cursor: -moz-grabbing;

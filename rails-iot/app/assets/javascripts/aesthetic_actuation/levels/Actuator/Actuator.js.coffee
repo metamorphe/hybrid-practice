@@ -6,6 +6,35 @@ class window.Actuator
   @COUNTER: 0
   @DEFAULT_ASYNC: 0
   @RAY_RESOLUTION: 30
+  constructor: (@dom, set, @op) ->
+    scope = this
+    set = set or {}
+    @id = Actuator.COUNTER++
+    @dom.data('id', @id)
+   
+    @canvas = @dom.find('canvas')
+
+    # DEFAULTS
+    @actuator_type = "Actuator"
+    @hardware_ids = []
+    @canvas_ids = []
+    @title = ""
+    @saved = false
+    @async_period = Actuator.DEFAULT_ASYNC
+    @constants = {}
+    @paper = Utility.paperSetup @canvas, {}
+    @choreo = new Choreography
+    @visuals = []
+    if Actuator.SIMULATE then @_visuals()
+    @channels = _.mapObject(@op.channels, (actuator) ->
+      new ActuationParam(actuator)
+    )
+    
+    @form = set
+    @onCreate()
+    @popover_setup()
+    am.add(this)
+
 
   popover_setup: ()->
     scope = this
@@ -82,34 +111,7 @@ class window.Actuator
       commands =_.flatten(commands)
       Scheduler.schedule(commands)
     return
-  constructor: (@dom, set, @op) ->
-    scope = this
-    set = set or {}
-    @id = Actuator.COUNTER++
-    @dom.data('id', @id)
-   
-    @canvas = @dom.find('canvas')
-
-    # DEFAULTS
-    @actuator_type = "Actuator"
-    @hardware_ids = []
-    @canvas_ids = []
-    @title = ""
-    @saved = false
-    @async_period = Actuator.DEFAULT_ASYNC
-    @constants = {}
-    @paper = Utility.paperSetup @canvas, {}
-    @choreo = set.choreo or Choreography.default()
-    @visuals = []
-    if Actuator.SIMULATE then @_visuals()
-    @channels = _.mapObject(@op.channels, (actuator) ->
-      new ActuationParam(actuator)
-    )
-    
-    @form = set
-    @onCreate()
-    @popover_setup()
-    am.add(this)
+  
   serialize: ->
     @form
   Object.defineProperties @prototype,
@@ -178,7 +180,6 @@ class window.Actuator
       @dom.find(".save-status").removeClass('saved')
   
   perform: (channel, command, generate_command=true)->
-    choreo = choreo or Choreography.default()
     # window.paper = @op.paper
     query = 
       parameterized: true

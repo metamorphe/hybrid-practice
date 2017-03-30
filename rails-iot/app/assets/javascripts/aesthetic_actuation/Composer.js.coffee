@@ -46,10 +46,8 @@ class window.Composer
     scope = this
     @op.live_button.click((event)->
       scope.live = not scope.live
-      if scope.live 
-        $(this).css('background', '#d9534f')
-      else
-        $(this).css('background', '#2d6a96')
+      if scope.live then $(this).css('background', '#d9534f')
+      else $(this).css('background', '#2d6a96')
     )
   bindSignalButton:()->
     Composer.log "BINDING SIGNAL SENDER"
@@ -68,31 +66,6 @@ class window.Composer
       commands =_.flatten(commands)
       Scheduler.schedule(commands)
   
- #  initBLSlider: (dom)->
- #    Composer.log "BINDING BL"
- #    scope = this;
- #    dom.on 'input', ->
- #      diff = Date.now() - scope.now
- #      if(diff < 50)
- #        return
- #      else 
- #        scope.now = Date.now()
- #      actor = am.getActiveActuator()
- #      if _.isUndefined actor
- #        scope.warn()
- #        return
- #      actor.form = {saved: false}
- #      channel = am.getActiveChannel()
- #      param = parseFloat($(this).val())  
- #      command = {t: 0, param: param}
- #      commands = actor.perform(channel, command)
- #      commands =_.flatten(commands)
- #      Scheduler.schedule(commands)
- #    return
- 
-  
-  
-  
+
     
 
- # 

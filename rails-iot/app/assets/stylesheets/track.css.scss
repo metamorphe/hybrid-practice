@@ -1,21 +1,18 @@
-.popover{
-  z-index:  100000000000;
-  position: fixed;
-}
+
 .alert{
   position: absolute;
   top: 0;
   width: 100%;
   text-align: center;
   margin: 0px 0%;
-  z-index: 100000000;
+  z-index: 600;
   @include drop-shadow(0.5);
 }
 #project{
   top: 0px;
   left: 130px;
   position: fixed;
-  z-index: 1;
+  z-index: 100;
   width: calc(100% - 260px);
 }
 #group{
@@ -42,7 +39,7 @@ event.column{
   top: 43px;
   height: 100%;
   width: 130px !important;
-  z-index: 100000;
+  z-index: 100;
   
   .track-full{
     width: 96% !important;
@@ -198,7 +195,7 @@ event{
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;
-    z-index: 1000;
+    z-index: 0;
   }
   button.toggle{
     position: absolute;
@@ -207,7 +204,7 @@ event{
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;
-    z-index: 1000;
+    z-index: 0;
   }
   button.trash{
     position: absolute;
@@ -216,7 +213,7 @@ event{
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;
-    z-index: 1000;
+    z-index: 0;
   }
   .result{
     border-radius: 5px;
@@ -237,7 +234,7 @@ event{
   width: 8px;
   height: 60%;
   background: $sexy_off_white;
-  z-index: 1000;
+  z-index: 0;
   @include rotate(3deg);
   -webkit-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);
   -moz-box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.45);

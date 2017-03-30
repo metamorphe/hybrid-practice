@@ -6,7 +6,6 @@ class window.ActuatorManager
     dom = $('actuator.template[name="'+ op.actuator_type+'"]')
       .clone().removeClass('template')
     
-
     data = 
       actuator_type: op.actuator_type
       constants: op.constants
@@ -15,6 +14,7 @@ class window.ActuatorManager
       title: op.title or op.actuator_type
       saved: op.saved
       async_period: op.async_period
+
     dom.data data
     op.target.append(dom)
     op.target.addClass("accepted")

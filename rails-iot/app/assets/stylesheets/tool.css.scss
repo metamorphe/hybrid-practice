@@ -35,7 +35,7 @@
 	background: $base;
 	border-left: $thick solid $off_black;
 	padding: 0px 0px 0px 0px;
-	z-index: 10000;
+	z-index: 0;
 	@include drop-shadow(0.2);
 	/*overflow: hidden;*/
 }
