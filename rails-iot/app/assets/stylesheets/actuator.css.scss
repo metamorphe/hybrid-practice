@@ -143,7 +143,7 @@ actuator{
                 position: absolute;
                 top: calc(50% - 7px);
                 left: 1px;
-                width: 23px;
+                width: 13px;
                 height: 13px;
                 display: block;
                 background: $sexy_red;
@@ -166,6 +166,10 @@ actuator{
             background: darken($actuator_base, 10%);
         }
         channel{
+            &.selected label.actuator{
+                background: lighten($actuator_base, 10%);
+                &:hover{background: lighten($actuator_base, 12%);}
+            }
             label.actuator{
                 padding: 5px 7px;
                 line-height: 100%;
@@ -175,8 +179,6 @@ actuator{
                 font-weight: normal !important;
                 font-size: 0.75em;
                 background: darken($actuator_base, 20%);
-                &.selected{ background: lighten($actuator_base, 10%);}
-                &.selected:hover{background: lighten($actuator_base, 12%);}
                 &:hover{background: darken($actuator_base, 25%);}
                 &:focus{background: darken($actuator_base, 27%);}
                 &:active{background: darken($actuator_base, 30%);}

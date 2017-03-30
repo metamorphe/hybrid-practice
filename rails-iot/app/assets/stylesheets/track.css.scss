@@ -176,7 +176,15 @@ event{
     }
     
   }
-
+ a.remove-actuator{
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    font-size: 9px;
+    line-height: 1;
+    padding: 0px 1px;
+    
+  }
 
   
   button.remove{

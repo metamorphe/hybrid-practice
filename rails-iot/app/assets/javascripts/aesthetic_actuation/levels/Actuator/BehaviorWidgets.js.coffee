@@ -18,6 +18,7 @@ class window.ChoreographyWidget extends Widget
       shadowColor: "#00A8E1"
       shadowBlur: 0
     return style
+
   update: ()->
     if @mode == "choreography"
       @paper.tool = @tools.choreography
@@ -35,10 +36,12 @@ class window.ChoreographyWidget extends Widget
       s = Choreography.selected()
       if s and @paper.tool.clearSession
         s.form = {ids: @paper.tool.clearSession()}
+      # BUTTON UPDATES
       $('choreography').removeClass('selected')
       $('#add-arrows span.info').html("INACTIVE")
       $('#remove-arrows').prop('disabled', true)
       $('#view-order').prop('disabled', true)
+
       @paper.tool = @tools.selection
 
       # @chor_trigger.removeClass('btn-success')

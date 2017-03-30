@@ -6,6 +6,15 @@ class window.Actuator
   @COUNTER: 0
   @DEFAULT_ASYNC: 0
   @RAY_RESOLUTION: 30
+
+  select_behavior: ()->
+    # if not @dom.hasClass('selected')
+    console.log "SELECT"
+    tag = @dom.prop('tagName')
+    $(tag).removeClass 'selected'
+    @dom.addClass 'selected'
+    ch.select(@form.canvas_ids)
+
   constructor: (@dom, set, @op) ->
     scope = this
     set = set or {}
@@ -13,6 +22,22 @@ class window.Actuator
     @dom.data('id', @id)
    
     @canvas = @dom.find('canvas')
+
+    # INTERACTION SETUP
+    @dom.find('.remove-actuator').click (event)->
+      scope.dom.remove()
+      scope.dom.popover('hide')
+
+    @dom.click ->
+      if scope.dom.parents('event').attr('id') == "library" then scope.dom.popover({placement: 'right'})
+      scope.select_behavior()
+      $('.popover.actuator').not(this).popover('hide')
+      scope.dom.popover('show')
+      scope.bind_popover_behavior()
+
+    @dom.find('channel').click ->
+      $(this).addClass('selected').siblings().removeClass('selected')
+      
 
     # DEFAULTS
     @actuator_type = "Actuator"
@@ -26,17 +51,17 @@ class window.Actuator
     @choreo = new Choreography
     @visuals = []
     if Actuator.SIMULATE then @_visuals()
-    @channels = _.mapObject(@op.channels, (actuator) ->
+    @channels = _.mapObject @op.channels, (actuator) ->
       new ActuationParam(actuator)
-    )
+    
     
     @form = set
     @onCreate()
-    @popover_setup()
+    @interaction_setup()
     am.add(this)
 
 
-  popover_setup: ()->
+  interaction_setup: ()->
     scope = this
     channels = @physical_channels()
     sorted_channels = _.sortBy(_.keys(channels))
@@ -47,53 +72,19 @@ class window.Actuator
       content: rgb2hex(@expression.toCSS()).toUpperCase()
       placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
-      trigger: "focus"
-    @dom.click (event)-> scope.click_behavior(event)
-    @dom.find('label.title').click (event)-> scope.popover_behavior(event)
+    @dom.popover('hide')
 
-  click_behavior: (event)->
+  
+      
+
+  bind_popover_behavior: ()->
     scope = this
-    $('actuator').click ->
-      $('actuator').not(this).popover('hide')
-
-      tag = this.tagName
-      $(this).focus()
-      $(tag).removeClass 'selected'
-      $(this).addClass 'selected'
-
-      actor = am.resolve($(this))
-      if actor
-        ch.select(actor.form.canvas_ids)
-      return
-
-    $('label.actuator').click (event)->
-      scope.popover_behavior(event)
-      siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
-      s = $(this).parents('actuator')
-      tag = s[0].tagName
-      $(tag).removeClass 'selected'
-      $(s).addClass 'selected'
-      $(s).addClass('selected')
-      actor = am.resolve($(s))
-      if actor
-        ch.select(actor.form.canvas_ids)
-      return
-  popover_behavior: (event)->
-    console.log "POPOVER BOUND"
-    
-    scope = this
-    $('actuator').not(@dom).popover('hide')
-    @dom.popover('show')
     $('.actuator .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
-
     inputs = $('.actuator.popover').find('input')
     _.each inputs, (input)->
       input = $(input)
       channel = $(input).attr('name')
       scope.bind_slider_behavior(input, channel)
-
-    event.stopPropagation()
-    event.preventDefault()
    
 
   bind_slider_behavior: (input, channel)->

@@ -135,7 +135,7 @@ class window.ActuatorManager
     channels = $(actuator.dom).find('channel')
     _.map(channels, (channel)-> $(channel).attr('type'))
   getActiveChannel: ()->
-    $('actuator.selected channels label.actuator.selected').parents('channel').attr('type');
+    $('actuator.selected channels channel.selected').attr('type')
   updateChannel: (actuator, channel)->
     val = actuator.channels[channel].value
     val =  if val < 1 and val > 0 then val.toFixed(2) else val.toFixed(0)
