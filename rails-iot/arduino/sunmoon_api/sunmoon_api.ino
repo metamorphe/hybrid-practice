@@ -2,6 +2,7 @@
  *  Updated 10 March 2017
  *  Author: Cesar Torres
  */
+#define DEBUG 0
  
 #include <Adafruit_DotStar.h>
 #include <SPI.h>         // COMMENT OUT THIS LINE FOR GEMMA OR TRINKET
@@ -73,7 +74,6 @@ void color_change(){
   g = Serial.parseInt();
   b = Serial.parseInt();
   strip.setPixelColor(id, r, g, b);  
-  update();
 }
 
 void findCommandEnd(){
@@ -108,7 +108,9 @@ void api_call(char prefix){
 
 void setup() {
   Serial.begin(BAUD);
-  Serial.println("Aesthetic Actuation Controller - Sunmoon");
+  if (DEBUG == 1) {
+    Serial.println("Aesthetic Actuation Controller - Sunmoon");
+  }
   registerActuators();
   registerSensors();
 }
