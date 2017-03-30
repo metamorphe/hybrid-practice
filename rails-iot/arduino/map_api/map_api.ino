@@ -61,8 +61,7 @@ void color_change(){
   r = Serial.parseInt();
   g = Serial.parseInt();
   b = Serial.parseInt();
-  strip.setPixelColor(id, r, g, b);  
-  update();
+  strip.setPixelColor(id, r, g, b);
 }
 
 void findCommandEnd(){
@@ -94,7 +93,6 @@ void api_call(char prefix){
 
 void setup() {
   Serial.begin(19200);
-
   Serial.println(": Aesthetic Actuation Controller - Map");
   registerActuators();
   registerSensors();
