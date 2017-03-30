@@ -21,6 +21,21 @@
 }
 
 
+acceptor.datasignal.mini{
+  height: 30px;
+  border: none;
+  border-bottom: 1px solid black !important;
+}
+acceptor.datasignal.mini.jump{
+  border-bottom: 3px solid black !important;
+}
+acceptor.datasignal.mini.ui-droppable{
+  background:  darken($signal_base, 5%) !important;
+}
+acceptor.datasignal.mini.ui-droppable-hover{
+  background:  darken($signal_base, 10%) !important;
+}
+
 acceptor.datasignal{
   @extend .hoz-left;
   flex-flow: row nowrap;
@@ -105,7 +120,10 @@ event.signal-design{
     .ui-droppable-active{
       background: darken($sexy_yellow, 30%) !important;
     }
-    .ui-droppable-highlight, .ui-droppable-hover{
+    .ui-droppable-highlight{
+      background: darken($sexy_yellow, 25%) !important;
+    }
+    .ui-droppable-hover{
       background: darken($sexy_yellow, 35%) !important;
     }
 

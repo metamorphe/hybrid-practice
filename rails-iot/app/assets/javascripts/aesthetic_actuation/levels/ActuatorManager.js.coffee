@@ -26,6 +26,7 @@ class window.ActuatorManager
       set.choreo = op.choreo
     actuator = new ActuatorSimulator(dom, set, props)
     if op.addSignalTrack then bm.addSignalTrack(actuator)
+    dom.click()
     return dom
 
   @extract: ()->

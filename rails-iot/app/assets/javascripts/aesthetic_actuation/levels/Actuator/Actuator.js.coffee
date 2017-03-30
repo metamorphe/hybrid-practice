@@ -72,7 +72,7 @@ class window.Actuator
       return '<input name="'+ channel+'"min="0" max="1" step="0.01" value="'+ channels[channel].param+'" type="range"/>'
     channels = channels.join('')
     @dom.data
-      content: rgb2hex(@expression.toCSS()).toUpperCase()
+      content: @expression.toCSS()
       placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
     @dom.popover('hide')

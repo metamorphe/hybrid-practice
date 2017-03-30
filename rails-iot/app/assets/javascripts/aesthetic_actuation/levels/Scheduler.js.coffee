@@ -59,6 +59,8 @@ class window.Scheduler
 		      msg: "DON'T FORGET TO SELECT AN ACTUATOR"
 		      delay: 2000
 		    return 
+		if aw.comm.live
+			$('.popover.actuator .popover-content').html("[L] to Simulate")
 		if sc and aw.comm.live   
 			sc.sendMessage(command.api, {live: aw.comm.live}) 
 			# actuator.perform(command.channel, command, false)
@@ -70,7 +72,7 @@ class window.Scheduler
 			if e then e.fillColor = command.expression
 			expression = command.expression
 			actuator.perform(command.channel, command, false)
-			$('.popover.actuator .popover-content').html(rgb2hex(actuator.expression.toCSS()).toUpperCase())
+			$('.popover.actuator .popover-content').html(actuator.expression.toCSS())
 			_.each $('.popover.actuator input'), (input)->
 				channel = $(input).attr('name')
 				$(input).val(actuator.channels[channel].param)

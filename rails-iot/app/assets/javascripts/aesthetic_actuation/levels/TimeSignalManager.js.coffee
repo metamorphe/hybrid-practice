@@ -92,7 +92,8 @@ class window.TimeSignalManager
         # snap: true
         # snapMode: "outer"
         # snapTolerance: 10
-        grid: [1, 87/tracks]
+        # grid: [1, 87/tracks]
+        axis: 'x'
         stack: 'datasignal.composeable'
 
 
@@ -111,6 +112,7 @@ class window.TimeSignalManager
           target: $(this)
         signal = new TimeSignal(dom)
         signal.form = {signal: ts.signal, period: ts.period}
+        signal.dom.click()
         $(this).addClass('accepted')
 
 

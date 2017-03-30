@@ -112,50 +112,34 @@ class window.BehaviorManager
 	compile: ()->
 		actors = $("#stage actuator").not(".template")
 		signal_tracks = $("#timetrack acceptor").not(".template")
-		choreography = _.chain actors
-			.map (actor, i)->
-				actor = am.resolve(actor)
-				channels = _.keys(actor.physical_channels()).sort()
-				if i < signal_tracks.length
-					signal_track = $(signal_tracks[i])
-					signals = signal_track.find('datasignal')
-					tracks = signal_track.data().tracks
-					timescale = signal_track.data().timescale
-					height = signal_track.height()
-					width = signal_track.width()
-					commands = _.chain signals
-						.map (signal, j)->
-							# CENTER LEFT CORNER POSITION VECTOR
-							a = $(signal).parent().offset()
-							b = $(signal).offset()
-							pos = {top: b.top - a.top, left: b.left - a.left}
-							pos.top += $(signal).height() / 2.0;
+		choreography = _.map actors, (actor, i)->
+			actor = am.resolve(actor)
+			channels = _.keys(actor.physical_channels()).sort()
+			channel_commands = _.map channels, (channel, j)->
+				track_j = i * 3 + j
+				track = $(signal_tracks[track_j])
+				timescale = track.data().timescale
+				width = track.width()
 
-							# COLLAPSING TO INDEX 
-							i = Math.floor(pos.top / height * tracks)
+				commands =  _.map track.find('datasignal'), (signal, k)->
+					a = $(signal).parent().offset()
+					b = $(signal).offset()
+					pos = {top: b.top - a.top, left: b.left - a.left}
+					offset = (pos.left / width) * timescale
 
-							# RESOLVING CHANNEL
-							channel = channels[i]
+					# COMPILING INSTRUCTIONS PER CHANNEL
+					ts = tsm.resolve(signal)
+					if not ts then return []
 
-							# TIME OFFSET
-							offset = (pos.left / width) * timescale
-
-							# COMPILING INSTRUCTIONS PER CHANNEL
-							ts = tsm.resolve(signal)
-							if ts 
-								commands = ts.command_list_data(ts.p_signal,{offset: offset})
-								commands = _.map commands, (command) -> 
-									cl = actor.perform(channel, command)
-									return cl
-								commands =_.flatten(commands)
-								return commands
-							else 
-								return []
-						.flatten()
-						.value()
-				else
-					return []
-			.flatten()
-			.sortBy("t")
-			.value()
-		return choreography
+					commands = ts.command_list_data(ts.p_signal, {offset: offset})
+					commands = _.map commands, (command) -> 
+						cl = actor.perform(channel, command)
+						return cl
+					commands =_.flatten(commands)
+					return commands
+				return _.flatten(commands)
+			return _.flatten(channel_commands)
+		choreography = _.flatten(choreography)
+		return _.sortBy(choreography, "t")
+			
+	
