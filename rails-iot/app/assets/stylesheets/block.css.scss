@@ -3,18 +3,36 @@
     position: fixed;
     z-index: 500 !important;
     @extend .noselect;
+    padding-top: 6px;
+    .title{
+        color: black;
+        width: 100%;
+        padding: 0px 0px 0px 0px;
+        font-family: "Avenir", sans-serif;
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 8pt;
+    }
+    .dismiss{
+        position: absolute;
+        top: 0px;
+        right: 0px;
+    }
     .popover-content{
         cursor: pointer;
         font-family: "Avenir", sans-serif;
         width: 100%;
         text-align: center;
         color: $off_black;
-        padding: 9px 14px 0px 14px;
+        padding: 0px 14px 0px 0px;
     }
     input{
         width: 80%;
         margin: 10px 10%;
     }
+}
+.choreography.popover{
+    width: 96px;
 }
 
 

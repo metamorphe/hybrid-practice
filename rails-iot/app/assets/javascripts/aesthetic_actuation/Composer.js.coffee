@@ -73,19 +73,17 @@ class window.Composer
     trigger.data
       content: "500ms"
       placement: 'bottom'
-      template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
+      template: '<div class="choreography popover" role="tooltip"><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="arrow"></div><div class="popover-content"></div><div class="title"></div><input min="0" max="1000" step="10" type="range"/></div>'
     
     trigger.click (event)-> 
       $(this).blur()      
       event.stopPropagation()
 
       $('choreography').not(this).popover('hide')
-      tag = this.tagName
-      $(tag).removeClass 'selected'
-      $(this).addClass 'selected'
+      $(this).toggleClass 'selected'
 
       actuator = am.getActiveActuator()
-      console.log actuator
+
       if not actuator
         Alerter.warn
           strong: "HOLD ON"
@@ -94,23 +92,34 @@ class window.Composer
           color: 'alert-info'
         return
 
-
-      $('#add-arrows span.info').html("#" + actuator.id)
+      choreo = actuator.choreo
       trigger.popover('show')
+
       $('.choreography .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
+      $('.choreography.popover').find('.title').html(actuator.title)
       $('.choreography.popover').find('input').val(actuator.async_period)
       $('.choreography.popover').find('input').on 'click', (event)->
         event.stopPropagation()
       $('.choreography.popover').find('input').on 'input', (event)->
+        actuator = am.getActiveActuator()
+
+        if not actuator
+          Alerter.warn
+            strong: "HOLD ON"
+            msg: "You'll need to select an actuator to design a choreography."
+            delay: 2000
+            color: 'alert-info'
+          return
+
+        choreo = actuator.choreo
         pop = $(this).parents('.popover')
         t = $(this).val()
-        pretty = TimeSignal.pretty_time(t)
-        pop.find('.popover-content').html(pretty)
-        content.html(pretty)
-        actuator.form = {async_period: t}
+        choreo.form = {async_period: t}
+        choreo.update()
+        
 
-      # ch.mode = "choreography"
-      # ch.update()
+      ch.mode = "choreography"
+      ch.update()
 
     
 

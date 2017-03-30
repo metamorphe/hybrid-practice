@@ -21,27 +21,30 @@ class window.ChoreographyWidget extends Widget
 
   update: ()->
     if @mode == "choreography"
+
       @paper.tool = @tools.choreography
 
       s = Choreography.selected()
+      console.log "CHOREO MODE", s.id, @prev_selected.id
       if s and @prev_selected.id != s.id
+        # NEW CHOREO
         @prev_selected.form = {ids: @paper.tool.clearSession()}
         @prev_selected = s
+        @paper.tool.loadSession(s.form.ids)
+        s.view_order()
       else
         @paper.tool.loadSession(s.form.ids)
+      
       @selection_trigger.removeClass('btn-success')
       $('#remove-arrows').prop('disabled', false)
-      $('#view-order').prop('disabled', false)
     if @mode == "selection"
       s = Choreography.selected()
       if s and @paper.tool.clearSession
         s.form = {ids: @paper.tool.clearSession()}
       # BUTTON UPDATES
       $('choreography').removeClass('selected')
-      $('#add-arrows span.info').html("INACTIVE")
       $('#remove-arrows').prop('disabled', true)
-      $('#view-order').prop('disabled', true)
-
+     
       @paper.tool = @tools.selection
 
       # @chor_trigger.removeClass('btn-success')
@@ -162,6 +165,8 @@ class window.ChoreographyWidget extends Widget
     cT.initSession = ()->
       cT.arrows = []
     cT.clearSession = ()->
+      actuators = ChoreographyWidget.ACTUATORS()
+      CanvasUtil.set actuators, "fillColor", 'white'
       CanvasUtil.set(cT.arrows, "opacity", 0)
       session = cT.getSession()
       cT.arrows = []
@@ -232,6 +237,10 @@ class window.ChoreographyWidget extends Widget
         pivot: arrow_head.bounds.bottomCenter.clone()
         position: lastPoint
       arrow_head.rotation = v.angle + 90
+
+      if cT.arrow_path.length < 5
+        cT.arrow.remove()
+        return 
       s = Choreography.selected()
       if s and cT.getSession
         s.form = {ids: cT.getSession()}

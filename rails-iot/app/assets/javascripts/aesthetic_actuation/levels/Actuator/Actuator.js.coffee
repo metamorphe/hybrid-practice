@@ -14,6 +14,8 @@ class window.Actuator
     $(tag).removeClass 'selected'
     @dom.addClass 'selected'
     ch.select(@form.canvas_ids)
+    @choreo.update()
+    ch.update()
 
   constructor: (@dom, set, @op) ->
     scope = this
@@ -49,6 +51,7 @@ class window.Actuator
     @constants = {}
     @paper = Utility.paperSetup @canvas, {}
     @choreo = new Choreography
+      actuator: this
     @visuals = []
     if Actuator.SIMULATE then @_visuals()
     @channels = _.mapObject @op.channels, (actuator) ->
@@ -74,7 +77,6 @@ class window.Actuator
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
     @dom.popover('hide')
 
-  
       
 
   bind_popover_behavior: ()->
