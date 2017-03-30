@@ -42,6 +42,8 @@ class window.ChoreographyWidget extends Widget
       if s and @paper.tool.clearSession
         s.form = {ids: @paper.tool.clearSession()}
       # BUTTON UPDATES
+
+      $('.popover.choreography').popover('hide')
       $('choreography').removeClass('selected')
       $('#remove-arrows').prop('disabled', true)
      
