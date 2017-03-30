@@ -1,3 +1,21 @@
+#projectviewer{
+    position: relative;
+}
+#projectviewer.live::after{
+    height: 50px;
+    width: 100%;
+    content: 'LIVE';
+    font-family: "Avenir", sans-serif;
+    font-size: 20pt;
+    font-weight: bold;
+    text-align: right;
+    /*max-height: 90px;*/
+    position: absolute;
+    bottom: 0;
+    right: 20px;
+    z-index: 400;
+    pointer-events: none;
+} 
 /* INTERACTION */
 .popover{
     position: fixed;

@@ -73,12 +73,15 @@ class window.Communicator extends ActuatorWidget
       scope.live = not scope.live
       scope.update()
       if sc and sc.state == 1 and scope.live
+        
         Alerter.warn
           strong: "YOU ARE LIVE!"
           msg: "Look at the device. Things won't update on the screen anymore."
           delay: 4000
           color: 'alert-success'
+
       else if not scope.live
+        
         Alerter.warn
           strong: "ENTERING SIMULATION!"
           msg: "The simulation will now update. The device is no longer in use."
@@ -89,7 +92,11 @@ class window.Communicator extends ActuatorWidget
       @trigger.addClass('btn-success') 
       if sc.state == 0
         $('#port-connect').click()
-    else @trigger.removeClass('btn-success')
+      $('#projectviewer').addClass('live')
+    else 
+      @trigger.removeClass('btn-success')
+      $('#projectviewer').removeClass('live')
+      # $('#projectviewer canvas').css('opacity', 1)
 
 class window.AsynchMorph extends ActuatorWidget
   @MIN: 0
