@@ -62,7 +62,7 @@ behavior{
       position: absolute;
       left: 10%;
       /*top: -8px;*/
-      z-index: 1000;
+      z-index: 10;
       width: 1.2px;
       height: 100%; 
       float: left;
@@ -70,7 +70,7 @@ behavior{
         width: 100%;
         height: 100%;
         background: $sexy_off_white;
-        z-index: 1000;
+        z-index: 0;
         @include drop-shadow(0.9);
       }
       #handle{
@@ -84,7 +84,7 @@ behavior{
         position: absolute;
         top: -8px;
         width: 2px;
-        z-index: 1000000;
+        z-index: 0;
         @include drop-shadow(0.9);
       }
     }

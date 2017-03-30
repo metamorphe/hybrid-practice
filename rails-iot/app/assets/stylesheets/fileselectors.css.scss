@@ -15,7 +15,7 @@ group{
   #selectors{
     position: fixed;
     top: 0;
-    z-index: 100000;
+    z-index: 200;
     padding: 2px 1px 6px 1px;
     background: #333;
     @include inset-shadow(0.43);

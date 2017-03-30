@@ -71,4 +71,7 @@ class window.Scheduler
 			expression = command.expression
 			actuator.perform(command.channel, command, false)
 			$('.popover.actuator .popover-content').html(rgb2hex(actuator.expression.toCSS()).toUpperCase())
+			_.each $('.popover.actuator input'), (input)->
+				channel = $(input).attr('name')
+				$(input).val(actuator.channels[channel].param)
 			am.updateChannels(actuator)

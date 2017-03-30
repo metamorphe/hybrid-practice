@@ -1,9 +1,9 @@
 class window.Alerter
   @dom: ()-> return $('#main-alert')
   @show: ()->
-    Alerter.dom().slideDown()
+    Alerter.dom().slideDown(100)
   @hide: ()->
-    Alerter.dom().fadeOut()
+    Alerter.dom().fadeOut(1000)
   @warn: (op)->
     if op.strong
       Alerter.dom().find('strong').html(op.strong)
@@ -41,15 +41,14 @@ class window.Composer
     # @initBLSlider @op.slider
     @bindLiveButton()
     @bindSignalButton()
+    @bindChoreographyButton()
   bindLiveButton:()->
     Composer.log "BINDING LIVE BUTTON"
     scope = this
     @op.live_button.click((event)->
       scope.live = not scope.live
-      if scope.live 
-        $(this).css('background', '#d9534f')
-      else
-        $(this).css('background', '#2d6a96')
+      if scope.live then $(this).css('background', '#d9534f')
+      else $(this).css('background', '#2d6a96')
     )
   bindSignalButton:()->
     Composer.log "BINDING SIGNAL SENDER"
@@ -67,32 +66,51 @@ class window.Composer
         cl = actor.perform(channel, command)
       commands =_.flatten(commands)
       Scheduler.schedule(commands)
-  
- #  initBLSlider: (dom)->
- #    Composer.log "BINDING BL"
- #    scope = this;
- #    dom.on 'input', ->
- #      diff = Date.now() - scope.now
- #      if(diff < 50)
- #        return
- #      else 
- #        scope.now = Date.now()
- #      actor = am.getActiveActuator()
- #      if _.isUndefined actor
- #        scope.warn()
- #        return
- #      actor.form = {saved: false}
- #      channel = am.getActiveChannel()
- #      param = parseFloat($(this).val())  
- #      command = {t: 0, param: param}
- #      commands = actor.perform(channel, command)
- #      commands =_.flatten(commands)
- #      Scheduler.schedule(commands)
- #    return
- 
-  
-  
-  
+  bindChoreographyButton:()->
+    dom = $('choreography')
+    trigger = dom.find('button')
+    content = dom.find('span.async')
+    trigger.data
+      content: "500ms"
+      placement: 'bottom'
+      template: '<div class="choreography popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div><input min="0" max="1000" step="10" type="range"/></div>'
+    
+    trigger.click (event)-> 
+      $(this).blur()      
+      event.stopPropagation()
+
+      $('choreography').not(this).popover('hide')
+      tag = this.tagName
+      $(tag).removeClass 'selected'
+      $(this).addClass 'selected'
+
+      actuator = am.getActiveActuator()
+      console.log actuator
+      if not actuator
+        Alerter.warn
+          strong: "HOLD ON"
+          msg: "You'll need to select an actuator to design a choreography."
+          delay: 2000
+          color: 'alert-info'
+        return
+
+
+      $('#add-arrows span.info').html("#" + actuator.id)
+      trigger.popover('show')
+      $('.choreography .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
+      $('.choreography.popover').find('input').val(actuator.async_period)
+      $('.choreography.popover').find('input').on 'click', (event)->
+        event.stopPropagation()
+      $('.choreography.popover').find('input').on 'input', (event)->
+        pop = $(this).parents('.popover')
+        t = $(this).val()
+        pretty = TimeSignal.pretty_time(t)
+        pop.find('.popover-content').html(pretty)
+        content.html(pretty)
+        actuator.form = {async_period: t}
+
+      # ch.mode = "choreography"
+      # ch.update()
+
     
 
- # 
