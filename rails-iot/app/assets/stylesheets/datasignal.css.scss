@@ -80,7 +80,7 @@ event.signal-design{
       content: '';
       top:0;
       left: 50%;
-      
+      z-index: 10;
       box-shadow: 0px 5px 7px 1px rgba(0, 0, 0, 0.5);
     }
     .track{
