@@ -18,10 +18,6 @@ class window.ChoreographyWidget extends Widget
       shadowColor: "#00A8E1"
       shadowBlur: 0
     return style
-  # get_choreography: ()->
-  #   CanvasUtil.queryPrefix("")
-  # load_choreography: (ids)->
-  #   CanvasUtil.set(CanvasUtil.getIDs(ids), "opacity", 1)
   update: ()->
     if @mode == "choreography"
       @paper.tool = @tools.choreography
@@ -286,7 +282,9 @@ class window.ChoreographyWidget extends Widget
       hids = _.map elements, (el)-> return el.lid;
 
       if _.isEmpty(hids) then return
-      console.log rgb2hex(elements[0].fillColor.toCSS())
+      c = elements[0].fillColor
+      c.saturation = 1
+      c = rgb2hex(c.toCSS())
       ops =
         clear: true
         target: $("#group-result")
@@ -294,7 +292,7 @@ class window.ChoreographyWidget extends Widget
         hardware_ids: hids
         title: hids.join(',')
         constants: 
-          color: rgb2hex(elements[0].fillColor.toCSS())
+          color: "#FF0000"
       
       dom = ActuatorManager.create ops   
       dom.click()

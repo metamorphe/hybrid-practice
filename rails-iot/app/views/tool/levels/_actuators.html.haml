@@ -87,13 +87,15 @@
         %label.title
           %span.content-editable HSBLED
           %span.save-status 
+          %button.btn.btn-xs.btn-danger.remove
+            =glyph "remove"
         %canvas{:type=>"HSBLED"}
         %label.async 100
       %channels.scroll-list
+
         %label.title.light 
           %span CHANNELS
-          %button.btn.btn-xs.btn-danger.remove
-            =glyph "remove"
+          
         %channel.full-hoz{type: "brightness"}
           %label.actuator.selected
             %span BRIGHTNESS

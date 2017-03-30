@@ -1,4 +1,13 @@
 class window.Choreography
+	@COUNTER: 0
+	@CHOREOGRAPHIES: []
+	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
+	@get: (dom)-> return Choreography.CHOREOGRAPHIES[dom.data().id]
+	@ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
+	@selected: ()->
+		s = $('choreography.selected')
+		if s.length == 0 then return null
+		return Choreography.CHOREOGRAPHIES[s.data().id]	
 	@temperatureColor: (p)->
 	    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
 	    if p > 1 then p = 1
@@ -20,15 +29,7 @@ class window.Choreography
 	    c = red.multiply(1-terp).add(blue.multiply(terp))
 	    c.saturation = 0.8
 	    return c
-	@COUNTER: 0
-	@CHOREOGRAPHIES: []
-	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
-	@get: (dom)-> return Choreography.CHOREOGRAPHIES[dom.data().id]
-	@ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
-	@selected: ()->
-		s = $('choreography.selected')
-		if s.length == 0 then return null
-		return Choreography.CHOREOGRAPHIES[s.data().id]
+	
 	popover: ()->
 		scope = this
 		dir = 'left'
@@ -287,12 +288,15 @@ class window.BehaviorManager
 
 							# COMPILING INSTRUCTIONS PER CHANNEL
 							ts = tsm.resolve(signal)
-							commands = ts.command_list_data(ts.p_signal,{offset: offset})
-							commands = _.map commands, (command) -> 
-								cl = actor.perform(channel, command)
-								return cl
-							commands =_.flatten(commands)
-							commands
+							if ts 
+								commands = ts.command_list_data(ts.p_signal,{offset: offset})
+								commands = _.map commands, (command) -> 
+									cl = actor.perform(channel, command)
+									return cl
+								commands =_.flatten(commands)
+								return commands
+							else 
+								return []
 						.flatten()
 						.value()
 				else

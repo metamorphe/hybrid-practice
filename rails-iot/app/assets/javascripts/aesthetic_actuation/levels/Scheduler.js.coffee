@@ -61,8 +61,9 @@ class window.Scheduler
 		    return 
 		if sc and aw.comm.live   
 			sc.sendMessage(command.api, {live: aw.comm.live}) 
-			actuator.perform(command.channel, command, false)
-			am.updateChannels(actuator)
+			# actuator.perform(command.channel, command, false)
+			# actuator.channels[command.channel].param = command.param
+			# am.updateChannels(actuator)
 		else
 			window.paper = ch.paper
 			e = CanvasUtil.queryID(command.cid)

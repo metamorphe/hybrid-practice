@@ -18,7 +18,7 @@ class window.Actuator
       content: rgb2hex(@expression.toCSS()).toUpperCase()
       placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
-    
+      trigger: "focus"
     @dom.click (event)-> scope.click_behavior(event)
     @dom.find('label.title').click (event)-> scope.popover_behavior(event)
 
@@ -34,15 +34,20 @@ class window.Actuator
 
       actor = am.resolve($(this))
       if actor
-        # channel = am.getActiveChannel()
-        # value = actor.getChannelParam(channel)
-        # cmp.op.slider.val value
         ch.select(actor.form.canvas_ids)
       return
 
-    $('label.actuator').click ->
+    $('label.actuator').click (event)->
+      scope.popover_behavior(event)
       siblings = $(this).parents('channels').find('label.actuator').not(this).removeClass('selected');
-      $(this).addClass('selected')
+      s = $(this).parents('actuator')
+      tag = s[0].tagName
+      $(tag).removeClass 'selected'
+      $(s).addClass 'selected'
+      $(s).addClass('selected')
+      actor = am.resolve($(s))
+      if actor
+        ch.select(actor.form.canvas_ids)
       return
   popover_behavior: (event)->
     console.log "POPOVER BOUND"
@@ -53,21 +58,14 @@ class window.Actuator
     $('.actuator .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
 
     inputs = $('.actuator.popover').find('input')
-    console.log "INPUTs", inputs.length
     _.each inputs, (input)->
       input = $(input)
       channel = $(input).attr('name')
-      console.log channel, scope.channels[channel].param
       scope.bind_slider_behavior(input, channel)
 
     event.stopPropagation()
     event.preventDefault()
-    # $('.actuator.popover').find('input').val(@period)
-    # $('.actuator.popover').find('input').on 'input', ()->
-    #   pop = $(this).parents('.popover')
-    #   t = $(this).val()
-    #   pop.find('.popover-content').html(TimeSignal.pretty_time(t))
-    #   scope.form = {period: t}
+   
 
   bind_slider_behavior: (input, channel)->
     scope = this;

@@ -6,7 +6,7 @@
 #include <Adafruit_DotStar.h>
 #include <SPI.h>         // COMMENT OUT THIS LINE FOR GEMMA OR TRINKET
 //#include <avr/power.h> // ENABLE THIS LINE FOR GEMMA OR TRINKET
-#define BAUD 9600
+#define BAUD 19200
 // SENSORS AND ACTUATOR PINS
 #define NUMPIXELS 16 // Number of LEDs in strip
 #define DATAPIN    3
@@ -93,8 +93,9 @@ void api_call(char prefix){
 }
 
 void setup() {
-  Serial.begin(BAUD);
-  Serial.println("Aesthetic Actuation Controller - Map");
+  Serial.begin(19200);
+
+  Serial.println(": Aesthetic Actuation Controller - Map");
   registerActuators();
   registerSensors();
 }

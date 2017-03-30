@@ -1,7 +1,6 @@
 class window.ActuatorManager
   @DEFAULT_ASYNC: 30
   
-
   @create: (op)->
     if op.clear then op.target.find('actuator').remove()
     dom = $('actuator.template[name="'+ op.actuator_type+'"]')
@@ -70,7 +69,9 @@ class window.ActuatorManager
     @listen()
 
   listen: ->
-    $('.content-editable').dblclick ()->
+    $('.content-editable').dblclick (e)->
+      e.stopPropagation();
+      e.preventDefault();
       $(this).attr('contenteditable', 'plaintext-only')
       # Widget.bindings_on = false
 

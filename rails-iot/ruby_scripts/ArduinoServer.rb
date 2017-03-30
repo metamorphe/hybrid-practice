@@ -6,7 +6,7 @@ EventMachine.run do
   @channel = EM::Channel.new
   @port = 3015
   baud_fast = 9600 * 12
-  baud_normal = 9600
+  baud_normal = 9600 * 2
   @baud = baud_normal
   @usb = Dir.glob("/dev/tty.usb*")
   if @usb.length == 0 
