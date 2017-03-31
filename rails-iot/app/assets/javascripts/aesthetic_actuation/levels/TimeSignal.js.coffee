@@ -538,7 +538,7 @@ class window.TimeSignal
       prev = cl[i-1] 
       # SUPERFLUOUS COMMAND
       if curr.param == last_accepted_param
-        # dt_I += curr.dI
+        dI_accum += curr.dI
         return null
       # PERCEPTABLE
       if curr.dI + dI_accum > TimeSignal.RESOLUTION or i == cl.length - 1
