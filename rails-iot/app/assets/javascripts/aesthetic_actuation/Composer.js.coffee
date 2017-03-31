@@ -52,12 +52,17 @@ class window.Composer
       on_b = tsm.resolve(on_b)
       channel = "brightness"
 
-      if actor 
-        commands = on_b.command_list.apply(on_b)
-        commands = _.map commands, (command) -> 
-          cl = actor.perform(channel, command)
-        commands =_.flatten(commands)
-      Scheduler.schedule(commands)
+      if actor
+        if on_b 
+          commands = on_b.command_list.apply(on_b)
+          commands = _.map commands, (command) -> 
+            cl = actor.perform(channel, command)
+          commands =_.flatten(commands)
+        Scheduler.schedule(commands)
+      else
+        Alerter.warn
+          strong: "NO ALL BEHAVIOR FOUND"
+          msg: "Make an actuator group with title 'ALL'"
     $('button#all-off').click ()->
       console.log "ALL OFF"
       actor = $('actuator label.title:contains("ALL")').parents('actuator')
@@ -65,13 +70,18 @@ class window.Composer
       off_b = $('datasignal[name="all_off"]')
       off_b = tsm.resolve(off_b)
       channel = "brightness"
-      console.log actor
-      if actor 
-        commands = off_b.command_list.apply(off_b)
-        commands = _.map commands, (command) -> 
-          cl = actor.perform(channel, command)
-        commands =_.flatten(commands)
-        Scheduler.schedule(commands)
+      
+      if actor
+        if off_b 
+          commands = off_b.command_list.apply(off_b)
+          commands = _.map commands, (command) -> 
+            cl = actor.perform(channel, command)
+          commands =_.flatten(commands)
+          Scheduler.schedule(commands)
+      else
+        Alerter.warn
+          strong: "NO ALL BEHAVIOR FOUND"
+          msg: "Make an actuator group with title 'ALL'"
 
   bindLiveButton:()->
     Composer.log "BINDING LIVE BUTTON"

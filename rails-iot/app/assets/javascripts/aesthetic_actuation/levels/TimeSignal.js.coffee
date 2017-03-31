@@ -36,10 +36,13 @@ class window.TimeSignal
     @exportable = true
    
     # SETUP CONTAINER
-    w = @dom.parent().width() + 10
+    w = @dom.parent().width()
+    h = @dom.parent().height()
     @canvas.remove()
     @canvas = $("<canvas></canvas>")
     @dom.append(@canvas)
+    new_h = if h * 0.9 < 76 then h * 0.9 else 76
+
     if not @semantic
       t_op = 
         width: @period/@timescale * w
@@ -47,10 +50,8 @@ class window.TimeSignal
     else
       t_op = 
         width: TimeSignal.DEFAULT_WIDTH
-        height: 'inherit'
+        height: new_h
     @paper = Utility.paperSetup(@canvas, t_op)
-
-    # @paper = Utility.paperSetup @canvas, {}
     track_data = @processTrack @dom.parent()
 
     ops = _.extend track_data, @dom.data()
@@ -110,9 +111,15 @@ class window.TimeSignal
         canvas_refresh or= period_change
 
         if canvas_refresh
+          console.log "REFRESH"
           w = @dom.parent().width()
+          h = @dom.parent().height()
+          new_h = if h * 0.9 < 76 then h * 0.9 else 76
           @canvas.remove()
           @canvas = $("<canvas></canvas>")
+          @canvas.css
+            height: "100%"
+            width: "100%"
           @dom.append(@canvas)
           if not @semantic
             t_op = 
@@ -121,9 +128,10 @@ class window.TimeSignal
           else
             t_op = 
               width: TimeSignal.DEFAULT_WIDTH
-              height: 'inherit'
-          @paper = Utility.paperSetup(@canvas, t_op)
+              height: new_h
 
+          @paper = Utility.paperSetup(@canvas, t_op)
+         
         if @exportable
           @dom.addClass('exportable')
         if @draggable

@@ -24,7 +24,7 @@ class window.TimeSignalManager
         ts.form =  {view: n_view}
         dom.parents('event').find('[class^=track]').data('view', n_view)
   initEasings: ->
-    console.log "EASING"
+    # console.log "EASING"
     easings = TimeSignalManager.EasingFunctions
     _.each easings, (easing, v)->
       datasignal = numeric.linspace(0, 1, 40)
@@ -37,11 +37,11 @@ class window.TimeSignalManager
       signal.easing = true
       if v == "off"
         signal.dom.attr('name', 'all_off')
-        console.log datasignal
-        console.log "ON"
+        # console.log datasignal
+        # console.log "ON"
         datasignal = numeric.linspace(1, 0, 40)
         datasignal = _.map datasignal, (s)-> return 1
-        console.log datasignal
+        # console.log datasignal 
         dom = TimeSignal.create
             clear: false
             target: $('#library.signal-design .track-full')
@@ -128,7 +128,7 @@ class window.TimeSignalManager
     $('datasignal.composeable').mousedown (event)->
         console.log event
         if event.shiftKey
-          console.log "SHIFT"
+          # console.log "SHIFT"
           $(this).draggable( "option", "containment", "document" )
           $(this).draggable( "option", "axis", false)
           $(this).draggable( "option", "revert", true)
@@ -139,7 +139,7 @@ class window.TimeSignalManager
           )
           $(this).addClass("exportable")
         else
-          console.log "UNSHIFT"
+          # console.log "UNSHIFT"
           $(this).draggable( "option", "containment", "parent" )
           $(this).draggable( "option", "axis", 'x' )
           $(this).draggable( "option", "revert", false)

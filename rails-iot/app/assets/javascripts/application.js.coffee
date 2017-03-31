@@ -91,8 +91,10 @@ window.Utility = ->
 window.Utility.paperSetup = (id, op) ->
   dom = if typeof id == 'string' then $('#' + id) else id
   # w = dom.parent().height()
-  if op and op.width then dom.parent().width(op.width)
-  if op and op.height then dom.parent().height(op.height)
+  if op and op.width then dom.parent().width(op.width+1)
+  if op and op.width then dom.width(op.width+1)
+  if op and op.height then dom.parent().height(op.height+1)
+  if op and op.height then dom.height(op.height)
   # dom.attr 'height', w
   # dom.attr 'width', '90px'
   paper.install window
