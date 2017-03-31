@@ -230,6 +230,7 @@ class window.TimeSignal
     b = TimeSignal.resample(command_list, delta_t)
     prev.signal = a.concat(b)
     prev.period += delta_t
+    console.log "INJECT", prev
     @form = prev
   
   command_list: (op) ->
@@ -310,16 +311,34 @@ class window.TimeSignal
     cl = @command_list()
     hue_signal = new paper.Group
       name: "SIGNAL_HUE: hue"
-    _.each cl, (datum, i)->
+
+    
+
+    stops = _.map cl, (datum, i)->
       h = new paper.Color("red")
       h.saturation = 0.8
       h.hue = parseInt(datum.param * 360)
-      step = datum.duration / scope.period
-      r = new paper.Path.Rectangle
-        parent: hue_signal
-        size: [step, 1]
-        fillColor: h
-        position: new paper.Point(i * step, 0)
+      first = new paper.GradientStop
+        color: h
+        offset: datum.t / scope.period
+      second = new paper.GradientStop
+        color: h
+        offset: (datum.t + datum.duration) / scope.period
+      return [first, second]
+    stops = _.flatten(stops)
+    hue_gradient = new paper.Path.Rectangle
+      parent: hue_signal
+      size: [30, 20]
+    left = hue_gradient.bounds.leftCenter
+    right = hue_gradient.bounds.rightCenter
+    hue_gradient.set
+      left: left
+      right: right
+      fillColor:
+        gradient: 
+          stops: stops
+        origin: left
+        destination: right
     return @fitPath(hue_signal)
   draw_axes: (op) ->
     offset = new (paper.Point)(0, -3)
