@@ -88,12 +88,12 @@ class window.Actuator
       channel = $(input).attr('name')
       scope.bind_slider_behavior(input, channel)
    
-
+  @SLIDER_UPDATE: 300
   bind_slider_behavior: (input, channel)->
     scope = this;
     input.on 'input', ->
       diff = Date.now() - scope.now
-      if(diff < 300)
+      if(diff < ActuatorManager.SLIDER_UPDATE)
         return
       else 
         scope.now = Date.now()

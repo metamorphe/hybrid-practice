@@ -78,11 +78,13 @@ class window.TimeSignalManager
         copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).data('period'))
         return copy;
       start: (event, ui)->
-        if $(this).parent().data('ui-droppable')
-          $(this).parent().droppable("disable")
+        p = $(this).parent()
+        if p.hasClass('mini') and p.data('ui-droppable')
+          p.droppable("disable")
       stop: (event, ui)->
-        if $(this).parent().data('ui-droppable')
-          $(this).parent().droppable("enable")
+        p = $(this).parent()
+        if p.hasClass('mini') and p.data('ui-droppable')
+          p.droppable("enable")
     
     $('datasignal.draggable').draggable
       revert: false
@@ -90,8 +92,10 @@ class window.TimeSignalManager
       containment: 'parent'
       axis: 'x'
 
+
     _.each $('datasignal.composeable'), (signal)->
       tracks = $(signal).parent().data().tracks
+
       $(signal).draggable
         revert: false
         containment: 'parent'
@@ -102,7 +106,29 @@ class window.TimeSignalManager
         # grid: [1, 87/tracks]
         axis: 'x'
         stack: 'datasignal.composeable'
-
+      
+    $('datasignal.composeable').mousedown (event)->
+        console.log event
+        if event.shiftKey
+          console.log "SHIFT"
+          $(this).draggable( "option", "containment", "document" )
+          $(this).draggable( "option", "axis", false)
+          $(this).draggable( "option", "revert", true)
+          $(this).draggable( "option", "appendTo", '#ui2')
+          $(this).draggable( "option", "helper", ()->
+            copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).data('period'))
+            return copy
+          )
+          $(this).addClass("exportable")
+        else
+          console.log "UNSHIFT"
+          $(this).draggable( "option", "containment", "parent" )
+          $(this).draggable( "option", "axis", 'x' )
+          $(this).draggable( "option", "revert", false)
+          $(this).draggable( "option", "helper", "original")
+          $(this).draggable( "option", "appendTo", "parent")
+          $(this).removeClass("exportable")
+         
 
   activateDrop: ()->
     scope = this  

@@ -44,6 +44,7 @@ event.column{
   .track-full{
     width: 96% !important;
     margin-top: 8px;
+    height: calc(100% - 110px);
     padding-top: 6px;
     justify-content: flex-start!important;
     flex-direction: column !important;
@@ -54,6 +55,22 @@ event.column{
       min-height: 80px;
     }
     actuator{
+      margin-bottom: 4px;
+    }
+  }
+}
+event.column.actuation-design{
+  /*width: 140px;*/
+  /*right: 0;*/
+  /*left: auto;*/
+
+  .track-full{
+    overflow-y: scroll !important;
+    /*padding-left: 2px!important;*/
+    actuator{
+      width: 100%;
+      min-height: 77px;
+      max-height: 76px;
       margin-bottom: 4px;
     }
   }

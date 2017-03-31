@@ -36,7 +36,21 @@ class window.TimeSignal
     @exportable = true
    
     # SETUP CONTAINER
-    @paper = Utility.paperSetup @canvas, {}
+    w = @dom.parent().width() + 10
+    @canvas.remove()
+    @canvas = $("<canvas></canvas>")
+    @dom.append(@canvas)
+    if not @semantic
+      t_op = 
+        width: @period/@timescale * w
+        height: TimeSignal.DEFAULT_HEIGHT / @tracks
+    else
+      t_op = 
+        width: TimeSignal.DEFAULT_WIDTH
+        height: 'inherit'
+    @paper = Utility.paperSetup(@canvas, t_op)
+
+    # @paper = Utility.paperSetup @canvas, {}
     track_data = @processTrack @dom.parent()
 
     ops = _.extend track_data, @dom.data()
