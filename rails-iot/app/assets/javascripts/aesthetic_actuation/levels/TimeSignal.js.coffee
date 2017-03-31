@@ -49,7 +49,7 @@ class window.TimeSignal
         height: TimeSignal.DEFAULT_HEIGHT / @tracks
     else
       t_op = 
-        width: TimeSignal.DEFAULT_WIDTH
+        width: "100%"
         height: new_h
     @paper = Utility.paperSetup(@canvas, t_op)
     track_data = @processTrack @dom.parent()
