@@ -37,10 +37,11 @@ class window.TimeWidget extends Widget
 class HueWidget extends TimeWidget
   @NUM_OF_COLORS: 360/50
   @SHADES_OF_GREY: 1/20
+  @DEFAULT_PERIOD: 1000
   constructor:(op)->
     super op
     scope = this
-    @period = 500
+    @period = HueWidget.DEFAULT_PERIOD
     @populate()
     @update(@period)
     @slider.on 'input', (event)->

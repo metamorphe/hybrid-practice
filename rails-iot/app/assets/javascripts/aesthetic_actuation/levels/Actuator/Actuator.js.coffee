@@ -9,7 +9,6 @@ class window.Actuator
 
   select_behavior: ()->
     # if not @dom.hasClass('selected')
-    console.log "SELECT"
     tag = @dom.prop('tagName')
     $(tag).removeClass 'selected'
     @dom.addClass 'selected'
@@ -27,6 +26,7 @@ class window.Actuator
 
     # INTERACTION SETUP
     @dom.find('.remove-actuator').click (event)->
+      scope.dom.parent().removeClass('accepted')
       scope.dom.remove()
       scope.dom.popover('hide')
 

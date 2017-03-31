@@ -34,7 +34,7 @@ class window.ChoreographyWidget extends Widget
         s.view_order()
       else
         @paper.tool.loadSession(s.form.ids)
-      
+      $('button.choreo').addClass('btn-success')
       @selection_trigger.removeClass('btn-success')
       $('#remove-arrows').prop('disabled', false)
     if @mode == "selection"
@@ -46,6 +46,7 @@ class window.ChoreographyWidget extends Widget
       $('.popover.choreography').popover('hide')
       $('choreography').removeClass('selected')
       $('#remove-arrows').prop('disabled', true)
+      $('button.choreo').removeClass('btn-success')
      
       @paper.tool = @tools.selection
 

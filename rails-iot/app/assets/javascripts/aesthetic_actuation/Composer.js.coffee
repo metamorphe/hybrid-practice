@@ -68,7 +68,7 @@ class window.Composer
       Scheduler.schedule(commands)
   bindChoreographyButton:()->
     dom = $('choreography')
-    trigger = dom.find('button')
+    trigger = dom.find('button.choreo')
     content = dom.find('span.async')
     trigger.data
       content: "500ms"
@@ -76,12 +76,12 @@ class window.Composer
       template: '<div class="choreography popover" role="tooltip"><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="arrow"></div><div class="popover-content"></div><div class="title"></div><input min="0" max="1000" step="10" type="range"/></div>'
     
     trigger.click (event)-> 
+      console.log "CLICK"
       $(this).blur()      
       event.stopPropagation()
 
-      $('choreography').not(this).popover('hide')
-      $(this).toggleClass 'selected'
-
+      # $('choreography').not(this).popover('hide')
+     
       actuator = am.getActiveActuator()
 
       if not actuator
@@ -94,10 +94,12 @@ class window.Composer
 
       choreo = actuator.choreo
       trigger.popover('show')
-
+      console.log "ACTIVE ACTUATOR", actuator.form.title
       $('.choreography .dismiss').click ()-> $(this).parents('.popover').fadeOut(100)
-      $('.choreography.popover').find('.title').html(actuator.title)
-      $('.choreography.popover').find('input').val(actuator.async_period)
+      # $('.choreography.popover').find('.title').html(actuator.title)
+      # $('.choreography.popover').find('input').val(actuator.async_period)
+      console.log "UPDATING", choreo
+      choreo.update()
       $('.choreography.popover').find('input').on 'click', (event)->
         event.stopPropagation()
       $('.choreography.popover').find('input').on 'input', (event)->

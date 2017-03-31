@@ -174,7 +174,12 @@ class window.ActuatorManager
         # $(this).attr('name') + " #" + $(this).data().hardware_ids.join(',')
         copy = $('<p></p>').addClass("dragbox").html(a.title)
         return copy;
-    
+      start: (event, ui)->
+        if $(this).parent().data('ui-droppable')
+          $(this).parent().droppable("disable")
+      stop: (event, ui)->
+        if $(this).parent().data('ui-droppable')
+          $(this).parent().droppable("enable")
     $('.actuation-design .droppable, #async .droppable, acceptor.actuator').droppable
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}

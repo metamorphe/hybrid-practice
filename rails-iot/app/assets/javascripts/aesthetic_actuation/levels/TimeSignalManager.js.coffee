@@ -77,6 +77,13 @@ class window.TimeSignalManager
       helper: ()->
         copy = $('<p></p>').addClass("dragbox").html TimeSignal.pretty_time($(this).data('period'))
         return copy;
+      start: (event, ui)->
+        if $(this).parent().data('ui-droppable')
+          $(this).parent().droppable("disable")
+      stop: (event, ui)->
+        if $(this).parent().data('ui-droppable')
+          $(this).parent().droppable("enable")
+    
     $('datasignal.draggable').draggable
       revert: false
       scroll: false
