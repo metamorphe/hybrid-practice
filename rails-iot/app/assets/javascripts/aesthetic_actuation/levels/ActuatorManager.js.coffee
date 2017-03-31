@@ -168,6 +168,7 @@ class window.ActuatorManager
     $('actuator.draggable').draggable
       revert: true
       appendTo: '#ui2'
+      cursorAt: { bottom: 5 }
       helper: ()->
         a = scope.resolve($(this))
         title = a.title

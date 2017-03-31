@@ -42,6 +42,37 @@ class window.Composer
     @bindLiveButton()
     @bindSignalButton()
     @bindChoreographyButton()
+    @bindOnOff()
+  bindOnOff: ()->
+    $('button#all-on').click ()-> 
+      console.log "ALL ON"   
+      actor = $('actuator label.title:contains("ALL")').parents('actuator')
+      actor = am.resolve(actor)
+      on_b = $('datasignal[name="all_on"]')
+      on_b = tsm.resolve(on_b)
+      channel = "brightness"
+
+      if actor 
+        commands = on_b.command_list.apply(on_b)
+        commands = _.map commands, (command) -> 
+          cl = actor.perform(channel, command)
+        commands =_.flatten(commands)
+      Scheduler.schedule(commands)
+    $('button#all-off').click ()->
+      console.log "ALL OFF"
+      actor = $('actuator label.title:contains("ALL")').parents('actuator')
+      actor = am.resolve(actor)
+      off_b = $('datasignal[name="all_off"]')
+      off_b = tsm.resolve(off_b)
+      channel = "brightness"
+      console.log actor
+      if actor 
+        commands = off_b.command_list.apply(off_b)
+        commands = _.map commands, (command) -> 
+          cl = actor.perform(channel, command)
+        commands =_.flatten(commands)
+        Scheduler.schedule(commands)
+
   bindLiveButton:()->
     Composer.log "BINDING LIVE BUTTON"
     scope = this
