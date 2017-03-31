@@ -6,7 +6,7 @@
 #define DEBUG 0
  
 #include <Adafruit_NeoPixel.h>
-#define BAUD 9600
+#define BAUD 19200
 
 #define NUM_DEVICES 2
 

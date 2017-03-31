@@ -35,7 +35,7 @@ void update() {
 void registerActuators() {
   for(int i = 0; i < NUM_DEVICES; i++) {
     pwmDriver[i].begin();
-    pwmDriver[i].setPWMFreq(1000); // Initialize all pixels to 'off'
+    pwmDriver[i].setPWMFreq(1000);
   }
 }
 
@@ -54,7 +54,17 @@ void brightnessChange() {
   devID = Serial.parseInt();
   id = Serial.parseInt();
   val = Serial.parseInt();
-  pwmDriver[devID].setPin(id, val%4096);
+  uint16_t non = Serial.parseInt();
+  uint16_t sense = Serial.parseInt();
+  if (DEBUG == 1) {
+    Serial.print("devID: ");
+    Serial.println(devID);
+    Serial.print("id: ");
+    Serial.println(id);
+    Serial.print("val: ");
+    Serial.println(val); 
+  }
+  pwmDriver[devID].setPin(id, (val*50)%4096);
   //pwm41.setPin(channel, (i + (1024/16)*channel) % 4096);
 }
 
@@ -68,7 +78,7 @@ void findCommandEnd(){
 }
 
 void api_call(char prefix){
-  if (DEBUG) {
+  if (DEBUG == 1) {
     Serial.print("prefix: ");
     Serial.println(prefix);
   }
