@@ -1,4 +1,4 @@
-/*  Map Port API
+/*  Earring API
  *  Updated 27 March 2017
  *  Author: Molly Nicholas
  */
