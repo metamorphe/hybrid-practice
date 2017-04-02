@@ -5,14 +5,18 @@
 
 #define DEBUG 1
 
-#define NUM_DEVICES 3
+#define NUM_DEVICES 4
 #define BAUD 9600
 #define DELAYTIME 2000
 
 // pump 3: minimum: 155
 // 
 int pump[NUM_DEVICES] = {
-  3, 6, 9
+  3, 6, 9, 10
+};
+
+int lowerThreshold[NUM_DEVICES] = {
+  155, 75, 75, 95
 };
 
 void update() {
@@ -39,7 +43,14 @@ uint16_t freq = 0;
 void pwmControl() {
   devID = Serial.parseInt();
   id = Serial.parseInt();
+  if (id > NUM_DEVICES) {
+    Serial.print("ERROR, id doesn't exist: ");
+    Serial.println(id);
+  }
   freq = Serial.parseInt();
+  if (freq < lowerThreshold[id]) {
+    freq = lowerThreshold[id];
+  }
   uint16_t extra = Serial.parseInt();
   uint16_t nonsense = Serial.parseInt();
   if (DEBUG) {
