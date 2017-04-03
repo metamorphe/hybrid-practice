@@ -3,13 +3,20 @@
  *  Author: Molly Nicholas
  */
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define NUM_DEVICES 4
 #define BAUD 9600
+#define DELAYTIME 2000
 
+// pump 3: minimum: 155
+// 
 int pump[NUM_DEVICES] = {
-  3, 5, 6, 9
+  3, 6, 9, 10
+};
+
+int lowerThreshold[NUM_DEVICES] = {
+  155, 75, 75, 95
 };
 
 void update() {
@@ -32,14 +39,20 @@ char buffer = ' ';
 uint16_t devID = 0;
 uint16_t id = 0;
 uint16_t freq = 0;
-uint16_t delayTime = 0;
 
 void pwmControl() {
   devID = Serial.parseInt();
   id = Serial.parseInt();
+  if (id > NUM_DEVICES) {
+    Serial.print("ERROR, id doesn't exist: ");
+    Serial.println(id);
+  }
   freq = Serial.parseInt();
-  delayTime = Serial.parseInt();
+  if (freq < lowerThreshold[id]) {
+    freq = lowerThreshold[id];
+  }
   uint16_t extra = Serial.parseInt();
+  uint16_t nonsense = Serial.parseInt();
   if (DEBUG) {
     Serial.print("pump[i]: ");
     Serial.println(pump[id]);
@@ -47,7 +60,7 @@ void pwmControl() {
     Serial.println(freq);
   }
   analogWrite(pump[id], freq);
-  delay(delayTime);
+  delay(DELAYTIME);
   if (DEBUG) {
     Serial.println("turn PWM off");
   }
