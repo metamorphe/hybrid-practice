@@ -70,6 +70,7 @@ class window.Scheduler
 			window.paper = ch.paper
 			actuator.perform(command.channel, command, false)
 			# UPDATE SCENE GRAPH
+			window.paper = ch.paper
 			e = CanvasUtil.queryID(command.cid)
 			if e
 				if command.expression.className == "Color"
@@ -97,9 +98,9 @@ class window.Scheduler
 
 								c.position = new paper.Point(x, y)
 							onKill: (event)-> 
-								# if c then c.remove()
+								if c then c.remove()
 							onDone: (event)-> 
-								# if c then c.remove()
+								if c then c.remove()
 							duration: 1000
 					_.times parseInt(bubbles), (i)->
 						stagger = 100 
