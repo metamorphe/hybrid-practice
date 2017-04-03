@@ -56,3 +56,22 @@ class window.ActuatorHeater extends Actuator1D
     @visuals.push heater
     @visuals.push rays
     @visuals = _.flatten(@visuals)
+
+class window.ActuatorPump extends ActuatorHeater
+  onCreate: ->
+    @expression = 3;
+    return
+  _num: (val)->
+    @channel.value = val
+    @channels.bubbles.param = @channel.param
+
+  _obj:(obj)->
+    if _.has obj, @op.dimension
+      @channel.value = obj[@op.dimension]
+    @channels.bubbles.param = @channel.param
+  _pobj:(obj)->
+    if _.has obj, @op.dimension
+      @channel.param = obj[@op.dimension]
+    @channels.bubbles.param = @channel.param
+  toAPI: (hid)->
+    {flag: "C", args: [hid, @expression]}

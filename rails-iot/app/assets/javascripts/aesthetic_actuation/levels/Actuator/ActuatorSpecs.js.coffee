@@ -4,6 +4,11 @@ _.extend(window,
 	    min: 0
 	    max: 255
 	  resolution: 1
+	speed_actuator:
+	  range:
+	    min: 0
+	    max: 10
+	  resolution: 1
 	param_actuator:
 	  range:
 	    min: 0
@@ -24,6 +29,11 @@ _.extend(window,
 	    min: 0
 	    max: 180
 	  resolution: 1
+	small_voltage_actuator:
+	  range:
+	    min: 0
+	    max: 3
+	  resolution: 3 / 256
 	voltage_actuator:
 	  range:
 	    min: 0
@@ -94,4 +104,15 @@ _.extend(window,
 	  	temperatureF: _.extend(_.clone(temp_field),
 	    	modality: 'derived'
 	    	alpha: 1)
+	Pump:
+	  name: 'Pump'
+	  dimension: "voltage"
+	  channels:
+	    voltage: _.extend(_.clone(small_voltage_actuator),
+	    	modality: ''
+	    	alpha: 1)
+	    bubbles: _.extend(_.clone(speed_actuator),
+	      modality: 'bubble'
+	      alpha: 1.1)
+	  
 )

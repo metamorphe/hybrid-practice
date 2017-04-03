@@ -13,14 +13,14 @@
     }
     $(function(){ 
       $("#shade").fadeOut("slow");
-      Utility.paperSetup('myCanvas');
+      Utility.paperSetup($('#myCanvas'), {});
       paper.project.activeLayer.name = "JouleHeaterGenerator";
-      ps = new PerceptualScheduler(paper);
+      // ps = new PerceptualScheduler(paper);
       gui = new dat.GUI();
       ws = new WebStorage();
       sm = new SelectionManager(JOULE_SELECT);
       jhg = new JouleHeater(gui);
-      jh = new JouleHeaterSimulator();
+      // jh = new JouleHeaterSimulator();
 
     });
 %body
@@ -41,6 +41,10 @@
       #main-canvas{
   		height: 100%;
   	}
+    #myCanvas{
+      width: 100%;
+      height 100%;
+    }
   	#main-canvas-container{
   	  position: relative;
   	  height: calc(100% - 0px);

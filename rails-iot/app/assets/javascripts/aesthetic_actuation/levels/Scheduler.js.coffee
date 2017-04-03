@@ -68,11 +68,51 @@ class window.Scheduler
 			# am.updateChannels(actuator)
 		else
 			window.paper = ch.paper
-			e = CanvasUtil.queryID(command.cid)
-			if e then e.fillColor = command.expression
-			expression = command.expression
 			actuator.perform(command.channel, command, false)
-			$('.popover.actuator .popover-content').html(actuator.expression.toCSS())
+			# UPDATE SCENE GRAPH
+			e = CanvasUtil.queryID(command.cid)
+			if e
+				if command.expression.className == "Color"
+					CanvasUtil.setStyle [e], fillColor: command.expression
+				else
+					bubbles = actuator.channels.bubbles.value
+					bubble_make = ()->
+						c = new paper.Path.Circle
+							radius: Math.random() * 15 + 2
+							fillColor: "white"
+							position: e.bounds.topCenter.clone()
+							start:  e.bounds.topCenter.clone()
+						ch.ps.add
+							onRun: (event)-> 
+								height = -800
+								width = 200
+								bubble_vx = 30
+
+								y = c.start.y + height * event.parameter
+								x = c.position.x + (bubble_vx * Math.random() - bubble_vx/2) #left of right movement
+								if x > c.start.x + width/2
+									x = c.start.x + width/2
+								if x < c.start.x - width/2
+									x = c.start.x - width/2
+
+								c.position = new paper.Point(x, y)
+							onKill: (event)-> 
+								# if c then c.remove()
+							onDone: (event)-> 
+								# if c then c.remove()
+							duration: 1000
+					_.times parseInt(bubbles), (i)->
+						stagger = 100 
+						_.delay bubble_make, stagger * i
+							
+
+			
+
+			# UPDATE WIDGETS
+			content = actuator.expression
+			content = if content.className == "Color" then content.toCSS() else content.toFixed(0)
+			
+			$('.popover.actuator .popover-content').html(content)
 			_.each $('.popover.actuator input'), (input)->
 				channel = $(input).attr('name')
 				$(input).val(actuator.channels[channel].param)

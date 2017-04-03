@@ -20,6 +20,15 @@ CanvasUtil.import = (filename, options) ->
     console.log 'IMPLEMENTATION JSON IMPORT'
   return
 
+CanvasUtil.setStyle = (elements, style)->
+  _.each elements, (e)->
+    console.log e.className
+    if e.className == "Path"
+      e.set style
+    else CanvasUtil.setStyle(e.children, style)
+  
+
+
 CanvasUtil.getLEDS = (diffuser) ->
   leds = CanvasUtil.queryPrefix('NLED')
   leds = _.filter(leds, (led) ->
@@ -99,6 +108,15 @@ CanvasUtil.getIntersections = (el, collection) ->
   hits = _.map(collection, (c) ->
     c.getIntersections el
   )
+  hits = _.compact(hits)
+  hits = _.flatten(hits)
+  hits
+CanvasUtil.getIntersectionsBounds = (el, collection) ->
+  hits = _.map collection, (c) ->
+    r = new paper.Path.Rectangle(c.bounds)
+    ixts = r.getIntersections el
+    return if ixts.length > 0 then [{path: c}] else []
+
   hits = _.compact(hits)
   hits = _.flatten(hits)
   hits

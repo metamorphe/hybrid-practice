@@ -32,12 +32,13 @@ function JouleHeater(gui){
 	this.animated = true;
 	this.color = "#000000";
 
-	this.file = "/actuation/yucca.svg"
+	this.file = "/thermo/bird_in_cage.svg"
 	this.profile = 0;
 	this.boundary = 0;
 
 	var f0 = gui.addFolder("Artwork");
-	f0.add(this, "file").options(_.map(files, function(file){ return file.path + file.filename; }));
+	f0.add(this, "file")
+	// .options(_.map(files, function(file){ return file.path + file.filename; }));
 	f0.add(this, "load");
 	f0.add(this, "draw");
 	f0.add(this, "ref");
@@ -298,7 +299,8 @@ JouleHeater.prototype = {
 	      asString: true,
 	      precision: 5
 	    });
-	    var filename = this.getName() + ".svg"
+	    // var filename = this.getName() + ".svg"
+	    var filename = "bird" + ".svg"
     	saveAs(new Blob([exp], {type:"application/svg+xml"}), filename);
 	}
 }

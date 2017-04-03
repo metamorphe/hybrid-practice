@@ -36,6 +36,11 @@
         %button#all-off.btn.btn-danger
           =glyph "hand-down"
           ALL OFF
+      %br
+      .btn-group
+        %button#background-lights.btn.btn-primary
+          =glyph "hand-up"
+          BACKGROUND LIGHTS
       
      
 
@@ -166,4 +171,26 @@
           %label.actuator
             %span TEMP (˚C)
             %span.dimension.pull-right 34.0
-
+    %actuator.draggable.template{name: "Pump"}
+      %div.simulation
+        %label.title
+          %span.content-editable Pump
+          %span.save-status 
+          %a.btn.btn-xxs.btn-danger.pull-right.remove-actuator
+            =glyph "remove"
+        %canvas{:type=>"Pump"}
+        %label.async 100
+      %channels.scroll-list
+        %label.title.light 
+          %span CHANNELS
+        %channel.full-hoz{type: "bubbles"}
+          %label.actuator
+            %span BUBBLES
+            %span.dimension.pull-right 0
+        %channel.full-hoz.selected{type: "voltage"}
+          %label.actuator
+            %span VOLTAGE
+            %span.dimension.pull-right 0
+        
+            
+   

@@ -1,6 +1,6 @@
 class window.ChoreographyWidget extends Widget
   @SESSION_COUNTER: 0
-  @ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
+  @ACTUATORS: ()-> Artwork.ACTUATORS()
   @NORMAL_SELECT = (path)->
     name = CanvasUtil.getPrefix path
     path.set
@@ -18,7 +18,51 @@ class window.ChoreographyWidget extends Widget
       shadowColor: "#00A8E1"
       shadowBlur: 0
     return style
+  constructor: (op)->
+    scope = this
+    _.extend this, op
+    @ps = new PerceptualScheduler(@paper)
+    @dark = false
+    @mode = "selection"
+    @prev_selected = {id: -1}
+    @prev_mode = "choreography"
+    @chor_trigger = $('#add-arrows')
+    @chor_clear = $('#remove-arrows')
+    @selection_trigger = $('#selection-tool')
+    $('#view-order').click ()->
+      s = Choreography.selected()
+      if s
+        s.view_order()
+    @selection_trigger.click ()->
+      scope.mode = "selection"
+      scope.update()
+    # @chor_trigger.click ()->
+    #   scope.mode = "choreography"
+    #   scope.update()
+    @chor_clear.click ()->
+      if scope.mode != "choreography"
+        Alerter.warn
+          strong: "WHOOPS!"
+          msg: "We aren't in choreography mode. Hit the arrow button above to begin."
+          delay: 2000
+          color: 'alert-danger'
+        return
+      scope.paper.tool.clearSession()
+      CanvasUtil.set ChoreographyWidget.ACTUATORS(), 'fillColor', '#ffffff'
 
+
+    
+    @buffer = {}
+    @canvas = @dom.find('canvas')
+    window.paper = @paper
+    @toggleLights()
+    @tools = {}
+    @tools.selection = @makeSelectionTool()
+    @tools.choreography = @makeChoreographyTool()
+    @canvas.hover ()-> 
+      window.paper = scope.paper
+    @update()
+    
   update: ()->
     if @mode == "choreography"
 
@@ -78,54 +122,16 @@ class window.ChoreographyWidget extends Widget
         scope.buffer[el.id] = style
         ChoreographyWidget.NORMAL_SELECT(el)
         el.flag = true
-  darken: ()->   
-    @canvas.css('background', "#111111")
+  toggleLights: ()->   
+    @dark = not @dark
+    if @dark
+      @canvas.css('background', "#111111")
+    else
+      @canvas.css('background', "#f5f4f0")
+    
     diffs = CanvasUtil.queryPrefix('DIF')
     CanvasUtil.set diffs, 'opacity', 0
-  constructor: (op)->
-    scope = this
-    @mode = "selection"
-    @prev_selected = {id: -1}
-    @prev_mode = "choreography"
-    @chor_trigger = $('#add-arrows')
-    @chor_clear = $('#remove-arrows')
-    @selection_trigger = $('#selection-tool')
-    $('#view-order').click ()->
-      s = Choreography.selected()
-      if s
-        s.view_order()
-    @selection_trigger.click ()->
-      scope.mode = "selection"
-      scope.update()
-    # @chor_trigger.click ()->
-    #   scope.mode = "choreography"
-    #   scope.update()
-    @chor_clear.click ()->
-      if scope.mode != "choreography"
-        Alerter.warn
-          strong: "WHOOPS!"
-          msg: "We aren't in choreography mode. Hit the arrow button above to begin."
-          delay: 2000
-          color: 'alert-danger'
-        return
-      scope.paper.tool.clearSession()
-      CanvasUtil.set ChoreographyWidget.ACTUATORS(), 'fillColor', '#ffffff'
-
-
-    
-    @buffer = {}
-    scope = this
-    _.extend this, op
-    @canvas = @dom.find('canvas')
-    window.paper = @paper
-    @darken()
-    @tools = {}
-    @tools.selection = @makeSelectionTool()
-    @tools.choreography = @makeChoreographyTool()
-    @canvas.hover ()-> 
-      window.paper = scope.paper
-    @update()
-    
+  
   extractDistanceMetric: ()->
     return @extractDistanceMetricTheta()
     # return @extractDistanceMetricFromCenter()
@@ -256,7 +262,7 @@ class window.ChoreographyWidget extends Widget
     sT = new paper.Tool()
     sT.collectSelection = ()->
       actuators = ChoreographyWidget.ACTUATORS()
-      ixts = CanvasUtil.getIntersections(sT.selectionPath, actuators)
+      ixts = CanvasUtil.getIntersectionsBounds(sT.selectionPath, actuators)
       hits = _.map ixts, (ixt)-> 
         ChoreographyWidget.NORMAL_SELECT(ixt.path)
         return ixt.path.id
@@ -295,20 +301,36 @@ class window.ChoreographyWidget extends Widget
       
       elements = CanvasUtil.getIDs(sT.selection)
       hids = _.map elements, (el)-> return el.lid;
-
+      console.log 'PUMP HIDS', hids, elements
+      # CREATE ACTUATOR GROUP!
       if _.isEmpty(hids) then return
-      c = elements[0].fillColor
-      c.saturation = 1
-      c = rgb2hex(c.toCSS())
-      ops =
-        clear: true
-        target: $("#group-result")
-        actuator_type: "HSBLED"
-        hardware_ids: hids
-        title: hids.join(',')
-        constants: 
-          color: "#FF0000"
-      
+
+      # DIFFERENT CREATION MAPPINGS
+      template = elements[0]
+      prefix = CanvasUtil.getPrefix(template)
+
+      switch prefix
+        when "NLED"
+          c = template.fillColor
+          c.saturation = 1
+          c = rgb2hex(c.toCSS())
+          ops =
+            clear: true
+            target: $("#group-result")
+            actuator_type: "HSBLED"
+            hardware_ids: hids
+            title: hids.join(',')
+            constants: 
+              color: "#FF0000"
+        when "PUMP"
+          ops =
+            clear: true
+            target: $("#group-result")
+            actuator_type: "Pump"
+            hardware_ids: hids
+            title: hids.join(',')
+            constants: {}
+              
       dom = ActuatorManager.create ops   
       dom.click()
     return sT

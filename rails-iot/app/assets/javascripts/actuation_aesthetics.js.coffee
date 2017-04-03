@@ -9,6 +9,7 @@
 # //= require aesthetic_actuation/BurstSelectTool
 # //= require aesthetic_actuation/SIA
 # COMPOSER
+//= require circuitree/animation_handler
 //= require aesthetic_actuation/Composer
 //= require aesthetic_actuation/FileManagers
 //= require aesthetic_actuation/SocketControl

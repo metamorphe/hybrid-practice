@@ -49,7 +49,7 @@ class window.ActuatorManager
     @actuators = []
   init:()->
     @initActuators() #PRELOAD
-    ActuatorManager.extract() #DYNAMIC
+    # ActuatorManager.extract() #DYNAMIC
     @initBLRadio($('actuator channel'))
       
   initActuators: () ->

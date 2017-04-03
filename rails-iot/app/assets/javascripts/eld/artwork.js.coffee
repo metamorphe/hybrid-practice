@@ -1,4 +1,5 @@
 class window.Artwork
+	@ACTUATORS: ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "HEATER", "PUMP"]}
 	@getElements = ()->
 		art: CanvasUtil.queryPrefix('ART'),
 		diff: CanvasUtil.queryPrefix('DIF'),
@@ -34,7 +35,7 @@ class window.Artwork
 		cl
 	process: ->
 		@AE_style_process()
-		@orderLeds()
+		@orderActuators()
 	AE_style_process: ->
 		e = Artwork.getElements()
 		show = [e.art, e.diff, e.leds, e.dds, e.base]
@@ -65,7 +66,7 @@ class window.Artwork
 		CanvasUtil.set _.flatten(show), "visible", true
 		CanvasUtil.set _.flatten(hide), "visible", false
 
-	orderLeds: ->
+	orderActuators: ->
 		devices = CanvasUtil.queryPrefix('DEVICE')
 		if devices.length == 0 then console.warn "NO DEVICES!"
 		_.each devices, (device, i)->
@@ -73,13 +74,16 @@ class window.Artwork
 			device_id = eval(device_id)
 
 			# id = eval(id).id
-			leds = CanvasUtil.query(device, {prefix: ['NLED']})
+			actuators = Artwork.ACTUATORS()
+			# leds = CanvasUtil.query(device, {prefix: ['NLED']})
 			cp = CanvasUtil.query(device, {prefix: ['CP']})
 			bi = CanvasUtil.query(device, {prefix: ['BI']})
 			# CHECKS
-			if _.isEmpty leds
-				console.warn("NO LEDS DETECTED")
-				return 
+			if _.isEmpty actuators
+				console.warn("NO ACTUATORS DETECTED")
+				return
+			else
+				console.log("ACTUATORS DISCOVERED", _.map actuators, (act, i)-> act.name.split(':')[0] + " " + i )
 			if _.isEmpty cp
 				console.warn("NO PATH; CAN'T ENUMERATE LEDS")
 				return 
@@ -91,14 +95,14 @@ class window.Artwork
 			forward = cp.firstSegment.point.getDistance(bi.firstSegment.point)
 			backward = cp.lastSegment.point.getDistance(bi.firstSegment.point)
 			polarity = if backward < forward then -1 else 1
-			_.each leds, (led) ->
-				cpPoint = cp.getNearestPoint(led.position)
-				led.offset = polarity * cp.getOffsetOf(cpPoint)
+			_.each actuators, (actuator) ->
+				cpPoint = cp.getNearestPoint(actuator.position)
+				actuator.offset = polarity * cp.getOffsetOf(cpPoint)
 				return
-			leds = _.sortBy leds, 'offset'
-			_.each leds, (led, id) ->
-				led.lid = device_id+":"+id
-				led.device = device_id
+			actuators = _.sortBy actuators, 'offset'
+			_.each actuators, (actuator, id) ->
+				actuator.lid = device_id+":"+id
+				actuator.device = device_id
 
 	# loadLEDS: (scope) ->
 	# 	leds = scope.queryPrefix('NLED')

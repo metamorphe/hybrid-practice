@@ -2,7 +2,7 @@ class window.Choreography
 	@COUNTER: 0
 	@CHOREOGRAPHIES: []
 	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
-	@ACTUATORS = ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "LED", "HEATER", "MOTOR"]}
+	@ACTUATORS = ()-> Artwork.ACTUATORS()
 	@selected: ()->
 		if am 
 			act = am.getActiveActuator()
@@ -26,14 +26,17 @@ class window.Choreography
 		@resolve()
 
 	view_order: (actuators)->
+		console.log "view_order", actuators
 		window.paper = ch.paper
 		order = @resolve(actuators)
 		_.each order, (p, k)->			
 			e = CanvasUtil.query(paper.project, {lid: k})
 			if _.isNaN p
 				throw new Error "INVALID"
-			e[0].fillColor = Choreography.temperatureColor(p)
-
+			console.log "COLORING"
+			style = {fillColor: Choreography.temperatureColor(p)}
+			CanvasUtil.setStyle e, style
+			
 	resolve: (actuators)->
 		window.paper = ch.paper
 		actuators = actuators or Choreography.ACTUATORS()

@@ -57,6 +57,8 @@ class window.Actuator
     @channels = _.mapObject @op.channels, (actuator) ->
       new ActuationParam(actuator)
     
+    if @op.dimension
+      @channel = @channels[@op.dimension]
     
     @form = set
     @onCreate()
@@ -71,8 +73,10 @@ class window.Actuator
     channels = _.map sorted_channels, (channel)-> 
       return '<input name="'+ channel+'"min="0" max="1" step="0.01" value="'+ channels[channel].param+'" type="range"/>'
     channels = channels.join('')
+    content = @expression
+    if @expression.className == "Color" then content = @expression.toCSS()
     @dom.data
-      content: @expression.toCSS()
+      content: content
       placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
     @dom.popover('hide')
@@ -258,9 +262,6 @@ class window.Actuator
   
         
 class window.Actuator1D extends Actuator
-  init:->
-    super
-    @channel = @channels[@op.dimension]
   _num: (val)->
     @channel.value = val
   _obj:(obj)->
