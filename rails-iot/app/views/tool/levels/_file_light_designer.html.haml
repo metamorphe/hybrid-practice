@@ -1,0 +1,31 @@
+#selectors.full-hoz
+  #file-select.hoz-left.half-w.mpadding
+    .vert-left.full-w
+      %span.status-label#file-info
+        PROJECT
+      .full-hoz
+        %select.form-control#file-selector.sexy
+  #downloaders.hoz-left.half-w.mpadding
+
+    .vert-left
+      %span.status-label#port-info
+        OPERATIONS
+      .full-hoz
+        .btn-group
+          %button#cache-save.btn.btn-xs.btn-info
+            =glyph "floppy-disk"
+            SAVE
+          %button#cache-reload.btn.btn-xs.btn-info
+            %span.glyphicon.glyphicon-refresh
+            RELOAD
+          %button#cache-clear.btn.btn-xs.btn-info
+            %span.glyphicon.glyphicon-ban-circle
+            CLEAR LEDS
+    &nbsp;
+    .vert-left
+      %span.status-label#port-info
+        DOWNLOAD AS
+      .full-hoz
+        .btn-group
+          %button#svg-download.btn.btn-xs.btn-success SVG
+          %button#png-download.btn.btn-xs.btn-success PNG
