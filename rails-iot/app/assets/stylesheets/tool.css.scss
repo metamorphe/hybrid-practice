@@ -6,17 +6,18 @@
 @import "arduino";
 @import "flexors";
 
+/*ACTUATION AESTHETICS*/
 @import "track";
 @import "composer";
 @import "block";
 @import "datasignal";
 @import "actuator";
 @import "behavior";
-
-@import "track";
 @import "widget";
 @import "drop";
 @import "fileselectors";
+
+@import "pipeline";
 
 
 #control-container{

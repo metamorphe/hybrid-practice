@@ -116,7 +116,7 @@
     }
     $(function(){
       // ws = new WebStorage();
-      Utility.paperSetup($('#myCanvas'));
+      Utility.paperSetup($('#main-canvas'));
       gui = new dat.GUI();
     
       generator = new Generator();
@@ -137,7 +137,7 @@
 
     });
 %body
-  %canvas#myCanvas
+  %canvas#main-canvas
   = render :partial => "zoom_bar"
 :css
   #zoom-bar{
@@ -156,7 +156,7 @@
      overflow: hidden;
      background: #f5f4f0;
    }
-   #myCanvas {
+   #main-canvas {
      position: absolute;
      top: 0px;
      left: 0;

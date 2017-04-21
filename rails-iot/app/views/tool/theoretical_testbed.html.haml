@@ -192,10 +192,10 @@
       
         // Utility functions
         function paperSetup() {
-          $('#myCanvas').attr('height', $(window).height());
-          $('#myCanvas').attr('width', $(window).width());
+          $('#main-canvas').attr('height', $(window).height());
+          $('#main-canvas').attr('width', $(window).width());
           paper.install(window);
-          paper.setup('myCanvas');
+          paper.setup('main-canvas');
         }
       
         function guiSetup() {
@@ -225,7 +225,7 @@
           gui.add(testbed, 'getSignal');
         }
   %body
-    %canvas#myCanvas
+    %canvas#main-canvas
     .chart-container
       %canvas#myChart
     - render :partial => "zoom_bar"

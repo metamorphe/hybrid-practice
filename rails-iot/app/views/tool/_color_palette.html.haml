@@ -57,26 +57,24 @@
       this.container.toggle("slide", { direction: "left" }, 500);
     }
   }
-/
-  <div id="sidebar-left">
-  <div id="color-palette">
-  <span class="color-swatch" name="#fe6e4b"></span>
-  <span class="color-swatch" name="#eeb84b"></span>
-  <span class="color-swatch" name="#6ebda7"></span>
-  <span class="color-swatch" name="#00A8E1"></span>
-  <span class="color-swatch" name="#FFFFFF"></span>
-  <span class="color-swatch" name="#000000"></span>
-  </div>
-/ COLOR PALETTE CODE HERE
-/
-  <h3>Set Colors</h3>
-  <div class="input-group input-group-md">
-  <span class="input-group-addon color-picker-label" id="sizing-addon1">1</span>
-  <input type="color" class="form-control color-picker" value="#E74C3C">
-  <span class="input-group-btn">
-  <button id="button-t2-l1" class="btn btn-secondary" type="button">Send</button>
-  </span>
-  </div>
+
+#sidebar-left
+#color-palette
+  .color-swatch{name:"#fe6e4b"}
+  .color-swatch{name:"#eeb84b"}
+  .color-swatch{name:"#6ebda7"}
+  .color-swatch{name:"#00A8E1"}
+  .color-swatch{name:"#FFFFFF"}
+  .color-swatch{name:"#000000"}
+
+  / <h3>Set Colors</h3>
+  / <div class="input-group input-group-md">
+  / <span class="input-group-addon color-picker-label" id="sizing-addon1">1</span>
+  / <input type="color" class="form-control color-picker" value="#E74C3C">
+  / <span class="input-group-btn">
+  / <button id="button-t2-l1" class="btn btn-secondary" type="button">Send</button>
+  / </span>
+  / </div>
 :css
   #sidebar-left{
       /* PALETTE */
@@ -114,7 +112,7 @@
         -webkit-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
       -moz-box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
       box-shadow: 0px -5px 24px 3px rgba(0,0,0,0.09);
-  
+      z-index: 10;
     }
     
     .color-swatch{

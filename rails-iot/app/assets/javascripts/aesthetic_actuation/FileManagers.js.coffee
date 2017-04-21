@@ -51,7 +51,7 @@ class SVGFileManager extends FileManager
       CanvasUtil.call CanvasUtil.queryPrefix('DDS'), 'bringToFront'
       CanvasUtil.call CanvasUtil.queryPrefix('NLED'), 'bringToFront'
       # vm = new ViewManager($('#views'))
-      if onLoad then onLoad()
+      if onLoad then onLoad(artwork)
       # var r = new paper.Path.Rectangle({rectangle: artwork.bounds, selected: true})
       return
       loadingFn()

@@ -50,7 +50,7 @@
   		
   				switch(view){
   					case "NORMAL":
-  						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
+  						$('#main-canvas').css('background',   ViewManager.CANVAS_COLOR);
   						var show = [e.art, e.diff, e.leds, e.dds, e.base];
   						var hide = [e.rays, e.cp, e.mc, e.bo, e.bi, e.nuts, e.wires];
   
@@ -78,7 +78,7 @@
   						
   						break;
   					case "RAYS":
-  						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
+  						$('#main-canvas').css('background',   ViewManager.CANVAS_COLOR);
   						var show = [e.diff, e.leds, e.rays];
   						var hide = [e.art, e.bo, e.bi, e.cp, e.mc, e.base, e.wires];
   						
@@ -105,7 +105,7 @@
   						
   						break;
   					case "WHITE_RAYS":
-  						$('#myCanvas').css('background',   ViewManager.CANVAS_COLOR);
+  						$('#main-canvas').css('background',   ViewManager.CANVAS_COLOR);
   						var show = [e.diff, e.leds, e.rays];
   						var hide = [e.art, e.bo, e.bi, e.cp, e.mc, e.base, e.wires];
   						
@@ -132,7 +132,7 @@
   						
   						break;
   					case "LIGHTS":
-  						$('#myCanvas').css('background', '#111');
+  						$('#main-canvas').css('background', '#111');
   						var show = [e.rays];
   
   						_.each(e.leds, function(led){
@@ -168,21 +168,7 @@
   			$("#view-list").toggle("slide", { direction: "up" }, 300);
   		}
   	}
-/
-  Pipeline.getElements = function() {
-  return {
-  art: display.queryPrefix('ART'),
-  diff: display.queryPrefix('DIF'),
-  leds: display.queryPrefix('NLED'),
-  bo: display.queryPrefix('BO'),
-  bi: display.queryPrefix('BI'),
-  cp: display.queryPrefix('CP'),
-  dds: display.queryPrefix('DDS'),
-  mc: display.queryPrefix("MC"),
-  base: display.queryPrefix("BASE"),
-  wires: display.queryPrefix("WIRE")
-  }
-  }
+
 #views
   %button#view-icon.pull-right.btn.btn-primary
     %span.glyphicon.glyphicon-globe
@@ -205,46 +191,3 @@
         %span LIGHTS OUT
         %button.view.btn-sm.btn.btn-success{:name => "lights"}
           L
-:css
-  #views{
-  		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  		padding: 4px 8px;
-  		color: #AAA;
-  		position: absolute;
-  		z-index: 1000;
-  		top: 60px;
-  		right: 25px;
-  		z-index: -1;
-  		/*text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);*/
-   }
-  	.view{
-  		float: right;
-  		width: 20px;
-  		padding: 1px;
-  		height: 20px;
-  		margin-left: 5px;
-  	}
-  	.view:focus{
-  		outline: none;
-  	}
-  	#view-icon{
-  		width: 40px;
-  	}
-  		#view-icon:focus{
-  			outline: none;
-  		}
-  	#view-list{
-  		width: 175px;
-  		text-align: right;
-  		text-decoration: none;
-
-  	}
-  		#view-list ul{
-  			list-style-type: none;
-  		}
-  		#view-list ul li{
-  			margin: 2px 0;
-  		}
-  		#view-list ul li.active{
-  			color: #888;
-  		}

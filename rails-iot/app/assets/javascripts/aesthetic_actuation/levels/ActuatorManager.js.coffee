@@ -1,4 +1,4 @@
-class window.ActuatorManager
+ class window.ActuatorManager
   @DEFAULT_ASYNC: 30
   
   @create: (op)->

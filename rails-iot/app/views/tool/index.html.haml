@@ -71,10 +71,10 @@
     });
 
     function paperSetup(){
-      $('#myCanvas').attr('height', $(window).height());
-      $('#myCanvas').attr('width', $(window).width());
+      $('#main-canvas').attr('height', $(window).height());
+      $('#main-canvas').attr('width', $(window).width());
       paper.install(window);
-      paper.setup('myCanvas');
+      paper.setup('main-canvas');
     }
 %body
   %nav.navbar.navbar-default
@@ -135,7 +135,7 @@
             %li= link_to "Login", new_user_session_path, :class => 'navbar-link'
       / /.navbar-collapse
     / /.container-fluid
-  %canvas#myCanvas
+  %canvas#main-canvas
   #sidebar-right.col-xs-4
     %h3 MODE
     .btn-group
@@ -163,7 +163,7 @@
         border-radius: 10px;
         padding: 4px;
       }
-      #myCanvas {
+      #main-canvas {
         position: absolute;
         top: 60px;
         /*display: none;*/

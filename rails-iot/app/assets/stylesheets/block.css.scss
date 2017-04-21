@@ -19,7 +19,7 @@
 /* INTERACTION */
 .popover{
     position: fixed;
-    z-index: 500 !important;
+    z-index: 1000 !important;
     @extend .noselect;
     padding-top: 6px;
     .title{

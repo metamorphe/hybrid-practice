@@ -1,42 +1,52 @@
 :javascript
-  var zb, cp, bb, vm, pm, gui, displays = []; 
+  var zb, cp, bb, vm, pm, gui, displays = [], ws; 
   var p = Pipeline;
   var files = #{@files.to_json.html_safe};
   var DEFAULT_PIPE_FILE = "example_hairpiece_camera_ready.svg";
   
   $(function(){
-    Utility.paperSetup($('#myCanvas'));
-    zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
+    // Utility.paperSetup();
+    ws = new WebStorage();
     $("#shade").fadeOut();
-  
-    paper.loadCustomLibraries();
-    pm = new PipeManager($('body'));
     
-  
+    dom = $('#main-canvas');
+    fs = new ProjectFileManager({
+      paper: Utility.paperSetup(dom),
+      files: files, 
+      selector: $("#file-selector"),
+      onLoad: function(data){
+        zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
+        loadCustomLibraries();
+        pm = new PipeManager();
+      }
+    });
+
+    
     $('#png-download').click(function(){
-        var result = CanvasUtil.queryPrefix("RESULT")[0];
+        var result = CanvasUtil.queryPrefix("RESULT");
+        if (_.isEmpty(result)){console.warn("No RESULT wrapper found for export"); return;}
+        result = result[0]
         console.log("FINAL DIMENSIONS", 
           Ruler.pts2mm(result.strokeBounds.width).toFixed(2), "mm x", 
           Ruler.pts2mm(result.strokeBounds.height).toFixed(2), "mm x",
           result.model_height.toFixed(2), "mm"
         );
         result.fitBounds(paper.view.bounds.expand(-5))
-        var file = $('#file-select :selected').text();
-        var fn = file.toLowerCase() + "_" + pm.getCurrentView();
+        var name = fs.getName()
+        var fn = name + "_" + pm.getCurrentView();
         ButtonExporter.exportPNG(result, fn, $(this));
     });
     $('#svg-download').click(function(){
       paper.view.zoom = 1;
-      var fn = $("#file-select option[selected]").html().toLowerCase() + "_" + pm.getCurrentView();
+      name = fs.getName()
+      var fn = name + "_" + pm.getCurrentView();
       ButtonExporter.exportSVG(fn);           
     });
     // $('#view-list ul li button[name="reflector"]').click();
   });
-#downloaders.btn-group
-  %a#svg-download.btn.btn-success SVG
-  %a#png-download.btn.btn-success PNG
+= render :partial => "tool/levels/file_pipeline"
+
 #views
-  %select#file-select.form-control
   %button#view-icon.pull-right.btn.btn-primary EL
   %br.clearfix/
   #view-list
@@ -90,6 +100,8 @@
       %li
         %span CODE
         %button.view.btn-sm.btn.btn-warning{:name => "code"} C
-%canvas#myCanvas
+.canvas-container
+  %canvas#main-canvas
+
 = render :partial => "modals"
 = render :partial => "zoom_bar"

@@ -4,17 +4,17 @@ class window.ActuatorHeater extends Actuator1D
     return
   _num: (val)->
     @channel.value = val
-    @channels.temperatureF.value = 72 + (@channel.param * 20)
+    @channels.temperatureF.value = 72 + (@channel.param * 40)
     @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
   _obj:(obj)->
     if _.has obj, @op.dimension
       @channel.value = obj[@op.dimension]
-    @channels.temperatureF.value = 72 + (@channel.param * 20)
+    @channels.temperatureF.value = 72 + (@channel.param * 40)
     @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
   _pobj:(obj)->
     if _.has obj, @op.dimension
       @channel.param = obj[@op.dimension]
-    @channels.temperatureF.value = 72 + (@channel.param * 20)
+    @channels.temperatureF.value = 72 + (@channel.param * 40)
     @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
   toAPI: (hid)->
     {flag: "H", args: [hid, @expression]}
@@ -59,7 +59,7 @@ class window.ActuatorHeater extends Actuator1D
 
 class window.ActuatorPump extends ActuatorHeater
   onCreate: ->
-    @expression = 3;
+    @expression = 0;
     return
   _num: (val)->
     @channel.value = val
@@ -74,4 +74,5 @@ class window.ActuatorPump extends ActuatorHeater
       @channel.param = obj[@op.dimension]
     @channels.bubbles.param = @channel.param
   toAPI: (hid)->
-    {flag: "C", args: [hid, @expression]}
+    d = hid.split(":")
+    {flag: "C", args: [d[0], d[1], parseInt(@expression)]}

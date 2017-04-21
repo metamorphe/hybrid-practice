@@ -70,41 +70,62 @@ class window.Scheduler
 			window.paper = ch.paper
 			actuator.perform(command.channel, command, false)
 			# UPDATE SCENE GRAPH
+			window.paper = ch.paper
 			e = CanvasUtil.queryID(command.cid)
 			if e
-				if command.expression.className == "Color"
-					CanvasUtil.setStyle [e], fillColor: command.expression
-				else
-					bubbles = actuator.channels.bubbles.value
-					bubble_make = ()->
-						c = new paper.Path.Circle
-							radius: Math.random() * 15 + 2
-							fillColor: "white"
-							position: e.bounds.topCenter.clone()
-							start:  e.bounds.topCenter.clone()
-						ch.ps.add
-							onRun: (event)-> 
-								height = -800
-								width = 200
-								bubble_vx = 30
+				# console.log actuator.actuator_type
+				switch actuator.actuator_type
+					when "HSBLED"
+						# console.log command.expression.toCSS()
+						e.fillColor = command.expression
+						# CanvasUtil.setStyle [e], fillColor: command.expression
+					when "Pump"
+						bubbles = actuator.channels.bubbles.value
+						bubble_make = ()->
+							scale = 3
+							c = new paper.Path.Circle
+								radius: Math.random() * (15/3) + 2
+								fillColor: "white"
+								position: e.bounds.topCenter.clone()
+								start:  e.bounds.topCenter.clone()
+							ch.ps.add
+								onRun: (event)-> 
+									scale = 3
+									height = -800 / scale
+									width = 200 / scale
+									bubble_vx = 30 / scale
 
-								y = c.start.y + height * event.parameter
-								x = c.position.x + (bubble_vx * Math.random() - bubble_vx/2) #left of right movement
-								if x > c.start.x + width/2
-									x = c.start.x + width/2
-								if x < c.start.x - width/2
-									x = c.start.x - width/2
+									y = c.start.y + height * event.parameter
+									x = c.position.x + (bubble_vx * Math.random() - bubble_vx/2) #left of right movement
+									if x > c.start.x + width/2
+										x = c.start.x + width/2
+									if x < c.start.x - width/2
+										x = c.start.x - width/2
 
-								c.position = new paper.Point(x, y)
-							onKill: (event)-> 
-								# if c then c.remove()
-							onDone: (event)-> 
-								# if c then c.remove()
-							duration: 1000
-					_.times parseInt(bubbles), (i)->
-						stagger = 100 
-						_.delay bubble_make, stagger * i
-							
+									c.position = new paper.Point(x, y)
+								onKill: (event)-> 
+									if c then c.remove()
+								onDone: (event)-> 
+									if c then c.remove()
+								duration: 1000
+						_.times parseInt(bubbles), (i)->
+							stagger = 100 
+							_.delay bubble_make, stagger * i
+					when "Heater"
+						red = new (paper.Color)('red')
+						blue = new (paper.Color)('#00A8E1')
+						p = actuator.channel.param
+						c = red.multiply(p).add(blue.multiply(1-p))
+						CanvasUtil.setStyle [e], color: c
+						chromic = CanvasUtil.query(e, {prefix: ["CHROME"]})
+						temp = actuator.channels.temperatureF.value 
+						if temp > 94
+							CanvasUtil.setStyle chromic, {opacity: 0, fillColor: "black"}
+						else if temp > 92 and temp <= 94 #cooling state
+							op = (temp - 92)/ 2
+							CanvasUtil.setStyle chromic, {opacity: 1 - op, fillColor: "black"}
+						else
+							CanvasUtil.setStyle chromic, {opacity: 1, fillColor: "black"}
 
 			
 

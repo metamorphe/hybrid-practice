@@ -385,7 +385,7 @@ function Generator(){
           cut =  paper.project.view.projectToView(new paper.Point(result.strokeBounds.width, result.strokeBounds.height));
           // result.position.x -= 6;
           paper.view.update();
-          bufferCanvas = copyCanvasRegionToBuffer($('#myCanvas')[0], 0, 0, cut.x, cut.y );
+          bufferCanvas = copyCanvasRegionToBuffer($('#main-canvas')[0], 0, 0, cut.x, cut.y );
           
           var download = document.createElement('a');
           download.href = bufferCanvas.toDataURL("image/png");
@@ -394,7 +394,7 @@ function Generator(){
 
             //     dom.attr('href', bufferCanvas.toDataURL("image/png"))
             //             .attr('download', filename + '.png');
-            //     // dom.attr('href', $('#myCanvas')[0].toDataURL("image/png"))
+            //     // dom.attr('href', $('#main-canvas')[0].toDataURL("image/png"))
             //            // .attr('download', filename + '.png');
             // }
         }, 

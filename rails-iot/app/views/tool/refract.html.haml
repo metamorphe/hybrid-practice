@@ -1,7 +1,7 @@
 %head
   :javascript
     $(function(){
-      Utility.paperSetup($('#myCanvas'));
+      Utility.paperSetup($('#main-canvas'));
       zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
       $("#shade").fadeOut("slow");
       $('#download').click(function(){
@@ -165,7 +165,7 @@
       paper.view.update();
     }
 %body
-  %canvas#myCanvas
+  %canvas#main-canvas
   = render :partial => "zoom_bar"
   / <canvas id="bufferCanvas"></canvas>
 :css
@@ -188,7 +188,7 @@
     overflow: hidden;
     background: #f5f4f0;
   }
-  #myCanvas {
+  #main-canvas {
     position: absolute;
     top: 0px;
     left: 0;

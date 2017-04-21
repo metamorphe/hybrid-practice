@@ -3,7 +3,7 @@
     var zb, cp, bb, vm, displays = [];
 
     $(function(){
-      Utility.paperSetup($('#myCanvas'));
+      Utility.paperSetup($('#main-canvas'));
       zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
       $("#shade").fadeOut("slow");
       pipelineSetup();
@@ -149,7 +149,7 @@
       console.log("Running Mask Generator");
     }
 %body
-  %canvas#myCanvas
+  %canvas#main-canvas
   #pipeline
     %ul
       %li
@@ -219,7 +219,7 @@
         border-radius: 10px;
         padding: 4px;
       }
-      #myCanvas {
+      #main-canvas {
         position: absolute;
         top: 180px;
         left: 0;

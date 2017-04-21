@@ -73,7 +73,7 @@
         ad.analyze();
       });
       $("#shade").fadeOut("slow");
-      Utility.paperSetup('myCanvas');
+      Utility.paperSetup('main-canvas');
       ad.analyze();
       
     });
@@ -148,7 +148,7 @@
 %body
   #view-container
     #main-canvas-container
-      %canvas#myCanvas.paper
+      %canvas#main-canvas.paper
 :css
   body, html{
      		width: 100%;
@@ -160,15 +160,7 @@
         height: 100%;
         /*overflow: hidden;*/
       }
-      #main-canvas{
-  		height: 100%;
-  	}
-  	#main-canvas-container{
-  	  position: relative;
-  	  height: calc(100% - 0px);
-  	  width: 100%;
-  	  overflow: hidden;
-  	}
+
   	.paper{
   	  background: #f5f4f0;
   	  position: relative;

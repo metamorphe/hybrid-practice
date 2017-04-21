@@ -20,11 +20,19 @@ CanvasUtil.import = (filename, options) ->
     console.log 'IMPLEMENTATION JSON IMPORT'
   return
 
-CanvasUtil.setStyle = (elements, style)->
+CanvasUtil.setStyle = (elements, style)->  
   _.each elements, (e)->
-    console.log e.className
+    my_style = _.clone(style)
     if e.className == "Path"
-      e.set style
+      my_style.strokeColor = style.color
+      if e.closed
+        my_style.fillColor = style.color
+        
+    else
+      my_style.fillColor = style.color
+      
+    if e.className == "Path"
+      e.set my_style
     else CanvasUtil.setStyle(e.children, style)
   
 

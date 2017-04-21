@@ -108,11 +108,11 @@ _.extend(window,
 	  name: 'Pump'
 	  dimension: "voltage"
 	  channels:
-	    voltage: _.extend(_.clone(small_voltage_actuator),
-	    	modality: ''
+	    voltage: _.extend(_.clone(v10bit_actuator),
+	    	modality: 'motion'
 	    	alpha: 1)
 	    bubbles: _.extend(_.clone(speed_actuator),
-	      modality: 'bubble'
-	      alpha: 1.1)
+	    	modality: 'bubbles'
+	    	alpha: 1.1)
 	  
 )

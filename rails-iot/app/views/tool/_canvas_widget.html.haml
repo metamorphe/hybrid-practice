@@ -1,13 +1,13 @@
 :javascript
   // var mainVM, mainPaper;
   // $(function(){
-  // 	mainPaper = paperSetup('myCanvas');
+  // 	mainPaper = paperSetup('main-canvas');
   // 	mainPaper.name = "mainPaper";	
   // });
   $('.tool')
   //
 #main-canvas-container
-  %canvas#myCanvas.paper
+  %canvas#main-canvas.paper
   #new-selector.drop-tool
     %button.drop-tool-select.btn-ard SELECT TOOL
     %ul
@@ -27,15 +27,7 @@
   #new-selector ul li button{
   	width: 100px;
   }
-  #main-canvas{
-  	height: 100%;
-  }
-  #main-canvas-container{
-    position: relative;
-    height: calc(100% - 0px);
-    width: 100%;
-    overflow: hidden;
-  }
+
   .paper{
     background: #f5f4f0;
     position: relative;

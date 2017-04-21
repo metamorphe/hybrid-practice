@@ -6,10 +6,22 @@
 #define DEBUG 0
 
 #define NUM_DEVICES 4
-#define BAUD 9600
+#define BAUD 19200
+#define DELAYTIME 2000
 
+//3
 int pump[NUM_DEVICES] = {
-  3, 5, 6, 9
+  5, 6, 9, 10
+};
+
+//155
+int lowerThreshold[NUM_DEVICES] = {
+  144, 124, 186, 127
+};
+
+//193
+int upperThreshold[NUM_DEVICES] = {
+  144, 124, 166, 166
 };
 
 void update() {
@@ -32,27 +44,40 @@ char buffer = ' ';
 uint16_t devID = 0;
 uint16_t id = 0;
 uint16_t freq = 0;
-uint16_t delayTime = 0;
 
 void pwmControl() {
   devID = Serial.parseInt();
   id = Serial.parseInt();
   freq = Serial.parseInt();
-  delayTime = Serial.parseInt();
-  uint16_t extra = Serial.parseInt();
+//  Serial.print("FREQ:");
+//  Serial.println(freq);
+  
+  if (id > NUM_DEVICES) {
+    Serial.print("ERROR, id doesn't exist: ");
+    Serial.println(id);
+  }
+  if(freq < 5){
+    freq = 0;
+  } else{
+    freq = lowerThreshold[id];
+//    freq = map(freq, 0, 255, lowerThreshold[id], upperThreshold[id]);
+//    freq = constrain(freq, lowerThreshold[id], upperThreshold[id]);
+  }
+  // uint16_t extra = Serial.parseInt();
+  // uint16_t nonsense = Serial.parseInt();
   if (DEBUG) {
     Serial.print("pump[i]: ");
     Serial.println(pump[id]);
     Serial.print("freq: ");
     Serial.println(freq);
   }
-  analogWrite(pump[id], freq);
-  delay(delayTime);
-  if (DEBUG) {
-    Serial.println("turn PWM off");
-  }
-  analogWrite(pump[id], 0);
-    delay(1000);
+   analogWrite(pump[id], freq);
+  // delay(DELAYTIME);
+//  if (DEBUG) {
+//    Serial.println("turn PWM off");
+//  }
+  // analogWrite(pump[id], 0);
+  // delay(1000);
 }
 
 void findCommandEnd(){

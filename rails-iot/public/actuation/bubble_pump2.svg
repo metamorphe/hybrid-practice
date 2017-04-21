@@ -1,103 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="ELD:_BubbleMachine" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-	 y="0px" viewBox="0 0 1076 1033.3" style="enable-background:new 0 0 1076 1033.3;" xml:space="preserve">
+	 y="0px" viewBox="0 0 330 315.8" style="enable-background:new 0 0 330 315.8;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#EFEA43;}
-	.st1{fill:none;stroke:#EFEA43;stroke-width:8;stroke-miterlimit:10;}
-	.st2{fill:#C7E2F9;}
-	.st3{fill:#00C2F3;}
-	.st4{opacity:0.3;fill:#F8F8F8;}
-	.st5{opacity:0.17;fill:#F8F8F8;}
-	.st6{opacity:0.42;fill:#F8F8F8;}
-	.st7{opacity:0.19;fill:#F8F8F8;}
-	.st8{fill:#E3F3F3;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
-	.st9{fill:#C2C4C6;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
-	.st10{fill:#999B9E;}
-	.st11{fill:#333132;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
-	.st12{opacity:0.76;fill:#97D9EB;}
-	.st13{opacity:0.62;fill:#E3F2FA;}
-	.st14{opacity:0.49;fill:#E3F2FA;}
+	.st0{fill:none;stroke:#EFEA43;stroke-width:8;stroke-miterlimit:10;}
+	.st1{fill:#C7E2F9;}
+	.st2{fill:#00C2F3;}
+	.st3{opacity:0.3;fill:#F8F8F8;}
+	.st4{opacity:0.17;fill:#F8F8F8;}
+	.st5{opacity:0.42;fill:#F8F8F8;}
+	.st6{opacity:0.19;fill:#F8F8F8;}
+	.st7{fill:#E3F3F3;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st8{fill:#C2C4C6;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st9{fill:#999B9E;}
+	.st10{fill:#333132;stroke:#231F20;stroke-width:2;stroke-miterlimit:10;}
+	.st11{opacity:0.76;fill:#97D9EB;}
+	.st12{opacity:0.62;fill:#E3F2FA;}
+	.st13{opacity:0.49;fill:#E3F2FA;}
+	.st14{fill:#EFEA43;}
 </style>
 <g id="DEVICE:__x7B__x27_id_x27_:0_x7D_">
-	<rect id="BI:_Break_x5F_in" x="8" y="944.5" class="st0" width="23.6" height="55.5"/>
-	<line id="CP:_Circuit_x5F_path" class="st1" x1="17.4" y1="969.8" x2="1060.8" y2="969.8"/>
+	<line id="CP:_Circuit_x5F_path" class="st0" x1="10.8" y1="297.8" x2="321.4" y2="297.8"/>
 	<g id="DECOR:_asd">
 		<g>
-			<rect x="5.5" y="-2.5" class="st2" width="1066.3" height="798.1"/>
+			<rect x="5.5" y="6.6" class="st1" width="321" height="241.1"/>
 			<g>
-				<path d="M1069.3,0v793.1H8V0H1069.3 M1074.3-5h-5H8H3v5v793.1v5h5h1061.3h5v-5V0V-5L1074.3-5z"/>
+				<path d="M324,9.1v236.1H8V9.1H324 M329,4.1h-5H8H3v5v236.1v5h5h316h5v-5V9.1V4.1L329,4.1z"/>
 			</g>
 		</g>
-		<rect x="8.9" class="st3" width="247.5" height="774"/>
-		<rect x="279.9" class="st3" width="247.5" height="774"/>
-		<rect x="550.9" class="st3" width="247.5" height="774"/>
-		<rect x="821.9" class="st3" width="247.5" height="774"/>
-		<polygon class="st4" points="228.1,733 48,733 8.9,774 256.3,774 		"/>
-		<polygon class="st5" points="228.1,733 225,0 256.3,0 256.3,774 		"/>
-		<polygon class="st5" points="498.6,733 495.5,0 526.8,0 526.8,774 		"/>
-		<polygon class="st5" points="769.1,733 766,0 797.3,0 797.3,774 		"/>
-		<polygon class="st5" points="1039.6,733 1036.5,0 1067.8,0 1067.8,774 		"/>
-		<polygon class="st6" points="54.3,0 48,733 8.9,774 8.9,0 		"/>
-		<polygon class="st6" points="325.3,0 319,733 279.9,774 279.9,0 		"/>
-		<polygon class="st6" points="596.3,0 590,733 550.9,774 550.9,0 		"/>
-		<polygon class="st6" points="867.3,0 861,733 821.9,774 821.9,0 		"/>
-		<polygon class="st4" points="499.1,733 319,733 279.9,774 527.3,774 		"/>
-		<polygon class="st4" points="770.1,733 590,733 550.9,774 798.3,774 		"/>
-		<polygon class="st4" points="1041.1,733 861,733 821.9,774 1069.3,774 		"/>
-		<polygon class="st7" points="1069.3,508 564,254 8.9,0 1069.3,0 		"/>
+		<rect x="8.3" y="9.1" class="st2" width="73.7" height="230.4"/>
+		<rect x="88.9" y="9.1" class="st2" width="73.7" height="230.4"/>
+		<rect x="169.6" y="9.1" class="st2" width="73.7" height="230.4"/>
+		<rect x="250.3" y="9.1" class="st2" width="73.7" height="230.4"/>
+		<polygon class="st3" points="73.5,227.3 19.9,227.3 8.3,239.5 81.9,239.5 		"/>
+		<polygon class="st4" points="73.5,227.3 72.6,9.1 81.9,9.1 81.9,239.5 		"/>
+		<polygon class="st4" points="154.1,227.3 153.1,9.1 162.5,9.1 162.5,239.5 		"/>
+		<polygon class="st4" points="234.6,227.3 233.7,9.1 243,9.1 243,239.5 		"/>
+		<polygon class="st4" points="315.1,227.3 314.2,9.1 323.5,9.1 323.5,239.5 		"/>
+		<polygon class="st5" points="21.8,9.1 19.9,227.3 8.3,239.5 8.3,9.1 		"/>
+		<polygon class="st5" points="102.5,9.1 100.6,227.3 88.9,239.5 88.9,9.1 		"/>
+		<polygon class="st5" points="183.2,9.1 181.3,227.3 169.6,239.5 169.6,9.1 		"/>
+		<polygon class="st5" points="263.8,9.1 262,227.3 250.3,239.5 250.3,9.1 		"/>
+		<polygon class="st3" points="154.2,227.3 100.6,227.3 88.9,239.5 162.6,239.5 		"/>
+		<polygon class="st3" points="234.9,227.3 181.3,227.3 169.6,239.5 243.3,239.5 		"/>
+		<polygon class="st3" points="315.6,227.3 262,227.3 250.3,239.5 324,239.5 		"/>
+		<polygon class="st6" points="324,160.3 173.5,84.7 8.3,9.1 324,9.1 		"/>
 	</g>
 	<g id="PUMP:_asdk">
-		<path class="st8" d="M1010.6,838.8v-9h-49.1c-3.5,0-6.3-2.8-6.3-6.3v-15.7H936v14.9c0,3.9-3.2,7.1-7.1,7.1h-48.3v9h-13.5v81h157
-			v-81H1010.6z"/>
-		<rect x="905.1" y="919.8" class="st9" width="81" height="97"/>
-		<rect x="921.6" y="921.1" class="st10" width="48" height="94.9"/>
-		<rect x="905.1" y="1016.8" class="st11" width="81" height="16.5"/>
-		<rect x="893.6" y="857.3" class="st11" width="104" height="5.4"/>
+		<path class="st7" d="M306.5,258.8v-2.7h-14.6c-1,0-1.9-0.8-1.9-1.9v-4.7h-5.7v4.4c0,1.2-0.9,2.1-2.1,2.1h-14.4v2.7h-4v24.1h46.7
+			v-24.1H306.5z"/>
+		<rect x="275.1" y="282.9" class="st8" width="24.1" height="28.9"/>
+		<rect x="280" y="283.3" class="st9" width="14.3" height="28.3"/>
+		<rect x="275.1" y="311.8" class="st10" width="24.1" height="4.9"/>
+		<rect x="271.7" y="264.3" class="st10" width="31" height="1.6"/>
 		<g>
-			<rect x="929" y="774" class="st12" width="33.5" height="53.8"/>
-			<path class="st13" d="M962.2,762.5c0,0-11.8,2.8-16.5,2.8c-3.7,0-17-2.8-17-2.8v-38.6h33.5V762.5z"/>
-			<rect x="932.6" y="798.7" class="st14" width="12.7" height="29.2"/>
+			<rect x="282.2" y="239.5" class="st11" width="10" height="16"/>
+			<path class="st12" d="M292.1,236.1c0,0-3.5,0.8-4.9,0.8c-1.1,0-5.1-0.8-5.1-0.8v-11.5h10V236.1z"/>
+			<rect x="283.3" y="246.9" class="st13" width="3.8" height="8.7"/>
 		</g>
 	</g>
 	<g id="PUMP:_asdk_3_">
-		<path class="st8" d="M197.8,839.5v-9h-49.1c-3.5,0-6.3-2.8-6.3-6.3v-15.7h-19.2v14.9c0,3.9-3.2,7.1-7.1,7.1H67.8v9H54.3v81h157
-			v-81H197.8z"/>
-		<rect x="92.3" y="920.5" class="st9" width="81" height="97"/>
-		<rect x="108.8" y="921.8" class="st10" width="48" height="94.9"/>
-		<rect x="92.3" y="1017.5" class="st11" width="81" height="16.5"/>
-		<rect x="80.8" y="858.1" class="st11" width="104" height="5.4"/>
+		<path class="st7" d="M64.5,259v-2.7H49.9c-1,0-1.9-0.8-1.9-1.9v-4.7h-5.7v4.4c0,1.2-0.9,2.1-2.1,2.1H25.8v2.7h-4v24.1h46.7V259
+			H64.5z"/>
+		<rect x="33.1" y="283.2" class="st8" width="24.1" height="28.9"/>
+		<rect x="38" y="283.5" class="st9" width="14.3" height="28.3"/>
+		<rect x="33.1" y="312" class="st10" width="24.1" height="4.9"/>
+		<rect x="29.7" y="264.6" class="st10" width="31" height="1.6"/>
 		<g>
-			<rect x="116.3" y="774" class="st12" width="33.5" height="53.8"/>
-			<polygon class="st13" points="149.6,762.5 133.1,765.3 116,762.5 116,723.9 149.6,723.9 			"/>
-			<rect x="119.9" y="798.7" class="st14" width="12.7" height="29.2"/>
+			<rect x="40.2" y="239.5" class="st11" width="10" height="16"/>
+			<polygon class="st12" points="50.1,236.1 45.2,237 40.2,236.1 40.2,224.6 50.1,224.6 			"/>
+			<rect x="41.3" y="246.9" class="st13" width="3.8" height="8.7"/>
 		</g>
 	</g>
 	<g id="PUMP:_asdk_2_">
-		<path class="st8" d="M468.3,840.1v-9h-49.1c-3.5,0-6.3-2.8-6.3-6.3v-15.7h-19.2V824c0,3.9-3.2,7.1-7.1,7.1h-48.3v9h-13.5v81h157
-			v-81H468.3z"/>
-		<rect x="362.8" y="921.1" class="st9" width="81" height="97"/>
-		<rect x="379.4" y="922.3" class="st10" width="48" height="94.9"/>
-		<rect x="362.8" y="1018.1" class="st11" width="81" height="16.5"/>
-		<rect x="351.3" y="858.6" class="st11" width="104" height="5.4"/>
+		<path class="st7" d="M145.1,259.2v-2.7h-14.6c-1,0-1.9-0.8-1.9-1.9V250h-5.7v4.4c0,1.2-0.9,2.1-2.1,2.1h-14.4v2.7h-4v24.1h46.7
+			v-24.1H145.1z"/>
+		<rect x="113.7" y="283.3" class="st8" width="24.1" height="28.9"/>
+		<rect x="118.6" y="283.7" class="st9" width="14.3" height="28.3"/>
+		<rect x="113.7" y="312.2" class="st10" width="24.1" height="4.9"/>
+		<rect x="110.2" y="264.7" class="st10" width="31" height="1.6"/>
 		<g>
-			<rect x="386.9" y="774" class="st12" width="33.5" height="53.8"/>
-			<polygon class="st13" points="420.1,762.5 401.7,765.3 386.6,762.5 386.6,723.9 420.1,723.9 			"/>
-			<rect x="390.5" y="798.7" class="st14" width="12.7" height="29.2"/>
+			<rect x="120.8" y="239.5" class="st11" width="10" height="16"/>
+			<polygon class="st12" points="130.7,236.1 125.2,237 120.7,236.1 120.7,224.6 130.7,224.6 			"/>
+			<rect x="121.9" y="246.9" class="st13" width="3.8" height="8.7"/>
 		</g>
 	</g>
 	<g id="PUMP:_asdk_1_">
-		<path class="st8" d="M739.6,838.8v-9h-49.1c-3.5,0-6.3-2.8-6.3-6.3v-15.7H665v14.9c0,3.9-3.2,7.1-7.1,7.1h-48.3v9h-13.5v81h157
-			v-81H739.6z"/>
-		<rect x="634.1" y="919.8" class="st9" width="81" height="97"/>
-		<rect x="650.6" y="921.1" class="st10" width="48" height="94.9"/>
-		<rect x="634.1" y="1016.8" class="st11" width="81" height="16.5"/>
-		<rect x="622.6" y="857.3" class="st11" width="104" height="5.4"/>
+		<path class="st7" d="M225.8,258.8v-2.7h-14.6c-1,0-1.9-0.8-1.9-1.9v-4.7h-5.7v4.4c0,1.2-0.9,2.1-2.1,2.1h-14.4v2.7h-4v24.1h46.7
+			v-24.1H225.8z"/>
+		<rect x="194.4" y="282.9" class="st8" width="24.1" height="28.9"/>
+		<rect x="199.3" y="283.3" class="st9" width="14.3" height="28.3"/>
+		<rect x="194.4" y="311.8" class="st10" width="24.1" height="4.9"/>
+		<rect x="191" y="264.3" class="st10" width="31" height="1.6"/>
 		<g>
-			<rect x="657.7" y="774" class="st12" width="33.5" height="53.8"/>
-			<polygon class="st13" points="691,762.5 672.7,765.3 657.4,762.5 657.4,723.9 691,723.9 			"/>
-			<rect x="661.3" y="798.7" class="st14" width="12.7" height="29.2"/>
+			<rect x="201.4" y="239.5" class="st11" width="10" height="16"/>
+			<polygon class="st12" points="211.3,236.1 205.9,237 201.4,236.1 201.4,224.6 211.3,224.6 			"/>
+			<rect x="202.5" y="246.9" class="st13" width="3.8" height="8.7"/>
 		</g>
 	</g>
+	<rect id="BI:_Break_x5F_in" x="317.9" y="289.6" class="st14" width="7" height="16.5"/>
 </g>
 </svg>

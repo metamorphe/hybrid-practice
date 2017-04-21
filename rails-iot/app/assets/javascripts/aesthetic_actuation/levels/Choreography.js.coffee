@@ -34,7 +34,7 @@ class window.Choreography
 			if _.isNaN p
 				throw new Error "INVALID"
 			console.log "COLORING"
-			style = {fillColor: Choreography.temperatureColor(p)}
+			style = {color: Choreography.temperatureColor(p)}
 			CanvasUtil.setStyle e, style
 			
 	resolve: (actuators)->

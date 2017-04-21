@@ -102,7 +102,8 @@ class window.ActuatorRGBLED extends ActuatorLED
     r = parseInt(c.red * 255)
     g = parseInt(c.green * 255)
     b = parseInt(c.blue * 255)
-    {flag: "C", args: [hid, r, g, b]}
+    hid = hid.split(":")
+    {flag: "C", args: [hid[0], hid[1], r, g, b]}
 class window.ActuatorHSBLED extends ActuatorRGBLED
   onCreate: ->
     @expression = @constants.color

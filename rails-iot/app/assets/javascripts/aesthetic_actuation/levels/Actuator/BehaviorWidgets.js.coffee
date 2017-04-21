@@ -5,7 +5,7 @@ class window.ChoreographyWidget extends Widget
     name = CanvasUtil.getPrefix path
     path.set
       strokeColor: "yellow"
-      strokeWidth: 3
+      strokeWidth: 1
       shadowColor: "#00A8E1"
       shadowBlur: 5
  
@@ -48,7 +48,8 @@ class window.ChoreographyWidget extends Widget
           color: 'alert-danger'
         return
       scope.paper.tool.clearSession()
-      CanvasUtil.set ChoreographyWidget.ACTUATORS(), 'fillColor', '#ffffff'
+      CanvasUtil.setStyle ChoreographyWidget.ACTUATORS(), 
+        color: "white"
 
 
     
@@ -175,7 +176,9 @@ class window.ChoreographyWidget extends Widget
       cT.arrows = []
     cT.clearSession = ()->
       actuators = ChoreographyWidget.ACTUATORS()
-      CanvasUtil.set actuators, "fillColor", 'white'
+      style = {color: "white"}
+      CanvasUtil.setStyle actuators, style
+
       CanvasUtil.set(cT.arrows, "opacity", 0)
       session = cT.getSession()
       cT.arrows = []
@@ -327,6 +330,14 @@ class window.ChoreographyWidget extends Widget
             clear: true
             target: $("#group-result")
             actuator_type: "Pump"
+            hardware_ids: hids
+            title: hids.join(',')
+            constants: {}
+        when "HEATER"
+          ops =
+            clear: true
+            target: $("#group-result")
+            actuator_type: "Heater"
             hardware_ids: hids
             title: hids.join(',')
             constants: {}

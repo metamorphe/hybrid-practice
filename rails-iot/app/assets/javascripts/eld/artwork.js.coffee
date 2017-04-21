@@ -1,5 +1,6 @@
 class window.Artwork
 	@ACTUATORS: ()-> CanvasUtil.query paper.project, {prefix: ["NLED", "HEATER", "PUMP"]}
+	@ACTUATORS_IN: (device)-> CanvasUtil.query device, {prefix: ["NLED", "HEATER", "PUMP"]}
 	@getElements = ()->
 		art: CanvasUtil.queryPrefix('ART'),
 		diff: CanvasUtil.queryPrefix('DIF'),
@@ -68,13 +69,14 @@ class window.Artwork
 
 	orderActuators: ->
 		devices = CanvasUtil.queryPrefix('DEVICE')
+		console.log "DEVICES", devices.length
 		if devices.length == 0 then console.warn "NO DEVICES!"
 		_.each devices, (device, i)->
 			device_id = CanvasUtil.getName(device)
 			device_id = eval(device_id)
-
+			console.lgo
 			# id = eval(id).id
-			actuators = Artwork.ACTUATORS()
+			actuators = Artwork.ACTUATORS_IN(device)
 			# leds = CanvasUtil.query(device, {prefix: ['NLED']})
 			cp = CanvasUtil.query(device, {prefix: ['CP']})
 			bi = CanvasUtil.query(device, {prefix: ['BI']})
@@ -102,6 +104,7 @@ class window.Artwork
 			actuators = _.sortBy actuators, 'offset'
 			_.each actuators, (actuator, id) ->
 				actuator.lid = device_id+":"+id
+				console.log actuator.lid
 				actuator.device = device_id
 
 	# loadLEDS: (scope) ->
