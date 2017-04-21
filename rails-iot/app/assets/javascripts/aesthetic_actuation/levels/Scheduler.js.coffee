@@ -101,7 +101,6 @@ class window.Scheduler
 										x = c.start.x + width/2
 									if x < c.start.x - width/2
 										x = c.start.x - width/2
-
 									c.position = new paper.Point(x, y)
 								onKill: (event)-> 
 									if c then c.remove()
@@ -126,7 +125,6 @@ class window.Scheduler
 							CanvasUtil.setStyle chromic, {opacity: 1 - op, fillColor: "black"}
 						else
 							CanvasUtil.setStyle chromic, {opacity: 1, fillColor: "black"}
-
 			
 
 			# UPDATE WIDGETS

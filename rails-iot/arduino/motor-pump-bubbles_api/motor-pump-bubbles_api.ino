@@ -3,26 +3,25 @@
  *  Author: Molly Nicholas
  */
 
-#define DEBUG 0
-
+#define DEBUG 1
 #define NUM_DEVICES 4
-#define BAUD 19200
-#define DELAYTIME 2000
+#define BAUD 9600
 
 //3
 int pump[NUM_DEVICES] = {
   5, 6, 9, 10
+  // 3, 6, 9, 10
 };
 
-//155
 int lowerThreshold[NUM_DEVICES] = {
   144, 124, 186, 127
+  // 155, 75, 75, 95
 };
 
-//193
+
 int upperThreshold[NUM_DEVICES] = {
   144, 124, 166, 166
-};
+
 
 void update() {
   
@@ -48,7 +47,12 @@ uint16_t freq = 0;
 void pwmControl() {
   devID = Serial.parseInt();
   id = Serial.parseInt();
+  if (id > NUM_DEVICES) {
+    Serial.print("ERROR, id doesn't exist: ");
+    Serial.println(id);
+  }
   freq = Serial.parseInt();
+
 //  Serial.print("FREQ:");
 //  Serial.println(freq);
   
@@ -65,12 +69,14 @@ void pwmControl() {
   }
   // uint16_t extra = Serial.parseInt();
   // uint16_t nonsense = Serial.parseInt();
+
   if (DEBUG) {
     Serial.print("pump[i]: ");
     Serial.println(pump[id]);
     Serial.print("freq: ");
     Serial.println(freq);
   }
+
    analogWrite(pump[id], freq);
   // delay(DELAYTIME);
 //  if (DEBUG) {
@@ -78,6 +84,7 @@ void pwmControl() {
 //  }
   // analogWrite(pump[id], 0);
   // delay(1000);
+
 }
 
 void findCommandEnd(){
