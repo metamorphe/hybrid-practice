@@ -60,9 +60,7 @@ CanvasUtil.getMediums = ->
     el.reflectance = 0.3
     el.refraction = 0.8
     # el.probability = 0.5;
-    name = Artwork.getName(el).split('_')[1]
-    name = name.split('_')[0]
-    el.n = parseFloat(name)
+    el.n = parseFloat(CanvasUtil.getName(el))
     return
   _.each reflectors, (el) ->
     el.optic_type = 'reflector'
@@ -71,9 +69,7 @@ CanvasUtil.getMediums = ->
   _.each lenses, (el) ->
     el.optic_type = 'lens'
     el.refraction = 0.80
-    name = Artwork.getName(el).split('_')[1]
-    name = name.split('_')[0]
-    el.n = parseFloat(name)
+    el.n = parseFloat(CanvasUtil.getName(el))
     return
   _.flatten [
     lenses
@@ -102,7 +98,7 @@ CanvasUtil.fitToViewWithZoom = (element, bounds, position) ->
     scaleX
     scaleY
   ])
-  # console.log 'SET ZOOM TO', scale, bounds.width, bounds.height, 'for', element.bounds.width, element.bounds.height
+  console.log 'SET ZOOM TO', scale, bounds.width, bounds.height, 'for', element.bounds.width, element.bounds.height
   paper.view.zoom = 1 / scale
   paper.view.center = position
   return
@@ -113,9 +109,13 @@ CanvasUtil.getIDs = (arr) ->
   ).flatten().compact().value()
 
 CanvasUtil.getIntersections = (el, collection) ->
-  hits = _.map(collection, (c) ->
-    c.getIntersections el
-  )
+  hits = _.map collection, (c) ->
+    if _.contains ["Group", "CompoundPath"], c.className
+      hit = _.map c.children, (child)->
+        CanvasUtil.getIntersections(child, [el])
+    else
+      hit = c.getIntersections el
+
   hits = _.compact(hits)
   hits = _.flatten(hits)
   hits
@@ -228,16 +228,19 @@ CanvasUtil.getName = (item) ->
     return ''
   if item.name.split(':').length < 2
     return ''
+
   name = item.name.split(':')
   name = name.slice(1).join(':').trim()
   name = name.replaceAll("_x5F_", "_")
   name = name.replaceAll("_x23_", "#")
+  name = name.replaceAll("_x27_", "")
   name = name.replaceAll("_x22_", '"')
   name = name.replaceAll("_x7B_", '{')
   name = name.replaceAll("_x7D_", '}')
   name = name.replaceAll("_x5B_", '[')
   name = name.replaceAll("_x5D_", ']')
   name = name.replaceAll("_x2C_", ',')
+  name = name.replaceAll("_", ' ')
   if name[0] == "_" then name = name.slice(1)
   if name[name.length - 1] == "_" then name = name.slice(0, -3) #NEEDS TO BE _X_ matched
   if name[name.length - 1] == "_" then name = name.slice(0, -1) #NEEDS TO BE _X_ matched

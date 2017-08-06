@@ -61,6 +61,10 @@
   @extend .vert; 
   align-items: flex-start;
 }
+.vert-right{
+  @extend .vert; 
+  align-items: flex-end;
+}
 /*REF*/
  /*justify-content: flex-start | flex-end | center | space-between | space-around;*/
 .hoz-left {

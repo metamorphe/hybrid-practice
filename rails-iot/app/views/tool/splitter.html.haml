@@ -1,82 +1,79 @@
 %head
-  :javascript
-    var ip, ws, generator, gui;
-    
-    
+  :coffeescript
+    $ ->
+      window.ws = new WebStorage();
+      Utility.paperSetup $('#main-canvas')
+      window.gui = new (dat.GUI)
+      window.generator = new Generator
+      f0 = gui.addFolder('Model')
+      f0.add(generator, 'diffuser').options [
+        'Planar'
+        'Hemisphere'
+        'Cuboid'
+      ]
+      f0.add(generator, 'model').options [
+        'noLens'
+        'Reflector'
+        'TIR'
+        'Splitter'
+      ]
+      # f0.add(generator, "length").min(15).max(300).listen();
+      lengthController = f0.add(generator, 'length')
+      #.options(generator.get_eval_lengths());
+      lengthController.onFinishChange (value) ->
+        generator.length = parseInt(value)
+        return
+      f0.add generator, 'random'
+      f0.add generator, 'generate'
+      # f0.add(generator, "generateRandom");
+      f0.add generator, 'generateNeighbor'
+      f0.add generator, 'generateOptimal'
+      f1 = gui.addFolder('Ray Tracing')
+      f1.add(generator, 'c_uni').min(0).max(1).listen()
+      f1.add(generator, 'c_norm').min(0).max(1).listen()
+      f1.add(generator, 'c_energy').min(0).max(1).listen()
+      f1.add(generator, 'cost').min(0).max(1).listen()
+      f1.add generator, 'fire'
+      f2 = gui.addFolder('Random Sampling')
+      f2.add(generator, 'sample_size').min(0).max(300).step 10
+      f2.add generator, 'resample'
+      f2.add generator, 'batch_process'
+      f2.add generator, 'batch_clear'
+      f5 = gui.addFolder('Simulated Annealing')
+      f5.add(generator, 'system_temperature').min(0).max(20).listen()
+      f5.add(generator, 'system_energy').min(0).max(200.0).listen()
+      # f5.add(generator, "initial_temperature").min(0).max(320);
+      # f5.add(generator, "initial_stabilizer").min(0).max(320);
+      # f5.add(generator, "cooling_factor").min(0.0).max(10.0)
+      # f5.add(generator, "stabilizing_factor").max(2).min(1);
+      # f5.add(generator, "freezing_temperature").min(0).max(320);
+      f5.add generator, 'anneal'
+      f5.add generator, 'batch_anneal'
+      f3 = gui.addFolder('Fabrication')
+      f3.add generator, 'fabricate'
+      f3.add generator, 'getGradient'
+      f3.add(generator, 'export').options [
+        'MOLD'
+        'REFL'
+        'CONE'
+        'DOME'
+      ]
+      f3.add generator, 'download'
+      f4 = gui.addFolder('Results')
+      f4.add generator, 'download_data'
+      f1.open()
+      f2.close()
+      f3.open()
+      f4.open()
+      f0.open()
+      f5.open()
+      # zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
+      $('#shade').fadeOut()
+      generator.generateRandom()
+      # generator.fire();
+      return
 
-    $(function(){
-      // ws = new WebStorage();
-      Utility.paperSetup($('#main-canvas'));
 
-      paper.loadCustomLibraries();
-      gui = new dat.GUI();
-    
-      generator = new Generator();
-      var f0 = gui.addFolder('Model');
-      f0.add(generator, "diffuser").options(["Planar", "Hemisphere", "Cuboid"]);
-      f0.add(generator, "model").options(["noLens", "Reflector", "TIR", "Splitter"]);
-      // f0.add(generator, "length").min(15).max(300).listen();
-      lengthController = f0.add(generator, "length");//.options(generator.get_eval_lengths());
-
-      lengthController.onFinishChange(function(value) {
-        generator.length = parseInt(value);
-      });
-      f0.add(generator, "random");
-      f0.add(generator, "generate");
-      // f0.add(generator, "generateRandom");
-      f0.add(generator, "generateNeighbor");
-      f0.add(generator, "generateOptimal");
-      
-      var f1 = gui.addFolder('Ray Tracing');
-      f1.add(generator, "c_uni").min(0).max(1).listen();
-      f1.add(generator, "c_norm").min(0).max(1).listen();
-      f1.add(generator, "c_energy").min(0).max(1).listen();
-      f1.add(generator, "cost").min(0).max(1).listen();
-      f1.add(generator, "fire");
-      
-      
-
-      var f2 = gui.addFolder('Random Sampling')
-      f2.add(generator, "sample_size").min(0).max(300).step(10);
-      f2.add(generator, "resample");
-      f2.add(generator, "batch_process");
-      f2.add(generator, "batch_clear");
-
-
-      var f5 = gui.addFolder('Simulated Annealing');
-      f5.add(generator, "system_temperature").min(0).max(20).listen();
-      f5.add(generator, "system_energy").min(0).max(200.0).listen();
-      // f5.add(generator, "initial_temperature").min(0).max(320);
-      // f5.add(generator, "initial_stabilizer").min(0).max(320);
-      // f5.add(generator, "cooling_factor").min(0.0).max(10.0)
-      // f5.add(generator, "stabilizing_factor").max(2).min(1);
-      // f5.add(generator, "freezing_temperature").min(0).max(320);
-      f5.add(generator, "anneal");
-      f5.add(generator, "batch_anneal");
-
-
-      var f3 = gui.addFolder('Fabrication')
-      f3.add(generator, "fabricate");
-      f3.add(generator, "getGradient");
-      f3.add(generator, "export").options(["MOLD", "REFL", "CONE", "DOME"]);
-      f3.add(generator, "download");
-      
-
-      var f4 = gui.addFolder('Results')
-      f4.add(generator, 'download_data')
-
-      f1.open();
-      f2.close();
-      f3.open();
-      f4.open();
-      f0.open();
-      f5.open();
-      // zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
-      $("#shade").fadeOut();
-      generator.generateRandom();
-      // generator.fire();
-
-    });
 %body
   %canvas#main-canvas
   = render :partial => "zoom_bar"

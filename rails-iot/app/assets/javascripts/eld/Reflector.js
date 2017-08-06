@@ -2,11 +2,11 @@
 function Reflector(){}
 Reflector.neighbor = function(params){
   // lens and led are fixed
-  params.ramp.a.alpha = normNeighbor(params.ramp.a.alpha);
-  params.ramp.a.beta = normNeighbor(params.ramp.a.beta);
+  params.ramp.a.alpha = Generator.normNeighbor(params.ramp.a.alpha);
+  params.ramp.a.beta = Generator.normNeighbor(params.ramp.a.beta);
 
-  params.ramp.b.alpha = normNeighbor(params.ramp.b.alpha);
-  params.ramp.b.beta = normNeighbor(params.ramp.b.beta);
+  params.ramp.b.alpha = Generator.normNeighbor(params.ramp.b.alpha);
+  params.ramp.b.beta = Generator.normNeighbor(params.ramp.b.beta);
   return params;
   // return Reflector.random(params.lens.width);
 }
@@ -176,6 +176,7 @@ Reflector.makeScene = function(box, params, diffuser){
 
 
     var text = new PointText({
+      name: "NP: fakjda", 
       point: CanvasUtil.queryPrefix("REF")[0].bounds.expand(10).leftCenter,
       content: 'Reflector',
       fillColor: CanvasUtil.queryPrefix("REF")[0].fillColor,
@@ -187,6 +188,7 @@ Reflector.makeScene = function(box, params, diffuser){
     });
 
     var text = new PointText({
+      name: "NP: fakjda", 
       point: CanvasUtil.queryPrefix("DIFF")[0].bounds.expand(10).leftCenter,
       content: 'Diffuser',
       fillColor: CanvasUtil.queryPrefix("DIFF")[0].strokeColor,
@@ -197,6 +199,7 @@ Reflector.makeScene = function(box, params, diffuser){
       parent: result
     });
     var text = new PointText({
+      name: "NP: fakjda", 
       point: CanvasUtil.queryPrefix("IMG")[0].bounds.expand(10).leftCenter,
       content: 'Beam Plane',
       fillColor: CanvasUtil.queryPrefix("IMG")[0].strokeColor,
@@ -207,6 +210,7 @@ Reflector.makeScene = function(box, params, diffuser){
       parent: result
     });
     var text = new PointText({
+      name: "NP: fakjda", 
       point: CanvasUtil.queryPrefix("LS")[0].bounds.expand(10).rightCenter,
       content: 'Light Source',
       fillColor:  CanvasUtil.queryPrefix("LS")[0].fillColor,

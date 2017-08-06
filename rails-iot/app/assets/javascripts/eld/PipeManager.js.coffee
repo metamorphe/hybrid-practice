@@ -23,17 +23,27 @@ PipeManager.prototype =
     return
   getCurrentView: ->
     @view.toLowerCase()
+  
   update: ->
+    scope = this
     view = @getCurrentView()
     paper.project.clear()
     paper.view.zoom = 1
     paper.view.update()
     console.log 'RUNNING SCRIPT', view
+    
     fs.load (artwork)->
       console.log "LOADING ARTWORK"
+      $(".popout").fadeOut()
+      diffs = CanvasUtil.queryPrefix('DIF')
+      
       e = Pipeline.getElements(artwork)
+      CanvasUtil.call CanvasUtil.queryPrefix('NP'), 'remove'
+      CanvasUtil.call CanvasUtil.queryPrefix('CB'), 'remove'
+      # CanvasUtil.call CanvasUtil.queryPrefix('NLED'), 'remove'
+      
       Pipeline.script[view] artwork, e
-  
+      
     # display = new Artwork($('#file-select').val(), (artwork) ->
     #   e = Pipeline.getElements(artwork)
     #   Pipeline.script[view] artwork, e

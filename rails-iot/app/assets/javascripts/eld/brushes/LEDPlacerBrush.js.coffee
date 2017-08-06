@@ -2,7 +2,9 @@
 # LEDPlacerBrush
 
 class window.LEDPlacerBrush
-  @RAY_RESOLUTION: 5
+  @MAX_APA102C_RAY_LENGTH: 25
+
+  @RAY_RESOLUTION: 1
   constructor: (paper) ->
     hitOptions = 
       segments: true
@@ -212,7 +214,7 @@ class window.LEDPlacerBrush
           else
             r.opacity = 0.3
             dir = new (paper.Point)(1, 0)
-            dir.length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH)
+            dir.length = Ruler.mm2pts(ViewManager.MAX_APA102C_RAY_LENGTH)
             dir.angle = r.originAngle
             dir = dir.add(drag.position)
             r.lastSegment.point = dir
@@ -271,8 +273,74 @@ class window.LEDPlacerBrush
     paper.view.update()
     return
   clear: ->
+  @addRays: (diffs, led) ->
+    scope = this
+    target = _.filter(diffs, (diff) ->
+      diff.contains led.position
+    )
+    target = _.min(target, (t) ->
+      t.position.getDistance led.position
+    )
+    led.target = target.id
+    if diffs.length == 0
+      return
+    rays = CanvasUtil.query(paper.project,
+      prefix: 'RAY'
+      originLight: led.id)
+    if rays.length != 0
+      CanvasUtil.set rays, 'position', led.position.clone()
+      # var color = _.isUndefined(led.colorID) ?  "#FFFFFF": led.colorID;
+      # if(vm.getCurrentView() == "WHITE_RAYS") color = "#FFFFFF"
+      # CanvasUtil.set(rays, "strokeColor", color);
+      CanvasUtil.set rays, 'strokeColor', led.fillColor
+    else
+      # CREATE RAYS
+      rays = _.range(-180, 180, LEDPlacerBrush.RAY_RESOLUTION)
+      # led_color = new (paper.Color)(cp.getCurrentColor())
+      led_color = new (paper.Color)(1)
+      was_white = CanvasUtil.queryPrefix('NLED')
+      was_white = was_white.length > 0 and was_white[0].fillColor.equals('#FFFFFF')
+      # fill = if vm.getCurrentView() == 'WHITE_RAYS' or was_white then '#FFFFFF' else led_color
+      fill = led_color
+      led.set
+        fillColor: fill
+        strokeColor: fill
+        strokeWidth: 1
+        colorID: if led.colorID then led.colorID else led_color
+      rays = _.map(rays, (theta) ->
+        point = new (paper.Point)(1, 0)
+        point.length = Ruler.mm2pts(LEDPlacerBrush.MAX_APA102C_RAY_LENGTH)
+        point.angle = theta
+        line = new (paper.Path.Line)(
+          name: 'RAY: Cast'
+          from: led.position.clone()
+          to: led.position.clone().add(point)
+          strokeColor: led_color
+          strokeWidth: 1
+          strokeScaling: false
+          opacity: 0.2
+          parent: led.parent
+          originLight: led.id
+          originAngle: theta
+          hue: scope.hue)
+        line.pivot = line.firstSegment.point.clone()
+        ixts = CanvasUtil.getIntersections(line, diffs)
+        if ixts.length > 0
+          closestIxT = _.min(ixts, (ixt) ->
+            ixt.point.getDistance line.position
+          )
+          line.lastSegment.point = closestIxT.point.clone()
+        line
+      )
+      # if vm.getCurrentView() == 'WHITE_RAYS'
+      #   CanvasUtil.set rays, 'strokeColor', '#FFFFFF'
+    # UPDATE
+    leds = CanvasUtil.queryPrefix('NLED')
+    _.each leds, (led, i) ->
+      led.bringToFront()
+      return
+    return
   addRays: (diffs, led) ->
-    `var rays`
     scope = this
     target = _.filter(diffs, (diff) ->
       diff.contains led.position
@@ -306,7 +374,7 @@ class window.LEDPlacerBrush
         colorID: if led.colorID then led.colorID else led_color
       rays = _.map(rays, (theta) ->
         point = new (paper.Point)(1, 0)
-        point.length = Ruler.mm2pts(MAX_APA102C_RAY_LENGTH)
+        point.length = Ruler.mm2pts(LEDPlacerBrush.MAX_APA102C_RAY_LENGTH)
         point.angle = theta
         line = new (paper.Path.Line)(
           name: 'RAY: Cast'
@@ -314,8 +382,9 @@ class window.LEDPlacerBrush
           to: led.position.clone().add(point)
           strokeColor: led_color
           strokeWidth: 1
+          strokeScaling: false
           opacity: 0.2
-          parent: CanvasUtil.queryPrefix('ELD')[0]
+          parent: led.parent
           originLight: led.id
           originAngle: theta
           hue: scope.hue)

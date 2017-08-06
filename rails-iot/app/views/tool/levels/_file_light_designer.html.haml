@@ -8,7 +8,7 @@
   #downloaders.hoz-left.half-w.mpadding
 
     .vert-left
-      %span.status-label#port-info
+      %span.status-label
         OPERATIONS
       .full-hoz
         .btn-group
@@ -22,10 +22,29 @@
             %span.glyphicon.glyphicon-ban-circle
             CLEAR LEDS
     &nbsp;
+    &nbsp;
+    &nbsp;
+    &nbsp;
     .vert-left
-      %span.status-label#port-info
+      %span.status-label
         DOWNLOAD AS
       .full-hoz
         .btn-group
           %button#svg-download.btn.btn-xs.btn-success SVG
           %button#png-download.btn.btn-xs.btn-success PNG
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    .vert-left
+      %span.status-label
+        GENERATE
+      .full-hoz-centered
+        %a.btn.btn-xs.btn-danger{href: "/tool/pipeline"}
+          =glyph "cog"
+
+
+
+
+
+

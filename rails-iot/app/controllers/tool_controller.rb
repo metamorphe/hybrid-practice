@@ -6,6 +6,9 @@ class ToolController < ApplicationController
   #   # render :json => @ports
   #   render :layout => "full_screen"
   # end
+  def midi
+    render :layout => "full_screen"
+  end
   def statemachine
     @files = get_displays()
     @ports = get_ports()

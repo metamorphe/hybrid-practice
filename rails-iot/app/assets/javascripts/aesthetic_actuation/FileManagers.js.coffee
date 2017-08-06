@@ -46,12 +46,13 @@ class SVGFileManager extends FileManager
     display = new Artwork(@open_file, (artwork) ->
       elds = CanvasUtil.queryPrefix('ELD')
       artwork = if elds.length > 0 then elds[0] else artwork.svg
-      CanvasUtil.fitToViewWithZoom artwork, paper.view.bounds.expand(-20), paper.view.center
       # artwork.position.y += 20
       CanvasUtil.call CanvasUtil.queryPrefix('DDS'), 'bringToFront'
       CanvasUtil.call CanvasUtil.queryPrefix('NLED'), 'bringToFront'
       # vm = new ViewManager($('#views'))
       if onLoad then onLoad(artwork)
+      # CanvasUtil.fitToViewWithZoom artwork, paper.view.bounds.expand(-20), paper.view.center
+      
       # var r = new paper.Path.Rectangle({rectangle: artwork.bounds, selected: true})
       return
       loadingFn()

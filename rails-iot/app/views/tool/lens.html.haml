@@ -1,25 +1,25 @@
 %head
   :javascript
-    var ip;
+    var ip, fs, vm;
     $(function(){
       Utility.paperSetup($('#main-canvas'));
       zb = new ZoomBar($("#zoom-bar"), 5.0, paper);
       $("#shade").fadeOut("slow");
 
 
-      var lens = new ButtonExporter($('#mold'), "PNG", makeLenseMold );
-      var spacers = new ButtonExporter($('#spacer'), "PNG", makeSpacerMold );
-
+     
       tir = new Artwork("/artwork/ftirtest.svg", function(display){
+        
         runScript(display);
       });
     });
 
      
     function runScript(display){
-      display.svg.fitBounds(paper.view.bounds.expand(-50));
+      console.log("running script")
+      display.fitBounds(paper.view.bounds.expand(-50));
       var mediums = CanvasUtil.getMediums();
-      var light_source = display.queryPrefix("LS");
+      var light_source = CanvasUtil.queryPrefix("LS");
   
       light_source = _.map(light_source, function(ls){
             return new PointLight({
@@ -29,117 +29,10 @@
       });
 
       _.each(light_source, function(ls){
-          ls.emmision(-60, 60, 1);
+          ls.emmision(-60, 60, 0.5);
       });
 
-     //  var image_plane = CanvasUtil.queryPrefix("IMG")[0];
-     // var range = image_plane.bounds.width / 4.0;
 
-      // ip = new ImagePlane({
-      //   width: 30, 
-      //   position: display.svg.bounds.bottomCenter, 
-      //   range: {x: {identity: "x", min: -range, max: range}, y: {identity: "y", min: -range, max:  range}},
-      // });
-      // ip.visualize();
-      
-      // display.svg.bringToFront();
-      // return makeLenseMold(display);
-    }
-
-
-    function makeLenseMold(display){
-      paper.view.zoom = 1;
-      base = display.queryPrefix("BASE");
-      lenses = display.queryPrefix("LENS");
-      lenses = [lenses[0]]
-      images = _.map(lenses, function(ref){
-          return pathToModel(ref);
-      });
-      return images[0];
-    }
-    function makeSpacerMold(display){
-      paper.view.zoom = 1;
-      base = display.queryPrefix("BASE");
-      base = base[0];
-      reflectors = display.queryPrefix("REF");
-
-      images = _.map(reflectors, function(ref){
-          return pathToModel(ref);
-      });
-      return images[0];
-    }
-
-    function pathToModel(path){
-        // path.selected = true;
-        data = _.range(0, path.length, 0.5);
-        padding = 0.95;
-        var size = new paper.Size(path.bounds.width/padding, path.bounds.width/padding);
-
-        data = _.map(data, function(offset){
-          pt = path.getPointAt(offset);
-          return pt;
-        });
-
-        // normalizing
-        min = new paper.Point(_.min(data, function(pt){ return pt.x}).x, _.min(data, function(pt){ return pt.y}).y);
-        max = new paper.Point(_.max(data, function(pt){ return pt.x}).x, _.max(data, function(pt){ return pt.y}).y);
-        max = max.subtract(min);
-
-        data = _.map(data, function(pt){
-          return pt.subtract(min).divide(max);
-        });
-        data = _.filter(data, function(d){
-          // console.log(d.y)
-          d.x *= 2;
-          d.x -= 1;
-          return d.y > 0.10 && d.x > 0;
-        });
-
-
-        min = new paper.Point(_.min(data, function(pt){ return pt.x}).x, _.min(data, function(pt){ return pt.y}).y);
-        max = new paper.Point(_.max(data, function(pt){ return pt.x}).x, _.max(data, function(pt){ return pt.y}).y);
-        console.log(data.length, min.toString(), max.toString())
-       
-        
-        // .each(data, function(da))
-        data = _.sortBy(data, function(d){ return d.x });
-
-        // data = _.reject(data, function(d){ return d.x > 1 });
-
-
-        gradient_stops = _.map(data, function(pt){
-          return [new paper.Color(1-pt.y), pt.x * padding];
-        });
-        gradient_stops.push([new paper.Color(1.0), padding]); // bounding wall of white
-        gradient_stops.push([new paper.Color(1.0), 1.0]); // bounding wall of white
-
-        var img = new paper.Path.Rectangle({
-          position: paper.view.center.clone().add(new paper.Point(0, 70)), 
-          size: size, 
-          strokeColor: "black", 
-          strokeWidth: 0.02
-          // strokeScaling: false
-        });
-
-        img.fillColor = {
-            gradient: {
-                stops: gradient_stops,
-                radial: true
-            },
-            destination: img.bounds.leftCenter,
-            origin: img.bounds.center
-        };
-       
-        console.log("SIZE", Ruler.pts2mm(size.width));
-        // p = new paper.Path(data);
-        // p.set({
-        //   strokeColor: "yellow", 
-        //   strokeWidth: 2, 
-        //   position: img.bounds.center
-        // });
-        // console.log("L", p.length);
-        // p.scaling =  new paper.Size(path.bounds.width, path.bounds.height);;//new paper.Size(50, 10);
-        return img;
     }
 %body
   .btn-group

@@ -2,9 +2,9 @@
 var NORMAL_SELECT = function(path){
 	name = CanvasUtil.getPrefix(path);
 	if(name == "NLED")
-		path.set({strokeWidth: 2, strokeColor: "#00A8E1"});
+		path.set({strokeScaling: true, strokeWidth: 1, strokeColor: "#00A8E1"});
 	else
-		path.set({strokeWidth: 2, dashArray: [], strokeColor: "yellow"})
+		path.set({strokeScaling: true, strokeWidth: 1, dashArray: [], strokeColor: "yellow"})
 }
 
 function SelectionManager(stylizeFn = NORMAL_SELECT){

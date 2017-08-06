@@ -1,175 +1,178 @@
-:javascript
-  function BrushBar(container){
-      this.container = container;
-      this.ws = new WebStorage();
-      this.toolbox = {};
-      this.state = true;
-      this.brush = null;
-      this.init();
-      paper.tool = null;
+:coffeescript
+  class window.BrushBar
+    @setBrush: (jqNode, active) ->
+      img = jqNode.attr('src')
+      if _.isUndefined(img)
+        return
+      brushName = img.split('_')
+      isActive = if active then 'Active.png' else 'NonActive.png'
+      brushName[2] = isActive
+      brushName = brushName.join('_')
+      jqNode.attr 'src', brushName
+      return
+    constructor: (container) ->
+      @container = container
+
+      @toolbox = {}
+      @state = true
+      @brush = null
+      @init()
+
+      paper.tool = null
+      @hide()
+
+      return
+    init: ->
+      `var scope`
+      scope = this
+      $('#visibility-button').click ->
+        scope.hide()
+        return
+      # BRUSH SETUP
+      brushClasses = _.map($('.brush'), (brush) ->
+        $(brush).attr 'tool'
+      )
+      _.each brushClasses, (brush) ->
+        # console.log(brush);
+        toolStr = 'new ' + brush + '(paper)'
+        tool = eval(toolStr)
+        scope.toolbox[brush] = tool
+        return
+      # BRUSH BEHAVIORS
+      $('.brush').hover (->
+        BrushBar.setBrush $(this), true
+        return
+      ), ->
+        if $(this).attr('active') == 'active'
+          return
+        BrushBar.setBrush $(this), false
+        return
+      $('.brush').click ->
+        $('.brush').attr 'active', ''
+        _.each $('img.brush').not(this), (brush) ->
+          BrushBar.setBrush $(brush), false
+          return
+        BrushBar.setBrush $(this), true
+        # DISABLE OLD BRUSH
+        if !_.isNull(scope.getCurrentBrush())
+          oldbrush = scope.toolbox[scope.getCurrentBrush()]
+          oldbrush.disable()
+        # ACTIVATE BRUSH
+        scope.brush = $(this).attr('tool')
+        brush = scope.toolbox[scope.brush]
+        brush.enable()
+        console.log 'Enabling', scope.brush
+        paper.tool = brush.tool
+        $(this).attr 'active', 'active'
+        return
+      scope = this
+      $('#cache-save').click ->
+        `var led_data`
+        # saveLED information
+        name = fs.getName()
+        led_data = CanvasUtil.queryPrefix('NLED')
+        led_data = _.map(led_data, (led) ->
+          data =
+            position: [
+              led.position.x
+              led.position.y
+            ]
+            colorID: rgb2hex(led.colorID.toCanvasStyle())
+            target: led.target
+          if led.forceTarget
+            data.forceTarget = led.forceTarget
+          data
+        )
+        key = [
+          'led'
+          name
+        ].join('_')
+        console.log 'STORING', led_data
+        ws.set key, JSON.stringify(led_data)
+        return
+      $('#cache-clear').click ->
+        leds = CanvasUtil.queryPrefix('NLED')
+        _.each leds, (led) ->
+          rays = CanvasUtil.query(paper.project,
+            prefix: 'RAY'
+            originLight: led.id)
+          CanvasUtil.call rays, 'remove'
+          led.remove()
+          return
+        paper.view.update()
+        $('#cache-save').click()
+        return
+      $('#cache-reload').click ->
+        CanvasUtil.call CanvasUtil.queryPrefix('NLED'), 'remove'
+        diffs = CanvasUtil.queryPrefix('DIF')
+        name = fs.getName()
+        key = [
+          'led'
+          name
+        ].join('_')
+        if ws.includes(key)
+          led_data = JSON.parse(ws.get(key))
+          console.log 'FETCHING', led_data
+          _.map led_data, (data) ->
+            console.log data
+            led = new (paper.Path.Rectangle)(
+              name: 'NLED: APA102C'
+              size: new (paper.Size)(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH))
+              strokeColor: 'black'
+              strokeWidth: 1
+              opacity: 1.0
+              parent: CanvasUtil.queryPrefix('ELD')[0]
+              position: paper.view.center)
+            led.fillColor = new (paper.Color)(data.colorID)
+            led.colorID = new (paper.Color)(data.colorID)
+            led.position = new (paper.Point)(data.position)
+            led.target = data.target
+            if data.forceTarget
+              led.forceTarget = data.forceTarget
+            paper.tool.holder.addRays diffs, led
+            led
+          vm.update()
+          paper.view.update()
+        return
+      return
+    getCurrentBrush: ->
+      @brush
+    update: ->
+      if _.isNull(@brush)
+        return
+      @toolbox[@brush].update()
+      return
+    show: (now) ->
+      scope = this
+      if @state
+        return
+      @state = true
+      if now
+        @container.show()
+        return
+      cp.show()
+      @container.animate { bottom: '0px' }, 500
+      $('#visibility-button').html('HIDE').unbind('click').click ->
+        scope.hide()
+        return
+      return
+    hide: (now) ->
+
+      scope = this
+      if !@state
+        return
+      @state = false
+
+      if now
+        @container.hide()
+        return
+      @container.animate { bottom: '-100px' }, 500
+      $('#visibility-button').html('SHOW').unbind('click').click ->
+        scope.show()
+        return
+      return
+
   
-      this.hide();
-    }
-    BrushBar.prototype = {
-      init: function(){
-        var scope = this;
-        $('#visibility-button').click(function(){
-          scope.hide();
-        });
-        // BRUSH SETUP
-        brushClasses = _.map($('.brush'), function(brush){
-          return $(brush).attr('tool');
-        });
-        _.each(brushClasses, function(brush){
-          // console.log(brush);
-          var toolStr = "new " + brush + "(paper)";
-          var tool = eval(toolStr);
-          scope.toolbox[brush] = tool;
-        });
-  
-  
-        // BRUSH BEHAVIORS
-        $('.brush').hover(function(){
-            BrushBar.setBrush($(this), true);
-          }, function(){
-            if($(this).attr('active') == "active") return;
-            BrushBar.setBrush($(this), false);
-          });
-  
-          $('.brush').click(function(){
-            $('.brush').attr('active', '');
-  
-            _.each( $('img.brush').not(this) ,function(brush){
-                BrushBar.setBrush($(brush), false);
-            });
-  
-            BrushBar.setBrush($(this), true);
-            // DISABLE OLD BRUSH
-            if(! _.isNull(scope.getCurrentBrush())){
-              var oldbrush = scope.toolbox[scope.getCurrentBrush()];
-              oldbrush.disable();
-            }
-            // ACTIVATE BRUSH
-            scope.brush = $(this).attr('tool');
-            var brush = scope.toolbox[scope.brush];
-            brush.enable();
-            console.log("Enabling", scope.brush);
-          
-            paper.tool = brush.tool;
-  
-            $(this).attr('active', 'active');
-          });
-          var scope = this;
-          $('#cache-save').click(function(){
-              // saveLED information
-              var name =  displays[0].svgPath;
-              var led_data = CanvasUtil.queryPrefix("NLED");
-              var led_data = _.map(led_data, function(led){ 
-                data =  {
-                  position: [led.position.x, led.position.y], 
-                  colorID: rgb2hex(led.colorID.toCanvasStyle()), 
-                  target: led.target
-                }
-                if(led.forceTarget)
-                  data.forceTarget = led.forceTarget;
-                return data;
-              });
-  
-              var key = ["led", name].join("_")
-             
-              console.log("STORING", led_data);
-              scope.ws.set(key, JSON.stringify(led_data));
-          });
-          
-          $('#cache-clear').click(function(){
-            var leds = CanvasUtil.queryPrefix("NLED");
-            _.each(leds, function(led){
-              var rays = CanvasUtil.query(paper.project, {prefix: "RAY", originLight: led.id});
-              CanvasUtil.call(rays, "remove");
-              led.remove();
-            })
-            paper.view.update();
-            $('#cache-save').click();
-          });
-          $('#cache-reload').click(function(){
-            CanvasUtil.call(CanvasUtil.queryPrefix("NLED"), "remove");
-            var diffs = CanvasUtil.queryPrefix('DIF');
-            var name =  displays[0].svgPath;
-            var key = ["led", name].join("_");
-            if(scope.ws.includes(key)){
-              var led_data = JSON.parse(scope.ws.get(key));
-               
-  
-               console.log("FETCHING",led_data);
-               _.map(led_data, function(data){
-                  console.log(data);
-                  var led =  new paper.Path.Rectangle({
-                    name: "NLED: APA102C", 
-                    size: new paper.Size(Ruler.mm2pts(LED_WIDTH), Ruler.mm2pts(LED_WIDTH)),
-                    strokeColor: "black",
-                    strokeWidth: 1, 
-                    opacity: 1.0,
-                    parent: CanvasUtil.queryPrefix("ELD")[0], 
-                    position: paper.view.center
-                  });
-                  led.fillColor = new paper.Color(data.colorID)
-                  led.colorID = new paper.Color(data.colorID)
-                  led.position = new paper.Point(data.position)
-                  led.target = data.target;
-                  if(data.forceTarget) led.forceTarget = data.forceTarget;
-                  paper.tool.holder.addRays(diffs, led);
-                  return led;
-               });  
-               
-               vm.update();
-               paper.view.update();
-            }
-          });
-      },
-      getCurrentBrush: function(){
-        return this.brush;
-      },
-      update: function(){
-        if(_.isNull(this.brush)) return;
-        this.toolbox[this.brush].update()
-      },
-      show: function(now){
-        var scope = this;
-        if(this.state) return;
-        this.state = true;
-        if(now){this.container.show(); return;}
-        cp.show();
-        this.container.animate({
-          bottom: "0px",
-        }, 500);
-        $('#visibility-button').html('HIDE').unbind('click').click(function(){
-          scope.hide();
-        });
-      },
-      hide: function(now){
-        var scope = this;
-        if(!this.state) return;
-        this.state = false;
-        if(now){this.container.hide(); return;}
-        cp.hide();
-        this.container.animate({
-          bottom: "-100px",
-        }, 500);
-        $('#visibility-button').html('SHOW').unbind('click').click(function(){
-          scope.show();
-        });
-      }
-    }
-    
-    BrushBar.setBrush = function(jqNode, active){
-       var img = jqNode.attr('src');
-       if(_.isUndefined(img)) return;
-       var brushName = img.split('_');
-       var isActive = active ? "Active.png" : "NonActive.png";
-       brushName[2] = isActive;
-       brushName = brushName.join('_');
-       jqNode.attr('src', brushName);
-    }
 / BRUSH BAR
 #brush-bar
   .task-bar
@@ -182,10 +185,10 @@
       %span.glyphicon.glyphicon-refresh
     %button#visibility-button.pull-right.btn.btn-xs.btn-transparent
       HIDE
-    %br.clearfix/
+    %br.clearfix
   .col-xs-5
     #brush-set
-      %img.brush{:src => "/brushes/brush_CircuitBrush_NonActive.png", :tool => "LEDPlacerBrush"}/
+      %img.brush{:src => "/brushes/brush_CircuitBrush_NonActive.png", :tool => "LEDPlacerBrush"}
       / <img class="brush" tool="FillBrush" src="/brushes/brush_PaintCan_NonActive.png">
       / <img class="brush" tool="MagicWandBrush" src="/brushes/brush_MagicWand_NonActive.png">
       / <img class="brush" tool="HeatBrush" src="/brushes/brush_HeatGun_NonActive.png">

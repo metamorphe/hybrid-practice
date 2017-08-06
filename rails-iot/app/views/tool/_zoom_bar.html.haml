@@ -10,48 +10,48 @@
   %br/
   %button#pan.brush.btn.btn-xs.btn-default{:tool => "PanTool"}
     %span.glyphicon.glyphicon-fullscreen
-:javascript
-  // zoom.js
-  
-  ZoomBar.STEP = 0.1;
-  ZoomBar.MAX = 10;
-  ZoomBar.MIN = 0.1;
-  
-  function ZoomBar(container, starting_level, paper){
-  	this.in_dom = container.children('#zoom-in');
-  	this.out_dom = container.children('#zoom-out');
-  	this.level = starting_level;
-  	
-  	this.init();
-  }
-  
-  ZoomBar.prototype = {
-  	init: function(){
-  		var scope = this;
-  		this.checkbounds();
-  		$(this.in_dom).click(function(){ scope.in();})
-  		$(this.out_dom).click(function(){ scope.out();})
-  		this.update();
-  	},
-  	checkbounds: function(){
-  		if(this.level > ZoomBar.MAX) this.level = ZoomBar.MAX;
-  		if(this.level < ZoomBar.MIN) this.level = ZoomBar.MIN;
-  	},
-  	in: function(){
-  		this.level += ZoomBar.STEP;
-  		this.checkbounds();
-  		this.update();
-  	},
-  	out: function(){
-  		this.level -= ZoomBar.STEP;
-  		this.checkbounds();
-  		this.update();
-  	}, 
-  	update: function(){
-  		paper.view.zoom = this.level;
-  		paper.view.update();
-  	}
-  }
+:coffeescript
+  class window.ZoomBar
+    @STEP: 0.1
+    @MAX: 10
+    @MIN: 0.1
+    constructor: (container, starting_level, paper) ->
+      console.log "BOUND"
+      @in_dom = $('#zoom-in')
+      @out_dom = $('#zoom-out')
+      @level = starting_level
+      @init()
+      return
+    init: ->
+      scope = this
+      @checkbounds()
+      $(@in_dom).click ->
+        scope.in()
+        return
+      $(@out_dom).click ->
+        scope.out()
+        return
+      @update()
+      return
+    checkbounds: ->
+      if @level > ZoomBar.MAX then @level = ZoomBar.MAX
+      if @level < ZoomBar.MIN then @level = ZoomBar.MIN
+      return
+    in: ->
+      @level += ZoomBar.STEP
+      @checkbounds()
+      @update()
+      return
+    out: ->
+      @level -= ZoomBar.STEP
+      @checkbounds()
+      @update()
+      return
+    update: ->
+      paper.view.zoom = @level
+      paper.view.update()
+      return
+
 :css
   #zoom-in, #zoom-out{
   	/*height: 10px;*/
@@ -69,7 +69,7 @@
         color: #AAA;
         position: absolute;
         z-index: 1000;
-        top: 100px;
-        left: 5px;
-         z-index: -1;
+        top: 200px;
+        right: 15px;
+         z-index: 10;
      }

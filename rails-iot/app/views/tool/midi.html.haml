@@ -1,0 +1,64 @@
+:coffeescript
+  $ -> 
+    console.log "Hello World"
+    $('#shade').hide()
+    elements = []
+    hues = _.range(0, 360, 360/8)
+    speed = 2
+    rad = 5
+    window.ctrl = new LaunchControl()
+    ctrl.open().then ->
+      ctrl.led 'all', 'amber'
+      return
+    ctrl.on 'message', (e) ->
+      console.log 'dataType: ' + e.dataType
+      console.log 'track   : ' + e.track
+      console.log 'value   : ' + e.value
+      console.log 'channel : ' + e.channel
+      clr = new paper.Color('red')
+      clr.hue = hues[e.track]
+
+      switch e.dataType
+        when "knob1"
+          p = e.value / 128
+          speed = p * 20
+        when "knob2"
+          p = e.value / 128
+          rad = p * 100
+        when "pad"
+          console.log e.track, rad, clr.toCSS()
+          c = new paper.Path.Circle
+            radius: rad
+            fillColor: clr
+            position: paper.view.bounds.topCenter
+          elements.push(c)
+    window.Utility.paperSetup("midi-demo")
+
+    
+    
+    animate = ()->
+      elements = _.map elements, (el)->
+        el.position.y += speed
+        if el.position.y > paper.view.bounds.bottomCenter.y + 100
+          el.remove()
+          return null
+        else
+          return el
+      elements = _.compact(elements)
+
+    interval = setInterval animate, 30
+
+%canvas#midi-demo
+:scss
+  $eggshell: rgb(245, 244, 240);
+  html, body{
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+  }
+  canvas{
+    width: 100%;
+    height: 100%;
+    background: $eggshell;
+    border: 15px solid darken($eggshell, 2%);
+  }

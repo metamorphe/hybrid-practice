@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     get 'system_control'
     get 'aesthetic_actuation'
     get 'tester'
+    get 'midi'
   end
 
   get 'devices/index'

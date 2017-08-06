@@ -1,49 +1,79 @@
+:css
+  #zoom-bar{
+    left: 15px;
+    right: auto !important;
+    top: 80px !important;
+  }
 :javascript
-  var zb, cp, bb, vm, pm, gui, displays = [], ws; 
-  var p = Pipeline;
   var files = #{@files.to_json.html_safe};
-  var DEFAULT_PIPE_FILE = "example_hairpiece_camera_ready.svg";
-  
-  $(function(){
-    // Utility.paperSetup();
-    ws = new WebStorage();
-    $("#shade").fadeOut();
-    
-    dom = $('#main-canvas');
-    fs = new ProjectFileManager({
-      paper: Utility.paperSetup(dom),
-      files: files, 
-      selector: $("#file-selector"),
-      onLoad: function(data){
-        zb = new ZoomBar($("#zoom-bar"), 1.0, paper);
-        loadCustomLibraries();
-        pm = new PipeManager();
-      }
-    });
+:coffeescript
+  makeEditor = (id)->
+    editor = ace.edit(id)
+    editor.setTheme("ace/theme/monokai")
+    editor.getSession().setMode("ace/mode/javascript")
+    editor.renderer.setShowGutter(true)
+    editor.renderer.setScrollMargin(10, 10)
+    return editor
+  $ ->
+    window.vm = null;
+    window.editor = makeEditor('code')
+    $('.popout').hide();
+    $('.dismiss').click ->
+      $(this).parents(".popout").hide()
+    window.ws = new WebStorage
+    $('#shade').fadeOut()
+    dom = $('#main-canvas')
+    window.fs = new ProjectFileManager
+      paper: Utility.paperSetup(dom)
+      files: files
+      selector: $('#file-selector')
+      onLoad: (data) ->
+        zb = new ZoomBar($('#zoom-bar'), 1.0, paper)
+        loadCustomLibraries()
+        
+        window.pm = new PipeManager
 
-    
-    $('#png-download').click(function(){
-        var result = CanvasUtil.queryPrefix("RESULT");
-        if (_.isEmpty(result)){console.warn("No RESULT wrapper found for export"); return;}
-        result = result[0]
-        console.log("FINAL DIMENSIONS", 
-          Ruler.pts2mm(result.strokeBounds.width).toFixed(2), "mm x", 
-          Ruler.pts2mm(result.strokeBounds.height).toFixed(2), "mm x",
-          result.model_height.toFixed(2), "mm"
-        );
-        result.fitBounds(paper.view.bounds.expand(-5))
-        var name = fs.getName()
-        var fn = name + "_" + pm.getCurrentView();
-        ButtonExporter.exportPNG(result, fn, $(this));
-    });
-    $('#svg-download').click(function(){
-      paper.view.zoom = 1;
+        return
+
+    $('#png-download').click ->
+      result = CanvasUtil.queryPrefix('RESULT')
+      if _.isEmpty(result)
+        console.warn 'No RESULT wrapper found for export'
+        return
+      result = result[0]
+
+      dim = 
+        w: Ruler.pts2mm(result.strokeBounds.width)
+        h: Ruler.pts2mm(result.strokeBounds.height)
+        d: result.model_height
+
+      $('.popout').fadeIn()
+      editor.setValue("")
+      editor.insert("/* " + fs.getName() + '\n')
+      editor.insert(" * " + "Measurments in millimeters (mm)" + '\n')
+      editor.insert(" * " + "Zoom "+paper.view.zoom.toFixed(2)+ '\n')
+      editor.insert(" */" + '\n')
+      editor.insert("m = {\n\tw:\t" + dim.w.toFixed(2) + ",\n")
+      editor.insert("\th:\t" + dim.h.toFixed(2) + ",\n")
+      editor.insert("\td:\t" + dim.d.toFixed(2) + "\n}\n")
+     
+      result.fitBounds paper.view.bounds.expand(-5)
       name = fs.getName()
-      var fn = name + "_" + pm.getCurrentView();
-      ButtonExporter.exportSVG(fn);           
-    });
-    // $('#view-list ul li button[name="reflector"]').click();
-  });
+      fn = name + '_' + pm.getCurrentView()
+      ButtonExporter.exportPNG result, fn, $(this)
+    
+      return
+    $('#svg-download').click ->
+      paper.view.zoom = 1
+      name = fs.getName()
+      fn = name + '_' + pm.getCurrentView()
+      ButtonExporter.exportSVG fn
+      return
+      
+    $('#view-list ul li button[name="spacer"]').click();
+    return
+
+
 = render :partial => "tool/levels/file_pipeline"
 
 #views
@@ -102,6 +132,35 @@
         %button.view.btn-sm.btn.btn-warning{:name => "code"} C
 .canvas-container
   %canvas#main-canvas
+.popout.vert-right
+  .dismiss.btn.btn-xs.btn-danger
+    =glyph "remove"
+  #code.editable.well
+
 
 = render :partial => "modals"
 = render :partial => "zoom_bar"
+
+:css
+  .popout{
+    background: #333;
+    position: absolute;
+    top: calc(50% - 150px);
+    left: calc(50% - 250px);
+    width: 500px;
+    height: 300px;
+    z-index: 1000;
+  }
+  .dismiss{
+    top: 2px;
+    right: 2px;
+    position: absolute;
+    z-index: 100;
+  }
+  .editable{
+    width: 100%;
+    height: 100%;
+    margin-bottom: 0px;
+  }
+
+  

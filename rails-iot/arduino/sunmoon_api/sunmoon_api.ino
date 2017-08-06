@@ -10,8 +10,8 @@
 #define BAUD 19200
 // SENSORS AND ACTUATOR PINS
 #define NUMPIXELS 25 // Number of LEDs in strip
-#define DATAPIN    3
-#define CLOCKPIN   4 
+#define DATAPIN    11
+#define CLOCKPIN   10
 Adafruit_DotStar strip = Adafruit_DotStar(
   NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
 void update(){

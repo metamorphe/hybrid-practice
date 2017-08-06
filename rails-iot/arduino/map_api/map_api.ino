@@ -8,9 +8,14 @@
 //#include <avr/power.h> // ENABLE THIS LINE FOR GEMMA OR TRINKET
 #define BAUD 19200
 // SENSORS AND ACTUATOR PINS
+//#define NUMPIXELS 16 // Number of LEDs in strip
+//#define DATAPIN    3
+//#define CLOCKPIN   4 
+
 #define NUMPIXELS 16 // Number of LEDs in strip
-#define DATAPIN    3
-#define CLOCKPIN   4 
+#define DATAPIN    13
+#define CLOCKPIN   12
+
 Adafruit_DotStar strip = Adafruit_DotStar(
   NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
 

@@ -2,11 +2,11 @@ function CircuitRouting(){}
 
 CircuitRouting.generateNodes = function(nodes, callbackFN) {
     var c = new Artwork("/components/APA102C_opt.svg", function(footprint) {
-        square = footprint.queryPrefix("SMD");
+        square = CanvasUtil.query(footprint, {prefix: ["SMD"]});
         square[0].remove();
         nodes = _.map(nodes, function(element) {
-            Artwork.getPrefix(element);
-            is_breakout = ["BO", "BI"].indexOf(Artwork.getPrefix(element)) != -1;
+            CanvasUtil.getPrefix(element);
+            is_breakout = ["BO", "BI"].indexOf(CanvasUtil.getPrefix(element)) != -1;
 
             if (is_breakout) {
                 rectangle = new Path.Rectangle({
@@ -16,8 +16,8 @@ CircuitRouting.generateNodes = function(nodes, callbackFN) {
                 });
             } else {
                 var fp = footprint.clone();
-                fp.svg.position = element.position;
-                rectangle = fp.svg;
+                fp.position = element.position;
+                rectangle = fp;
             }
 
             // Establish two circles to help with routing.

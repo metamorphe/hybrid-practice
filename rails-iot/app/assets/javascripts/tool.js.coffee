@@ -1,4 +1,6 @@
 //= require underscore
+//= require webmidi.min
+//= require launchcontrol
 //= require numeric.min
 //= require dat.gui.min
 //= require d3
@@ -13,6 +15,7 @@
 //= require eld/ruler
 //= require eld/CanvasUtil
 //= require eld/artwork
+//= require eld/LightControl
 # //= require illumination_aesthetics
 //= require actuation_aesthetics
 
