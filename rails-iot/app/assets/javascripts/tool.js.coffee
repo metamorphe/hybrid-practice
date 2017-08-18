@@ -5,7 +5,8 @@
 //= require dat.gui.min
 //= require d3
 //= require clipper
-//= require paper-full.min
+#//= require paper-full.min
+//= require annotator/paper2
 //= require saveas.min
 //= require format
 //= require convex
@@ -18,6 +19,9 @@
 //= require eld/LightControl
 # //= require illumination_aesthetics
 //= require actuation_aesthetics
+//= require actuation_aesthetics
+//= require annotator/jsoneditor.min
+
 
 
     

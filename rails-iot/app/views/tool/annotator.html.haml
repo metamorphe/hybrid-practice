@@ -1,6 +1,26 @@
 :coffeescript
   # https://github.com/mohayonao/launch-control
+  je = ()->
+    container = document.getElementById('jsoneditor')
+    options = {}
+    window.editor = new JSONEditor(container, options)
+    json = 
+      class: "boundary"
+      id: 1
+    editor.set json
+    $("#savemetadata").click (e)->
+      json = editor.get()
+      $('.active').children('.json').html(JSON.stringify(json))
+      actives = $('.active').children('.json')
+      _.each actives, (el)->
+        id = $(el).parent().data('paper-id')
+        svg = paper.project.getItem({id: id})
+        svg.name = JSON.stringify(json)
+        
+      $('.active').children('.json').html(JSON.stringify(json))
   $ -> 
+    window.ws = new WebStorage()
+    je()
     $('#system-message.error').on 'mouseenter', (e)->
       $('li.error').addClass('mouseover')
     .on 'mouseleave', (e)->
@@ -11,17 +31,57 @@
     paper = window.Utility.paperSetup("annotator")
     paper.settings.handleSize = 8
     file = "/actuation/devices/chevrons.svg"
-    
+    save = (filename="artwork")->
+      prev_zoom = paper.view.zoom
+      paper.view.zoom = 1
+
+      items = paper.project.getItems({activestyle: true})
+      console.log "Removed", items.length
+      items =_.map items, (item)->
+          item.remove()
+      paper.view.update()
+
+      exp = paper.project.exportJSON
+        asString: true
+        precision: 5
+
+      # root = exp[0][1].children[0]
+      # console.log root.children.length
+      # root.children = _.filter root.children, (child)->
+      #   console.log child
+      #   child.dom
+      # console.log root.children.length
+
+      ws.set(filename, exp)
+
+      # _.each items, (item)->
+      #   try
+      #     paper.project.activeLayer.addChild(item)
+      #   catch e
+      #     console.log "ERROR", e
+
+      paper.view.zoom = prev_zoom
+      paper.view.update()
+    $("#save").click (e)->
+      save()
     download = (filename="artwork")->
       prev_zoom = paper.view.zoom
       paper.view.zoom = 1
+
+      items = paper.project.getItems({activestyle: true})
+      console.log "Removed", items.length
+      items =_.map items, (item)->
+          item.remove()
+
       paper.view.update()
 
       exp = paper.project.exportSVG
         asString: true
         precision: 5
       saveAs(new Blob([exp], {type:"application/svg+xml"}), filename + ".svg");
-      console.log exp
+      _.each items, (item)->
+        paper.project.activeLayer.addChild(item)
+
       paper.view.zoom = prev_zoom
       paper.view.update()
     
@@ -48,8 +108,9 @@
       if lastBracketIdx > -1
         name = name.slice(0, lastBracketIdx + 1)
       try
-        name = eval(name)
+        JSON.parse(name)
       catch error
+        console.log error, name
         if error instanceof SyntaxError
           if item
             if not item.errors
@@ -60,7 +121,12 @@
    
       return name
     extract_tree = (svg, root)->
-      if svg.className == "Path" and not svg.fillColor
+      paper.view.update()
+      if svg and svg.className == "Shape"
+        window.shape = svg
+        svg.replaceWith(svg.toPath())
+        
+      if svg and svg.className == "Path" and not svg.fillColor
         # c = new paper.Color("red")
         c = new paper.Color(245, 244, 240)
         c.brightness = 0.7
@@ -71,7 +137,14 @@
       stem = svg.name
       svg.active = false
       type = $('<b>').html(svg.className)
-      data = $('<span>').html(name).click (e)->
+      data = $('<span>').addClass('json').html(name).click (e)->
+        if window.editor
+          try
+            console.log "JSON", $(this).html()
+            window.editor.set JSON.parse($(this).html())
+          catch
+            window.editor.set {class: ""}
+
         $(this).parent().toggleClass('active')
         if $(this).parent().hasClass('active') then $(this).parent().removeClass('mouseover')
         hit = paper.project.getItem({id: $(this).parent().data('paper-id')})
@@ -107,15 +180,18 @@
       root.append(stem)
       if not svg.children or svg.children.length == 0
         stem.addClass('leaf') 
-      _.map svg.children, (child)->
-        list = $("<ul>")
-        stem.append(list)
-        extract_tree(child, list)
+      else
+        _.map svg.children, (child)->
+          list = $("<ul>")
+          stem.append(list)
+          extract_tree(child, list)
       return root
 
     onsvgload = (svg)->
+      paper.project.activeLayer.name = "HELLLLO"
       tree = extract_tree(svg, $("<ul>"))
       $('#annotation-panel .body').append(tree)
+      $('#error-count').html($(".error").length)
       svg.set
         position: paper.view.centerr
       svg.fitBounds(paper.view.bounds)
@@ -133,13 +209,20 @@
           className: /^(?!Layer).*$/
         _.each items, (item)-> 
           item.saveable = true
-          item.activeStyle = item.clone().set
-            saveable: false
-            fillColor: "blue"
-            strokeColor: "yellow"
-            strokeWidth: 10
-            opacity: 0.3
-            visible: false
+          if item.className == "Shape"
+            item.activeStyle = new paper.Path
+              saveable: false
+              visible: false
+              activestyle: true
+          else
+            item.activeStyle = item.clone().set
+              saveable: false
+              activestyle: true
+              fillColor: "blue"
+              strokeColor: "yellow"
+              strokeWidth: 5
+              opacity: 0.3
+              visible: false
         console.log "ACTIVE STYLES CREATED", items.length
       t.createActiveStyles()
 
@@ -189,9 +272,26 @@
           
         
       $('#shade').hide()
-
-    paper.project.importSVG file, onsvgload
-
+    
+    if ws.includes("artwork")
+      console.log "CACHE IMPORTED"
+      cache = ws.get("artwork")
+      svg = paper.project.importJSON JSON.parse cache
+      # window.debug = svg
+      onsvgload(svg[0].children[0])
+      $('#shade').hide()
+      # console.log JSON.parse cache
+    else  
+      paper.project.importSVG file, onsvgload
+#metadata-panel.dragpanel
+  .heading
+    METADATA
+  .body
+    #jsoneditor
+  .footer
+    %button.btn.btn-success.btn-block#savemetadata
+      %span.glyphicon.glyphicon-floppy-disk
+      SAVE METADATA TO SVG ELEMENT
 
 
 %canvas#annotator
@@ -265,12 +365,16 @@
     background: desaturate(darken($eggshell, 50%), 15%);
   }
   #metadata-panel{
-    width: 20%;
+    width: 400px;
     position: absolute;
     left: 0;
     top: 0;
     height: 60%;
     background: desaturate(darken($eggshell, 50%), 15%);
+    #jsoneditor{
+      width: 100%;
+      height: 100%;
+    }
   }
   .dragpanel{
     cursor: pointer;
@@ -297,6 +401,10 @@
       overflow: hidden;
       background: $panelBackground;
       border: 1px solid $borderColor;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
     }
     .body{
       border: 1px solid $borderColor;
