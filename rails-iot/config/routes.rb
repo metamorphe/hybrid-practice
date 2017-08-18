@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     get 'aesthetic_actuation'
     get 'tester'
     get 'midi'
+    get 'annotator'
   end
 
   get 'devices/index'

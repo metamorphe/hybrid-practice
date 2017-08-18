@@ -1,0 +1,13 @@
+%event#timemorph.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#ts-adder.design-title.btn-primary.trigger{:type => "trigger"}
+      %span SENSORS
+      %span.command
+    %input#time-morph.sexy{:type=>"range", :min => -100, :max => 10000, :step => 100}
+  #time-morph-track.track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled", :gamma => 0.5, :gamma_corrective => 0.5, :perceptual => "enabled" }}
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"

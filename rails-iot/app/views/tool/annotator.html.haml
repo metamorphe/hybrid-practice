@@ -1,0 +1,438 @@
+:coffeescript
+  # https://github.com/mohayonao/launch-control
+  $ -> 
+    $('#system-message.error').on 'mouseenter', (e)->
+      $('li.error').addClass('mouseover')
+    .on 'mouseleave', (e)->
+      $('.mouseover').not('active').removeClass('mouseover')
+    $('.dragpanel').draggable
+      containment: "parent"
+      handle: ".draghandle"
+    paper = window.Utility.paperSetup("annotator")
+    paper.settings.handleSize = 8
+    file = "/actuation/devices/chevrons.svg"
+    
+    download = (filename="artwork")->
+      prev_zoom = paper.view.zoom
+      paper.view.zoom = 1
+      paper.view.update()
+
+      exp = paper.project.exportSVG
+        asString: true
+        precision: 5
+      saveAs(new Blob([exp], {type:"application/svg+xml"}), filename + ".svg");
+      console.log exp
+      paper.view.zoom = prev_zoom
+      paper.view.update()
+    
+    $("#download").click (e)->
+      download()
+
+    processName = (item)->
+      name = item.name
+      if _.isUndefined(name) or _.isNull(name)
+        return ""
+      name = name.trim()
+      name = name.replaceAll("_x5F_", "_")
+      name = name.replaceAll("_x23_", "#")
+      name = name.replaceAll("_x27_", "")
+      name = name.replaceAll("_x22_", '"')
+      name = name.replaceAll("_x7B_", '{')
+      name = name.replaceAll("_x7D_", '}')
+      name = name.replaceAll("_x5B_", '[')
+      name = name.replaceAll("_x5D_", ']')
+      name = name.replaceAll("_x2C_", ',')
+      name = name.replaceAll("_", ' ')
+      lastBracketIdx = name.lastIndexOf("}")
+      
+      if lastBracketIdx > -1
+        name = name.slice(0, lastBracketIdx + 1)
+      try
+        name = eval(name)
+      catch error
+        if error instanceof SyntaxError
+          if item
+            if not item.errors
+              item.errors = []
+            item.errors.push error
+        else
+          console.log error.message
+   
+      return name
+    extract_tree = (svg, root)->
+      if svg.className == "Path" and not svg.fillColor
+        # c = new paper.Color("red")
+        c = new paper.Color(245, 244, 240)
+        c.brightness = 0.7
+        c.alpha = 0.5
+        svg.fillColor = c
+      name = processName(svg)
+      svg.name = name
+      stem = svg.name
+      svg.active = false
+      type = $('<b>').html(svg.className)
+      data = $('<span>').html(name).click (e)->
+        $(this).parent().toggleClass('active')
+        if $(this).parent().hasClass('active') then $(this).parent().removeClass('mouseover')
+        hit = paper.project.getItem({id: $(this).parent().data('paper-id')})
+        hit.active = $(this).parent().hasClass('active')
+        paper.tool.update()
+        e.stopPropagation()
+      
+      stem = $('<li>').append([type, data]).data('paper-id', svg.id)
+
+      svg.dom = stem
+        .addClass('uncollapsed')
+        .click (e)->
+          $(this).toggleClass('collapsed').toggleClass('uncollapsed').children("ul").toggle()
+          e.stopPropagation()
+        .on 'mouseenter', (e)->
+          if $(this).hasClass('active') then return
+          hit = paper.project.getItem({id: $(this).data('paper-id')})
+          hit.selected = true
+          e.stopPropagation()
+          $(this).addClass('mouseover')
+        .on 'mouseleave', (e)->
+          $('.mouseover').not('active').removeClass('mouseover')
+
+          items = paper.project.getItems({selected: true})
+          _.each items, (item)->
+            item.selected = false
+          # items = paper.project.getItems({active: true})
+          # _.each items, (item)->
+          #   item.selected = true
+
+      if svg.errors
+        stem.addClass("error")
+      root.append(stem)
+      if not svg.children or svg.children.length == 0
+        stem.addClass('leaf') 
+      _.map svg.children, (child)->
+        list = $("<ul>")
+        stem.append(list)
+        extract_tree(child, list)
+      return root
+
+    onsvgload = (svg)->
+      tree = extract_tree(svg, $("<ul>"))
+      $('#annotation-panel .body').append(tree)
+      svg.set
+        position: paper.view.centerr
+      svg.fitBounds(paper.view.bounds)
+
+      t = new paper.Tool
+        minDistance: 10
+        hitOptions: 
+          segments: false
+          stroke: true 
+          fill: true
+          tolerance: 10   
+      
+      t.createActiveStyles = ()->
+        items = paper.project.getItems
+          className: /^(?!Layer).*$/
+        _.each items, (item)-> 
+          item.saveable = true
+          item.activeStyle = item.clone().set
+            saveable: false
+            fillColor: "blue"
+            strokeColor: "yellow"
+            strokeWidth: 10
+            opacity: 0.3
+            visible: false
+        console.log "ACTIVE STYLES CREATED", items.length
+      t.createActiveStyles()
+
+      t.update = ()->
+        items = paper.project.getItems
+          saveable: true
+          className: /^(?!Layer).*$/
+
+        _.each items, (item)-> 
+          item.activeStyle.visible = item.active
+
+      t.onMouseDown = (e)->
+        selected = paper.project.selectedItems
+        
+        _.each selected, (item)-> 
+          item.active = not item.active
+          if item.dom
+            item.dom.toggleClass("active")
+
+        if selected.length == 0
+          items = paper.project.getItems
+            saveable: true
+            className: /^(?!Layer).*$/
+          _.each items, (item)-> 
+            item.active = false
+            item.dom.removeClass("active")
+
+        t.update()  
+        
+      t.onMouseMove = (e)->
+        hitResult = paper.project.hitTest e.point, t.hitOptions
+        items = paper.project.selectedItems
+        items = _.filter items, (item)-> item.saveable
+
+        _.each items, (item)-> 
+          item.selected = false
+          if item.dom
+           item.dom.removeClass("mouseover")
+        
+        if hitResult and hitResult.item.saveable
+          if hitResult.item.selected then return
+          hitResult.item.selected = true
+          if hitResult.item.dom
+            hitResult.item.dom.addClass("mouseover")
+        
+     
+          
+        
+      $('#shade').hide()
+
+    paper.project.importSVG file, onsvgload
+
+
+
+%canvas#annotator
+#annotation-panel.dragpanel
+  .heading
+    ANNOTATION PANEL
+  .body
+    #system-message.error
+      %span.glyphicon.glyphicon-warning-sign
+      %span
+        %b#error-count 25 
+        %span ERRORS DETECTED
+  .footer
+    .btn-group
+      %button.btn.btn-danger#download
+        %span.glyphicon.glyphicon-download
+        DOWNLOAD
+      %button.btn.btn-success#save
+        %span.glyphicon.glyphicon-floppy-disk
+        SAVE
+
+   
+
+:scss
+  $borderColor: #D3D3D3;
+  $arrowColor: #7A7A7A;
+  $subtleText: #80858B;
+
+  $activeBackground: #4573B9;
+  $activeText: #FFFFFF;
+  $activeSubtleText: #C5C5C5;
+  $activeArrowColor: #DDDDDD;
+  
+  $error: desaturate(#eb3941, 10%);
+  $errorBorder: darken(#eb3941, 10%);
+
+  $panelBackground: #F5F5F5;
+  $hoverText: #ECF1FA;
+  $eggshell: rgb(245, 244, 240);
+  html, body{
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+  }
+  #system-message{
+    height: 30px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-bottom: 3px;
+    span{
+      margin-right: 5px;
+    }
+    &.error{
+      background: lighten($error, 10%);
+      border: lighten($errorBorder, 10%) 1px solid;
+      text-align: center;
+      color: white;
+    }
+
+  }
+
+  #annotation-panel{
+    width: 30%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: desaturate(darken($eggshell, 50%), 15%);
+  }
+  #metadata-panel{
+    width: 20%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 60%;
+    background: desaturate(darken($eggshell, 50%), 15%);
+  }
+  .dragpanel{
+    cursor: pointer;
+    color: #262626;
+    position: relative;
+      
+    .heading{
+        background: $panelBackground;
+        border: 1px solid $borderColor;
+        text-align: center;
+        padding: 5px;
+        font-family: Avenir;
+        font-weight: bold;
+        height: 30px;
+        margin-bottom: 0px !important;
+    }
+    .footer{
+      padding: 10px 10px;
+      height: 55px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      background: $panelBackground;
+      border: 1px solid $borderColor;
+    }
+    .body{
+      border: 1px solid $borderColor;
+      padding: 5px 5px;
+      height: calc(100% - 55px - 30px);
+      width: 100%;
+      overflow-y: scroll;
+      background: white;
+      
+      
+      ul{
+        padding-left: 0px; 
+        cursor: pointer;
+        padding-left: 5px;
+      }
+      & > ul ul{
+        padding-left: 10px;
+      }
+      & > ul > li li{
+        border-left: 1px solid #00A8E1;
+      }
+      li{
+        display: block;
+        position: relative;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        cursor: pointer;
+        &.mouseover{
+          background: $hoverText;
+        }
+      }
+
+      li.active{
+        background: $activeBackground;
+        color: $activeText;
+        span{
+          color: $activeSubtleText;
+        }
+        &:not(.leaf):before {
+          border-color: transparent $activeArrowColor transparent transparent;
+        }
+      }
+      li b{
+        padding-left: 25px;
+        padding-right: 5px;
+      }
+      li span{
+        color: $subtleText;
+      }
+      li.error{
+        & > b{
+          padding-left: 34px;
+        }
+        &:after{
+          background: $error;
+          border: $errorBorder 1px solid;
+          content: "!";
+          width: 12px;
+          height: 12px;
+          border-radius: 10px;
+          position: absolute;
+          top: 4px;
+          left: 18px;
+          color: white;
+          font-size: 10px;
+          line-height: 10px;
+          text-align: center;
+          font-weight: bold;
+          text-shadow: 1px 1px 3px #666666;
+        }
+      }
+
+      :not(.leaf).uncollapsed:before {
+          content:"\A";
+          border-style: solid;
+          border-width: 4px 8px 4px 0;
+          border-color: transparent $arrowColor transparent transparent;
+          transform: rotate(180deg);
+          position: absolute;
+          top: 5px;
+          left: 5px;
+      }
+      :not(.leaf).collapsed:before {
+          content:"\A";
+          border-style: solid;
+          border-width: 4px 8px 4px 0;
+          border-color: transparent $arrowColor transparent transparent;
+          transform: rotate(-90deg);
+          position: absolute;
+          top: 7px;
+          left: 7px;
+      }
+    }
+  }
+  canvas{
+    width: 70%;
+    height: 100%;
+    background: $eggshell;
+    border: 15px solid darken($eggshell, 2%);
+    cursor: pointer;
+  }
+  .table-editable {
+    position: relative;
+    
+    .glyphicon {
+      font-size: 20px;
+    }
+  }
+
+  .table-remove {
+    color: #700;
+    cursor: pointer;
+    
+    &:hover {
+      color: #f00;
+    }
+  }
+
+  .table-up, .table-down {
+    color: #007;
+    cursor: pointer;
+    
+    &:hover {
+      color: #00f;
+    }
+  }
+
+  .table-add {
+    color: #070;
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
+    right: 0;
+    
+    &:hover {
+      color: #0b0;
+    }
+  }

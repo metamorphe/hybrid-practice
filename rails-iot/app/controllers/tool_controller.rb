@@ -9,6 +9,9 @@ class ToolController < ApplicationController
   def midi
     render :layout => "full_screen"
   end
+  def annotator
+    render :layout => "full_screen"
+  end
   def statemachine
     @files = get_displays()
     @ports = get_ports()

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="_x7B_name:_x22_chevron-row-control_x22__x2C__pins:_3_x7D_"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 342.7 282.7"
+	 style="enable-background:new 0 0 342.7 282.7;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;}
+	.st1{fill:#BE2127;}
+	.st2{fill:#3E429A;}
+	.st3{fill:#37B34A;}
+</style>
+<title>chevrons</title>
+<rect id="_x7B_name:__x22_base_x22__x7D_" x="2.5" y="1.5" class="st0" width="339.7" height="279.7"/>
+<g id="_x7B_id:_8_x2C__name:__x22_plus_x22__x2C__class:__x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:__x22_boundary_x22__x7D__3_" class="st0" points="315.3,211.3 262.3,159.1 262.3,211.3 315.3,263.9 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__4_" class="st1" d="M264,191.8L264,191.8c-3,0-5.5-2.5-5.5-5.5v0c0-3,2.5-5.5,5.5-5.5
+		l0,0c3,0,5.5,2.5,5.5,5.5v0C269.5,189.3,267,191.8,264,191.8z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__2_" class="st2" d="M309.9,238.9L309.9,238.9c-0.8-2.9,1-5.9,3.9-6.7l0,0
+		c2.9-0.8,5.9,1,6.7,3.9l0,0c0.8,2.9-1,5.9-3.9,6.7l0,0C313.7,243.6,310.7,241.8,309.9,238.9z"/>
+</g>
+<g id="_x7B_id:_7_x2C__name:__x22_moon_x22__x2C__class:__x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:__x22_boundary_x22__x7D__2_" class="st0" points="254.8,159.1 201.9,211.3 149,159.1 149,211.3 
+		201.9,263.9 254.8,211.3 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__3_" class="st1" d="M152.5,192.9L152.5,192.9c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C158,190.4,155.5,192.9,152.5,192.9z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__6_" class="st2" d="M260.3,186.3L260.3,186.3c0,3-2.5,5.5-5.5,5.5h0
+		c-3,0-5.5-2.5-5.5-5.5v0c0-3,2.5-5.5,5.5-5.5h0C257.9,180.8,260.3,183.3,260.3,186.3z"/>
+</g>
+<g id="_x7B_id:_6_x2C__name:__x22_scribble_x22__x2C__class:__x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:__x22_boundary_x22__x7D__1_" class="st0" points="141.5,159.1 88.6,211.3 35.6,159.1 35.6,211.3 
+		88.6,263.9 141.5,211.3 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__2_" class="st1" d="M35.6,192.9L35.6,192.9c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C41.1,190.4,38.7,192.9,35.6,192.9z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__7_" class="st2" d="M147,186.3L147,186.3c0,3-2.5,5.5-5.5,5.5l0,0
+		c-3,0-5.5-2.5-5.5-5.5v0c0-3,2.5-5.5,5.5-5.5h0C144.5,180.8,147,183.3,147,186.3z"/>
+</g>
+<g id="_x7B_id:_5_x2C__name:__x22_trees_x22__x2C__class:_x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:_x22_boundary_x22__x7D_" class="st0" points="205.5,198.9 258.5,146.7 311.4,198.9 311.4,146.7 
+		258.5,94.1 205.5,146.7 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__5_" class="st1" d="M205.5,178.5L205.5,178.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C211,176.1,208.6,178.5,205.5,178.5z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__1_" class="st2" d="M306.1,174.4L306.1,174.4c-0.8-2.9,1-5.9,3.9-6.7h0
+		c2.9-0.8,5.9,1,6.7,3.9l0,0c0.8,2.9-1,5.9-3.9,6.7l0,0C309.9,179.1,306.8,177.3,306.1,174.4z"/>
+</g>
+<g id="_x7B_id:_4_x2C__name:__x22_swirl_x22__x2C__class:_x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:_x22_boundary_x22__x7D__2_" class="st0" points="92.2,198.9 145.1,146.7 198.1,198.9 198.1,146.7 
+		145.1,94.1 92.2,146.7 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__6_" class="st1" d="M92.2,178.5L92.2,178.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C97.7,176.1,95.2,178.5,92.2,178.5z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__5_" class="st2" d="M198.1,178.5L198.1,178.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C203.6,176.1,201.1,178.5,198.1,178.5z"/>
+</g>
+<g id="_x7B_id:_3_x2C__name:__x22_dot_x22__x2C__class:_x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:_x22_boundary_x22__x7D__1_" class="st0" points="31.8,146.7 84.7,198.9 84.7,146.7 31.8,94.1 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__1_" class="st1" d="M31.8,128.5L31.8,128.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C37.3,126.1,34.8,128.5,31.8,128.5z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__4_" class="st2" d="M84.7,178.5L84.7,178.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C90.2,176.1,87.7,178.5,84.7,178.5z"/>
+</g>
+<g id="_x7B_id:_2_x2C__name:__x22_crosshatch_x22__x2C__class:_x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:_x22_boundary_x22__x7D__5_" class="st0" points="315.3,87.4 262.3,35.2 262.3,87.4 315.3,139.9 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__9_" class="st1" d="M262.3,72.5L262.3,72.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5l0,0c3,0,5.5,2.5,5.5,5.5v0C267.8,70.1,265.4,72.5,262.3,72.5z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D_" class="st2" d="M315.3,115.3L315.3,115.3c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5l0,0c3,0,5.5,2.5,5.5,5.5v0C320.8,112.8,318.3,115.3,315.3,115.3z"/>
+</g>
+<g id="_x7B_id:_1_x2C__name:__x22_grain_x22__x2C__class:_x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:_x22_boundary_x22__x7D__3_" class="st0" points="254.8,35.2 201.9,87.4 149,35.2 149,87.4 201.9,139.9 
+		254.8,87.4 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D__8_" class="st1" d="M149,69.4L149,69.4c-3,0-5.5-2.5-5.5-5.5v0c0-3,2.5-5.5,5.5-5.5h0
+		c3,0,5.5,2.5,5.5,5.5v0C154.5,66.9,152,69.4,149,69.4z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__8_" class="st2" d="M254.8,72.5L254.8,72.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C260.3,70.1,257.9,72.5,254.8,72.5z"/>
+</g>
+<g id="_x7B_id:_0_x2C__name:__x22_washguard_x22__x2C__class:_x22_heat-element_x22__x7D_">
+	<polygon id="_x7B_class:_x22_boundary_x22__x7D__4_" class="st0" points="141.5,35.2 88.6,87.4 35.6,35.2 35.6,87.4 88.6,139.9 
+		141.5,87.4 	"/>
+	<path id="_x7B_class:__x22_heat-in_x22__x7D_" class="st1" d="M35.6,65.1L35.6,65.1c-3,0-5.5-2.5-5.5-5.5v0c0-3,2.5-5.5,5.5-5.5h0
+		c3,0,5.5,2.5,5.5,5.5v0C41.1,62.7,38.7,65.1,35.6,65.1z"/>
+	<path id="_x7B_class:__x22_heat-out_x22__x7D__3_" class="st2" d="M141.5,70L141.5,70c-3,0-5.5-2.5-5.5-5.5v0c0-3,2.5-5.5,5.5-5.5
+		h0c3,0,5.5,2.5,5.5,5.5v0C147,67.5,144.5,70,141.5,70z"/>
+</g>
+<g id="_x7B_class:__x22_control_x22__x7D_">
+	<rect id="_x7B_class:__x22_boundary_x22__x7D_" x="1" y="111.8" class="st3" width="18.3" height="61.2"/>
+	<path id="_x7B_id:_0_x2C__class:__x22_pin_x22__x7D_" class="st1" d="M10.2,126L10.2,126c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C15.7,123.6,13.2,126,10.2,126z"/>
+	<path id="_x7B_id:_1_x2C__class:__x22_pin_x22__x7D__1_" class="st1" d="M10.2,139.5L10.2,139.5c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C15.7,137.1,13.2,139.5,10.2,139.5z"/>
+	<path id="_x7B_id:_2_x2C__class:__x22_pin_x22__x7D_" class="st1" d="M10.2,153.9L10.2,153.9c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C15.7,151.5,13.2,153.9,10.2,153.9z"/>
+	<path id="_x7B_class:__x22_pin_ground_x22__x7D_" class="st2" d="M10.2,168.1L10.2,168.1c-3,0-5.5-2.5-5.5-5.5v0
+		c0-3,2.5-5.5,5.5-5.5h0c3,0,5.5,2.5,5.5,5.5v0C15.7,165.6,13.2,168.1,10.2,168.1z"/>
+</g>
+</svg>

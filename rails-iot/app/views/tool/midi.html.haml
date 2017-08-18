@@ -1,4 +1,5 @@
 :coffeescript
+  # https://github.com/mohayonao/launch-control
   $ -> 
     console.log "Hello World"
     $('#shade').hide()
@@ -26,7 +27,12 @@
           p = e.value / 128
           rad = p * 100
         when "pad"
+          ctrl.led(e.track, "amber")
+          turnoff = ()->
+            ctrl.led(e.track, "off")
+          _.delay turnoff, 500
           console.log e.track, rad, clr.toCSS()
+
           c = new paper.Path.Circle
             radius: rad
             fillColor: clr

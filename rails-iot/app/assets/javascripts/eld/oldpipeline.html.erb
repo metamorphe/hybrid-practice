@@ -1,0 +1,402 @@
+
+        # if chassis
+        #   if MC_MOVE
+        #     mc = @adjustMC(display, e, e.base[0])
+        #     if mc
+        #       mc.parent = result
+        #       mc.bringToFront()
+        #   else
+        #     e.mc[0].parent = result
+        #     e.mc[0].bringToFront()
+        #     e.mc[0].fillColor = 'black'
+        #   _.each e.diff, (diffuser) ->
+        #     diffuser.bringToFront()
+        #     diffuser.set
+        #       strokeColor: 'white'
+        #       fillColor: null
+        #       strokeWidth: 5
+        #     return
+          # _.each(e.leds, function(led){
+          #     l = led.clone();
+          #     l.fillColor = "black";
+          #     l.strokeColor = "black";
+          #     l.strokeWidth = 4;
+          #     result.addChild(l);
+          #     l.bringToFront();
+          # });
+          # _.each(e.diff, function(diff) {
+          #    diff.set({
+          #         fillColor: "white",
+          #         opacity: 1,
+          #         strokeWidth: 0, 
+          #         // strokeColor: 'black',
+          #         // radius: Ruler.mm2pts(5), 
+          #         // position: led.position, 
+          #         // strokeWidth: Ruler.mm2pts(LED_TOLERANCE), 
+          #         parent: result
+          #     })
+          #    diff.bringToFront();
+          #     // led.remove();
+          # });
+
+          # pegs = _.map(e.nuts, (nut) ->
+          #   bolt = Pipeline.create(
+          #     geometry: 'circle'
+          #     position: nut.position
+          #     radius: PEG_RADIUS
+          #     height: 'black'
+          #     parent: result)
+          #   return
+          # )
+
+          # _.each e.leds, (led) ->
+          #   led_hole = new (paper.Path.Circle)(
+          #     fillColor: 'black'
+          #     strokeColor: 'black'
+          #     radius: Ruler.mm2pts(8) / 2
+          #     position: led.position
+          #     strokeWidth: Ruler.mm2pts(LED_TOLERANCE) / 2
+          #     parent: result)
+          #   led_hole.bringToFront()
+          #   led.remove()
+          #   return
+        # var pegs = Pipeline.create_corner_pegs({ 
+        #  geometry: "hex",
+        #  bounds: backgroundBox.strokeBounds, 
+        #  radius: HEX_RADIUS, 
+        #  padding: PEG_PADDING, 
+        #  height: 'yellow', 
+        #  parent: result
+        # });
+        # INVISIBILITY
+
+        
+          if dome
+            # MAKE DOMES
+            average_dome = _.reduce(lines, ((memo, l) ->
+              length = l.roundedLength
+              cache = cache_gradients[length][0]
+              memo + cache.gradients.domeWidth
+            ), 0)
+            average_dome /= lines.length
+            average_dome_line = _.min(lines, (l) ->
+              length = l.roundedLength
+              cache = cache_gradients[length][0]
+              Math.abs average_dome - (cache.gradients.domeWidth)
+            )
+            average_gradient = cache_gradients[average_dome_line.roundedLength][0].gradients.dome
+            dome = new (paper.Path.Circle)(
+              parent: result
+              radius: average_dome
+              fillColor: 'yellow'
+              position: lines[0].led.position)
+            dome.fillColor =
+              gradient:
+                stops: average_gradient
+                radial: true
+              origin: dome.bounds.center
+              destination: dome.bounds.topCenter.clone()
+
+
+cone_lens: (display, e) ->
+        g = new Generator
+        g.model = 'Splitter'
+        result = new (paper.Group)
+        # this.makeFromProfile(display, e, g);
+        if SWATCH_ON
+          model = MODEL_TO_GENERATE
+          e.diff[0].diffuser = 'Planar'
+          e.diff[1].diffuser = 'Planar'
+          e.diff[2].diffuser = 'Hemisphere'
+          e.diff[3].diffuser = 'Cuboid'
+        else
+          _.each e.diff, (d) ->
+            d.diffuser = 'Planar'
+            return
+
+        cones = _.map e.diff, (diff) ->
+          dleds = _.filter e.leds, (l) -> diff.contains l.bounds.center
+          ils = interpolation_lines(diff, dleds, visible = false)
+          lines = _.map ils, (il) ->
+            line: il.line
+            led: il.led
+            roundedLength: parseInt(il.line.length)
+          
+          
+          cache_gradients = _.chain(lines)
+            .unique((l) ->
+              l.roundedLength
+            .map((l) ->
+              g.length = l.roundedLength
+              g.random = false
+              g.diffuser = diff.diffuser
+              {
+                roundedLength: l.roundedLength
+                gradients: g.getGradient()
+                line: l.line
+              }
+            .groupBy('roundedLength')
+            .value()
+
+
+          average_cone = _.reduce(lines, ((memo, l) ->
+            length = l.roundedLength
+            cache = cache_gradients[length][0]
+            memo + cache.gradients.prism.width
+          ), 0)
+
+          max_cone_height = _.max(lines, (l) ->
+            length = l.roundedLength
+            cache = cache_gradients[length][0]
+            l.max = cache.gradients.prism.height
+            cache.gradients.prism.height
+          )
+          # console.log("MAX HEIGHT", max_cone_height.max) 
+          average_cone /= lines.length
+          # console.log("AVG", average_cone)
+          average_cone_line = _.min(lines, (l) ->
+            length = l.roundedLength
+            cache = cache_gradients[length][0]
+            Math.abs average_cone - (cache.gradients.prism.width)
+          )
+          average_gradient = cache_gradients[average_cone_line.roundedLength][0].gradients.mold
+          base = new (paper.Path.Circle)(
+            parent: result
+            radius: average_cone + 5
+            fillColor: new (paper.Color)(1.0)
+            position: lines[0].led.position)
+          cone = new (paper.Path.Circle)(
+            parent: result
+            radius: average_cone
+            fillColor: 'yellow'
+            position: lines[0].led.position)
+          cone.fillColor =
+            gradient:
+              stops: average_gradient
+              radial: true
+            origin: cone.bounds.center
+            destination: cone.bounds.topCenter.clone()
+          assembly = new (paper.Group)(
+            parent: result
+            children: [
+              base
+              cone
+            ])
+          {
+            cone: assembly
+            height: max_cone_height.max
+          }
+        
+        # PACKING
+        geoms = _.pluck(cones, 'cone')
+        # one row
+        w = _.max(_.map(geoms, (g) ->
+          g.bounds.width
+        ))
+        h = _.max(_.map(geoms, (g) ->
+          g.bounds.height
+        ))
+        w *= 1.1
+        h *= 1.1
+        pack = new (paper.Group)(parent: result)
+        _.each geoms, (g, i) ->
+          reshape_x = i % 2
+          reshape_y = parseInt(i / 2)
+          g.position.x = paper.view.center.x + w * reshape_x
+          g.position.y = paper.view.center.y + h * reshape_y
+          g.parent = pack
+          return
+        pack.position = paper.view.center
+        backgroundBox = new (paper.Path.Rectangle)(
+          rectangle: result.bounds
+          parent: result
+          fillColor: 'black')
+        backgroundBox.sendToBack()
+        # END PACKING
+        MAX_HEIGHT = Ruler.mm2pts(10)
+        #_.max(_.pluck(cones, 'height'));
+        # MAX_HEIGHT /= 0.90; //adding the base
+        console.log 'CONES', MAX_HEIGHT
+        # INVISIBILITY
+        invisible = _.compact(_.flatten([
+          e.diff
+          e.art
+          e.dds
+          e.bo
+          e.bi
+          e.cp
+          e.base
+          e.mc
+          e.wires
+          e.leds
+        ]))
+        Pipeline.set_visibility invisible, false
+        result.name = 'RESULT: CONES LENSES'
+        result.model_height = Ruler.pts2mm(MAX_HEIGHT)
+        removeable = CanvasUtil.query(paper.project, prefix: [
+          'RT'
+          'RAY'
+          'PL'
+          'LS'
+        ])
+        CanvasUtil.call removeable, 'remove'
+        return
+      cones: (display, e) ->
+        g = new Generator
+        g.model = 'Splitter'
+        result = new (paper.Group)
+        # this.makeFromProfile(display, e, g);
+        if SWATCH_ON
+          model = MODEL_TO_GENERATE
+          e.diff[0].diffuser = 'Planar'
+          e.diff[1].diffuser = 'Planar'
+          e.diff[2].diffuser = 'Hemisphere'
+          e.diff[3].diffuser = 'Cuboid'
+        else
+          _.each e.diff, (d) ->
+            d.diffuser = 'Planar'
+            return
+        cones = _.map(e.diff, (diff) ->
+          dleds = _.filter(e.leds, (l) ->
+            diff.contains l.bounds.center
+          )
+          ils = interpolation_lines(diff, dleds, visible = false)
+          lines = _.map(ils, (il) ->
+            {
+              line: il.line
+              led: il.led
+              roundedLength: parseInt(il.line.length)
+            }
+          )
+          cache_gradients = _.chain(lines).unique((l) ->
+            l.roundedLength
+          ).map((l) ->
+            g.length = l.roundedLength
+            g.random = false
+            g.diffuser = diff.diffuser
+            {
+              roundedLength: l.roundedLength
+              gradients: g.getGradient()
+              line: l.line
+            }
+          ).groupBy('roundedLength').value()
+          average_cone = _.reduce(lines, ((memo, l) ->
+            length = l.roundedLength
+            cache = cache_gradients[length][0]
+            memo + cache.gradients.prism.width
+          ), 0)
+          max_cone_height = _.max(lines, (l) ->
+            length = l.roundedLength
+            cache = cache_gradients[length][0]
+            l.max = cache.gradients.prism.height
+            cache.gradients.prism.height
+          )
+          # console.log("MAX HEIGHT", max_cone_height.max) 
+          average_cone /= lines.length
+          # console.log("AVG", average_cone)
+          average_cone_line = _.min(lines, (l) ->
+            length = l.roundedLength
+            cache = cache_gradients[length][0]
+            Math.abs average_cone - (cache.gradients.prism.width)
+          )
+          average_gradient = cache_gradients[average_cone_line.roundedLength][0].gradients.cone
+          base = new (paper.Path.Circle)(
+            parent: result
+            radius: average_cone + 10
+            fillColor: new (paper.Color)(0.1)
+            position: lines[0].led.position)
+          cone = new (paper.Path.Circle)(
+            parent: result
+            radius: average_cone
+            fillColor: 'yellow'
+            position: lines[0].led.position)
+          cone.fillColor =
+            gradient:
+              stops: average_gradient
+              radial: true
+            origin: cone.bounds.center
+            destination: cone.bounds.topCenter.clone()
+          assembly = new (paper.Group)(
+            parent: result
+            children: [
+              base
+              cone
+            ])
+          {
+            cone: assembly
+            height: max_cone_height.max
+          }
+        )
+        # PACKING
+        geoms = _.pluck(cones, 'cone')
+        # one row
+        w = _.max(_.map(geoms, (g) ->
+          g.bounds.width
+        ))
+        h = _.max(_.map(geoms, (g) ->
+          g.bounds.height
+        ))
+        w *= 1.1
+        h *= 1.1
+        pack = new (paper.Group)(parent: result)
+        _.each geoms, (g, i) ->
+          reshape_x = i % 2
+          reshape_y = parseInt(i / 2)
+          g.position.x = paper.view.center.x + w * reshape_x
+          g.position.y = paper.view.center.y + h * reshape_y
+          g.parent = pack
+          return
+        pack.position = paper.view.center
+        backgroundBox = new (paper.Path.Rectangle)(
+          rectangle: result.bounds
+          parent: result
+          fillColor: 'black')
+        backgroundBox.sendToBack()
+        # END PACKING
+        MAX_HEIGHT = _.max(_.pluck(cones, 'height'))
+        MAX_HEIGHT /= 0.90
+        #adding the base
+        console.log 'CONES', MAX_HEIGHT
+        # INVISIBILITY
+        invisible = _.compact(_.flatten([
+          e.diff
+          e.art
+          e.dds
+          e.bo
+          e.bi
+          e.cp
+          e.base
+          e.mc
+          e.wires
+          e.leds
+        ]))
+        Pipeline.set_visibility invisible, false
+        result.name = 'RESULT: CONES'
+        result.model_height = Ruler.pts2mm(MAX_HEIGHT)
+        removeable = CanvasUtil.query(paper.project, prefix: [
+          'RT'
+          'RAY'
+          'PL'
+          'LS'
+          'NP'
+        ])
+        CanvasUtil.call removeable, 'remove'
+        return
+      side_emit_reflector: (display, e) ->
+        g = new Generator
+        g.model = 'Splitter'
+        g.export = 'REFL'
+        @makeFromProfile display, e, g
+        return
+      tir_reflector: (display, e) ->
+        g = new Generator
+        g.model = 'TIR'
+        g.export = 'REFL'
+        @makeFromProfile display, e, g
+        return
+      tir_lens: (display, e) ->
+        g = new Generator
+        g.model = 'TIR'
+        g.export = 'MOLD'
+        @makeFromProfile display, e, g, chassis = false, dome = true
+        return
