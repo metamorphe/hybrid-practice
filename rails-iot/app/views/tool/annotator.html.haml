@@ -1,97 +1,107 @@
 :coffeescript
-  # https://github.com/mohayonao/launch-control
-  je = ()->
-    container = document.getElementById('jsoneditor')
-    options = {}
-    window.editor = new JSONEditor(container, options)
-    json = 
-      class: "boundary"
-      id: 1
-    editor.set json
-    $("#savemetadata").click (e)->
-      json = editor.get()
-      $('.active').children('.json').html(JSON.stringify(json))
-      actives = $('.active').children('.json')
-      _.each actives, (el)->
-        id = $(el).parent().data('paper-id')
-        svg = paper.project.getItem({id: id})
-        svg.name = JSON.stringify(json)
-        
-      $('.active').children('.json').html(JSON.stringify(json))
-  $ -> 
-    window.ws = new WebStorage()
-    je()
-    $('#system-message.error').on 'mouseenter', (e)->
-      $('li.error').addClass('mouseover')
-    .on 'mouseleave', (e)->
-      $('.mouseover').not('active').removeClass('mouseover')
-    $('.dragpanel').draggable
-      containment: "parent"
-      handle: ".draghandle"
-    paper = window.Utility.paperSetup("annotator")
-    paper.settings.handleSize = 8
-    file = "/actuation/devices/chevrons.svg"
-    save = (filename="artwork")->
-      prev_zoom = paper.view.zoom
-      paper.view.zoom = 1
+  app = 
+    name: "Annotator App"
+    file: "/actuation/devices/chevrons.svg"
+    filename: ()-> 
+      x = @file.split('.')
+      x = x[0].split('/')
+      return x[x.length-1]
+    defaultFillColor: ()->
+      c = new paper.Color(245, 244, 240)
+      c.brightness = 0.7
+      c.alpha = 0.5
+      return c
+    initialize: ()->
+      console.log "Initializing", @name
+      @bindEvents()
+    bindEvents: ()->
+      scope = this
+      $ -> 
+        scope.onDocumentReady()
+        $("#save").click (e)-> scope.save(scope.filename(), "webstorage")
+        $("#download").click (e)-> scope.save(scope.filename(), "disk")
+        $('#shade').fadeOut()
 
-      items = paper.project.getItems({activestyle: true})
-      console.log "Removed", items.length
-      items =_.map items, (item)->
-          item.remove()
-      paper.view.update()
-
-      exp = paper.project.exportJSON
-        asString: true
-        precision: 5
-
-      # root = exp[0][1].children[0]
-      # console.log root.children.length
-      # root.children = _.filter root.children, (child)->
-      #   console.log child
-      #   child.dom
-      # console.log root.children.length
-
-      ws.set(filename, exp)
-
-      # _.each items, (item)->
-      #   try
-      #     paper.project.activeLayer.addChild(item)
-      #   catch e
-      #     console.log "ERROR", e
-
-      paper.view.zoom = prev_zoom
-      paper.view.update()
-    $("#save").click (e)->
-      save()
-    download = (filename="artwork")->
-      prev_zoom = paper.view.zoom
-      paper.view.zoom = 1
-
-      items = paper.project.getItems({activestyle: true})
-      console.log "Removed", items.length
-      items =_.map items, (item)->
-          item.remove()
-
-      paper.view.update()
-
-      exp = paper.project.exportSVG
-        asString: true
-        precision: 5
-      saveAs(new Blob([exp], {type:"application/svg+xml"}), filename + ".svg");
-      _.each items, (item)->
-        paper.project.activeLayer.addChild(item)
-
-      paper.view.zoom = prev_zoom
-      paper.view.update()
+    onDocumentReady: ()->
+      window.ws = new WebStorage()
+      @jsonEditorInitialize()
+      @paperLoad()
+      $('#system-message.error').on 'mouseenter', (e)->
+        $('li.error').addClass('mouseover')
+      .on 'mouseleave', (e)->
+        $('.mouseover').not('active').removeClass('mouseover')
+      $('.dragpanel').draggable
+        containment: "parent"
+        handle: ".draghandle"
+    paperLoad: ()->
+      paper = window.Utility.paperSetup("annotator")
+      paper.settings.handleSize = 8
+      
+      if ws.includes(@filename())
+        console.log "CACHE IMPORTED"
+        cache = ws.get(@filename())
+        svg = paper.project.importJSON JSON.parse cache
+        @onsvgload(svg[0].children[0])
+      else  
+        paper.project.importSVG @file, @onsvgload
     
-    $("#download").click (e)->
-      download()
+    validate: (svg)->
+      $('#system-message').removeClass('error').removeClass("success")
+      @json_validate(svg)
+      errors = $(".error").length
+      if errors > 0
+        $('.success-alert').hide()
+        $('.error-alert').show()
+        $('#error-count').html(errors)
+        $('#system-message').addClass('error')
+      else
+        $('.error-alert').hide()
+        $('.success-alert').show()
+        $('#system-message').addClass('success')
 
-    processName = (item)->
+
+    json_validate: (svg)->
+      scope = this
+      try
+        JSON.parse(svg.name)
+        if svg.dom then svg.dom.removeClass("error")
+      catch error
+        if error instanceof SyntaxError and svg
+          if not svg.errors then svg.errors = []
+          svg.errors.push error
+          if svg.dom then svg.dom.addClass("error")
+      if svg.children
+        _.each svg.children, (child)-> scope.validate(child)
+
+    onsvgload: (svg)->
+      @svg = svg
+      paper.view.update()
+      tree = @extract_tree(svg, $("<ul>"))
+      $('#annotation-panel .body').append(tree)
+      @validate(svg)
+      
+      svg.set
+        position: paper.view.centerr
+      svg.fitBounds(paper.view.bounds)
+      paper.tool = createSelectionTool()
+
+    onJSONClick: (e)->
+      if window.editor
+        try
+          window.editor.set JSON.parse($(this).html())
+        catch
+          window.editor.set {class: ""}
+
+      $(this).parent().toggleClass('active')
+      if $(this).parent().hasClass('active') then $(this).parent().removeClass('mouseover')
+      
+      hit = paper.project.getItem({id: $(this).parent().data('paper-id')})
+      hit.active = $(this).parent().hasClass('active')
+      paper.tool.update()
+      e.stopPropagation()
+    processName: (item)->
       name = item.name
-      if _.isUndefined(name) or _.isNull(name)
-        return ""
+      if _.isUndefined(name) or _.isNull(name) then return JSON.stringify({})
       name = name.trim()
       name = name.replaceAll("_x5F_", "_")
       name = name.replaceAll("_x23_", "#")
@@ -104,57 +114,22 @@
       name = name.replaceAll("_x2C_", ',')
       name = name.replaceAll("_", ' ')
       lastBracketIdx = name.lastIndexOf("}")
+      if lastBracketIdx > -1 then name = name.slice(0, lastBracketIdx + 1)
+
+    extract_tree: (svg, root)->
+      scope = this
+      @processName(svg)
+     
+      if svg and svg.className == "Shape" then svg = svg.replaceWith(svg.toPath())
+      if svg and svg.className == "Path" and not svg.fillColor then svg.fillColor = @defaultFillColor()
+
+      svg.set
+        name: @processName(svg)
+        active: false
       
-      if lastBracketIdx > -1
-        name = name.slice(0, lastBracketIdx + 1)
-      try
-        JSON.parse(name)
-      catch error
-        console.log error, name
-        if error instanceof SyntaxError
-          if item
-            if not item.errors
-              item.errors = []
-            item.errors.push error
-        else
-          console.log error.message
-   
-      return name
-    extract_tree = (svg, root)->
-      paper.view.update()
-      if svg and svg.className == "Shape"
-        window.shape = svg
-        svg.replaceWith(svg.toPath())
-        
-      if svg and svg.className == "Path" and not svg.fillColor
-        # c = new paper.Color("red")
-        c = new paper.Color(245, 244, 240)
-        c.brightness = 0.7
-        c.alpha = 0.5
-        svg.fillColor = c
-      name = processName(svg)
-      svg.name = name
-      stem = svg.name
-      svg.active = false
       type = $('<b>').html(svg.className)
-      data = $('<span>').addClass('json').html(name).click (e)->
-        if window.editor
-          try
-            console.log "JSON", $(this).html()
-            window.editor.set JSON.parse($(this).html())
-          catch
-            window.editor.set {class: ""}
-
-        $(this).parent().toggleClass('active')
-        if $(this).parent().hasClass('active') then $(this).parent().removeClass('mouseover')
-        hit = paper.project.getItem({id: $(this).parent().data('paper-id')})
-        hit.active = $(this).parent().hasClass('active')
-        paper.tool.update()
-        e.stopPropagation()
-      
-      stem = $('<li>').append([type, data]).data('paper-id', svg.id)
-
-      svg.dom = stem
+      data = $('<span>').addClass('json').html(svg.name).click scope.onJSONClick
+      svg.dom = $('<li>').append([type, data]).data('paper-id', svg.id)
         .addClass('uncollapsed')
         .click (e)->
           $(this).toggleClass('collapsed').toggleClass('uncollapsed').children("ul").toggle()
@@ -167,44 +142,79 @@
           $(this).addClass('mouseover')
         .on 'mouseleave', (e)->
           $('.mouseover').not('active').removeClass('mouseover')
-
           items = paper.project.getItems({selected: true})
           _.each items, (item)->
             item.selected = false
-          # items = paper.project.getItems({active: true})
-          # _.each items, (item)->
-          #   item.selected = true
 
-      if svg.errors
-        stem.addClass("error")
-      root.append(stem)
-      if not svg.children or svg.children.length == 0
-        stem.addClass('leaf') 
+      root.append(svg.dom)
+      
+      # if svg.errors then svg.dom.addClass("error")
+      if not svg.children or svg.children.length == 0 then svg.dom.addClass('leaf') 
       else
         _.map svg.children, (child)->
           list = $("<ul>")
-          stem.append(list)
-          extract_tree(child, list)
+          svg.dom.append(list)
+          scope.extract_tree(child, list)
       return root
+    jsonEditorInitialize: ()->
+      scope = this
+      container = document.getElementById('jsoneditor')
+      options = {}
+      window.editor = new JSONEditor(container, options)
+      json = 
+        class: "boundary"
+        id: 1
+      editor.set json
+      $("#savemetadata").click (e)->
+        json = editor.get()
+        $('.active').children('.json').html(JSON.stringify(json))
+        actives = $('.active').children('.json')
+        _.each actives, (el)->
+          id = $(el).parent().data('paper-id')
+          svg = paper.project.getItem({id: id})
+          svg.name = JSON.stringify(json)
+          
+        $('.active').children('.json').html(JSON.stringify(json))
+        scope.validate(scope.svg)
+    save: (filename="artwork", storage='webstorage')->
+      prev_zoom = paper.view.zoom
+      paper.view.zoom = 1
 
-    onsvgload = (svg)->
-      paper.project.activeLayer.name = "HELLLLO"
-      tree = extract_tree(svg, $("<ul>"))
-      $('#annotation-panel .body').append(tree)
-      $('#error-count').html($(".error").length)
-      svg.set
-        position: paper.view.centerr
-      svg.fitBounds(paper.view.bounds)
+      items = paper.project.getItems({activestyle: true})
+      console.log "Removed", items.length
+      items =_.map items, (item)->
+          item.remove()
+      paper.view.update()
 
-      t = new paper.Tool
-        minDistance: 10
-        hitOptions: 
-          segments: false
-          stroke: true 
-          fill: true
-          tolerance: 10   
+      switch storage
+        when "webstorage"
+          exp = paper.project.exportJSON
+            asString: true
+            precision: 5
+
+          ws.set(filename, exp)
+        when "disk"
+          exp = paper.project.exportSVG
+            asString: true
+            precision: 5
+          saveAs(new Blob([exp], {type:"application/svg+xml"}), filename + ".svg");
       
-      t.createActiveStyles = ()->
+      paper.tool.init()
+      paper.view.zoom = prev_zoom
+      paper.view.update()    
+    
+    
+  app.initialize()
+  window.createSelectionTool = ()->
+    t = new paper.Tool
+      name: "selectionTool"
+      minDistance: 10
+      hitOptions: 
+        segments: false
+        stroke: true 
+        fill: true
+        tolerance: 10   
+      init: ()->
         items = paper.project.getItems
           className: /^(?!Layer).*$/
         _.each items, (item)-> 
@@ -223,10 +233,7 @@
               strokeWidth: 5
               opacity: 0.3
               visible: false
-        console.log "ACTIVE STYLES CREATED", items.length
-      t.createActiveStyles()
-
-      t.update = ()->
+      update: ()->
         items = paper.project.getItems
           saveable: true
           className: /^(?!Layer).*$/
@@ -234,7 +241,7 @@
         _.each items, (item)-> 
           item.activeStyle.visible = item.active
 
-      t.onMouseDown = (e)->
+      onMouseDown: (e)->
         selected = paper.project.selectedItems
         
         _.each selected, (item)-> 
@@ -250,9 +257,9 @@
             item.active = false
             item.dom.removeClass("active")
 
-        t.update()  
-        
-      t.onMouseMove = (e)->
+        this.update()  
+      
+      onMouseMove: (e)->
         hitResult = paper.project.hitTest e.point, t.hitOptions
         items = paper.project.selectedItems
         items = _.filter items, (item)-> item.saveable
@@ -267,24 +274,12 @@
           hitResult.item.selected = true
           if hitResult.item.dom
             hitResult.item.dom.addClass("mouseover")
-        
-     
-          
-        
-      $('#shade').hide()
-    
-    if ws.includes("artwork")
-      console.log "CACHE IMPORTED"
-      cache = ws.get("artwork")
-      svg = paper.project.importJSON JSON.parse cache
-      # window.debug = svg
-      onsvgload(svg[0].children[0])
-      $('#shade').hide()
-      # console.log JSON.parse cache
-    else  
-      paper.project.importSVG file, onsvgload
+    t.init()
+    return t;
+
+
 #metadata-panel.dragpanel
-  .heading
+  .heading.draghandle
     METADATA
   .body
     #jsoneditor
@@ -296,20 +291,23 @@
 
 %canvas#annotator
 #annotation-panel.dragpanel
-  .heading
+  .heading.draghandle
     ANNOTATION PANEL
   .body
-    #system-message.error
-      %span.glyphicon.glyphicon-warning-sign
-      %span
+    #system-message.success
+      %span.glyphicon.glyphicon-warning-sign.error-alert
+      %span.error-alert
         %b#error-count 25 
         %span ERRORS DETECTED
+      %span.success-alert
+        %span DESIGN PASSED VALIDATION
+
   .footer
     .btn-group
-      %button.btn.btn-danger#download
+      %button.btn.btn-default#download
         %span.glyphicon.glyphicon-download
         DOWNLOAD
-      %button.btn.btn-success#save
+      %button.btn.btn-default#save
         %span.glyphicon.glyphicon-floppy-disk
         SAVE
 
@@ -326,7 +324,9 @@
   $activeArrowColor: #DDDDDD;
   
   $error: desaturate(#eb3941, 10%);
-  $errorBorder: darken(#eb3941, 10%);
+  $errorBorder: darken(#eb3941, 20%);
+  $success: darken(#dff0d8, 30%);
+  $successText: white;
 
   $panelBackground: #F5F5F5;
   $hoverText: #ECF1FA;
@@ -336,6 +336,7 @@
     height: 100%;
     overflow: hidden;
   }
+
   #system-message{
     height: 30px;
     display: flex;
@@ -353,6 +354,12 @@
       text-align: center;
       color: white;
     }
+    &.success{
+      background: $success;
+      border: darken($success, 10%) 1px solid;
+      text-align: center;
+      color: $successText;
+    }
 
   }
 
@@ -365,7 +372,7 @@
     background: desaturate(darken($eggshell, 50%), 15%);
   }
   #metadata-panel{
-    width: 400px;
+    width: 345px;
     position: absolute;
     left: 0;
     top: 0;
