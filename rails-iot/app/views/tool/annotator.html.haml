@@ -21,6 +21,17 @@
         $("#save").click (e)-> scope.save(scope.filename(), "webstorage")
         $("#download").click (e)-> scope.save(scope.filename(), "disk")
         $('#shade').fadeOut()
+        $("#quick-annotations button").click (e)->
+          $(this).toggleClass('active')
+        $('.note').click (e)->
+          $(this).toggleClass('active')
+        $('#tabs button').click (e)->
+          goto = $(this).attr('goto')
+          panels = $(this).parents('.dragpanel').find('.tab-content').hide().removeClass(".active")
+          console.log panels.length
+          $(goto).show().addClass('active')
+          $('#tabs button.selected').removeClass('selected')
+          $(this).addClass('selected')
 
     onDocumentReady: ()->
       window.ws = new WebStorage()
@@ -77,7 +88,7 @@
       @svg = svg
       paper.view.update()
       tree = @extract_tree(svg, $("<ul>"))
-      $('#annotation-panel .body').append(tree)
+      $('#svg-tree').append(tree)
       @validate(svg)
       
       svg.set
@@ -88,7 +99,23 @@
     onJSONClick: (e)->
       if window.editor
         try
-          window.editor.set JSON.parse($(this).html())
+          json = JSON.parse($(this).html())
+          window.editor.set json
+
+          $('button.active').removeClass('active')
+            
+          _.each json, (v, k)->
+            console.log "HELLO"
+            console.log '.attr-variable[name="'+k+'"]'
+            $('.attr-variable[name="'+k+'"]').addClass('active')
+            $('.' + k + "-value").val(v)
+          if json["class"]
+            classes = json["class"].split(' ')
+            console.log "CLASSES", classes
+            _.each classes, (c)->
+              c = ".class-variable[name='" + c.trim() + "']"
+              $(c).addClass('active')
+
         catch
           window.editor.set {class: ""}
 
@@ -167,6 +194,17 @@
       editor.set json
       $("#savemetadata").click (e)->
         json = editor.get()
+
+        # quick annotation
+        attributes = _.map $('.tab-content.active .attr-variable.active'), (attrVar)->
+          return [$(attrVar).attr('name'), $(attrVar).parents('.input-group').find('input').val()]
+        classes = _.map $('.tab-content.active .class-variable.active'), (classVar)->
+          return $(classVar).attr('name')
+        json = _.extend json, 
+          class: classes.join(" ")
+        json = _.extend json, _.object attributes
+
+
         $('.active').children('.json').html(JSON.stringify(json))
         actives = $('.active').children('.json')
         _.each actives, (el)->
@@ -202,7 +240,7 @@
       paper.tool.init()
       paper.view.zoom = prev_zoom
       paper.view.update()    
-    
+
     
   app.initialize()
   window.createSelectionTool = ()->
@@ -280,9 +318,18 @@
 
 #metadata-panel.dragpanel
   .heading.draghandle
-    METADATA
+    %ul#tabs
+      %li
+        %button.btn-default.btn.btn-sm.selected{goto: "#json-editor.tab-content"}
+          JSON Editor
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#thermopainting.tab-content"}
+          Thermopainting
   .body
-    #jsoneditor
+    #json-editor.tab-content
+      #jsoneditor
+    #thermopainting.tab-content
+      = render "thermopainting"      
   .footer
     %button.btn.btn-success.btn-block#savemetadata
       %span.glyphicon.glyphicon-floppy-disk
@@ -292,15 +339,48 @@
 %canvas#annotator
 #annotation-panel.dragpanel
   .heading.draghandle
-    ANNOTATION PANEL
+    %ul#tabs
+      %li
+        %button.btn-default.btn.btn-sm.selected{goto: "#svg-viewer.tab-content"}
+          SVG VIEWER
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#settings.tab-content"}
+          %span.glyphicon.glyphicon-cog
   .body
-    #system-message.success
-      %span.glyphicon.glyphicon-warning-sign.error-alert
-      %span.error-alert
-        %b#error-count 25 
-        %span ERRORS DETECTED
-      %span.success-alert
-        %span DESIGN PASSED VALIDATION
+    #svg-viewer.tab-content
+      #system-message.success
+        %span.glyphicon.glyphicon-warning-sign.error-alert
+        %span.error-alert
+          %b#error-count 25 
+          %span ERRORS DETECTED
+        %span.success-alert
+          %span DESIGN PASSED VALIDATION
+      #svg-tree
+    #settings.tab-content
+      %p 
+        %b LAST UPDATED
+        %span 2017 Aug 17
+      %hr
+      .form-group
+        %b FILENAME
+        %input.form-control{type: "text", placeholder: "chevron.svg"}
+      %hr
+      .form-group
+        %input{type: "checkbox", checked: true}
+        %b AUTOSAVE
+        %p.help-block Information will be cached in webstorage.
+      %hr
+      .form-group
+        %b QUICK ANNOTATION SCHEMAS
+        %br
+        %br
+        .list-group#quick-annotations
+          %button.list-group-item{value: "circuit"} CIRCUIT
+          %button.list-group-item{value: "illumination"} ILLUMINATION
+          %button.list-group-item{value: "actuation"} ACTUATION
+          %button.list-group-item{value: "thermopainting"} THERMOPAINTING
+
+
 
   .footer
     .btn-group
@@ -328,6 +408,7 @@
   $success: darken(#dff0d8, 30%);
   $successText: white;
 
+  $formBlue: #3883fa;
   $panelBackground: #F5F5F5;
   $hoverText: #ECF1FA;
   $eggshell: rgb(245, 244, 240);
@@ -337,6 +418,63 @@
     overflow: hidden;
   }
 
+  #settings{
+    padding: 15px;
+    display: none;
+  }
+  button.note{
+    outline: none;
+    &:active{
+      outline: none !important;
+    }
+    &:focus{
+      background: white !important;
+      outline: none !important;
+    }
+    
+    &.active{
+      background: $formBlue !important;
+      color: white;
+      &:active{
+      background: $formBlue;
+      color: white;
+      }
+      &:hover{
+        background: $formBlue;
+        color: white;
+      }
+      &:focus{
+        outline: none !important;
+        background: $formBlue !important;
+        color: white !important;
+      }
+    }
+  }
+  #tabs{
+    padding-left: 5px;
+    li{ display: inline;}
+    button{
+      position: relative;
+      background: darken($panelBackground, 10%);
+
+      &.selected{
+        &:focus{
+          outline: none;
+        }
+        z-index: 10000;
+        border-bottom: none;
+        top: -3px;
+        line-height: 144%;
+        padding-bottom: 3px;
+        border-width: 2px;
+        font-weight: bold;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        background: lighten($panelBackground, 10%);
+      }
+    }
+
+  }
   #system-message{
     height: 30px;
     display: flex;
@@ -370,6 +508,9 @@
     top: 0;
     height: 100%;
     background: desaturate(darken($eggshell, 50%), 15%);
+    .heading{
+      text-align: left;
+    }
   }
   #metadata-panel{
     width: 345px;
@@ -390,13 +531,17 @@
       
     .heading{
         background: $panelBackground;
-        border: 1px solid $borderColor;
+        border-top: 1px solid $borderColor;
+        border-left: 1px solid $borderColor;
+        border-right: 1px solid $borderColor;
         text-align: center;
         padding: 5px;
         font-family: Avenir;
         font-weight: bold;
         height: 30px;
         margin-bottom: 0px !important;
+        z-index: 100;
+
     }
     .footer{
       padding: 10px 10px;
@@ -413,15 +558,22 @@
       align-items: center;
       justify-content: center;
     }
+    .tab-content{
+      width: 100%;
+      height: 100%;
+    }
     .body{
-      border: 1px solid $borderColor;
+      border-top: 2px solid $borderColor;
+      border-left: 1px solid $borderColor;
+      border-bottom: 1px solid $borderColor;
+      border-right: 1px solid $borderColor;
       padding: 5px 5px;
       height: calc(100% - 55px - 30px);
       width: 100%;
       overflow-y: scroll;
       background: white;
-      
-      
+      z-index: 200;
+      position: relative;      
       ul{
         padding-left: 0px; 
         cursor: pointer;
