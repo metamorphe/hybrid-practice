@@ -1,0 +1,426 @@
+:coffeescript
+  $ ->
+    bindEvents()
+
+  fullscreenMode = (e)->
+      $(this).children('span')
+        .toggleClass('glyphicon-resize-full')
+        .toggleClass('glyphicon-resize-small')
+      p = $(this).parent()
+        .toggleClass('fullscreen')
+
+      aspect = $('.project-container').height()/ $('.project-container').width()
+
+      if p.hasClass('fullscreen')
+        p.detach().appendTo('body')
+        paper.view.viewSize.width = $('body').width()
+        paper.view.viewSize.height = $('body').width() * aspect
+        paper.project.activeLayer.fitBounds(paper.view.bounds)
+      else
+        p.detach().appendTo('.project-container')
+        paper.view.viewSize.width = $('.project-container').width()
+        paper.view.viewSize.height = $('.project-container').width() * aspect
+        paper.project.activeLayer.fitBounds(paper.view.bounds)
+      
+      e.preventDefault()
+      e.stopPropagation()
+  tabs = ()->
+    $('#tabs button').click (e)->
+      goto = $(this).attr('goto')
+      panels = $(this).parents('.dragpanel').find('.tab-content').hide().removeClass(".active")
+      console.log panels.length
+      $(goto).show().addClass('active')
+      $('#tabs button.selected').removeClass('selected')
+      $(this).addClass('selected')
+  bindEvents = ()->
+    tabs()
+    # Fullscreen buttons
+    fsButton = $('#fullscreen').click fullscreenMode
+    
+    template = $("#project-settings").clone().removeClass('template').addClass('active').prop('outerHTML')
+    
+    # PROJECT VIEW SETTINGS
+    $("#project-view-settings").popover
+      template: template
+      placement: 'right'
+      title: 'Project Settings'
+      trigger: 'click'
+    $("#project-view-settings").on 'shown.bs.popover', ()->
+      scope = this
+      $('.active input#background-color').on 'change', (e)->
+        ch.setBGColor $(this).val()
+      $('.close').click (e)->
+        $("#project-view-settings").popover('hide')
+    $("#project-view-settings").on 'hidden.bs.popover', (e)->
+      $(e.target).data("bs.popover").inState = 
+        click: false
+        hover: false
+        focus: false
+
+
+    
+
+
+
+
+
+#project-settings.template.popover.custom-popover{:role => "tooltip"}
+  .close
+    x
+  %h3.popover-title Project Settings
+
+  .col-xs-12
+    .full-hoz
+      .full-vert
+      %table
+        %tr 
+          %td
+            %label Background
+          %td
+            %input#background-color{type: "color"}
+
+
+
+%event#project.full-hoz.tall.actuation-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert-centered.fill_height
+    %button.design-title.btn-primary.trigger{:type => "trigger"} PROJECT
+    %acceptor#group-result.actuator{:data => {:accept=> 1}}
+    
+  .hoz.fill_height
+    .project-container
+      #projectviewer
+        %canvas
+        .btn-group-vertical.side-btn
+          %button#fullscreen.btn.btn-xs.btn-primary
+            = glyph "resize-full"
+            (F)
+          %button#choreo-tool.btn.btn-xs.btn-primary
+            = glyph "screenshot"
+            (V)
+          %button#selection-tool.btn.btn-xs.btn-primary
+            = glyph "random"
+            (C)
+        %button#project-view-settings.btn.btn-ghost
+          = glyph "cog"
+
+
+  #project-panel.dragpanel
+    .heading.draghandle
+      %ul#tabs
+        %li
+          %button.btn-default.btn.btn-sm.selected{goto: "#sensors.tab-content"}
+            SENSORS
+        %li
+          %button.btn-default.btn.btn-sm{goto: "#midi.tab-content"}
+            MIDI
+    .body
+      #sensors.tab-content
+        .flex-wrapper
+          = render :partial => "tool/levels/sensor_panel"
+          
+
+
+      #midi.tab-content
+        .flex-wrapper
+          .btn-midi
+            %button#all-on.btn
+            %label.truncate
+              ALL ON
+          .btn-midi
+            %button#all-off.btn  
+            %label.truncate
+              ALL OFF
+
+      
+        
+
+  
+:scss
+  @import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+  $borderColor: #D3D3D3;
+  $arrowColor: #7A7A7A;
+  $subtleText: #80858B;
+
+  $activeBackground: #4573B9;
+  $activeText: #FFFFFF;
+  $activeSubtleText: #C5C5C5;
+  $activeArrowColor: #DDDDDD;
+
+  $error: desaturate(#eb3941, 10%);
+  $errorBorder: darken(#eb3941, 20%);
+  $success: darken(#dff0d8, 30%);
+  $successText: white;
+
+  $formBlue: #3883fa;
+  $panelBackground: #F5F5F5;
+  $C1: #F5F5F5;
+  $C3: #C5C5C5;
+  $C5: #A5A5A5;
+  $hoverText: #ECF1FA;
+  $eggshell: rgb(245, 244, 240);
+
+  .custom-popover{
+    padding-top: 0px;
+    color: black;
+    z-index: 50000;
+    font-size: 10pt;
+    width: 200px;
+    .popover-title{
+      font-size: 8pt !important;
+      text-transform: uppercase;
+      font-weight: bold;
+      padding: 4px 14px !important;
+    }
+    tr{
+      margin: 5px 0px;
+    }
+    label{
+      width: 60px;
+      font-size: 8pt;
+    }
+    input{
+      border: $C3 1px solid;
+      border-radius: 5px;
+      margin: 2px 4px;
+      padding: 2px 6px;
+      width: 100%;
+
+    }
+    .close{
+      color: $error;
+      position: absolute;
+      top: 0px;
+      right: 5px;
+    }
+  }
+
+  #tabs{
+    padding-left: 5px;
+    li{ display: inline;}
+    button{
+      position: relative;
+      background: darken($panelBackground, 10%);
+
+      &.selected{
+        &:focus{
+          outline: none;
+        }
+        z-index: 200;
+        border-bottom: none;
+        top: -3px;
+        line-height: 144%;
+        padding-bottom: 3px;
+        border-width: 2px;
+        font-weight: bold;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        background: lighten($panelBackground, 10%);
+      }
+    }
+
+  }
+  #midi{
+    display: none;
+  }
+  #sensors{
+    overflow: hidden !important;
+  }
+  .truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .flex-wrapper{
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: center;
+      background: $C1;
+
+      .btn-midi{
+        margin: 10px;
+        display: flex;
+        flex-flow: column wrap;
+        align-items: flex-start;
+        justify-content: center;
+        $bevel: 15px;
+        button{
+          width: 60px;
+          height:60px;
+          border-radius: 5px;
+          background: $C3;
+          border: $C5 3px solid;
+          -webkit-box-shadow: inset -5px -5px 10px -4px rgba(0,0,0,0.08);
+          -moz-box-shadow: inset -5px -5px 10px -4px rgba(0,0,0,0.08);
+          box-shadow: inset -5px -5px 10px -4px rgba(0,0,0,0.08);
+          &:hover{
+            background: lighten($C3, 10%);
+          }
+          &:active{
+            background: lighten(desaturate(green, 70%), 50%);
+            -webkit-box-shadow:  -5px -5px 10px -4px rgba(0,0,0,0.08);
+            -moz-box-shadow:  -5px -5px 10px -4px rgba(0,0,0,0.08);
+            box-shadow:  -5px -5px 10px -4px rgba(0,0,0,0.08);
+
+          }
+        }
+        label{
+          width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+  }
+  .dragpanel{
+    cursor: pointer;
+    color: #262626;
+    position: relative;
+      
+    .heading{
+        background: $panelBackground;
+        border-top: 1px solid $borderColor;
+        border-left: 1px solid $borderColor;
+        border-right: 1px solid $borderColor;
+        text-align: center;
+        padding: 5px;
+        font-family: Avenir;
+        font-weight: bold;
+        height: 30px;
+        margin-bottom: 0px !important;
+        z-index: 100;
+
+    }
+    .footer{
+      padding: 10px 10px;
+      height: 55px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      background: $panelBackground;
+      border: 1px solid $borderColor;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+    }
+    .tab-content{
+      width: 100%;
+      height: 100%;
+    }
+    .body{
+      border-top: 2px solid $borderColor;
+      border-left: 1px solid $borderColor;
+      border-bottom: 1px solid $borderColor;
+      border-right: 1px solid $borderColor;
+      padding: 5px 5px;
+      height: calc(100% - 55px - 30px);
+      width: 100%;
+      overflow: hidden;
+      background: white;
+      z-index: 200;
+      position: relative;   
+    }
+  }
+
+  #project-panel{
+    width: calc(50% - 50px);
+    height: 100%;
+    margin: 0 30px;
+  }
+  #project{
+    background: $C1; 
+    .project-container{
+        margin-right: 10px;
+        width: 50%;
+        padding: 10px;
+        height: 100% !important;
+
+        #projectviewer{
+          position: relative;
+          width: 400px !important;
+          height: 100% !important;
+          cursor: pointer;
+          position: relative;
+          &::before{
+            position: absolute;
+            top: 5px;
+            left: 5px;
+
+            content: '';
+            height: 15px;
+            width: 15px;
+
+            background: $C3;
+            border: $C5 1px solid;
+            
+            z-index: 400;
+            pointer-events: none;
+            border-radius: 100px;
+          }
+          &::after{
+            position: absolute;
+            content: 'SIM';
+
+            font-family: "Avenir", sans-serif;
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: left;
+            
+            top: -1px;
+            left: 25px;
+            z-index: 400;
+            pointer-events: none;
+          } 
+          &.live::before{
+            background: $error;
+            border: $errorBorder 1px solid;
+          }
+          &.live::after{
+            content: 'LIVE';
+          } 
+          
+
+          &.fullscreen{
+              position: absolute;
+              top: 0px;
+              left: 0px;
+              z-index: 10000000;
+              height: 100% !important;
+              width: 100% !important;
+          }
+
+          canvas{
+              width: 100% !important;
+              height: 100% !important;
+          }
+
+          //#fullscreen{top: 5px;}
+          //#choreo-tool{top: 25px;}
+          //#selection-tool{top: 45px;}
+          #project-view-settings{
+              position: absolute;
+              right: 5px;
+              top: 0px;
+              z-index: 100;
+          }
+          .side-btn{
+              position: absolute;
+              right: -40px;
+              top: 5px;
+              z-index: -1;
+              padding-left: 23px; 
+
+          }
+      }
+
+
+
+    }
+  }

@@ -3,6 +3,7 @@
 //= require jquery-ui
 //= require bootstrap-sprockets
 //= require underscore
+//= require alertify
 //= require_self
 
 window.YELLOW = "#FF9912"

@@ -19,9 +19,19 @@
 @import "widget";
 @import "drop";
 @import "fileselectors";
-
 @import "pipeline";
 
+event.fullscreen{
+	width: 100%;
+	height: 100% !important;
+	z-index: 100;
+	position: absolute;
+	top: 47px;
+	left: 0;
+}
+#ui2{
+	background: darken($base, 50%);
+}
 
 #control-container{
 	position: absolute;

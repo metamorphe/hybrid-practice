@@ -18,7 +18,40 @@
 @import "http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css";
 @import "bootstrap-sprockets";
 @import "bootstrap";
+@import 'alertify';
+@import 'themes/default';
 
+// @import 'alertify.core';
+// @import 'alertify.default';
+$C1: #F5F5F5;
+$C3: #C5C5C5;
+$C5: #A5A5A5;
+:focus {
+    outline-color: transparent !important;
+    outline-style: none !important;
+ }
+// .ajs-danger{
+// 	background: red!important;
+// 	color: white!important;
+// }
+
+.btn-ghost{
+	background: none;
+	outline: none;
+	&:hover{
+		color: $C3;
+		outline: none;
+	}
+	&:active{
+		color: $C5;
+		outline: none;
+	}
+	&:focus{
+		color: $C5;
+		outline: none;
+	}
+
+}
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

@@ -1,51 +1,53 @@
-:javascript
-  const ports = #{@ports.to_json.html_safe};
-  const files = #{@files.to_json.html_safe};
-  var act, sc, ws, fs, cmp, tsm, sm, am, record, aw, gm, tw, vm;
+:coffeescript
+  ports = #{@ports.to_json.html_safe}
+  files = #{@files.to_json.html_safe}
+  window.sens = #{@sensors.to_json.html_safe}
 
-  var PROJECT = {
-    CANVAS_COLOR: "rgb(245, 244, 240)"
-  }
-  
-  $(function(){
-    ws = new WebStorage
-    // FILE MANAGER
+  PROJECT = CANVAS_COLOR: 'rgb(245, 244, 240)'
+  window.am = null;
+  window.vm = null;
+  $ ->
+    $('#main-alert').hide()
+    window.ws = new WebStorage
+    # FILE MANAGER
     dom = 'projectviewer canvas'
-    fs = new ProjectFileManager({
-      paper: Utility.paperSetup(dom),
-      files: files, 
-      selector: $("#file-selector"),
-      onLoad: function(data){
-        $(dom).css('background', PROJECT.CANVAS_COLOR);
-        AestheticActuation.enable(paper);
-      }
-    });
-    // SOCKET CONTROL
-    sc = new SocketControl({
-        socket_port: 3015,
-        ports: ports,
-        trigger: $('#port-connect'),
-        selector: $('#port-selector'),
-        status: $('#port-status')
-      }
-    )
-     $('#shade').fadeOut(0);
-  })
+    window.fs = new ProjectFileManager
+      paper: Utility.paperSetup(dom)
+      files: files
+      selector: $('#file-selector')
+      onLoad: (data) ->
+        $(dom).css 'background', PROJECT.CANVAS_COLOR
+        AestheticActuation.enable paper
+        return
+    # SOCKET CONTROL
+    window.sc = new SocketControl
+      socket_port: 3015
+      ports: ports
+      trigger: $('#port-connect')
+      selector: $('#port-selector')
+      status: $('#port-status')
+    $('#shade').fadeOut 0
+    
+    sc.subscribe 'input', (command)->
+      sensorProcess(command)
+     
+    
+
 #main-alert.alert.alert-warning
   %strong HEY!
   %span LETS START DESIGNING!
 #ui2
   = render :partial => "tool/levels/file_selectors"
-  %group.vert
+  %group.vert#levels
     = render :partial => "tool/levels/actuators"
-    = render :partial => "tool/levels/datasignals"
+    - render :partial => "tool/levels/datasignals"
+    - render :partial => "tool/levels/sensors"
     - render :partial => "tool/levels/behaviors"
     - render :partial => "tool/levels/psychophysics"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"
     - render :partial => "tool/levels/distributed"
     - render :partial => "tool/levels/statemachine"
-    = render :partial => "tool/levels/sensors"
            
 :css
   #ui2{

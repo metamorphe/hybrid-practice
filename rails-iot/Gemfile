@@ -61,3 +61,4 @@ gem 'chart-js-rails'
 gem "haml-rails", "~> 0.9"
 gem 'ace-rails-ap'
 
+

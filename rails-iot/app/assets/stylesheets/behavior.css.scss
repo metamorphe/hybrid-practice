@@ -104,18 +104,18 @@ behavior{
 
 }
 
-label{
-  height: 18px;
-  margin-bottom: 0;
-  line-height: 100%;
-  width: 100%;
-  padding: 3px 3px;
-  font-size: 9pt;
-  font-weight: bold;
-  font-family: Avenir, sans-serif;
-  color: $sexy_off_white;
-  background: desaturate(darken($composition_base, 45%), 10%);
-}
+// label{
+//   height: 18px;
+//   margin-bottom: 0;
+//   line-height: 100%;
+//   width: 100%;
+//   padding: 3px 3px;
+//   font-size: 9pt;
+//   font-weight: bold;
+//   font-family: Avenir, sans-serif;
+//   color: $sexy_off_white;
+//   background: desaturate(darken($composition_base, 45%), 10%);
+// }
 
 handle{
   width: 10px;

@@ -16,7 +16,7 @@ class window.BehaviorManager
 		Widget.bindKeypress 32,((event) ->
 			event.preventDefault()
 			$('#compose').click()), true
-
+		@throttlePlay = _.throttle @play, 2000
 
 	getActors: ()->
 		actuators = _.map $('#stage').find('actuator'), (actor)-> return am.resolve(actor)		
@@ -68,6 +68,7 @@ class window.BehaviorManager
 		return t
 	
 	play: ()->
+		console.log "PLAYING"
 		if @playing
 			@pause()
 			return

@@ -21,7 +21,7 @@ class ToolController < ApplicationController
   def aesthetic_actuation
     @files = get_displays()
     @ports = get_ports()
-    # render :json => @ports
+    @sensors = Device.data()
     render :layout => "full_screen"
   end
   def system_control
@@ -124,7 +124,7 @@ class ToolController < ApplicationController
  # HELPER METHODS
  
   def get_ports
-    ports = ["/dev/tty.usb*"] #"/dev/tty.HC*", 
+    ports = ["/dev/tty.usb*", "/dev/tty.AestheticAquarium-DevB"] #"/dev/tty.HC*", 
     ports.map!{|p| Dir[p]}
     ports.flatten!
   end

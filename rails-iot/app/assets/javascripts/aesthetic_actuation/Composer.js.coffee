@@ -39,8 +39,7 @@ class window.Composer
     @live = false
     Composer.log "COMPOSER INITIALIZED"
     # @initBLSlider @op.slider
-    $('#background-lights').click ()->
-      ch.toggleLights()
+
     @bindLiveButton()
     @bindSignalButton()
     @bindChoreographyButton()

@@ -13,14 +13,28 @@ class window.Widget
         $(this).find('span').removeClass('glyphicon-collapse-down')
         $(this).find('span').addClass('glyphicon-collapse-up')
     
-    Widget.bindKeypress 96, (()-> $('event button.toggle').click()), true
+
+    fullscreenToggle = (dom)->
+      console.log "DOM", dom
+      $(dom).toggleClass('fullscreen')
+      # if $(dom).hasClass('fullscreen')
+        # $(dom).detach().appendTo('body')
+      # else
+        # $(dom).detach().appendTo('#levels')
+
+    Widget.bindKeypress 97, (()-> $('event button.toggle').click()), true
+    Widget.bindKeypress 98, (()-> fullscreenToggle($('event#behaviors'))), true
     Widget.bindKeypress 49, (()-> $('event.actuation-design button.toggle').click()), true
     Widget.bindKeypress 50, (()-> $('event.signal-design button.toggle').click()), true
     Widget.bindKeypress 51, (()-> $('event.composition-design button.toggle').click()), true
+    Widget.bindKeypress 102, (()-> $('#fullscreen').click()), true
+
+
 
     $(document).keypress (event) ->
       if Widget.bindings_on
         _.each Widget.bindings, (func, key)->
+          console.log event.which
           if event.which == parseInt(key)
             func(event)
     return
@@ -54,49 +68,14 @@ class window.ActuatorWidgets
     @comm = new Communicator
       trigger: $('button#live-connect')
       bindKey: 'l'
+
 class window.ActuatorWidget
   @resolveTrack: (track)->
     _.map track.find('actuator'), (act)-> return am.resolve(act)
   resolveTrack: ()->
     ActuatorWidget.resolveTrack(@track)
 
-class window.Communicator extends ActuatorWidget
-  constructor: (op)->
-    scope = this
-    @live = false
-    _.extend this, op
-    @update()
-    Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
-    @trigger.click (event)->
-      event.preventDefault()
-      $(this).blur()
-      scope.live = not scope.live
-      scope.update()
-      if sc and sc.state == 1 and scope.live
-        
-        Alerter.warn
-          strong: "YOU ARE LIVE!"
-          msg: "Look at the device. Things won't update on the screen anymore."
-          delay: 4000
-          color: 'alert-success'
 
-      else if not scope.live
-        
-        Alerter.warn
-          strong: "ENTERING SIMULATION!"
-          msg: "The simulation will now update. The device is no longer in use."
-          delay: 4000
-          color: 'alert-info'
-  update: ()->
-    if @live
-      @trigger.addClass('btn-success') 
-      if sc.state == 0
-        $('#port-connect').click()
-      $('#projectviewer').addClass('live')
-    else 
-      @trigger.removeClass('btn-success')
-      $('#projectviewer').removeClass('live')
-      # $('#projectviewer canvas').css('opacity', 1)
 
 class window.AsynchMorph extends ActuatorWidget
   @MIN: 0

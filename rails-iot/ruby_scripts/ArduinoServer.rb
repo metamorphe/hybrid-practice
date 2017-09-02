@@ -9,12 +9,14 @@ EventMachine.run do
   baud_normal = 9600 * 2
   baud_slow = 9600
   @baud = baud_normal
-  @usb = Dir.glob("/dev/tty.usb*")
+  # @usb = Dir.glob("/dev/tty.usb*")
+  @usb = Dir.glob("/dev/tty.AestheticAquarium-DevB")
   if @usb.length == 0 
     puts "NO PORTS DETECTED"
     return
   else
     puts "RUNNING " + @usb[0]
+    puts "@ "+ @baud.to_s
     @usb = @usb[0]
   end
 

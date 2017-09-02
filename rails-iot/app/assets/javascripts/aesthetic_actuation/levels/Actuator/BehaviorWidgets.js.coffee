@@ -123,6 +123,8 @@ class window.ChoreographyWidget extends Widget
         scope.buffer[el.id] = style
         ChoreographyWidget.NORMAL_SELECT(el)
         el.flag = true
+  setBGColor: (bg)->
+    @canvas.css('background', bg)
   toggleLights: ()->   
     @dark = not @dark
     if @dark

@@ -1,3 +1,46 @@
+:coffeescript  
+  $ ->
+    alertify.set('notifier','position', 'top-right');
+    window.comm = new Communicator
+      trigger: $('button#live-connect')
+      bindKey: 'l'
+
+  window.actuatorsLive = ()->
+    return $('#live-connect').hasClass('btn-success')
+  window.sensorsLive = ()->   
+    return $('#sensor-connect').hasClass('btn-danger')
+  
+  
+
+  class window.Communicator extends ActuatorWidget
+    constructor: (op)->
+      scope = this
+      @live = false
+      _.extend this, op
+      @update()
+      Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+      @trigger.click (event)->
+        event.preventDefault()
+        $(this).blur()
+        scope.live = not scope.live
+        scope.update()
+
+        if sc and sc.state == 1 and scope.live
+          alertify.notify 'You are <b>live!</b>', 'success', 4
+        else if not scope.live 
+          alertify.notify '<b>The simulation will now update.</b> The device is no longer in use.', 'info', 4
+            
+    update: ()->
+      if @live
+        @trigger.addClass('btn-success') 
+        if sc.state == 0
+          $('#port-connect').click()
+        $('#projectviewer').addClass('live')
+      else 
+        @trigger.removeClass('btn-success')
+        $('#projectviewer').removeClass('live')
+        # $('#projectviewer canvas').css('opacity', 1)
+
 #selectors.full-hoz
   #file-select.hoz-left.half-w.mpadding
     .vert-left.full-w
@@ -14,6 +57,13 @@
         %select.form-control#port-selector.sexy
         %button#port-connect.btn.btn-xs.btn-success
           = glyph "transfer"
+  #sensor-select.hoz-left.mpadding{width: 30}
+    .vert-left.full-w
+      %span.status-label
+        SENSING?
+      .full-hoz
+        %button#sensor-connect.btn.btn-xs.btn-off
+          = glyph "record"
   #port-select.hoz-left.mpadding{width: 30}
     .vert-left.full-w
       %span.status-label
@@ -22,3 +72,12 @@
         / %select.form-control#port-selector.sexy
         %button#live-connect.btn.btn-xs.btn-success
           = glyph "send"
+
+:scss
+  $C1: #F5F5F5;
+  $C3: #C5C5C5;
+  $C5: #A5A5A5;
+  .btn-off{
+    background: $C3;
+    color: $C5;
+  }

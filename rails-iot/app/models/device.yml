@@ -1,0 +1,106 @@
+devices: 
+  -   
+    name: aquarium
+    sensors: 
+      -
+        id: 0
+        name: "Temperature"
+        type: number
+        unit: F
+        sample: T
+        sampling-rate: 500
+        throttle: 500
+        api: V
+        states: 
+          -
+            name: "Fish Popsicles"
+            condition: 
+              lower: 0
+              upper: 75
+          -
+            name: "Just Right"
+            condition: 
+              lower: 75
+              upper: 80
+          -
+            name: "Fish Soup"
+            condition: 
+              lower: 80
+              upper: 212
+        events: 
+          - 
+            name: onTempChange
+            api: I
+      -
+        id: 1
+        name: "Proximity (Near)"
+        type: number
+        unit: ""
+        sample: N
+        sampling-rate: 500
+        throttle: 500
+        api: M
+        states: 
+          -
+            name: "Zone 1"
+            condition: 
+              lower: 0
+              upper: 100
+          -
+            name: "Zone 2"
+            condition: 
+              lower: 100
+              upper: 200
+          -
+            name: "Zone 3"
+            condition: 
+              lower: 200
+              upper: 300
+          -
+            name: "Zone 4"
+            condition: 
+              lower: 300
+              upper: 100000
+        events: 
+          - 
+            name: onZoneChange
+          
+      -
+        id: 2
+        name: "Proximity (Far)"
+        type: number
+        unit: ""
+        sample: F
+        sampling-rate: 500
+        throttle: 500
+        api: G
+        states: 
+          -
+            name: "Zone 1"
+            condition: 
+              lower: 0
+              upper: 100
+          -
+            name: "Zone 2"
+            condition: 
+              lower: 100
+              upper: 200
+          -
+            name: "Zone 3"
+            condition: 
+              lower: 200
+              upper: 300
+          -
+            name: "Zone 4"
+            condition: 
+              lower: 300
+              upper: 100000
+        events: 
+          - 
+            name: onZoneChange
+            api: O
+
+
+            
+
+  

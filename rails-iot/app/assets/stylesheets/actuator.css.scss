@@ -1,28 +1,11 @@
 #project acceptor{
     margin-top: 10px;
 }
-#selection-tool{
-    margin-top: 10px;
-    margin-bottom: 0px;
-}
+
 .tools{
     padding: 0 14px;
 }
-#projectviewer{
-    @extend commandlist;
-    width: 400px !important;
-    height: 100% !important;
-    cursor: pointer;
-    canvas{
-        width: 100% !important;
-        height: 100% !important;
-    }
-}
-.project-container{
-    width: 50%;
-    padding: 10px;
-    height: 100% !important;
-}
+
 .actuator-container{
     width: 58%;
     height: 100% !important;

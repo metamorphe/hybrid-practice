@@ -1,0 +1,320 @@
+:coffeescript
+  window.sensorTriggers = ["T", "F", "N"]
+  window.sensorEvents = ["V", "G", "M"]
+  window.sensorProcess = (command)->
+    if _.contains sensorEvents, command.flag
+      $('.sensor[name="' + command.flag + '"] .mag').html(command.args[0].toFixed(1))
+      sm.processState(command)
+      # switch command.flag
+      #   when 'M'
+      #     if command.args[0] > 400
+      #       console.log "PLAY"
+      #       # if bm and bm.throttlePlay
+      #       if bm
+      #         bm.throttlePlay()
+      #   when 'G'
+      #     if command.args[0] > 300
+      #       console.log "PLAY GO"
+      #       # if bm and bm.throttlePlay
+      #       if bm
+      #         bm.throttlePlay()
+
+      #   else
+      #     console.log '↑', command
+
+  class window.SensorManager extends Widget
+    sensorThreads: []  
+    stateManager: {}
+    constructor: (op)->
+      scope = this
+      _.extend(this, op)
+      @loadSensors()
+      @bindEvents()
+    processState: (command)->
+      value = command.args[0]
+      sensor = _.find @load, (sensor)-> sensor.api == command.flag
+      if sensor.states
+        states = _.filter sensor.states, (state)-> value >= state.condition.lower and value < state.condition.upper
+        states = _.pluck(states , "name")
+        if states
+          $('.sensor[name="' + command.flag + '"] .state').html(states.join(','))
+          $('.sensor[name="' + command.flag + '"] li').removeClass('active')
+          _.each states, (state)->
+            $('.sensor[name="' + command.flag + '"] li[name="'+state+'"]').addClass('active')
+          
+        if @stateManager[sensor.id] and @stateManager[sensor.id] != states.join(',')
+          console.log "STATE CHANGE", @stateManager[sensor.id], states.join(',')
+        @stateManager[sensor.id] = states.join(',')
+
+
+
+    loadSensors: ()->
+      senDoms = _.map @load, (sensor)->
+        dom = $('.sensor.template').clone().removeClass("template")
+          .attr('name', sensor.api)
+          .data('id', sensor.id)
+          .data('api', sensor.api)
+          .data('sample', sensor.sample)
+        dom.find('.name').html(sensor.name)
+        dom.find('unit').html(sensor.unit)
+
+        states = _.map sensor.states, (s)->
+          return $('<li>').html(s.name).attr('name', s.name)
+        dom.find('.sensor-events ul').html(states)
+        dom
+      @parent.append(senDoms)
+    getSensors: ()->
+      _.map $(".sensor").not(".template"), (sensor)->
+        tip = $($($(sensor).find('.settings').get(0)).data()["bs.popover"].$tip[0])
+        sr = parseInt(tip.find('.sampling-rate').val())
+        throttle = parseInt(tip.find('.throttle').val())
+        x = 
+          id: $(sensor).data('id')
+          name: $(sensor).find('.name').html()
+          sample: $(sensor).data('sample')
+          api: $(sensor).data('api')
+          samplingRate: sr
+          throttle: throttle
+
+    bindEvents: ()->
+      scope = this
+      $('#sensor-connect').click ()->
+        if not actuatorsLive()
+          alertify.notify 'You have to go <b>live</b> first...', 'error', 4
+          return
+        $(this).toggleClass('btn-off').toggleClass('btn-danger')
+        if sensorsLive()
+          alertify.notify 'Reading sensors!', 'success', 4
+          newThreads = _.map scope.getSensors(), (sensor)-> 
+            return setInterval (()-> scope.sampleSensor(sensor.sample)), sensor.samplingRate
+          scope.sensorThreads = _.compact(_.flatten([scope.sensorThreads, newThreads]))
+        else
+          alertify.notify 'Disabling sensors.', 'info', 4
+          _.each scope.sensorThreads, (thread)-> 
+            if thread then clearInterval(thread)
+          scope.sensorThreads = []
+          $('.sensor .mag').toggleClass('disabled')
+
+      _.each $(".sensor .settings"), (sensor)->
+        template = $("#sensor-settings").clone().removeClass('template').addClass('active')
+        template.find('.sensor-name').attr('value', $(sensor).parents('.sensor').find('.name').html())
+        
+        template = template.prop('outerHTML')
+        $(sensor).popover
+          template: template
+          placement: 'right'
+          title: 'Project Settings'
+          trigger: 'click'
+        $(sensor).popover('show')
+        $(sensor).popover('hide')
+
+      $(".sensor .settings")
+        .on 'shown.bs.popover', ()->
+          that = this
+          $('input.sensor-name').on 'change input', (e)->
+            $(this).parents('.sensor').find('.name').html($(this).val())
+          
+          $('input[type="range"]').on 'change input', (e)->
+            $(this).siblings('.val').html($(this).val() + " ")
+          
+          $('input.sampling-rate').on 'change input', (e)->
+                
+          $('input.sampling-rate').on 'change input', (e)->
+            $(this).parents('.sensor').data('sampling-rate', $(this).val())
+
+          $('input.throttle').on 'change input', (e)->
+            console.log "Throttle", $(this).val()
+            $(this).parents('.sensor').data('throttle', $(this).val())
+
+          $('.close').click (e)->
+            $(that).popover('hide')
+        .on 'hidden.bs.popover', (e)->
+          $(e.target).data("bs.popover").inState = 
+            click: false
+            hover: false
+            focus: false
+    isLive: ()->
+      return sensorsLive()
+    sampleSensor: (sampleTrigger)->
+      if actuatorsLive()
+        sc.sendMessage({flag: sampleTrigger, args: []}, {delay: 0, live: true})
+
+
+  $ -> 
+    window.sm = new SensorManager
+      load: sens.devices[0].sensors
+      parent: $("#sensors.tab-content .flex-wrapper")
+    
+    
+#sensor-settings.template.popover.custom-popover{:role => "tooltip"}
+  .close
+    x
+  .popover-title Sensor Settings
+  .col-xs-12
+    .full-vert
+      %table
+        %tr 
+          %td
+            %label Name 
+          %td
+            %input.sensor-name{type: "text", value: "Thermometer"}
+        %tr 
+          %td
+            %label Sampling rate
+          %td
+            %span.val 500
+            %span.unit ms
+            %input.sampling-rate{type: "range", min:50, value: 500, max: 5000, step: 50}
+        
+        %tr 
+          %td
+            %label Throttle 
+          %td
+            %span.val 500
+            %span.unit ms
+            %input.throttle{type: "range", min:50, max: 5000, value: 500, step: 50}
+
+
+.sensor.template{name: "X"}
+  %h3.truncate.name Name
+  .view
+    %button.settings.btn.btn-xs.btn-ghost
+      = glyph "cog"
+    .state - 
+    .value 
+      %span.mag –
+      %span.unit 
+  .sensor-events
+    %h4 
+      STATES
+      %button.btn.btn-xs.btn-ghost
+        %span= glyph "plus"
+    %ul
+      
+
+
+:scss
+  $borderColor: #D3D3D3;
+  $arrowColor: #7A7A7A;
+  $subtleText: #80858B;
+
+  $activeBackground: #4573B9;
+  $activeText: #FFFFFF;
+  $activeSubtleText: #C5C5C5;
+  $activeArrowColor: #DDDDDD;
+
+  $error: desaturate(#eb3941, 10%);
+  $errorBorder: darken(#eb3941, 20%);
+  $success: darken(#dff0d8, 30%);
+  $successText: white;
+
+  $formBlue: #3883fa;
+  $panelBackground: #F5F5F5;
+  $C1: #F5F5F5;
+  $C3: #C5C5C5;
+  $C5: #A5A5A5;
+  $hoverText: #ECF1FA;
+  $eggshell: rgb(245, 244, 240);
+
+  .sensor{
+        background: $C3;
+        width: 100px;
+        height: 100%;
+        overflow: hidden;
+        margin: 5px;
+        display: flex;
+        flex-flow: column wrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        border-radius: 2px;
+        h3{
+          width: 100%;
+          background: $activeBackground;
+          color: white;
+          font-size: 0.7em;
+          text-transform: uppercase;
+          padding: 5px 5px;
+          margin: 0 0 10px 0;
+        }
+        .sensor-events{
+          width: 100%;
+          padding: 5px;
+          h4{
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8em;
+            margin: 0 0 5px 0;
+            button{
+              background: $C1;
+              border: 1px solid $C5;
+              width: 20px;
+              height: 20px;
+            }
+          }
+          ul{
+            margin: 0;
+            padding: 0;
+            border-radius: 5px;
+            overflow: hidden;
+            li{
+              display: block;
+              border: 1px solid $C5;
+              background: $C1;
+              padding: 0px 6px;
+              font-size: 0.7em;
+              &.active{
+                background: lighten(#00A8C1, 10%);
+              }
+            }
+          }
+        }
+        .view{
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: center;
+          align-items: center;
+          background: $eggshell;
+          border: 1px solid darken($eggshell, 30%);
+          margin: 5px;
+          padding: 8px;
+          width: calc(100% - 10px);
+          height: 80px;
+          border-radius: 5px;
+          position: relative;
+          
+          .state{
+            text-transform: uppercase;
+            color: $subtleText;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: normal;
+          }
+          .settings{
+            position: absolute;
+            top: 0px;
+            right: 0px;
+          }
+          .value{
+            position: relative;
+            font-size: 1.6em;
+            font-family: 'Roboto Mono', monospace;
+            color: black;
+            padding: 3px;
+            .unit{
+              position: absolute;
+              bottom: 0px;
+              right: -16px;
+              width: 20px;
+              font-size: 0.6em;
+              color: red;
+            }
+          }
+          
+
+        }
+      }

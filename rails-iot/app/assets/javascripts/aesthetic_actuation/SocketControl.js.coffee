@@ -15,13 +15,16 @@ class window.SocketControl
     @state = SocketControl.DISCONNECTED
     @init()
     return
+
   subscribe:(channel, fn)->
     id = guid()
     @subscribers[channel][id] = fn
     return id
+
   unsubscribe: (channel, id)->
     delete @subscribers[channel][id]
     return ''
+
   init: ->
     scope = this
     success = @processPorts()
@@ -47,6 +50,7 @@ class window.SocketControl
         return
     @update()
     return
+
   update: ->
     scope = this
     switch @state
@@ -57,6 +61,7 @@ class window.SocketControl
       when SocketControl.ERROR
         @_error_func scope.op.trigger
     return
+
   disconnect: ->
     @ws.onclose = ->
     # disable onclose handler first
@@ -64,6 +69,7 @@ class window.SocketControl
     @state = SocketControl.DISCONNECTED
     @update()
     return
+
   connect: ->
     scope = this
     
@@ -76,11 +82,12 @@ class window.SocketControl
 
     @ws.onopen = ->
       scope.state = SocketControl.CONNECTED
-      Alerter.warn
-          strong: "WE ARE CONNECTED!"
-          msg: "Look at the device. Things won't update on the screen anymore."
-          delay: 4000
-          color: 'alert-success'
+      # Alerter.warn
+      #     strong: "WE ARE CONNECTED!"
+      #     msg: "Look at the device. Things won't update on the screen anymore."
+      #     delay: 4000
+      #     color: 'alert-success'
+      alertify.notify "<b>Look at the device.</b> Things won't update on the screen anymore.", 'success', 4
       scope.update()
       return
 
@@ -91,11 +98,13 @@ class window.SocketControl
 
     @ws.onerror = ->
       scope.state = SocketControl.ERROR
-      Alerter.warn
-        strong: "HOLD ON!"
-        msg: "It looks like the server can't connect. Try restarting it."
-        delay: 2000
-        color: 'alert-danger'
+      # Alerter.warn
+      #   strong: "HOLD ON!"
+      #   msg: "It looks like the server can't connect. Try restarting it."
+      #   delay: 2000
+      #   color: 'alert-danger'
+      alertify.notify "<b> HOLD ON! </b>It looks like the server can't connect. Try restarting it.", 'error', 4
+          
       scope.update()
       return
 
@@ -103,13 +112,25 @@ class window.SocketControl
       if evt.data
         _.each scope.subscribers.input, (fan)->
           command = scope.stringToCommand(evt.data)
+          # console.log evt.data
           if _.isNull command then console.log '↑', evt.data
           else
             # DELAY TRIGGER DETECTED
-            if command.flag == "T"
-              forceTrigger = {flag: "F", args: command.args[0].toLowerCase()}
-              scope.sendMessageAt(forceTrigger, {delay: args[1]})
-            fan({flag: flag, args: args})  
+            switch command.flag
+              when "T"
+                forceTrigger = {flag: "F", args: command.args[0].toLowerCase()}
+                scope.sendMessageAt(forceTrigger, {delay: args[1]})
+                # if command
+                # fan({flag: flag, args: args})  
+              when "G"
+                command.args = _.map command.args, (arg)-> return parseFloat(arg)
+                fan(command)
+              when "M"
+                command.args = _.map command.args, (arg)-> return parseFloat(arg)
+                fan(command)
+              when "V"
+                command.args = _.map command.args, (arg)-> return parseFloat(arg)
+                fan(command)
         scope.update()
       return
     return
@@ -119,14 +140,19 @@ class window.SocketControl
       msgString = scope.commandToString(command)
       _.each scope.subscribers.output, (fan)->
         fan(command)  
+
       if op.live
         if not scope.ws 
-          Alerter.warn
-            strong: "HEADS UP"
-            msg: "NOT CONNECTED TO A WEBSOCKET"
-            delay: 2000
+          # Alerter.warn
+          #   strong: "HEADS UP"
+          #   msg: "NOT CONNECTED TO A WEBSOCKET"
+          #   delay: 2000
+          alertify.notify "<b> HEADS UP! </b> You are not connected to a device.", 'error', 4
+      
+
           return
-        else scope.ws.send msgString
+        else 
+          scope.ws.send msgString
       if op.update then op.update()
       if not op.delay then op.delay = 0
       if scope.LOG then console.log '↓', msgString
@@ -176,10 +202,10 @@ class window.SocketControl
       return null        
     else
       flag = parse[0].toUpperCase().trim()
-      args = parse[1].split(" ")
+      args = parse[1].trim().split(" ")
       args = _.map args, (arg)->
-      if _.isString(arg) then return arg.toUpperCase()
-      else if _.isNumber(arg) then return parseInt(arg)            
+        if _.isString(arg) then return arg.toUpperCase()
+        else if _.isNumber(arg) then return parseInt(arg)            
       return {flag: flag, args: args}
       
   commandToString: (command) ->
