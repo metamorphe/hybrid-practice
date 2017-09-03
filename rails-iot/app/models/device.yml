@@ -1,3 +1,138 @@
+actuators:
+  LED:
+    name: 'LED'
+    color: '#FFFFFF'
+    package: 'DIP'
+    dimension: 'brightness'
+    channels: 
+      brightness:
+        range:
+          min: 0
+          max: 255
+        resolution: 1
+        modality: 'light'
+        alpha: 1.1
+  RGBLED:
+    name: 'RGBLED'
+    package: 'DIP'
+    channels:
+      red:
+        range:
+          min: 0
+          max: 255
+        resolution: 1
+        modality: 'light'
+        alpha: 1.1
+      green: 
+        range:
+          min: 0
+          max: 255
+        resolution: 1
+        modality: 'light'
+        alpha: 1.1
+      blue: 
+        range:
+          min: 0
+          max: 255
+        resolution: 1
+        modality: 'light'
+        alpha: 1.1
+        modality: 'light'
+        alpha: 1.1
+  HSBLED:
+    name: 'HSBLED'
+    package: 'SMD'
+    channels:
+      hue: 
+        range:
+          min: 0
+          max: 360
+        resolution: 1
+        modality: 'light'
+        alpha: 1.1
+      saturation: 
+        range:
+          min: 0
+          max: 1
+        resolution: 0.01
+        modality: 'light'
+        alpha: 1.1
+      brightness: 
+        range:
+          min: 0
+          max: 1
+        resolution: 0.01
+        modality: 'light'
+        alpha: 1.1
+  STEPPER:
+    name: 'STEPPER'
+    dimension: 'angle'
+    channels: 
+      speed: 
+        range:
+          min: 0
+          max: 400
+        resolution: 1
+        modality: 'motion'
+        alpha: 1
+      angle:
+        range:
+          min: 0
+          max: 180
+        resolution: 1
+        modality: 'derived'
+        alpha: 1
+  STEPPER360:
+    name: 'STEPPER360'
+    dimension: 'angle'
+    channels: 
+      angle:
+        range:
+          min: 0
+          max: 180
+        resolution: 1
+        modality: 'derived'
+        alpha: 1
+  HEATER:
+    name: 'HEATER'
+    dimension: 'voltage'
+    channels: 
+      voltage:
+        range:
+          min: 0
+          max: 12
+        resolution: 12/256
+      temperatureC: 
+        range:
+          min: 0
+          max: 400
+        resolution: 1
+        modality: 'derived'
+        alpha: 1
+      temperatureF:
+        range:
+          min: 0
+          max: 400
+        resolution: 1
+        modality: 'derived'
+        alpha: 1
+  PUMP:
+    name: 'PUMP'
+    dimension: "voltage"
+    channels:
+      voltage:
+        range:
+          min: 0
+          max: 1
+        resolution: 1
+        modality: 'electricity'
+      bubbles: 
+        range:
+          min: 0
+          max: 10
+        resolution: 1
+        modality: 'derived'
+        
 devices: 
   -   
     name: aquarium

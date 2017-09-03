@@ -58,11 +58,14 @@
         focus: false
 
 
-    
-
-
-
-
+%choreography.vert-centered.default.template
+  %span CHOREOGRAPHY
+  .btn-group
+    %button.btn.btn-success.choreo
+      =glyph "random"
+      %span.async 500ms  
+    %button#remove-arrows.btn.btn-danger
+      =glyph "trash" 
 
 #project-settings.template.popover.custom-popover{:role => "tooltip"}
   .close

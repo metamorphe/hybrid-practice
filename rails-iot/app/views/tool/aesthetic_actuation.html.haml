@@ -1,7 +1,8 @@
 :coffeescript
   ports = #{@ports.to_json.html_safe}
   files = #{@files.to_json.html_safe}
-  window.sens = #{@sensors.to_json.html_safe}
+  window.sens = #{@metadata.to_json.html_safe}
+  _.extend window, window.sens.actuators
 
   PROJECT = CANVAS_COLOR: 'rgb(245, 244, 240)'
   window.am = null;
@@ -39,10 +40,11 @@
 #ui2
   = render :partial => "tool/levels/file_selectors"
   %group.vert#levels
-    = render :partial => "tool/levels/actuators"
+    = render :partial => "tool/levels/project"
+    = render :partial => "tool/levels/actuators", :locals => {:actuators => @metadata.actuators}
     - render :partial => "tool/levels/datasignals"
-    - render :partial => "tool/levels/sensors"
-    - render :partial => "tool/levels/behaviors"
+    = render :partial => "tool/levels/behaviors"
+    = render :partial => "tool/levels/sensors"
     - render :partial => "tool/levels/psychophysics"
     - render :partial => "tool/levels/composition"
     - render :partial => "tool/levels/sequencer"

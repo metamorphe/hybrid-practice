@@ -21,9 +21,9 @@
 track{
   @extend .hoz;
   height: 90%;
-  margin: 0 6px;
+  margin: 0 0px;
   /*max-height: 90px;*/
-  padding: 0 6px;
+  padding: 0 0px;
   overflow-y: hidden;
   overflow-x: scroll;
   
@@ -42,10 +42,10 @@ event.column{
   z-index: 100;
   
   .track-full{
-    width: 96% !important;
-    margin-top: 8px;
-    height: calc(100% - 110px);
-    padding-top: 6px;
+    width: 100% !important;
+    // margin-top: 8px;
+    height: 94%;
+    // padding-top: 6px;
     justify-content: flex-start!important;
     flex-direction: column !important;
     flex-wrap: nowrap !important;

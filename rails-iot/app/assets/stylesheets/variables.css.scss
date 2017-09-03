@@ -1,9 +1,15 @@
 $sexy_off_white: #f5f4f0;
 $view_ui_ratio: 0.7;
 $electric_blue: #00A8E1;
-$base: #2D6A96;
+$blue: #2D6A96;
+$c9: #32343a;
+$c6: #787c8c;
+
+$base1: $c9;
+$base: $blue;
 $base_accent: $base; /* darken($base, 10%); */
 $base_shadow: #78787B; /* gray */
+
 $shadow: #67686A; /* shadow gray */
 $highlight: #AFB0B3;
 $accent2: $shadow;
@@ -13,12 +19,16 @@ $thick: 5px;
 $sexy_red: #d9534f;
 $sexy_select:  desaturate(yellow, 10%);
 $sexy_yellow: #FF9912;
+$sexy_yellow1:  $c6;
 $sexy_green: #5cb85c;
 
 $garage_band_gray: #3d3d3d;
 $composition_base: $garage_band_gray;
-$signal_base: darken(desaturate($sexy_yellow, 100%), 40%);
-$actuator_base: darken(desaturate($base, 30%), 5%);
+
+$signal_yellow: darken(desaturate($sexy_yellow, 100%), 40%);
+$actuator_blue: darken(desaturate($base, 30%), 5%);
+$signal_base: $actuator_blue;
+$actuator_base: $c9;
 
 $time_signal_width: 110px;
 $actuator_width: 110px;

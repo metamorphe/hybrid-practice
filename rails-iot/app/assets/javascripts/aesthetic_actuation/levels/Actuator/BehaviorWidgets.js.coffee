@@ -331,7 +331,7 @@ class window.ChoreographyWidget extends Widget
           ops =
             clear: true
             target: $("#group-result")
-            actuator_type: "Pump"
+            actuator_type: "PUMP"
             hardware_ids: hids
             title: hids.join(',')
             constants: {}
@@ -339,7 +339,7 @@ class window.ChoreographyWidget extends Widget
           ops =
             clear: true
             target: $("#group-result")
-            actuator_type: "Heater"
+            actuator_type: "HEATER"
             hardware_ids: hids
             title: hids.join(',')
             constants: {}

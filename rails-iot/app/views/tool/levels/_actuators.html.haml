@@ -1,152 +1,114 @@
-= render :partial => "tool/levels/project"
-= if false
-  %event#library.actuation-design.column.vert-centered-sink-top
-    / %button.btn.btn-xs.btn-info.toggle
-    /   =glyph "collapse-up"
-    .vert
-      %button.design-title.btn-primary.trigger{:type => "trigger"}
-        %span ACTUATORS
-        %span.command [S]
-    .track-full.droppable
+:coffeescript
+  $ ->
+    $('[data-toggle="tooltip"]').tooltip
+      container: "#ui2"
+  
 
-  %event#group.actuation-design.shrink
-    %button.btn.btn-xs.btn-info.toggle
-      =glyph "collapse-up"
-    .vert
-      %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
-        %span GROUP
-        %span.command [G]
-      .full-hoz.sexy-input-group
-        
-    %acceptor#group-result.actuator{:data => {:accept=> 1}}  
-    #actuator-group.track-full.droppable
-      %button.btn.btn-xs.btn-danger.trash
-        =glyph "trash"
-     
-  %event#actuators.actuation-design.template
-    %button.btn.btn-xs.btn-info.toggle
-      =glyph "collapse-up"
-    .vert
-      %button#slider-live.design-title.btn-primary.trigger{:type => "trigger"}
-        ACTUATOR
-    .track-full
-      %actuator.draggable.template{name: "RGBLED"}
-        %div.simulation
-          %label.title.content-editable{:contenteditable=> "false"} RGBLED
-          %canvas{:type=>"RGBLED"}
-        %channels.scroll-list
-          %label.title.light CHANNELS
-          %channel.full-hoz{type: "red"}
-            %label.actuator.selected 
-              %span RED
-              %span.dimension.pull-right 0
-          %channel.full-hoz{type: "green"}
-            %label.actuator 
-              %span GREEN
-              %span.dimension.pull-right 0
-          %channel.full-hoz{type: "blue"}
-            %label.actuator
-              %span BLUE
-              %span.dimension.pull-right 0
-      %actuator.draggable.template{name: "HSBLED"}
-        %div.simulation
+:scss
+  $blue: #2D6A96;
+  $sexy_green: #5cb85c;
+  $icon-size: 25px;
+  $c6: #787c8c;
+  #library{
+    background: darken($c6, 30%) !important;
+  }
+  .icon{
+    width: $icon-size; 
+    height: $icon-size;
+  }
+  
+  .nav-tabs{
+    li{
+      a{
+        padding: 7px 15px;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        text-shadow: 2px 2px 2px rgba(150, 150, 150, 0.56);
+       }
+      &.active{
+         #actuatorlib{ background-color: $blue; }
+         #behaviorlib{ background-color: $sexy_green; }
+      }
+      #actuatorlib{
+        background-color: desaturate($blue, 20%);
+        &:active{ background-color: $blue; }
+        &:hover{ background-color: opacify($blue, 0.1);  }
+        &:focus{ background-color: opacify($blue, 0.2);  }
+      }
+      #behaviorlib{
+        background-color: desaturate($sexy_green, 20%);
+        &:active{ background-color: $sexy_green; }
+        &:hover{ background-color: opacify($sexy_green, 0.1);  }
+        &:focus{ background-color: opacify($sexy_green, 0.2);  }
+      }
+    }
+  }
+  .tab-content{
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    overflow: hidden;
+  }
+  .tab-pane{
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+  }
 
-          %label.title
-            %span.content-editable HSBLED
-            %span.save-status 
-            %a.btn.btn-xxs.btn-danger.pull-right.remove-actuator
-              =glyph "remove"
-          %canvas{:type=>"HSBLED"}
-          %label.async 100
-        %channels.scroll-list
-
-          %label.title.light 
-            %span CHANNELS
-            
-          %channel.full-hoz.selected{type: "brightness"}
-            %label.actuator
-              %span BRIGHTNESS
-              %span.dimension.pull-right 0
-          %channel.full-hoz{type: "hue"}
-            %label.actuator
-              %span HUE
-              %span.dimension.pull-right 0
-          %channel.full-hoz{type: "saturation"}
-            %label.actuator
-              %span SATURATION
-              %span.dimension.pull-right 0      
-      %actuator.draggable.template{name: "LED"}
-        %div.simulation
-          %label.title{:contenteditable=> "plaintext-only"} LED
-          %canvas{:type=>"LED"}
-        %channels.scroll-list
-          %label.title.light CHANNELS
-          %channel.full-hoz{type: "brightness"}
-            %label.actuator.selected
-              %span BRIGHTNESS
-              %span.dimension.pull-right 0
-      %actuator.draggable.template{name: "Stepper"}
-        %div.simulation
-          %label.title{:contenteditable=> "true"} STEPPER
-          %canvas{:type=>"Stepper"}
-        %channels.scroll-list
-          %label.title.light CHANNELS
-          %channel.full-hoz{type: "angle"}
-            %label.actuator.selected
-              %span ANGLE
-              %span.dimension.pull-right 0
-          %channel.full-hoz{type: "speed"}
-            %label.actuator
-              %span SPEED
-              %span.dimension.pull-right 2
-      %actuator.draggable.template{name: "Stepper360"}
-        %div.simulation
-          %label.title{:contenteditable=> "true"} 360-STEPPER
-          %canvas{:type=>"Stepper360"}
-        %channels.scroll-list
-          %label.title.light CHANNELS
-          %channel.full-hoz{type: "angle"}
-            %label.actuator.selected
-              %span ANGLE
-              %span.dimension.pull-right 0
-      %actuator.draggable.template{name: "Heater"}
-        %div.simulation
-          %label.title{:contenteditable=> "true"} HEATER
-          %canvas{:type=>"Heater"}
-        %channels.scroll-list
-          %label.title.light CHANNELS
-          %channel.full-hoz{type: "voltage"}
-            %label.actuator.selected
-              %span VOLTAGE
-              %span.dimension.pull-right 4
-          %channel.full-hoz{type: "temperatureF"}
-            %label.actuator
-              %span TEMP (˚F)
-              %span.dimension.pull-right 93.2
-          %channel.full-hoz{type: "temperatureC"}
-            %label.actuator
-              %span TEMP (˚C)
-              %span.dimension.pull-right 34.0
-      %actuator.draggable.template{name: "Pump"}
-        %div.simulation
-          %label.title
-            %span.content-editable Pump
-            %span.save-status 
-            %a.btn.btn-xxs.btn-danger.pull-right.remove-actuator
-              =glyph "remove"
-          %canvas{:type=>"Pump"}
-          %label.async 100
-        %channels.scroll-list
-          %label.title.light 
-            %span CHANNELS
-          %channel.full-hoz{type: "bubbles"}
-            %label.actuator
-              %span BUBBLES
-              %span.dimension.pull-right 0
-          %channel.full-hoz.selected{type: "voltage"}
-            %label.actuator
-              %span VOLTAGE
-              %span.dimension.pull-right 0
-          
-            
+%event#library.actuation-design.column.vert-centered-sink-top
+  %ul.nav.nav-tabs{:role => "tablist"}
+    %li.active
+      %a#actuatorlib{"data-toggle" => "tab", :href => "#actuator-library", :role => "tab"}
+        = image_tag "/collection.svg", class: 'icon', "data-toggle": "tooltip", "data-placement": "top", title: "COLLECTIONS"
+    %li
+      %a#behaviorlib{"data-toggle" => "tab", :href => "#behavior-library", :role => "tab"} 
+        = image_tag "/composing.svg", class: 'icon', "data-toggle": "tooltip", "data-placement": "top", title: "BEHAVIORS"
+  / Tab panes
+  .tab-content
+    #actuator-library.tab-pane.active{:role => "tabpanel"}
+      .track-full.droppable
+    #behavior-library.tab-pane{:role => "tabpanel"}
+      .track-full.droppable
+ 
+%event#group.actuation-design.shrink
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
+      %span GROUP
+      %span.command [G]
+    .full-hoz.sexy-input-group
+      
+  %acceptor#group-result.actuator{:data => {:accept=> 1}}  
+  #actuator-group.track-full.droppable
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
    
+%event#actuators.actuation-design.template
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#slider-live.design-title.btn-primary.trigger{:type => "trigger"}
+      ACTUATOR
+  .track-full
+    - actuators.marshal_dump.each do |name, actuator|
+      %actuator.template.draggable{name: name.upcase}
+        %div.simulation
+          %label.title
+            %span.content-editable{:contenteditable=> "false"}= name.upcase
+            %span.save-status 
+            %a.btn.btn-xxs.btn-danger.pull-right.remove-actuator
+              =glyph "remove"
+          %canvas{:type=> name.upcase }
+          %label.async 100
+        %channels.scroll-list
+          %label.title.light CHANNELS
+          - actuator.channels.marshal_dump.each do |cname, channel|
+            %channel.full-hoz{type: cname}
+              %label.actuator.selected 
+                %span= cname
+                %span.dimension.pull-right 0
+          
+
+       

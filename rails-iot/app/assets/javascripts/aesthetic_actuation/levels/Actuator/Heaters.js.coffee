@@ -1,4 +1,4 @@
-class window.ActuatorHeater extends Actuator1D
+class window.ActuatorHEATER extends Actuator1D
   onCreate: ->
     @expression = 5;
     return
@@ -57,7 +57,7 @@ class window.ActuatorHeater extends Actuator1D
     @visuals.push rays
     @visuals = _.flatten(@visuals)
 
-class window.ActuatorPump extends ActuatorHeater
+class window.ActuatorPUMP extends ActuatorHEATER
   onCreate: ->
     @expression = 0;
     return

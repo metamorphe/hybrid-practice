@@ -21,7 +21,8 @@ class ToolController < ApplicationController
   def aesthetic_actuation
     @files = get_displays()
     @ports = get_ports()
-    @sensors = Device.data()
+    @metadata = Device.data()
+    # render :json => @metadata.actuators
     render :layout => "full_screen"
   end
   def system_control
