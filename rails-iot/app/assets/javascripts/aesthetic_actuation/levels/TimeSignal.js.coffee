@@ -96,7 +96,7 @@ class window.TimeSignal
         gamma_corrected: @gamma_corrected 
 
       set: (obj) ->
-        # console.log obj
+        console.log "TS", obj
         scope = this
         if _.isEmpty(obj) then return
         window.paper = @paper
@@ -111,6 +111,7 @@ class window.TimeSignal
         canvas_refresh or= period_change
 
         if canvas_refresh
+          console.log "REFRESH"
           w = @dom.parent().width()
           h = @dom.parent().height()
           new_h = if h * 0.9 < 76 then h * 0.9 else 76

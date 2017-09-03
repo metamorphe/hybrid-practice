@@ -22,7 +22,7 @@
 
     $('#add-stage').click ()->
       current_behavior.data.manager.addStage()
-
+    $('#add-stage').click()
 
 %event#behaviors.composition-design.playground
   .toolbar.full-hoz
@@ -79,7 +79,7 @@
         %acceptor.datasignals.mini.template
           %button.btn.btn-xs.btn-danger.trash
             =glyph "trash"
-          %button.btn.btn-lg.btn-primary.view-toggle
+          %button.btn.btn-xs.btn-primary.view-toggle
             =glyph "eye-open"
         %behavior.hoz.template
           #stage.vert-centered-sink-top

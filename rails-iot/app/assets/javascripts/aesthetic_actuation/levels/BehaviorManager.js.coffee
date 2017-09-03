@@ -235,11 +235,11 @@ class window.Track
                 scope.addSignal(ts, num_to_accept)
 
         viewToggle = (e)->
+            console.log "VIEW", scope.data.view
             state =  scope.data.view
-            console.log "state", state
             orState = if state == "hue" then "intensity" else "hue"
-            scope.data =
-                view: orState
+            console.log orState
+            scope.data = {view: orState}
 
         $(dom).droppable(dropBehavior)
         $(dom).find('.view-toggle').click viewToggle
@@ -257,10 +257,12 @@ class window.Track
                 @dom.data @_data
                 
                     
-
+                console.log "OBJ", obj
                 # VIEW UPDATES
                 signals = _.map @_data.signals, (signal)-> tsm.getTimeSignal(signal)
-                _.each signals, (s)-> s.form =  {view: scope._data.view}
+                _.each signals, (s)-> 
+                    console.log s.id, scope._data.view
+                    s.form =  {view: scope._data.view}
     
                 # MANUAL UPDATES
 

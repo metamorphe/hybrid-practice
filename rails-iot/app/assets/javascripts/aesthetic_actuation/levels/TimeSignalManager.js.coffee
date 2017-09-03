@@ -12,17 +12,17 @@ class window.TimeSignalManager
     scope = this
     $(".trash").click ()->
       $(this).siblings().not('button').remove()
-    $('button.view-toggle').click ->
-      dom = $(this)
-      ds = dom.parents('event').find('datasignal').not('.template')
-      view = dom.parents('[class^=track]').data('view')
-      n_view = if view == "hue" then "intensity" else "hue"
+    # $('button.view-toggle').click ->
+    #   dom = $(this)
+    #   ds = dom.parents('event').find('datasignal').not('.template')
+    #   view = dom.parents('[class^=track]').data('view')
+    #   n_view = if view == "hue" then "intensity" else "hue"
       
-      _.each ds, (s)-> 
-        ts = scope.resolve(s)
-        if _.isUndefined(ts) then return 
-        ts.form =  {view: n_view}
-        dom.parents('event').find('[class^=track]').data('view', n_view)
+    #   _.each ds, (s)-> 
+    #     ts = scope.resolve(s)
+    #     if _.isUndefined(ts) then return 
+    #     ts.form =  {view: n_view}
+    #     dom.parents('event').find('[class^=track]').data('view', n_view)
   initEasings: ->
     # console.log "EASING"
     easings = TimeSignalManager.EasingFunctions
