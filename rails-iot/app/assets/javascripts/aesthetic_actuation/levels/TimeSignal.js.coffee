@@ -111,7 +111,6 @@ class window.TimeSignal
         canvas_refresh or= period_change
 
         if canvas_refresh
-          console.log "REFRESH"
           w = @dom.parent().width()
           h = @dom.parent().height()
           new_h = if h * 0.9 < 76 then h * 0.9 else 76
@@ -488,22 +487,22 @@ class window.TimeSignal
     unit = 's'
     switch
       when time < 3
-        time = (time * 1000).toFixed(0) + "ms"
+        time = (time * 1000).toFixed(0) + " ms"
         break
       when time <= 60
-        time = time.toFixed(1) + "s"
+        time = time.toFixed(1) + " s"
         break
       when time < 60 * 60
         time /= 60
-        time = time.toFixed(2) + 'min'
+        time = time.toFixed(2) + ' min'
         break
       when time < 60 * 60 * 24
         time /= 60 * 60
-        time = time.toFixed(2) + 'hr'
+        time = time.toFixed(2) + ' hr'
         break
       when time < 60 * 60 * 24 * 7
         time /= 60 * 60
-        time = time.toFixed(1) + 'days'
+        time = time.toFixed(1) + ' days'
         break
     return time
 

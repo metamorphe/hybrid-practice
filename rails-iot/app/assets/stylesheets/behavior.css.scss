@@ -30,6 +30,10 @@ behaviornode{
   font-size: $lines;
   line-height: $lines;
   border-radius: 5px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: space-between;
   p{
     display: block;
     width: 100%;
@@ -37,6 +41,8 @@ behaviornode{
     span.name{
       font-weight: bold;
       word-wrap: break-word;
+      text-transform: uppercase;
+      margin-bottom: 2px;
     }
     &.info, &.repeat{
       font-size: 0.7 * $lines;
@@ -47,7 +53,7 @@ behaviornode{
       text-transform: uppercase;
     }
     &.time{
-      margin: 5px 0 0 0 ;
+      margin: 5px 0 2px 0 ;
     }
     &.info{
       color: rgba(255, 255, 255, 0.5);
@@ -241,7 +247,7 @@ event.composition-design{
     border: 1px solid darken($composition_base, 20%);
     background: darken($composition_base, 5%);
     
-    margin-top: 100px;
+    // margin-top: 100px;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;

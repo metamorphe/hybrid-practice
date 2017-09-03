@@ -211,7 +211,7 @@ event{
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;
-    
+    z-index: 1001;
   }
   button.view-toggle{
     position: absolute;
@@ -220,7 +220,7 @@ event{
     font-size: 9px;
     line-height: 1;
     padding: 0px 1px;
-    z-index: 0;
+    z-index: 1001;
   }
   button.toggle{
     position: absolute;

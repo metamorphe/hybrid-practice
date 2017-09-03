@@ -38,11 +38,11 @@
   %strong HEY!
   %span LETS START DESIGNING!
 #ui2
-  = render :partial => "tool/levels/file_selectors"
+  - render :partial => "tool/levels/file_selectors"
   %group.vert#levels
-    = render :partial => "tool/levels/project"
-    = render :partial => "tool/levels/actuators", :locals => {:actuators => @metadata.actuators}
-    - render :partial => "tool/levels/datasignals"
+    - render :partial => "tool/levels/project"
+    - render :partial => "tool/levels/actuators", :locals => {:actuators => @metadata.actuators}
+    = render :partial => "tool/levels/datasignals"
     = render :partial => "tool/levels/behaviors"
     = render :partial => "tool/levels/sensors"
     - render :partial => "tool/levels/psychophysics"

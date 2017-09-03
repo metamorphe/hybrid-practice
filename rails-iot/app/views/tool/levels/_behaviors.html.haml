@@ -3,17 +3,27 @@
     $("#behavior_name").on "change input", (e)->
       name = $(this).val().trim()
       if name == "" then name = "CURRENT_BEHAVIOR"
-      $('#current_behavior span.name').html(name)
+      current_behavior.data = 
+        name: name
     $('#repeat').click ()->
       $(this).toggleClass('active')
-    $('behaviornode').draggable
-      cursorAt: { bottom: 5 }
-      revert: true
-      appendTo: '#ui2'
-      scroll: false
-      helper: ()->
-        copy = $(this).clone()
-        return copy;
+      if $("#repeat").hasClass('active')
+        current_behavior.data = 
+          repeat: "repeat"
+      else
+        current_behavior.data = 
+          repeat: "no-repeat"
+
+    window.current_behavior = new Behavior
+      container: $('#current_behavior')
+      data:
+        name: "Stagger"
+    
+
+    $('#add-stage').click ()->
+      current_behavior.data.manager.addStage()
+
+
 %event#behaviors.composition-design.playground
   .toolbar.full-hoz
     %fieldset
@@ -33,25 +43,28 @@
       / %button#compose.design-title.btn-primary.trigger{:type => "trigger"}
       /   %span.name BEHAVIOR
       /   %span.command &lt;SPACE&gt
-      %acceptor#current_behavior.behavior.accepted{:data => {:id=> 0, :accept=> 1}}
-        %behaviornode
-          %p 
-            %span.name STAGGER BEHAVIOR
-          %p.info
-            %span.tracks 
-              %span.val 3
-              %span T
-            %span /
-            %span.actuators
-              %span #
-              %span.val 20
+      %acceptor#current_behavior.behavior{:data => {:id=> 0, :accept=> 1}}
+        %behaviornode.template
+          .top
+            %p 
+              %span.name STAGGER BEHAVIOR
+            %p.info
               
-          %p.time
-            %span 2300 ms
-          %p.repeat 
-            %span (
-            %span.val no-repeat
-            %span ) 
+              
+              %span
+                %span #
+                %span.actuators-length 20
+              %span /
+              %span
+                %span.stages-length 1
+                %span stages
+          .bottom
+            %p.time
+              %span.period 2300 ms
+            %p.repeat 
+              %span (
+              %span.val no-repeat
+              %span ) 
     #behavior_environment.workarea.vert-centered-sink-top
       #timeruler.hoz
         %button#add-stage.btn.btn-xs.btn-ghost
@@ -62,16 +75,18 @@
           = glyph "repeat"
           REPEAT
       - if true
-        %behavior.hoz
+        %acceptor.actuator.template{:data => {:accept=> 1}}
+        %acceptor.datasignals.mini.template
+          %button.btn.btn-xs.btn-danger.trash
+            =glyph "trash"
+          %button.btn.btn-lg.btn-primary.view-toggle
+            =glyph "eye-open"
+        %behavior.hoz.template
           #stage.vert-centered-sink-top
-            %acceptor.actuator.template{:data => {:accept=> 1}}
-            %acceptor.actuator{:data => {:id=> 0, :accept=> 1}}
-            %acceptor.actuator{:data => {:id=> 1, :accept=> 1}}
           #timetrack.vert-centered-sink-top
             #scrubber.vert-centered-sink-top
               #handle
               #timeline
-            = render :partial => "tool/levels/behavior_track", locals: {is_template: false}
-            = render :partial => "tool/levels/behavior_track", locals: {is_template: false}
-           
+            
+
         
