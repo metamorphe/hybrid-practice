@@ -8,6 +8,9 @@ class window.Behavior
     speed: 1
     constructor: (op)->
         #defaults
+        @playing = false
+        @play_ids = []
+
         @dom = @toDOM()
         _.extend this, _.omit op, "data"
         @_data = {}
@@ -79,13 +82,51 @@ class window.Behavior
                 return copy;
     save: ()->
         return
-    play: ()->
+    play: (fromStart = false)->
+        scope = this
+        if @playing 
+            @pause()
+            return
+        else
+            raw_commands = @data.manager.compile()
+            if _.isEmpty raw_commands then return
 
-        return
-    stop: ()->
-        return
+            #RESTART/START_FROM_SCRUBBER
+            t_start = if fromStart then 0 else scrubber.getTime()
+            commands = _.filter raw_commands, (command)-> command.t > t_start
+            if _.isEmpty commands 
+                t_start = 0
+                scrubber.reset()
+                commands = raw_commands
+                
+            console.log "PLAYING", commands.length, commands
+            
+            start = _.first(commands).t
+            end = _.last(commands).t + _.last(commands).duration + 100
+            commands = _.each commands, (command)-> command.t = command.t - t_start
+
+            # # SCHEDULE FOR PLAY
+            scope.play_ids = Scheduler.schedule(commands, true)
+            scrubber.play(t_start, end)
+            @playing = true
+
+            endOfBehavior = ()->
+                scope.pause()
+                scrubber.setTime(end)
+
+            id = _.delay (()-> scope.pause()), end - t_start
+    pause: ()->
+        scrubber.pause()
+        _.each @play_ids, (id)->
+            clearTimeout(id)
+        @play_ids = []
+        @playing = false
+
+
+   
     toCode: ()->
-        return
+        @playing = false
+        
 
 class window.StageManager
     @count: 0
@@ -100,6 +141,7 @@ class window.StageManager
             stages: []
         _.extend this, _.pick op, "data"    
         @container.append(@dom)
+
     addStage: ()->
         sid = new Stage
             parent: this
@@ -111,7 +153,7 @@ class window.StageManager
     compile: ()->
         cl = _.map @data.stages, (stage)->
             stage = Stage.library[stage]
-            return stage.compile()
+            stage.compile()
         cl = _.compact _.flatten(cl)
         if cl.length == 0 
             alertify.notify "<b> Whoops! </b> Nothing to play... Add something to the time track.", 'error', 4
@@ -125,6 +167,7 @@ class window.StageManager
     toDOM: ()->
         scope = this
         dom = $(StageManager.template).clone().removeClass('template')
+
         return dom
     Object.defineProperties @prototype,
         data: 
@@ -160,6 +203,9 @@ class window.Stage
         _.extend(this, _.omit(op, "data"))  
         scope = this
         @dom = @toDOM()
+        @trackparent = scope.parent.dom.find('#timetrack')
+        @trackdom = $('<div>').addClass('track-dom')
+
         @_data = {}
         @data = 
             id: Stage.count++
@@ -168,6 +214,8 @@ class window.Stage
 
         _.extend this, op   
         @container.append(@dom)
+        @trackparent.append(@trackdom)
+
         _.extend this, _.pick op, "data"    
 
         
@@ -177,7 +225,7 @@ class window.Stage
         return
     setStage: (actor)->        
         scope = this
-        scope.parent.dom.find('#timetrack').find("acceptor.datasignals").remove()
+        @trackdom.find("acceptor.datasignals").remove()
         scope.data.tracks = []
         scope.data = {trigger: true}
         scope.parent.data = {trigger: true}
@@ -187,7 +235,7 @@ class window.Stage
         _.each channels, (v, channel)->
             t = new Track
                 parent: scope
-                container: scope.parent.dom.find('#timetrack')
+                container: scope.trackdom
                 data: 
                     channel: channel
                     tracks: n
@@ -204,23 +252,61 @@ class window.Stage
         else
             return am.resolve(actuator)
     compile: ()->
+        # $('')
         actor = @getActor()
         commands = _.map @data.tracks, (trackID)->
             track = Track.library[trackID]
-            return track.toCommands()
-
+            track.toCommands()
+        commands = _.flatten(commands)
         if not actor and commands.length > 0
             alertify.notify "<b> Heads up! </b> Looks like you forgot to specify an actuator in the track.", 'error', 4
             return null
         else if not actor and commands.length == 0
             return null
         else
+            console.log "ACTOR PERFORMING"
             commands = _.map commands, (command) -> 
                 return actor.perform(command)
             return _.flatten commands
     toDOM: ()->
         scope = this
-        dom = $(Stage.template).clone().removeClass('template')
+        dom = $(Stage.template).clone()
+            .removeClass('template')
+            .droppable
+                accept: "actuator.draggable"
+                classes: { "droppable-active": "droppable-default"}
+                drop: (event, ui) ->
+                    empty = $(this).html() == ""
+                    actor = am.resolve(ui.draggable)
+
+                    # stageLogic 
+                    d = $(this).data()
+                    if d.name == "Stage"
+                        stage = Stage.library[d.id]
+                        stage.setStage(actor)
+                    else
+                        console.log "Not a stage..."
+
+                    choreo = Choreography.default()
+
+                    # sync = $(this).parents('#async').length == 0
+                    # compose = $(this).parents(".composition-design").length != 0
+                    # if compose 
+                    #   idx = $('#stage acceptor').index(this) - 1
+                    #   choreos = $("#choreography-binders choreography")
+                    #   console.log "ALMOST", idx, choreos.length
+                    #   if idx < choreos.length
+                    #     potential = Choreography.get($(choreos[idx]))
+                    #     if potential
+                    #       choreo = potential
+
+                    num_to_accept = $(this).data().accept
+                    ops = _.extend actor.form,
+                        clear: num_to_accept == 1
+                        target: $(this)
+                        choreo: choreo
+                    ActuatorManager.create ops
+            
         return dom
     Object.defineProperties @prototype,
         data: 
@@ -317,16 +403,21 @@ class window.Track
         $(dom).find('.trash').click ()-> scope.clearTrack()
         return dom
     toCommands: ()->
+
         scope = this
         timescale = @data.timescale
         width = @dom.width()
         commands =  _.map @getSignals(), (signal, i)->
             ts = tsm.getTimeSignal(signal)
-            a = ts.dom.parent().offset() 
-            b = ts.dom.offset() 
-            pos = {top: b.top - a.top, left: b.left - a.left}
+            ts.dom.removeClass("selected")
+            # penalty = if ts.dom.hasClass('selected') then 2 else 0
+            
+            # a = ts.dom.parent().offset() 
+            # b = ts.dom.offset() 
+            # pos = {top: b.top - a.top, left: b.left - a.left}
+            pos = ts.dom.position()
             offset = (pos.left / width) * timescale
-            offset -= 81.3 * (i)
+            # offset -= 81.3 * (i)
             commands = ts.command_list_data(ts.p_signal, {offset: offset})
             return commands
         commands = _.flatten commands
@@ -380,12 +471,23 @@ class window.Scrubber
         w = tt.width()
         p = t/timescale * w
         return p
+    toTime: (x)->
+        tt = $('behavior:not(.template)').find('#timetrack')
+        timescale = @behavior.data.timescale
+        w = tt.width()
+        t = timescale * x / w
+        return t
     getTime: ()->
         tt = $('behavior:not(.template)').find('#timetrack')
         timescale = @behavior.data.timescale
         w = tt.width()
         t = timescale * @dom.position().left / w
         return t
+    setTime: (t)->
+        x = @getPosition(t)
+        @setPosition(x)
+    reset: ()->
+        @setPosition(0)
     play: (start, end)-> # milliseconds
         scope = this
         duration = parseInt (end - start)
@@ -403,7 +505,7 @@ class window.Scrubber
         @dom.css
             transition : 'left 0s linear'
             left: x
-    pauseScrubber: ()->
+    pause: ()->
         @dom.css
             transition : 'left 0s linear'
             left: @dom.position().left
@@ -413,76 +515,8 @@ class window.Scrubber
 class window.BehaviorManager
     constructor: (@op) ->
         scope = this
-        @play_ids = []
-        @playing = false
-        playBehavior =  (event)-> 
-            event.preventDefault()
-            scope.play()
-        Widget.bindKeypress 32, playBehavior, true    
-    play: ()->
-        console.log "PLAYING"
-        if @playing
-            @pause()
-            return
-
-        scope = this
-        raw_commands = @compile()
-        if _.isEmpty raw_commands then return
-
-        t_start = @scrubberTime()
-        
-        # RESTART
-        commands = _.filter raw_commands, (command)-> command.t > t_start
-        if _.isEmpty commands 
-            t_start = 0
-            commands = raw_commands
-
-        start = _.first(commands).t
-        end = _.last(commands).t + _.last(commands).duration
-        commands = _.each commands, (command)-> command.t = command.t - t_start
-
-        scope.play_ids = Scheduler.schedule(commands, true)
-        scope.playScrubber(start, end)
-        @playing = true
-    pause: ()->
-        _.each _.flatten([@scrub_ids, @play_ids]), (id)->
-            clearTimeout(id)
-        @play_ids = []
-        @playing = false
-
+       
 
    
-    compile: ()->
-        actors = $("#stage actuator").not(".template")
-        signal_tracks = $("#timetrack acceptor").not(".template")
-        choreography = _.map actors, (actor, i)->
-            actor = am.resolve(actor)
-            channels = _.keys(actor.physical_channels()).sort()
-            channel_commands = _.map channels, (channel, j)->
-                track_j = i * 3 + j
-                track = $(signal_tracks[track_j])
-                timescale = track.data().timescale
-                width = track.width()
-
-                commands =  _.map track.find('datasignal'), (signal, k)->
-                    a = $(signal).parent().offset()
-                    b = $(signal).offset()
-                    pos = {top: b.top - a.top, left: b.left - a.left}
-                    offset = (pos.left / width) * timescale
-
-                    # COMPILING INSTRUCTIONS PER CHANNEL
-                    ts = tsm.resolve(signal)
-                    if not ts then return []
-
-                    commands = ts.command_list_data(ts.p_signal, {offset: offset})
-                    commands = _.map commands, (command) -> 
-                        cl = actor.perform(channel, command)
-                        return cl
-                    commands =_.flatten(commands)
-                    return commands
-                return _.flatten(commands)
-            return _.flatten(channel_commands)
-        choreography = _.flatten(choreography)
-        return _.sortBy(choreography, "t")
             
     

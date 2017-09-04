@@ -45,8 +45,8 @@ class window.AestheticActuation
 		window.ch = new ChoreographyWidget
 			paper: artwork_paper
 			dom: $('#projectviewer')
-		window.bm = new BehaviorManager
-			scrubber: $('#scrubber')
+		# window.bm = new BehaviorManager
+		# 	scrubber: $('#scrubber')
 		# ACTUATIOR MANAGER
 		window.am = new ActuatorManager
 		am.init()

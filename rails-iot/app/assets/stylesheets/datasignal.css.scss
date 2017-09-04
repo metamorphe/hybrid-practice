@@ -68,7 +68,10 @@ datasignal{
 	@extend block;
 	@extend vert-centered;
 	position: relative;
-	&.selected{@extend block.selected;}
+	&.selected{
+    @extend block.selected;
+    // margin: -2px;
+  }
 }
 
 

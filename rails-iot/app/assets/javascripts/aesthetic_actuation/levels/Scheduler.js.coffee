@@ -59,10 +59,10 @@ class window.Scheduler
 		      msg: "DON'T FORGET TO SELECT AN ACTUATOR"
 		      delay: 2000
 		    return 
-		if aw.comm.live
+		if actuatorsLive()
 			$('.popover.actuator .popover-content').html("[L] to Simulate")
-		if sc and aw.comm.live   
-			sc.sendMessage(command.api, {live: aw.comm.live}) 
+		if sc and actuatorsLive()
+			sc.sendMessage(command.api, {live: actuatorsLive()}) 
 			# actuator.perform(command.channel, command, false)
 			# actuator.channels[command.channel].param = command.param
 			# am.updateChannels(actuator)

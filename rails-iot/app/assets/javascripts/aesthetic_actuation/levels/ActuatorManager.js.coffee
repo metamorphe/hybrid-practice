@@ -24,7 +24,6 @@
     if op.choreo
       set.choreo = op.choreo
     actuator = new ActuatorSimulator(dom, set, props)
-    if op.addSignalTrack then bm.addSignalTrack(actuator)
     dom.click()
     return dom
 
@@ -180,43 +179,7 @@
           $(this).parent().droppable("enable")
     
 
-    $('.actuation-design .droppable, #async .droppable, acceptor.actuator').droppable
-      accept: "actuator.draggable"
-      classes: { "droppable-active": "droppable-default"}
-      drop: (event, ui) ->
-        empty = $(this).html() == ""
-        actor = scope.resolve(ui.draggable)
-
-        # stageLogic 
-        d = $(this).data()
-        if d.name == "Stage"
-          stage = Stage.library[d.id]
-          stage.setStage(actor)
-        else
-          console.log "Not a stage..."
-        # sync = $(this).parents('#async').length == 0
-        # compose = $(this).parents(".composition-design").length != 0
-        choreo = Choreography.default()
-        # if compose 
-        #   idx = $('#stage acceptor').index(this) - 1
-        #   choreos = $("#choreography-binders choreography")
-        #   console.log "ALMOST", idx, choreos.length
-        #   if idx < choreos.length
-        #     potential = Choreography.get($(choreos[idx]))
-        #     if potential
-        #       choreo = potential
-
-        num_to_accept = $(this).data().accept
-
-        
-        ops = _.extend actor.form,
-          clear: num_to_accept == 1
-          target: $(this)
-          addSignalTrack: false
-          choreo: choreo
-        
-        ActuatorManager.create ops
-        
+    
       
       
   

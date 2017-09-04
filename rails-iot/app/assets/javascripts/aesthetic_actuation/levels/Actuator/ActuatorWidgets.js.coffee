@@ -104,16 +104,16 @@ class window.Saver extends ActuatorWidget
     # SAVE BEHAVIORS
     @op.trigger.click (event)-> scope.saveActuation()
   saveActuation: (e)->
-    scope = this
-    track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
-    scope.saveActors(scope.track, track_actuators)
-    stage_actuators = bm.getActors()
-    scope.saveActors(scope.stage, stage_actuators)
-    signal_tracks = $(".signal-design .track-full").not("#hues")
-    signal_tracks = _.map signal_tracks, (track)->
-      signals = TimeWidget.resolveTrack(track, '.easing, .default')
-      track_id = $(track).parent('event').attr('id')
-      scope.saveActors(scope.ts_library + ":" + track_id, signals)
+    # scope = this
+    # track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
+    # scope.saveActors(scope.track, track_actuators)
+    # stage_actuators = bm.getActors()
+    # scope.saveActors(scope.stage, stage_actuators)
+    # signal_tracks = $(".signal-design .track-full").not("#hues")
+    # signal_tracks = _.map signal_tracks, (track)->
+    #   signals = TimeWidget.resolveTrack(track, '.easing, .default')
+    #   track_id = $(track).parent('event').attr('id')
+    #   scope.saveActors(scope.ts_library + ":" + track_id, signals)
 
     alertify.notify "<b>SAVED!</b> We won't forget a thing!", 'success', 4
   save: (name, data)->
@@ -167,8 +167,8 @@ class window.Saver extends ActuatorWidget
         signal = new TimeSignal dom, signal
   stageLoad: ()->
     scope = this
-    @loadActors @stage, (actuator)->
-      bm.loadStage(actuator)
+    # @loadActors @stage, (actuator)->
+      # bm.loadStage(actuator)
   trackLoad: ()->
     scope = this
     @loadActors @track, (actuator)->
