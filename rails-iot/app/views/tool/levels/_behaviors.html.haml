@@ -5,6 +5,9 @@
       if name == "" then name = "CURRENT_BEHAVIOR"
       current_behavior.data = 
         name: name
+    $('#clear-behavior').click ()->
+      current_behavior.clearStage()
+
     $('#repeat').click ()->
       $(this).toggleClass('active')
       if $("#repeat").hasClass('active')
@@ -30,7 +33,7 @@
       %button.btn.btn-xs.btn-ghost NAME
       %input#behavior_name{value: "BEHAVIOR_1", type: "text"}
     .btn-group
-      %button.btn.btn-xs.btn-ghost
+      %button.btn.btn-xs.btn-ghost#clear-behavior
         =glyph "trash"
         CLEAR
       %button.btn.btn-xs.btn-ghost

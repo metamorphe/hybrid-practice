@@ -28,6 +28,16 @@ class window.Behavior
         
     setStage: ()->
         return
+    clearStage: ()->
+        if @data.manager
+            console.log "DATA", @data.manager.data
+            _.each @data.manager.data.stages, (stage)->
+                console.log "STAGE"
+                stage = Stage.library[stage]
+                _.each stage.data.tracks, (track)->
+                    track = Track.library[track]
+                    track.clearTrack()
+                stage.clearActor()
     Object.defineProperties @prototype,
         data: 
             get: ->
@@ -155,6 +165,8 @@ class window.Stage
             scope.parent.data = {trigger: true}
         Stage.library[this.data.id] = this
         return this
+    clearActor: ()->
+        return
     setActor: ()->
         return
     toDOM: ()->
@@ -231,6 +243,7 @@ class window.Track
     clearTrack: ()->
         scope = this
         _.each @getSignals(), (signal)-> scope.removeSignal(signal)
+        @dom.removeClass("accepted")
     removeSignal: (signalID)->
         tsm.getTimeSignal(signalID).dom.remove()
     toDOM: ()->
