@@ -163,6 +163,7 @@ behavior{
       &::after{
         color: lighten($signal_base, 10%);
         content: 'SIGNALS';
+        z-index: 0;
       }
     } 
   }

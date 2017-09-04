@@ -24,6 +24,7 @@ class window.TimeSignal
     @period = TimeSignal.DEFAULT_PERIOD
     @signal = [0, 0, 0]
     @gamma = 1
+    @track = null
     @tracks = 1
     @semantic = true
     @perceptual = true
@@ -92,11 +93,11 @@ class window.TimeSignal
         composeable: @composeable
         timescale: @timescale 
         tracks: @tracks 
+        track: @track
         force_period_flag: @force_period_flag 
         gamma_corrected: @gamma_corrected 
 
       set: (obj) ->
-        console.log "TS", obj
         scope = this
         if _.isEmpty(obj) then return
         window.paper = @paper
@@ -111,7 +112,7 @@ class window.TimeSignal
         canvas_refresh or= period_change
 
         if canvas_refresh
-          console.log "REFRESH"
+          # console.log "REFRESH"
           w = @dom.parent().width()
           h = @dom.parent().height()
           new_h = if h * 0.9 < 76 then h * 0.9 else 76
@@ -143,7 +144,7 @@ class window.TimeSignal
         @p_signal = @resolution_correction(@p_signal)
         @p_signal = if @gamma_corrected then @gamma_correction(@p_signal, @gamma) else @p_signal
         @data = if @perceptual then @p_signal else @signal
-
+        
         @_visuals()
         @dom.data @form
         @dom.data

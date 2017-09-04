@@ -201,25 +201,25 @@ class window.Track
         Track.library[this.data.id] = this
         
     addSignal: (ts, clear)->
+        # console.log "ADDING SIGNAL", ts.id
         ts = ts.form
         dom = TimeSignal.create
             clear: clear
             target: @dom#$(this)
         signal = new TimeSignal(dom)
         signal.form = 
-            track: @id
+            track: @data.id
             signal: ts.signal 
             period: ts.period
         signal.dom.click()
         @dom.addClass('accepted')
-        @data.signals.push signal.id
-        @data = {trigger: true}
+    getSignals: ()->
+        return _.map @dom.find('datasignal'), (signal)-> return $(signal).data("id")
     getPeriod: ()->
         return
     clearTrack: ()->
         scope = this
-        _.each @data.signals, (signal)-> scope.removeSignal(signal)
-        @data = {signals: []}
+        _.each @getSignals(), (signal)-> scope.removeSignal(signal)
     removeSignal: (signalID)->
         tsm.getTimeSignal(signalID).dom.remove()
     toDOM: ()->
@@ -235,16 +235,34 @@ class window.Track
                 scope.addSignal(ts, num_to_accept)
 
         viewToggle = (e)->
-            console.log "VIEW", scope.data.view
             state =  scope.data.view
             orState = if state == "hue" then "intensity" else "hue"
-            console.log orState
             scope.data = {view: orState}
 
         $(dom).droppable(dropBehavior)
         $(dom).find('.view-toggle').click viewToggle
         $(dom).find('.trash').click ()-> scope.clearTrack()
         return dom
+    toCommands: ()->
+        timescale = @data.timescale
+        width = @dom.width()
+        commands =  _.map @getSignals(), (signal, i)->
+            ts = tsm.getTimeSignal(signal)
+            a = ts.dom.parent().offset() 
+            b = ts.dom.offset() 
+            pos = {top: b.top - a.top, left: b.left - a.left}
+            offset = (pos.left / width) * timescale
+            offset -= 81.3 * (i)
+            commands = ts.command_list_data(ts.p_signal, {offset: offset})
+            return commands
+        commands = _.flatten commands
+        return _.sortBy(commands, "t")
+    getTime: ()->
+        commands = @toCommands()
+        if commands.length == 0 then return 0
+        else return commands[commands.length - 1].t  + commands[commands.length - 1].duration
+      
+               
     Object.defineProperties @prototype,
         data: 
             get: ->
@@ -257,12 +275,9 @@ class window.Track
                 @dom.data @_data
                 
                     
-                console.log "OBJ", obj
                 # VIEW UPDATES
                 signals = _.map @_data.signals, (signal)-> tsm.getTimeSignal(signal)
-                _.each signals, (s)-> 
-                    console.log s.id, scope._data.view
-                    s.form =  {view: scope._data.view}
+                _.each signals, (s)-> s.form =  {view: scope._data.view}
     
                 # MANUAL UPDATES
 
