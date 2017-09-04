@@ -144,7 +144,7 @@ class window.TimeSignal
         @p_signal = @resolution_correction(@p_signal)
         @p_signal = if @gamma_corrected then @gamma_correction(@p_signal, @gamma) else @p_signal
         @data = if @perceptual then @p_signal else @signal
-        
+
         @_visuals()
         @dom.data @form
         @dom.data
@@ -433,7 +433,8 @@ class window.TimeSignal
       position: timeGroup.bounds.center.clone()
     rect.sendToBack()
     timeGroup.pivot = timeGroup.bounds.topRight.clone()
-    timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
+    timeGroup.position = group.bounds.topRight.clone()
+    # timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
     timeGroup.onClick = (event)->
       scope.popover_behavior(event)
     return timeGroup
@@ -464,6 +465,7 @@ class window.TimeSignal
     text.position = rect.bounds.center.clone()
     removeGroup.pivot = removeGroup.bounds.topLeft.clone()
     removeGroup.position = group.bounds.expand(-18, -13).topLeft.clone()
+    removeGroup.position = group.bounds.topLeft.clone()
     removeGroup.onClick = (event)->
       scope.dom.remove()
     return removeGroup
