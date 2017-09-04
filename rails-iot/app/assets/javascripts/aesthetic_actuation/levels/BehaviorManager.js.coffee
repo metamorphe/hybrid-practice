@@ -8,6 +8,8 @@ class window.Behavior
     speed: 1
     constructor: (op)->
         #defaults
+        console.log "MAKING BEHAVIOR", op
+        scope = this
         @playing = false
         @play_ids = []
 
@@ -26,10 +28,16 @@ class window.Behavior
             manager: new StageManager
                 parent: this
                 container: $('#behavior_environment')
+
         _.extend this, _.pick op, "data"    
         @container.append(@dom).addClass('accepted')
         Behavior.library[this.data.id] = this
-        
+        @dom.click (e)->
+            $('behavior').hide()
+            window.current_behavior = scope
+            scope.data.manager.dom.show()
+    save: ()->
+        return @data.manager.save()
     setStage: ()->
         return
     clearStage: ()->
@@ -72,6 +80,7 @@ class window.Behavior
 
     toDOM: ()->
         dom = $(Behavior.template).clone().removeClass('template')
+        console.log dom
         dom.draggable
             cursorAt: { bottom: 5 }
             appendTo: '#ui2'
@@ -80,8 +89,7 @@ class window.Behavior
             helper: ()->
                 copy = $(this).clone()
                 return copy;
-    save: ()->
-        return
+    
     play: (fromStart = false)->
         scope = this
         if @playing 
@@ -131,6 +139,9 @@ class window.Behavior
 class window.StageManager
     @count: 0
     @template: "behavior.template"
+    save: ()->
+        return _.map @_data.stages, (id)->
+            return Stage.library[id].save()
     constructor: (op)->
         _.extend this, _.omit op, "data"
         @dom = @toDOM()
@@ -141,6 +152,7 @@ class window.StageManager
             stages: []
         _.extend this, _.pick op, "data"    
         @container.append(@dom)
+        @dom.hide()
 
     addStage: ()->
         sid = new Stage
@@ -166,8 +178,7 @@ class window.StageManager
         return
     toDOM: ()->
         scope = this
-        dom = $(StageManager.template).clone().removeClass('template')
-
+        dom = $(StageManager.template).clone().removeClass('template')            
         return dom
     Object.defineProperties @prototype,
         data: 
@@ -199,6 +210,17 @@ class window.Stage
     @count: 0
     @template: "acceptor.actuator.template"
     @library: {}
+    save: ()->
+        saveData = {}
+        if @getActor()
+            saveData.actuator = @getActor().id
+        if @data.tracks.length > 0
+            saveData.tracks = {}
+            _.each @data.tracks, (trackID)->
+                t = Track.library[trackID]
+                channel = t.data.channel
+                saveData.tracks[channel] = t.save()
+        return saveData
     constructor: (op)->
         _.extend(this, _.omit(op, "data"))  
         scope = this
@@ -217,7 +239,6 @@ class window.Stage
         @trackparent.append(@trackdom)
 
         _.extend this, _.pick op, "data"    
-
         
         Stage.library[this.data.id] = this
         return this
@@ -371,6 +392,12 @@ class window.Track
         signal.dom.click()
         @dom.addClass('accepted')
         @update()
+    save: ()->
+        signals = @getSignals()
+        signalData = _.map signals, (signalID)->
+            ts = tsm.getTimeSignal(signalID)
+            timeOffset = scrubber.toTime(ts.dom.position().left)
+            return {signal: signalID, offset: timeOffset}
     getSignals: ()->
         return _.map @dom.find('datasignal'), (signal)-> return $(signal).data("id")
     getPeriod: ()->

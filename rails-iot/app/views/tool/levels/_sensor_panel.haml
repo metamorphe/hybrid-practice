@@ -61,7 +61,7 @@
         states = _.map sensor.states, (s)->
           return $('<li>').html(s.name).attr('name', s.name)
         dom.find('.sensor-events ul').html(states)
-        console.log "STATES", states
+        # console.log "STATES", states
         dom
       @parent.append(senDoms)
     getSensors: ()->

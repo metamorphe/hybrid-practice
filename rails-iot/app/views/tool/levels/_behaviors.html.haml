@@ -17,24 +17,30 @@
         current_behavior.data = 
           repeat: "no-repeat"
 
-    window.current_behavior = new Behavior
-      container: $('#current_behavior')
-      data:
-        name: "Stagger"
-
-    window.scrubber = new Scrubber
-      behavior: current_behavior
-      dom: $('behavior:not(.template) #scrubber')
     
-    playBehavior =  (event)-> 
-      event.preventDefault()
-      current_behavior.play()
-    Widget.bindKeypress 32, playBehavior, true        
 
-    $('#add-stage').click ()->
-      current_behavior.data.manager.addStage()
-    $('#add-stage').click()
-
+    
+%behaviornode.template
+  .top
+    %p 
+      %span.name STAGGER BEHAVIOR
+    %p.info
+      
+      
+      %span
+        %span #
+        %span.actuators-length 20
+      %span /
+      %span
+        %span.stages-length 1
+        %span stages
+  .bottom
+    %p.time
+      %span.period 2300 ms
+    %p.repeat 
+      %span (
+      %span.val no-repeat
+      %span ) 
 %event#behaviors.composition-design.playground
   .toolbar.full-hoz
     %fieldset
@@ -50,32 +56,6 @@
   .content.full-hoz  
     %button.btn.btn-xs.btn-info.toggle
       =glyph "collapse-up"
-    .sidebar.vert.centered
-      / %button#compose.design-title.btn-primary.trigger{:type => "trigger"}
-      /   %span.name BEHAVIOR
-      /   %span.command &lt;SPACE&gt
-      %acceptor#current_behavior.behavior{:data => {:id=> 0, :accept=> 1}}
-        %behaviornode.template
-          .top
-            %p 
-              %span.name STAGGER BEHAVIOR
-            %p.info
-              
-              
-              %span
-                %span #
-                %span.actuators-length 20
-              %span /
-              %span
-                %span.stages-length 1
-                %span stages
-          .bottom
-            %p.time
-              %span.period 2300 ms
-            %p.repeat 
-              %span (
-              %span.val no-repeat
-              %span ) 
     #behavior_environment.workarea.vert-centered-sink-top
       #timeruler.hoz
         %button#add-stage.btn.btn-xs.btn-ghost

@@ -7,14 +7,19 @@
   flex-flow: row nowrap;
   justify-content: space-between;
 }
+#behavior-library{
+  behaviornode{
+    margin-top: 5px;
+  }
+}
 #behavior_environment{
-  width: calc(100% - 130px);
-  max-width: calc(100% - 130px);
+  // width: calc(100% - 130px);
+  // max-width: calc(100% - 130px);
   /*width: 100%;*/
-  height: 100%;
-
+  // height: 100%;
 }
 $lines: 9pt;
+
 behaviornode{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -317,7 +322,7 @@ event.composition-design{
       }
       .workarea{
         position: relative;
-        width: calc(100% - 130px);
+        width: calc(100% - 0px);
         height: 100%;
         #timeruler{
           justify-content: space-between;

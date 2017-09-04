@@ -98,11 +98,17 @@ class window.Saver extends ActuatorWidget
     @track = "actuator_group_library"
     @stage = "behavior_stage"
     @ts_library = "ts_library"
+    @behaviors = "behaviors"
 
     
-
     # SAVE BEHAVIORS
     @op.trigger.click (event)-> scope.saveActuation()
+
+  saveBehaviors: ()->
+    behaviors = _.map Behavior.library, (behavior, id)->
+      behavior.save()
+    @save @behaviors, behaviors
+
   saveActuation: (e)->
     # scope = this
     # track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
@@ -121,13 +127,41 @@ class window.Saver extends ActuatorWidget
     if ws then ws.set(key, JSON.stringify(data))
   load:()->
     scope = this
-    @trackLoad()
-    @stageLoad()
+    # @trackLoad()
     @signalLoad()
+    @behaviorLoad()
+
     
          
 
-  
+  behaviorLoad: ()->
+    key = @generateKey(@behaviors)
+    rtn = ws.get(key)
+    behaviors = if _.isNull(rtn) then [] else JSON.parse(rtn)
+    behaviors = _.map behaviors, (behaviorData, behaviorID)->
+      console.log behaviorID, behaviorData
+      new Behavior
+        container: $('#behavior-library .track-full')
+        data: 
+          load: behaviorData
+    window.current_behavior = new Behavior
+      container: $('#behavior-library .track-full')
+      data:
+        name: "Stagger"
+    window.scrubber = new Scrubber
+      behavior: window.current_behavior
+      dom: $('behavior:not(.template) #scrubber')
+    
+    playBehavior =  (event)-> 
+      event.preventDefault()
+      window.current_behavior.play()
+    Widget.bindKeypress 32, playBehavior, true        
+
+    $('#add-stage').click ()->
+      window.current_behavior.data.manager.addStage()
+    $('#add-stage').click()
+
+
   saveActors: (name, actors)->
     # console.log "SAVING", name, actors.length
 
@@ -165,10 +199,6 @@ class window.Saver extends ActuatorWidget
           clear: false
           target: $(track)
         signal = new TimeSignal dom, signal
-  stageLoad: ()->
-    scope = this
-    # @loadActors @stage, (actuator)->
-      # bm.loadStage(actuator)
   trackLoad: ()->
     scope = this
     @loadActors @track, (actuator)->
