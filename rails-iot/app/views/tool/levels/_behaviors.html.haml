@@ -21,6 +21,9 @@
       container: $('#current_behavior')
       data:
         name: "Stagger"
+    window.scrubber = new Scrubber
+      behavior: current_behavior
+      dom: $('behavior:not(.template) #scrubber')
     
 
     $('#add-stage').click ()->

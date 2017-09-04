@@ -17,6 +17,7 @@ class window.Behavior
             period: 0
             stages: []
             actuators: []
+            timescale: 10000
             repeat: "no-repeat"
         @data = 
             manager: new StageManager
@@ -79,6 +80,7 @@ class window.Behavior
     save: ()->
         return
     play: ()->
+
         return
     stop: ()->
         return
@@ -106,6 +108,18 @@ class window.StageManager
         this.data.stages.push sid.data.id
         this.data = {trigger: true}
         return
+    compile: ()->
+        cl = _.map @data.stages, (stage)->
+            stage = Stage.library[stage]
+            return stage.compile()
+        cl = _.compact _.flatten(cl)
+        if cl.length == 0 
+            alertify.notify "<b> Whoops! </b> Nothing to play... Add something to the time track.", 'error', 4
+            return null
+        else
+            return cl
+
+
     removeStage: (stageID)->
         return
     toDOM: ()->
@@ -156,19 +170,54 @@ class window.Stage
         @container.append(@dom)
         _.extend this, _.pick op, "data"    
 
-        _.times @numTracks, (i)->
-            t = new Track
-                parent: scope
-                container: scope.parent.dom.find('#timetrack')
-            scope.data.tracks.push t.data.id
-            scope.data = {trigger: true}
-            scope.parent.data = {trigger: true}
+        
         Stage.library[this.data.id] = this
         return this
     clearActor: ()->
         return
-    setActor: ()->
+    setStage: (actor)->        
+        scope = this
+        scope.parent.dom.find('#timetrack').find("acceptor.datasignals").remove()
+        scope.data.tracks = []
+        scope.data = {trigger: true}
+        scope.parent.data = {trigger: true}
+
+        channels = actor.physical_channels()
+        n = Object.size(channels)
+        _.each channels, (v, channel)->
+            t = new Track
+                parent: scope
+                container: scope.parent.dom.find('#timetrack')
+                data: 
+                    channel: channel
+                    tracks: n
+            
+            scope.data.tracks.push t.data.id
+            scope.data = {trigger: true}
+            scope.parent.data = {trigger: true}
+
         return
+    getActor: ()->
+        actuator = @dom.find("actuator")
+        if actuator.length == 0
+            return null
+        else
+            return am.resolve(actuator)
+    compile: ()->
+        actor = @getActor()
+        commands = _.map @data.tracks, (trackID)->
+            track = Track.library[trackID]
+            return track.toCommands()
+
+        if not actor and commands.length > 0
+            alertify.notify "<b> Heads up! </b> Looks like you forgot to specify an actuator in the track.", 'error', 4
+            return null
+        else if not actor and commands.length == 0
+            return null
+        else
+            commands = _.map commands, (command) -> 
+                return actor.perform(command)
+            return _.flatten commands
     toDOM: ()->
         scope = this
         dom = $(Stage.template).clone().removeClass('template')
@@ -183,7 +232,7 @@ class window.Stage
                 scope = this
                 # BLANKET INTERNAL UPDATES
                 @_data = _.extend(@_data, obj)
-                @dom.data _.pick(@_data, "id")
+                @dom.data @_data
                 
                 # BLANKET UPDATES
                 _.each @_data, (v, k)->
@@ -202,7 +251,7 @@ class window.Track
     @library: {}
     @template: "acceptor.datasignals.template"
     constructor: (op)->
-        _.extend(this, _.omit(op, "data"))  
+        _.extend this, _.omit op, "data"
         @_data = {}
         @dom = @toDOM()
         @data = 
@@ -213,7 +262,6 @@ class window.Track
             view: "intensity"
             semantic: "disabled"
             timescale: 10000
-            tracks: 3
             exportable: "disabled"
             composeable: "enabled"
             channel: ""
@@ -269,6 +317,7 @@ class window.Track
         $(dom).find('.trash').click ()-> scope.clearTrack()
         return dom
     toCommands: ()->
+        scope = this
         timescale = @data.timescale
         width = @dom.width()
         commands =  _.map @getSignals(), (signal, i)->
@@ -281,7 +330,9 @@ class window.Track
             commands = ts.command_list_data(ts.p_signal, {offset: offset})
             return commands
         commands = _.flatten commands
-        return _.sortBy(commands, "t")
+        commands = _.each commands, (command)->
+            command.channel = scope.data.channel
+        return commands
     getTime: ()->
         commands = @toCommands()
         if commands.length == 0 then return 0
@@ -305,77 +356,69 @@ class window.Track
                 _.each signals, (s)-> s.form =  {view: scope._data.view}
                 @_data.period = scope.getTime()
 
+                if @_data.tracks == 1
+                    @dom.removeClass("mini")
+                else
+                    @dom.addClass("mini")
+
                 # MANUAL UPDATES
 
                 if @parent.data
                     @parent.data = {update: true}
-        
+class window.Scrubber
+    constructor: (op)->
+        _.extend this, op
+        @scrub_ids = []
+        @dom.draggable
+            containment: "parent"
+            axis: "x"
+            grid: [ 5, 200 ]
+            scroll: false
+    getPosition: (t)-> #convert to pixel location
+        tt = $('behavior:not(.template)').find('#timetrack')
+        timescale = @behavior.data.timescale
+        w = tt.width()
+        p = t/timescale * w
+        return p
+    getTime: ()->
+        tt = $('behavior:not(.template)').find('#timetrack')
+        timescale = @behavior.data.timescale
+        w = tt.width()
+        t = timescale * @dom.position().left / w
+        return t
+    play: (start, end)-> # milliseconds
+        scope = this
+        duration = parseInt (end - start)
+        startPos = Math.round @getPosition(start)
+        endPos = Math.round @getPosition(end)
+        @setPosition startPos
+        scrubPlay = ()->
+            scope.dom.css
+                transition: 'left '+ duration+'ms linear'
+                left: Math.round endPos
+        _.delay scrubPlay, 10
+        # id = _.delay (()-> scope.pause()), duration
+        # @scrub_ids.push id
+    setPosition: (x)->
+        @dom.css
+            transition : 'left 0s linear'
+            left: x
+    pauseScrubber: ()->
+        @dom.css
+            transition : 'left 0s linear'
+            left: @dom.position().left
+        # _.each @scrub_ids, (id)-> clearTimeout(id)
+    
+
 class window.BehaviorManager
     constructor: (@op) ->
-        # $("*").not('.popover').not('actuator').not('datasignal').not('track-full').not('.track-unit').click (event)->
-        #   console.log this
-        #   $('.popover').fadeOut(100)
         scope = this
         @play_ids = []
         @playing = false
-        @scrub_ids = []
-        @activateDragAndDrop()
-        $("button#compose").click(()-> scope.play())
-        # $("button#add-stage").click(()-> scope.addStage())
-        Widget.bindKeypress 32,((event) ->
+        playBehavior =  (event)-> 
             event.preventDefault()
-            $('#compose').click()), true
-        @throttlePlay = _.throttle @play, 2000
-
-    getActors: ()->
-        actuators = _.map $('#stage').find('actuator'), (actor)-> return am.resolve(actor)      
-    loadStage: (actuator)->
-        if _.isUndefined(actuator.parent)
-            template = bm.addStage()
-        else
-            template = $('#stage acceptor[data-id='+ actuator.parent+']')   
-            
-        ops = 
-            clear: false
-            target: template
-        ops = _.extend(ops, actuator)
-        ActuatorManager.create ops  
-    addStage: ()->
-        template = $('acceptor.actuator.template').clone().removeClass('template');
-        $('#stage').append(template)
-        am.activateDragAndDrop()
-        return template
-    addSignalTrack: (actor)->
-        template = $('acceptor.datasignals.template').clone().removeClass('template');
-        tracks = _.keys(actor.physical_channels()).length
-        template.attr('data-tracks', tracks)
-        $('#timetrack').append(template)
-        tsm.activateDragAndDrop()
-        tsm.activateTrackButtons()
-    playScrubber: (start, end)->
-        scope = this
-        duration = parseInt((end - start))
-        @scrubberSet Math.round(@scrubberPos(start))
-        @op.scrubber.css
-            transition: 'left '+ duration+'ms linear'
-            left: Math.round(@scrubberPos(end))
-        id = _.delay (()-> scope.pause()), duration
-        @scrub_ids.push id
-    scrubberSet: (x)->
-        @op.scrubber.css
-            transition : 'left 0s linear'
-            left: x
-    scrubberPos: (t)->
-        timescale = $('#timetrack acceptor').data().timescale
-        w = @op.scrubber.parent().width()
-        p = t/timescale * w
-        return p
-    scrubberTime: ()->
-        timescale = $('#timetrack acceptor').data().timescale
-        w = @op.scrubber.parent().width()
-        t = timescale * @op.scrubber.position().left / w
-        return t
-    
+            scope.play()
+        Widget.bindKeypress 32, playBehavior, true    
     play: ()->
         console.log "PLAYING"
         if @playing
@@ -402,23 +445,13 @@ class window.BehaviorManager
         scope.playScrubber(start, end)
         @playing = true
     pause: ()->
-        @op.scrubber.css
-            transition : 'left 0s linear'
-        pos = @scrubberPos(@scrubberTime())
-        @scrubberSet(pos)
         _.each _.flatten([@scrub_ids, @play_ids]), (id)->
             clearTimeout(id)
         @play_ids = []
         @playing = false
 
 
-    activateDragAndDrop: ()->
-        scope = this
-        @op.scrubber.draggable
-            containment: "parent"
-            axis: "x"
-            grid: [ 5, 200 ]
-            scroll: false
+   
     compile: ()->
         actors = $("#stage actuator").not(".template")
         signal_tracks = $("#timetrack acceptor").not(".template")

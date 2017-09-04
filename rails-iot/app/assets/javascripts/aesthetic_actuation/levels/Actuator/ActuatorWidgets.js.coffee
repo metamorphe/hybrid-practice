@@ -62,9 +62,9 @@ class window.ActuatorWidgets
       trigger: $("#async button")
       bindKey: 'a'
       slider: $("#async input")
-    @comm = new Communicator
-      trigger: $('button#live-connect')
-      bindKey: 'l'
+    # @comm = new Communicator
+    #   trigger: $('button#live-connect')
+    #   bindKey: 'l'
 
 class window.ActuatorWidget
   @resolveTrack: (track)->
@@ -93,7 +93,7 @@ class window.Saver extends ActuatorWidget
   constructor: (@op)->
     console.log "Saver"
     scope = this
-    Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
+    Widget.bindKeypress @op.bindKey, ()-> scope.saveActuation()
     
     @track = "actuator_group_library"
     @stage = "behavior_stage"
@@ -102,29 +102,21 @@ class window.Saver extends ActuatorWidget
     
 
     # SAVE BEHAVIORS
-    @op.trigger.click (event)->
-      track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
-      scope.saveActors(scope.track, track_actuators)
-      stage_actuators = bm.getActors()
-      scope.saveActors(scope.stage, stage_actuators)
+    @op.trigger.click (event)-> scope.saveActuation()
+  saveActuation: (e)->
+    scope = this
+    track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
+    scope.saveActors(scope.track, track_actuators)
+    stage_actuators = bm.getActors()
+    scope.saveActors(scope.stage, stage_actuators)
+    signal_tracks = $(".signal-design .track-full").not("#hues")
+    signal_tracks = _.map signal_tracks, (track)->
+      signals = TimeWidget.resolveTrack(track, '.easing, .default')
+      track_id = $(track).parent('event').attr('id')
+      scope.saveActors(scope.ts_library + ":" + track_id, signals)
 
-
-
-      signal_tracks = $(".signal-design .track-full").not("#hues")
-      signal_tracks = _.map signal_tracks, (track)->
-        signals = TimeWidget.resolveTrack(track, '.easing, .default')
-        track_id = $(track).parent('event').attr('id')
-        scope.saveActors(scope.ts_library + ":" + track_id, signals)
-
-
-      Alerter.warn
-        strong: "SAVED!"
-        msg: "We won't forget a thing!"
-        delay: 2000
-        color: 'alert-success'
-
+    alertify.notify "<b>SAVED!</b> We won't forget a thing!", 'success', 4
   save: (name, data)->
-    console.log "SAVING..."
     key = @generateKey(name)
     if ws then ws.set(key, JSON.stringify(data))
   load:()->

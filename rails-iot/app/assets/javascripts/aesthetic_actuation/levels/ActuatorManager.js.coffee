@@ -1,6 +1,5 @@
  class window.ActuatorManager
   @DEFAULT_ASYNC: 30
-  
   @create: (op)->
     if op.clear then op.target.find('actuator').remove()
     dom = $('actuator.template[name="'+ op.actuator_type+'"]')
@@ -161,8 +160,6 @@
   #     _.delay(am.sendCommandTo, command.t, act, channel, command.param) 
   #     return
   
-  
-   
   activateDragAndDrop: ()->
     scope = this
     $('actuator.draggable').draggable
@@ -181,30 +178,40 @@
       stop: (event, ui)->
         if $(this).parent().data('ui-droppable')
           $(this).parent().droppable("enable")
+    
+
     $('.actuation-design .droppable, #async .droppable, acceptor.actuator').droppable
       accept: "actuator.draggable"
       classes: { "droppable-active": "droppable-default"}
       drop: (event, ui) ->
         empty = $(this).html() == ""
-        sync = $(this).parents('#async').length == 0
-        compose = $(this).parents(".composition-design").length != 0
+        actor = scope.resolve(ui.draggable)
+
+        # stageLogic 
+        d = $(this).data()
+        if d.name == "Stage"
+          stage = Stage.library[d.id]
+          stage.setStage(actor)
+        else
+          console.log "Not a stage..."
+        # sync = $(this).parents('#async').length == 0
+        # compose = $(this).parents(".composition-design").length != 0
         choreo = Choreography.default()
-        if compose 
-          idx = $('#stage acceptor').index(this) - 1
-          choreos = $("#choreography-binders choreography")
-          console.log "ALMOST", idx, choreos.length
-          if idx < choreos.length
-            potential = Choreography.get($(choreos[idx]))
-            if potential
-              choreo = potential
+        # if compose 
+        #   idx = $('#stage acceptor').index(this) - 1
+        #   choreos = $("#choreography-binders choreography")
+        #   console.log "ALMOST", idx, choreos.length
+        #   if idx < choreos.length
+        #     potential = Choreography.get($(choreos[idx]))
+        #     if potential
+        #       choreo = potential
 
         num_to_accept = $(this).data().accept
 
-        actor = scope.resolve(ui.draggable)
+        
         ops = _.extend actor.form,
           clear: num_to_accept == 1
           target: $(this)
-          # addSignalTrack: sync and compose and empty
           addSignalTrack: false
           choreo: choreo
         

@@ -177,8 +177,9 @@ class window.Actuator
     else
       @dom.find(".save-status").removeClass('saved')
   
-  perform: (channel, command, generate_command=true)->
+  perform: (command, generate_command=true)->
     # window.paper = @op.paper
+    channel = command.channel
     query = 
       parameterized: true
       viz_update: true
