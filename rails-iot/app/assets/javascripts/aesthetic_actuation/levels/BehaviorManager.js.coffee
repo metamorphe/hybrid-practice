@@ -159,7 +159,7 @@ class window.StageManager
             alertify.notify "<b> Whoops! </b> Nothing to play... Add something to the time track.", 'error', 4
             return null
         else
-            return cl
+            return _.sortBy cl, "t"
 
 
     removeStage: (stageID)->
