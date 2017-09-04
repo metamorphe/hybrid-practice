@@ -76,7 +76,7 @@ class window.Actuator
     content = @expression
     if @expression.className == "Color" then content = @expression.toCSS()
     @dom.data
-      conatiner: "#ui2"
+      container: "#ui2"
       content: content
       placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'

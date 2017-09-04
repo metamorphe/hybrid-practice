@@ -153,7 +153,7 @@ class window.TimeSignal
 
   @popover: (dom)->
     dom.data
-      conatiner: "#ui2"
+      container: "#ui2"
       content: "500ms"
       placement: 'left'
       template: '<div class="timesignal popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-right"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div><input min="0" max="10000" step="100" type="range"/></div>'

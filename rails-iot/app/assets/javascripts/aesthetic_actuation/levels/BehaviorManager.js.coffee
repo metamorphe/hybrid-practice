@@ -216,6 +216,7 @@ class window.Track
             tracks: 3
             exportable: "disabled"
             composeable: "enabled"
+            channel: ""
             signals: []
         _.extend this, _.pick op, "data"    
         @container.append(@dom)

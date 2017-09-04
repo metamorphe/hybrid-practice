@@ -1,3 +1,10 @@
+$ ->
+  $(document).keypress (event) ->
+    console.log event.which, Widget.bindings      
+    if Widget.bindings_on
+      _.each Widget.bindings, (func, key)->
+        if event.which == parseInt(key)
+          func(event)
 class window.Widget 
   @bindings = {}
   @bindings_on = true
@@ -15,7 +22,6 @@ class window.Widget
     
 
     fullscreenToggle = (dom)->
-      console.log "DOM", dom
       $(dom).toggleClass('fullscreen')
       # if $(dom).hasClass('fullscreen')
         # $(dom).detach().appendTo('body')
@@ -28,15 +34,6 @@ class window.Widget
     Widget.bindKeypress 50, (()-> $('event.signal-design button.toggle').click()), true
     Widget.bindKeypress 51, (()-> $('event.composition-design button.toggle').click()), true
     Widget.bindKeypress 102, (()-> $('#fullscreen').click()), true
-
-
-
-    $(document).keypress (event) ->
-      if Widget.bindings_on
-        _.each Widget.bindings, (func, key)->
-          console.log event.which
-          if event.which == parseInt(key)
-            func(event)
     return
   @bindKeypress: (key, func, ascii = false)->
     if not ascii
@@ -57,7 +54,7 @@ class window.ActuatorWidgets
       clear: $("#group-clear")
       bindKey: 'g'
     @saver = new Saver
-      track: $("#library.actuation-design .track-full")
+      track: $("#actuator-library .track-full")
       trigger: $("#library.actuation-design button.trigger")
       bindKey: 's'
     @async = new AsynchMorph
@@ -127,6 +124,7 @@ class window.Saver extends ActuatorWidget
         color: 'alert-success'
 
   save: (name, data)->
+    console.log "SAVING..."
     key = @generateKey(name)
     if ws then ws.set(key, JSON.stringify(data))
   load:()->

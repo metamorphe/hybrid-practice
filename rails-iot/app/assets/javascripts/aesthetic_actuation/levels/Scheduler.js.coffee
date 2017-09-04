@@ -79,7 +79,7 @@ class window.Scheduler
 						# console.log command.expression.toCSS()
 						e.fillColor = command.expression
 						# CanvasUtil.setStyle [e], fillColor: command.expression
-					when "Pump"
+					when "PUMP"
 						bubbles = actuator.channels.bubbles.value
 						bubble_make = ()->
 							scale = 3
@@ -110,7 +110,7 @@ class window.Scheduler
 						_.times parseInt(bubbles), (i)->
 							stagger = 100 
 							_.delay bubble_make, stagger * i
-					when "Heater"
+					when "HEATER"
 						red = new (paper.Color)('red')
 						blue = new (paper.Color)('#00A8E1')
 						p = actuator.channel.param
