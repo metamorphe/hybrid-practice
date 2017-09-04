@@ -87,6 +87,7 @@ class window.TimeSignalManager
     $('.sortable').sortable
       placeholder: "ui-state-highlight"
       scroll: false
+
     $('datasignal.exportable').draggable
       cursorAt: { bottom: 5 }
       revert: true
@@ -111,6 +112,7 @@ class window.TimeSignalManager
       axis: 'x'
 
 
+
     _.each $('datasignal.composeable'), (signal)->
       tracks = $(signal).parent().data().tracks
 
@@ -124,9 +126,12 @@ class window.TimeSignalManager
         # grid: [1, 87/tracks]
         axis: 'x'
         stack: 'datasignal.composeable'
-      
+        drag: (e, ui)->
+          track_id = $(this).data().track
+          if not _.isNull(track_id)
+            Track.library[track_id].update()
+         
     $('datasignal.composeable').mousedown (event)->
-        console.log event
         if event.shiftKey
           # console.log "SHIFT"
           $(this).draggable( "option", "containment", "document" )

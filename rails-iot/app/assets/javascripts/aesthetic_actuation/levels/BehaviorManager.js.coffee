@@ -42,6 +42,7 @@ class window.Behavior
                 #MANUAL INTERNAL UPDATES
                 if @_data.manager
                     @_data.stages = @_data.manager.data.stages
+                    @_data.period = @_data.manager.data.period
 
                 # BLANKET UPDATES
                 _.each @_data, (v, k)->
@@ -119,6 +120,9 @@ class window.StageManager
                     if domupdate.length > 0 then domupdate.html(v)
                     
                 # MANUAL UPDATES
+                times = _.map @_data.stages, (id)->
+                    return Stage.library[id].data.period
+                @_data.period = _.max(times)
                 # PROPAGATION UPDATES
                 # console.log "PARENT", @parent.data
                 if @parent.data
@@ -173,7 +177,11 @@ class window.Stage
                 _.each @_data, (v, k)->
                     domupdate = scope.dom.find("." + k)
                     if domupdate.length > 0 then domupdate.html(v)
-                    
+                
+                # TIME UPDATE
+                times = _.map @_data.tracks, (t)->
+                    return Track.library[t].getTime()
+                @_data.period = _.max times
                 # MANUAL UPDATES
                 if @parent.data
                     @parent.data = {update: true}
@@ -188,6 +196,7 @@ class window.Track
         @data = 
             id: Track.count++
             name: "Track"
+            period: 0
             num_to_accept: 100
             view: "intensity"
             semantic: "disabled"
@@ -199,7 +208,8 @@ class window.Track
         _.extend this, _.pick op, "data"    
         @container.append(@dom)
         Track.library[this.data.id] = this
-        
+    update: ()->
+        @data = {trigger: true}
     addSignal: (ts, clear)->
         # console.log "ADDING SIGNAL", ts.id
         ts = ts.form
@@ -213,6 +223,7 @@ class window.Track
             period: ts.period
         signal.dom.click()
         @dom.addClass('accepted')
+        @update()
     getSignals: ()->
         return _.map @dom.find('datasignal'), (signal)-> return $(signal).data("id")
     getPeriod: ()->
@@ -266,7 +277,7 @@ class window.Track
     Object.defineProperties @prototype,
         data: 
             get: ->
-                return @_data
+                return _.omit @_data, "trigger"
             set:(obj)->
                 if _.isEmpty(obj) then return
                 scope = this
@@ -278,7 +289,8 @@ class window.Track
                 # VIEW UPDATES
                 signals = _.map @_data.signals, (signal)-> tsm.getTimeSignal(signal)
                 _.each signals, (s)-> s.form =  {view: scope._data.view}
-    
+                @_data.period = scope.getTime()
+
                 # MANUAL UPDATES
 
                 if @parent.data
