@@ -8,7 +8,6 @@ class window.Behavior
     speed: 1
     constructor: (op)->
         #defaults
-        console.log "MAKING BEHAVIOR", op
         scope = this
         @playing = false
         @play_ids = []
@@ -36,10 +35,38 @@ class window.Behavior
             $('behavior').hide()
             window.current_behavior = scope
             scope.data.manager.dom.show()
+        @scrubber = new Scrubber
+            behavior: this
+            dom: @dom.find('#scrubber')
+    
+        if _.has op, "_load"
+            @load()
+        
+    load: ()->
+        scope = this
+        console.log "LOAD", @_load
+        stagesN = @_load.length
+        manager = @data.manager
+
+        @dom.click()
+        _.each @_load, (stageData, stageID)->
+            stage = manager.addStage()
+            stage.data = {id: stageID}
+            actor = am.getActuator(stageData.actuator)
+            stage.addActor(stage, actor)
+            tracks = _.map stage.data.tracks, (track)->
+                t = Track.library[track]
+                return [t.data.channel, t]
+            tracks = _.object tracks
+            _.each stageData.tracks, (signalData, channel)->
+                # console.log channel, "ADD", signalData
+                _.each signalData, (entry)->
+                    ts = tsm.getTimeSignal(entry.signal)
+                    signal = tracks[channel].addSignal(ts, clear=false)
+                    signal.dom.css('left', scope.scrubber.getPosition(entry.offset))
+        # console.log @_load
     save: ()->
         return @data.manager.save()
-    setStage: ()->
-        return
     clearStage: ()->
         if @data.manager
             console.log "DATA", @data.manager.data
@@ -80,7 +107,6 @@ class window.Behavior
 
     toDOM: ()->
         dom = $(Behavior.template).clone().removeClass('template')
-        console.log dom
         dom.draggable
             cursorAt: { bottom: 5 }
             appendTo: '#ui2'
@@ -100,11 +126,11 @@ class window.Behavior
             if _.isEmpty raw_commands then return
 
             #RESTART/START_FROM_SCRUBBER
-            t_start = if fromStart then 0 else scrubber.getTime()
+            t_start = if fromStart then 0 else @scrubber.getTime()
             commands = _.filter raw_commands, (command)-> command.t > t_start
             if _.isEmpty commands 
                 t_start = 0
-                scrubber.reset()
+                @scrubber.reset()
                 commands = raw_commands
                 
             console.log "PLAYING", commands.length, commands
@@ -115,16 +141,16 @@ class window.Behavior
 
             # # SCHEDULE FOR PLAY
             scope.play_ids = Scheduler.schedule(commands, true)
-            scrubber.play(t_start, end)
+            @scrubber.play(t_start, end)
             @playing = true
 
             endOfBehavior = ()->
                 scope.pause()
-                scrubber.setTime(end)
+                scope.scrubber.setTime(end)
 
             id = _.delay (()-> scope.pause()), end - t_start
     pause: ()->
-        scrubber.pause()
+        @scrubber.pause()
         _.each @play_ids, (id)->
             clearTimeout(id)
         @play_ids = []
@@ -161,7 +187,7 @@ class window.StageManager
             numTracks: 3
         this.data.stages.push sid.data.id
         this.data = {trigger: true}
-        return
+        return sid
     compile: ()->
         cl = _.map @data.stages, (stage)->
             stage = Stage.library[stage]
@@ -244,7 +270,8 @@ class window.Stage
         return this
     clearActor: ()->
         return
-    setStage: (actor)->        
+    setStage: (actor)->   
+        console.log "SETTING STAGE", actor     
         scope = this
         @trackdom.find("acceptor.datasignals").remove()
         scope.data.tracks = []
@@ -253,7 +280,8 @@ class window.Stage
 
         channels = actor.physical_channels()
         n = Object.size(channels)
-        _.each channels, (v, channel)->
+        console.log "CHANNELS", channels
+        tracks = _.each channels, (v, channel)->
             t = new Track
                 parent: scope
                 container: scope.trackdom
@@ -264,8 +292,10 @@ class window.Stage
             scope.data.tracks.push t.data.id
             scope.data = {trigger: true}
             scope.parent.data = {trigger: true}
+            return [channel, t]
+        tracks = _.object(tracks)
 
-        return
+        return tracks
     getActor: ()->
         actuator = @dom.find("actuator")
         if actuator.length == 0
@@ -285,7 +315,6 @@ class window.Stage
         else if not actor and commands.length == 0
             return null
         else
-            console.log "ACTOR PERFORMING"
             commands = _.map commands, (command) -> 
                 return actor.perform(command)
             return _.flatten commands
@@ -297,38 +326,42 @@ class window.Stage
                 accept: "actuator.draggable"
                 classes: { "droppable-active": "droppable-default"}
                 drop: (event, ui) ->
-                    empty = $(this).html() == ""
-                    actor = am.resolve(ui.draggable)
-
-                    # stageLogic 
-                    d = $(this).data()
-                    if d.name == "Stage"
-                        stage = Stage.library[d.id]
-                        stage.setStage(actor)
-                    else
-                        console.log "Not a stage..."
-
-                    choreo = Choreography.default()
-
-                    # sync = $(this).parents('#async').length == 0
-                    # compose = $(this).parents(".composition-design").length != 0
-                    # if compose 
-                    #   idx = $('#stage acceptor').index(this) - 1
-                    #   choreos = $("#choreography-binders choreography")
-                    #   console.log "ALMOST", idx, choreos.length
-                    #   if idx < choreos.length
-                    #     potential = Choreography.get($(choreos[idx]))
-                    #     if potential
-                    #       choreo = potential
-
-                    num_to_accept = $(this).data().accept
-                    ops = _.extend actor.form,
-                        clear: num_to_accept == 1
-                        target: $(this)
-                        choreo: choreo
-                    ActuatorManager.create ops
-            
+                    stage = Stage.library[$(this).data().id]
+                    scope.addActor(stage, am.resolve(ui.draggable))
         return dom
+    addActor: (stage, actor)->
+        empty = stage.dom.html() == ""
+        console.log "STAGE LOAD", stage.dom
+        # stageLogic 
+        d = stage.dom.data()
+        num_to_accept = stage.dom.data().accept
+        
+        if d.name == "Stage"
+            stage = Stage.library[d.id]
+            stage.setStage(actor)
+        else
+            console.log "Not a stage..."
+
+        choreo = Choreography.default()
+
+        # sync = $(this).parents('#async').length == 0
+        # compose = $(this).parents(".composition-design").length != 0
+        # if compose 
+        #   idx = $('#stage acceptor').index(this) - 1
+        #   choreos = $("#choreography-binders choreography")
+        #   console.log "ALMOST", idx, choreos.length
+        #   if idx < choreos.length
+        #     potential = Choreography.get($(choreos[idx]))
+        #     if potential
+        #       choreo = potential
+
+        ops = _.extend actor.form,
+            clear: num_to_accept == 1
+            target: stage.dom
+            choreo: choreo
+        ActuatorManager.create ops
+            
+        
     Object.defineProperties @prototype,
         data: 
             get: ->
@@ -392,11 +425,13 @@ class window.Track
         signal.dom.click()
         @dom.addClass('accepted')
         @update()
+        return signal
     save: ()->
+        scope = this
         signals = @getSignals()
         signalData = _.map signals, (signalID)->
             ts = tsm.getTimeSignal(signalID)
-            timeOffset = scrubber.toTime(ts.dom.position().left)
+            timeOffset = scope.parent.parent.parent.scrubber.toTime(ts.dom.position().left)
             return {signal: signalID, offset: timeOffset}
     getSignals: ()->
         return _.map @dom.find('datasignal'), (signal)-> return $(signal).data("id")

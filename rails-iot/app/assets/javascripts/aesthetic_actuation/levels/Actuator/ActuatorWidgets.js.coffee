@@ -110,16 +110,16 @@ class window.Saver extends ActuatorWidget
     @save @behaviors, behaviors
 
   saveActuation: (e)->
-    # scope = this
-    # track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
-    # scope.saveActors(scope.track, track_actuators)
+    scope = this
+    track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
+    scope.saveActors(scope.track, track_actuators)
     # stage_actuators = bm.getActors()
     # scope.saveActors(scope.stage, stage_actuators)
     # signal_tracks = $(".signal-design .track-full").not("#hues")
     # signal_tracks = _.map signal_tracks, (track)->
-    #   signals = TimeWidget.resolveTrack(track, '.easing, .default')
-    #   track_id = $(track).parent('event').attr('id')
-    #   scope.saveActors(scope.ts_library + ":" + track_id, signals)
+      # signals = TimeWidget.resolveTrack(track, '.easing, .default')
+      # track_id = $(track).parent('event').attr('id')
+    scope.saveActors(scope.ts_library, tsm.timesignals)
 
     alertify.notify "<b>SAVED!</b> We won't forget a thing!", 'success', 4
   save: (name, data)->
@@ -127,7 +127,7 @@ class window.Saver extends ActuatorWidget
     if ws then ws.set(key, JSON.stringify(data))
   load:()->
     scope = this
-    # @trackLoad()
+    @trackLoad()
     @signalLoad()
     @behaviorLoad()
 
@@ -137,20 +137,18 @@ class window.Saver extends ActuatorWidget
   behaviorLoad: ()->
     key = @generateKey(@behaviors)
     rtn = ws.get(key)
+    
+  
     behaviors = if _.isNull(rtn) then [] else JSON.parse(rtn)
     behaviors = _.map behaviors, (behaviorData, behaviorID)->
-      console.log behaviorID, behaviorData
       new Behavior
         container: $('#behavior-library .track-full')
-        data: 
-          load: behaviorData
-    window.current_behavior = new Behavior
-      container: $('#behavior-library .track-full')
-      data:
-        name: "Stagger"
-    window.scrubber = new Scrubber
-      behavior: window.current_behavior
-      dom: $('behavior:not(.template) #scrubber')
+        _load: behaviorData
+    window.current_behavior = behaviors[0]
+    # window.current_behavior = new Behavior
+    #   container: $('#behavior-library .track-full')
+    #   data:
+    #     name: "Stagger"
     
     playBehavior =  (event)-> 
       event.preventDefault()
@@ -159,7 +157,7 @@ class window.Saver extends ActuatorWidget
 
     $('#add-stage').click ()->
       window.current_behavior.data.manager.addStage()
-    $('#add-stage').click()
+    # $('#add-stage').click()
 
 
   saveActors: (name, actors)->
@@ -170,7 +168,7 @@ class window.Saver extends ActuatorWidget
       if actor.easing then return null
       rtn =  _.extend actor.form,
         file: fs.getName()
-        parent: actor.dom.parent().data().id
+        # parent: actor.dom.parent().data().id
         test: ""
       # console.log "SAVING", rtn.parent
       return rtn
@@ -190,15 +188,11 @@ class window.Saver extends ActuatorWidget
   
   signalLoad: ()->
     scope = this
-    signal_tracks = $(".signal-design .track-full").not("#hues")
-    signal_tracks = _.map signal_tracks, (track)->
-      track_id = $(track).parent('event').attr('id')
-      # console.log "LOADING", track_id
-      scope.loadActors scope.ts_library + ":" + track_id, (signal)->
-        dom = TimeSignal.create
-          clear: false
-          target: $(track)
-        signal = new TimeSignal dom, signal
+    scope.loadActors scope.ts_library, (signal)->
+      dom = TimeSignal.create
+        clear: false
+        target: $("#library.signal-design .track-full")
+      signal = new TimeSignal dom, signal
   trackLoad: ()->
     scope = this
     @loadActors @track, (actuator)->
