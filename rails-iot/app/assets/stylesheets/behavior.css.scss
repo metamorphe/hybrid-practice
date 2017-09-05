@@ -19,7 +19,9 @@
   // height: 100%;
 }
 $lines: 9pt;
-
+.btn-behavior{
+  background: darken($sexy_green, 30%);
+}
 behaviornode{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -78,6 +80,11 @@ behaviornode{
   }
   &:active{
     background: darken($sexy_green, 40%);
+  }
+  &.selected{
+    @extend block.selected;
+    background: darken($sexy_green, 20%);
+  
   }
 }
 

@@ -1,0 +1,356 @@
+class window.StageManager
+    @count: 0
+    @template: "behavior.template"
+    save: ()->
+        return _.map @_data.stages, (id)->
+            return Stage.library[id].save()
+    constructor: (op)->
+        _.extend this, _.omit op, "data"
+        @dom = @toDOM()
+        @_data = {}
+        @data = 
+            id: StageManager.count++
+            name: "StageManager"
+            stages: []
+        _.extend this, _.pick op, "data"    
+        @container.append(@dom)
+        @dom.hide()
+
+    addStage: ()->
+        sid = new Stage
+            parent: this
+            container: @dom.find("#stage")
+            numTracks: 3
+        this.data.stages.push sid.data.id
+        this.data = {trigger: true}
+        return sid
+    compile: ()->
+        cl = _.map @data.stages, (stage)->
+            stage = Stage.library[stage]
+            stage.compile()
+        cl = _.compact _.flatten(cl)
+        if cl.length == 0 
+            alertify.notify "<b> Whoops! </b> Nothing to play... Add something to the time track.", 'error', 4
+            return null
+        else
+            return _.sortBy cl, "t"
+
+
+    removeStage: (stageID)->
+        return
+    toDOM: ()->
+        scope = this
+        dom = $(StageManager.template).clone().removeClass('template')            
+        return dom
+    Object.defineProperties @prototype,
+        data: 
+            get: ->
+                @_data
+            set:(obj)->
+                if _.isEmpty(obj) then return
+                
+                scope = this
+                # BLANKET INTERNAL UPDATES
+                @_data = _.extend(@_data, obj)
+                @dom.data _.pick(@_data, "id")
+                
+                # BLANKET UPDATES
+                _.each @_data, (v, k)->
+                    domupdate = scope.dom.find("." + k)
+                    if domupdate.length > 0 then domupdate.html(v)
+                    
+                # MANUAL UPDATES
+                times = _.map @_data.stages, (id)->
+                    return Stage.library[id].data.period
+                @_data.period = _.max(times)
+                # PROPAGATION UPDATES
+                # console.log "PARENT", @parent.data
+                if @parent.data
+                    @parent.data = {update: true}
+
+class window.Stage
+    @count: 0
+    @template: "acceptor.actuator.template"
+    @library: {}
+    save: ()->
+        saveData = {}
+        if @getActor()
+            saveData.actuator = @getActor().id
+        if @data.tracks.length > 0
+            saveData.tracks = {}
+            _.each @data.tracks, (trackID)->
+                t = Track.library[trackID]
+                channel = t.data.channel
+                saveData.tracks[channel] = t.save()
+        return saveData
+    constructor: (op)->
+        _.extend(this, _.omit(op, "data"))  
+        scope = this
+        @dom = @toDOM()
+        @trackparent = scope.parent.dom.find('#timetrack')
+        @trackdom = $('<div>').addClass('track-dom')
+
+        @_data = {}
+        @data = 
+            id: Stage.count++
+            name: "Stage"
+            tracks: []
+
+        _.extend this, op   
+        @container.append(@dom)
+        @trackparent.append(@trackdom)
+
+        _.extend this, _.pick op, "data"    
+        
+        Stage.library[this.data.id] = this
+        return this
+    clearActor: ()->
+        return
+    setStage: (actor)->   
+        console.log "SETTING STAGE", actor     
+        scope = this
+        @trackdom.find("acceptor.datasignals").remove()
+        scope.data.tracks = []
+        scope.data = {trigger: true}
+        scope.parent.data = {trigger: true}
+
+        channels = actor.physical_channels()
+        n = Object.size(channels)
+        console.log "CHANNELS", channels
+        tracks = _.each channels, (v, channel)->
+            t = new Track
+                parent: scope
+                container: scope.trackdom
+                data: 
+                    channel: channel
+                    tracks: n
+            
+            scope.data.tracks.push t.data.id
+            scope.data = {trigger: true}
+            scope.parent.data = {trigger: true}
+            return [channel, t]
+        tracks = _.object(tracks)
+
+        return tracks
+    getActor: ()->
+        actuator = @dom.find("actuator")
+        if actuator.length == 0
+            return null
+        else
+            return am.resolve(actuator)
+    compile: ()->
+        # $('')
+        actor = @getActor()
+        commands = _.map @data.tracks, (trackID)->
+            track = Track.library[trackID]
+            track.toCommands()
+        commands = _.flatten(commands)
+        if not actor and commands.length > 0
+            alertify.notify "<b> Heads up! </b> Looks like you forgot to specify an actuator in the track.", 'error', 4
+            return null
+        else if not actor and commands.length == 0
+            return null
+        else
+            commands = _.map commands, (command) -> 
+                return actor.perform(command)
+            return _.flatten commands
+    toDOM: ()->
+        scope = this
+        dom = $(Stage.template).clone()
+            .removeClass('template')
+            .droppable
+                accept: "actuator.draggable"
+                classes: { "droppable-active": "droppable-default"}
+                drop: (event, ui) ->
+                    stage = Stage.library[$(this).data().id]
+                    scope.addActor(stage, am.resolve(ui.draggable))
+        return dom
+    addActor: (stage, actor)->
+        empty = stage.dom.html() == ""
+        console.log "STAGE LOAD", stage.dom
+        # stageLogic 
+        d = stage.dom.data()
+        num_to_accept = stage.dom.data().accept
+        
+        if d.name == "Stage"
+            stage = Stage.library[d.id]
+            stage.setStage(actor)
+        else
+            console.log "Not a stage..."
+
+        choreo = Choreography.default()
+
+        # sync = $(this).parents('#async').length == 0
+        # compose = $(this).parents(".composition-design").length != 0
+        # if compose 
+        #   idx = $('#stage acceptor').index(this) - 1
+        #   choreos = $("#choreography-binders choreography")
+        #   console.log "ALMOST", idx, choreos.length
+        #   if idx < choreos.length
+        #     potential = Choreography.get($(choreos[idx]))
+        #     if potential
+        #       choreo = potential
+
+        ops = _.extend actor.form,
+            clear: num_to_accept == 1
+            target: stage.dom
+            choreo: choreo
+        ActuatorManager.create ops
+            
+        
+    Object.defineProperties @prototype,
+        data: 
+            get: ->
+                @_data
+            set:(obj)->
+                if _.isEmpty(obj) then return
+                
+                scope = this
+                # BLANKET INTERNAL UPDATES
+                @_data = _.extend(@_data, obj)
+                @dom.data @_data
+                
+                # BLANKET UPDATES
+                _.each @_data, (v, k)->
+                    domupdate = scope.dom.find("." + k)
+                    if domupdate.length > 0 then domupdate.html(v)
+                
+                # TIME UPDATE
+                times = _.map @_data.tracks, (t)->
+                    return Track.library[t].getTime()
+                @_data.period = _.max times
+                # MANUAL UPDATES
+                if @parent.data
+                    @parent.data = {update: true}
+class window.Track
+    @count: 0
+    @library: {}
+    @template: "acceptor.datasignals.template"
+    constructor: (op)->
+        _.extend this, _.omit op, "data"
+        @_data = {}
+        @dom = @toDOM()
+        @data = 
+            id: Track.count++
+            name: "Track"
+            period: 0
+            num_to_accept: 100
+            view: "intensity"
+            semantic: "disabled"
+            timescale: 10000
+            exportable: "disabled"
+            composeable: "enabled"
+            channel: ""
+            signals: []
+        _.extend this, _.pick op, "data"    
+        @container.append(@dom)
+        Track.library[this.data.id] = this
+    update: ()->
+        @data = {trigger: true}
+    addSignal: (ts, clear)->
+        # console.log "ADDING SIGNAL", ts.id
+        ts = ts.form
+        dom = TimeSignal.create
+            clear: clear
+            target: @dom#$(this)
+        signal = new TimeSignal(dom)
+        signal.form = 
+            track: @data.id
+            signal: ts.signal 
+            period: ts.period
+        signal.dom.click()
+        @dom.addClass('accepted')
+        @update()
+        return signal
+    save: ()->
+        scope = this
+        signals = @getSignals()
+        signalData = _.map signals, (signalID)->
+            ts = tsm.getTimeSignal(signalID)
+            timeOffset = scope.parent.parent.parent.scrubber.toTime(ts.dom.position().left)
+            return {signal: signalID, offset: timeOffset}
+    getSignals: ()->
+        return _.map @dom.find('datasignal'), (signal)-> return $(signal).data("id")
+    getPeriod: ()->
+        return
+    clearTrack: ()->
+        scope = this
+        _.each @getSignals(), (signal)-> scope.removeSignal(signal)
+        @dom.removeClass("accepted")
+    removeSignal: (signalID)->
+        tsm.getTimeSignal(signalID).dom.remove()
+    toDOM: ()->
+        scope = this
+        dom = $(Track.template).clone().removeClass('template')
+        
+        dropBehavior = 
+            accept: "datasignal.exportable", 
+            classes: { "droppable-active": "droppable-default"},
+            drop: (event, ui) ->
+                num_to_accept = $(this).data().accept
+                ts = tsm.resolve(ui.draggable)
+                scope.addSignal(ts, num_to_accept)
+
+        viewToggle = (e)->
+            state =  scope.data.view
+            orState = if state == "hue" then "intensity" else "hue"
+            scope.data = {view: orState}
+
+        $(dom).droppable(dropBehavior)
+        $(dom).find('.view-toggle').click viewToggle
+        $(dom).find('.trash').click ()-> scope.clearTrack()
+        return dom
+    toCommands: ()->
+
+        scope = this
+        timescale = @data.timescale
+        width = @dom.width()
+        commands =  _.map @getSignals(), (signal, i)->
+            ts = tsm.getTimeSignal(signal)
+            ts.dom.removeClass("selected")
+            # penalty = if ts.dom.hasClass('selected') then 2 else 0
+            
+            # a = ts.dom.parent().offset() 
+            # b = ts.dom.offset() 
+            # pos = {top: b.top - a.top, left: b.left - a.left}
+            pos = ts.dom.position()
+            offset = (pos.left / width) * timescale
+            # offset -= 81.3 * (i)
+            commands = ts.command_list_data(ts.p_signal, {offset: offset})
+            return commands
+        commands = _.flatten commands
+        commands = _.each commands, (command)->
+            command.channel = scope.data.channel
+        return commands
+    getTime: ()->
+        commands = @toCommands()
+        if commands.length == 0 then return 0
+        else return commands[commands.length - 1].t  + commands[commands.length - 1].duration
+      
+               
+    Object.defineProperties @prototype,
+        data: 
+            get: ->
+                return _.omit @_data, "trigger"
+            set:(obj)->
+                if _.isEmpty(obj) then return
+                scope = this
+                # BLANKET INTERNAL UPDATES
+                @_data = _.extend(@_data, obj)
+                @dom.data @_data
+                
+                    
+                # VIEW UPDATES
+                signals = _.map @_data.signals, (signal)-> tsm.getTimeSignal(signal)
+                _.each signals, (s)-> s.form =  {view: scope._data.view}
+                @_data.period = scope.getTime()
+
+                if @_data.tracks == 1
+                    @dom.removeClass("mini")
+                else
+                    @dom.addClass("mini")
+
+                # MANUAL UPDATES
+
+                if @parent.data
+                    @parent.data = {update: true}

@@ -17,6 +17,7 @@
 //= require aesthetic_actuation/levels/TimeSignalManager
 //= require aesthetic_actuation/levels/ActuatorManager
 //= require aesthetic_actuation/levels/BehaviorManager
+//= require aesthetic_actuation/levels/Stage
 //= require aesthetic_actuation/levels/TimeSignal
 //= require aesthetic_actuation/levels/Recorder
 //= require aesthetic_actuation/levels/Composition

@@ -1,0 +1,15 @@
+:coffeescript
+  $ ->
+    $('#add-behavior').click ()->
+      b = new Behavior
+        container: $('#behavior-library .track-full')
+        data:
+          name: "BEHAVIOR"
+      b.dom.click()
+      $('#add-stage').click()
+      alertify.notify "We loaded a new behavior to the stage. Add an actuator group to get started.", 'info', 7
+#behavior-library.tab-pane{:role => "tabpanel"}
+  %button.btn.btn-block.btn-ghost.btn-xs#add-behavior
+    = glyph "plus"
+    BEHAVIOR
+  .track-full.droppable

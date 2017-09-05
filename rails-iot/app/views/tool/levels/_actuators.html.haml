@@ -80,8 +80,7 @@
   .tab-content
     #actuator-library.tab-pane.active{:role => "tabpanel"}
       .track-full.droppable
-    #behavior-library.tab-pane{:role => "tabpanel"}
-      .track-full.droppable
+    = render :partial => "tool/levels/behavior_library"
  
 %event#group.actuation-design.shrink
   %button.btn.btn-xs.btn-info.toggle
