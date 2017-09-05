@@ -1,10 +1,16 @@
+window.SPECIAL_KEYS = [32]
 $ ->
   $(document).keypress (event) ->
-    console.log event.which, Widget.bindings      
+    console.log event
+    # console.log event.which, Widget.bindings     
+
     if Widget.bindings_on
-      _.each Widget.bindings, (func, key)->
-        if event.which == parseInt(key)
-          func(event)
+      if event.ctrlKey or _.includes window.SPECIAL_KEYS, event.which
+        console.log "WIDGET ACTIVATED", event.which
+        event.preventDefault()
+        _.each Widget.bindings, (func, key)->
+          if event.which == parseInt(key)
+            func(event)
 class window.Widget 
   @bindings = {}
   @bindings_on = true
@@ -28,12 +34,12 @@ class window.Widget
       # else
         # $(dom).detach().appendTo('#levels')
 
-    Widget.bindKeypress 97, (()-> $('event button.toggle').click()), true
-    Widget.bindKeypress 98, (()-> fullscreenToggle($('event#behaviors'))), true
+    Widget.bindKeypress 1, (()-> $('event button.toggle').click()), true
+    Widget.bindKeypress 2, (()-> fullscreenToggle($('event#behaviors'))), true
     Widget.bindKeypress 49, (()-> $('event.actuation-design button.toggle').click()), true
     Widget.bindKeypress 50, (()-> $('event.signal-design button.toggle').click()), true
     Widget.bindKeypress 51, (()-> $('event.composition-design button.toggle').click()), true
-    Widget.bindKeypress 102, (()-> $('#fullscreen').click()), true
+    Widget.bindKeypress 6, (()-> $('#fullscreen').click()), true
     return
   @bindKeypress: (key, func, ascii = false)->
     if not ascii
@@ -52,15 +58,15 @@ class window.ActuatorWidgets
       result: $("#group-result") 
       trigger: $("#group-button.trigger")
       clear: $("#group-clear")
-      bindKey: 'g'
+      bindKey: 7 #G
     @saver = new Saver
       track: $("#actuator-library .track-full")
       trigger: $("#library.actuation-design button.trigger")
-      bindKey: 's'
+      bindKey: 19 #S
     @async = new AsynchMorph
       track: $("#async .track-full")
       trigger: $("#async button")
-      bindKey: 'a'
+      bindKey: 3 #C
       slider: $("#async input")
     # @comm = new Communicator
     #   trigger: $('button#live-connect')
@@ -81,7 +87,7 @@ class window.AsynchMorph extends ActuatorWidget
     # console.log "Async"
     scope = this
     _.extend this, op
-    Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+    Widget.bindKeypress @bindKey, (()-> scope.trigger.click()), true
     @slider.on 'input', (e)->
       v = if this.value < AsynchMorph.MIN then AsynchMorph.MIN else this.value
       # console.log v
@@ -93,7 +99,7 @@ class window.Saver extends ActuatorWidget
   constructor: (@op)->
     console.log "Saver"
     scope = this
-    Widget.bindKeypress @op.bindKey, ()-> scope.saveActuation()
+    Widget.bindKeypress @op.bindKey, (()-> scope.saveActuation()), true
     
     @track = "actuator_group_library"
     @stage = "behavior_stage"
@@ -207,7 +213,7 @@ class window.Grouper extends ActuatorWidget
   constructor: (@op)->
     scope = this
     # console.log "GroupMaker"
-    Widget.bindKeypress @op.bindKey, ()-> scope.op.trigger.click()
+    Widget.bindKeypress @op.bindKey, (()-> scope.op.trigger.click()), true
     @op.trigger.click (event)->
       acts = scope.op.track.find('actuator')
       ids = _.chain acts

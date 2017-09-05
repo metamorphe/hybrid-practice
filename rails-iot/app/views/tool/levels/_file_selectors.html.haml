@@ -3,7 +3,7 @@
     alertify.set('notifier','position', 'top-right');
     window.comm = new Communicator
       trigger: $('button#live-connect')
-      bindKey: 'l'
+      bindKey: 12 # CTRL+L
 
   window.actuatorsLive = ()->
     return $('#live-connect').hasClass('btn-success')
@@ -18,7 +18,7 @@
       @live = false
       _.extend this, op
       @update()
-      Widget.bindKeypress @bindKey, ()-> scope.trigger.click()
+      Widget.bindKeypress @bindKey, (()-> scope.trigger.click()), true
       @trigger.click (event)->
         event.preventDefault()
         $(this).blur()
