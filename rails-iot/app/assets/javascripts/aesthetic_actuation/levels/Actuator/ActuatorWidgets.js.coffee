@@ -111,17 +111,20 @@ class window.Saver extends ActuatorWidget
 
   saveActuation: (e)->
     scope = this
-    track_actuators = _.map scope.op.track.find('actuator'), (actor)-> return am.resolve(actor)
-    scope.saveActors(scope.track, track_actuators)
+    track_actuators = _.map @op.track.find('actuator'), (actor)-> return am.resolve(actor)
+    @saveActors(scope.track, track_actuators)
+
     # stage_actuators = bm.getActors()
     # scope.saveActors(scope.stage, stage_actuators)
     # signal_tracks = $(".signal-design .track-full").not("#hues")
     # signal_tracks = _.map signal_tracks, (track)->
       # signals = TimeWidget.resolveTrack(track, '.easing, .default')
       # track_id = $(track).parent('event').attr('id')
-    scope.saveActors(scope.ts_library, tsm.timesignals)
+    @saveActors(scope.ts_library, tsm.timesignals)
+    @saveBehaviors()
 
     alertify.notify "<b>SAVED!</b> We won't forget a thing!", 'success', 4
+  
   save: (name, data)->
     key = @generateKey(name)
     if ws then ws.set(key, JSON.stringify(data))
@@ -161,8 +164,6 @@ class window.Saver extends ActuatorWidget
 
 
   saveActors: (name, actors)->
-    # console.log "SAVING", name, actors.length
-
     data = _.map actors, (actor)-> 
       actor.form = {saved: true}
       if actor.easing then return null
@@ -170,7 +171,6 @@ class window.Saver extends ActuatorWidget
         file: fs.getName()
         # parent: actor.dom.parent().data().id
         test: ""
-      # console.log "SAVING", rtn.parent
       return rtn
     data = _.compact(data)
     @save(name, data)
@@ -181,7 +181,6 @@ class window.Saver extends ActuatorWidget
     key = @generateKey(name)
     rtn = ws.get(key)
     actuators = if _.isNull(rtn) then [] else JSON.parse(rtn)
-    # console.log name, actuators.length, "FOUND"
     _.each actuators, (actuator)->
       loadFN(actuator)
     return actuators
@@ -203,6 +202,7 @@ class window.Saver extends ActuatorWidget
       ActuatorManager.create ops
   generateKey: (name)->
     return [fs.getName(), name].join(':')
+    
 class window.Grouper extends ActuatorWidget
   constructor: (@op)->
     scope = this

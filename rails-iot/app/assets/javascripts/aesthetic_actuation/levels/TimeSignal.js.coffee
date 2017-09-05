@@ -434,7 +434,7 @@ class window.TimeSignal
     rect.sendToBack()
     timeGroup.pivot = timeGroup.bounds.topRight.clone()
     timeGroup.position = group.bounds.topRight.clone()
-    # timeGroup.position = group.bounds.expand(-5, -30).topRight.clone()
+    timeGroup.position = group.bounds.topRight.clone().add(new paper.Point(-5,10))
     timeGroup.onClick = (event)->
       scope.popover_behavior(event)
     return timeGroup

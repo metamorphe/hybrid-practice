@@ -100,13 +100,16 @@ class window.Composer
       actor = am.getActiveActuator()
       channel = am.getActiveChannel()
 
-      if _.isUndefined actor
-        scope.warn()
-        return
-      commands = ts.command_list.apply(ts)
-      commands = _.map commands, (command) -> 
-        cl = actor.perform(channel, command)
-      commands =_.flatten(commands)
+      if not actor and not channel
+        alertify.notify "<b> Whoops! </b> Don't forget to specify an actuator and channel to send it to.", 'error', 3
+      else if not channel
+        alertify.notify "<b> Whoops! </b> Don't forget to specify a channel to send it to.", 'error', 3
+      else
+        commands = ts.command_list.apply(ts)
+        _.each commands, (command) -> command.channel = channel
+        commands = _.map commands, (command) -> 
+          cl = actor.perform(command)
+        commands =_.flatten(commands)
       Scheduler.schedule(commands)
   bindChoreographyButton:()->
     dom = $('choreography')
