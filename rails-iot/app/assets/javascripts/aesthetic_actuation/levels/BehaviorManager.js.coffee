@@ -54,6 +54,14 @@ class window.Behavior
             b.data.manager.destroy()
             b.dom.remove() 
             delete Behavior.library[bid]
+        @dom.find('.play').click (e)->
+            e.preventDefault()
+            e.stopPropagation()
+            bid = $(this).parents('behaviornode').data().id
+            b = Behavior.library[bid]
+            b.dom.click()
+            b.play()
+
 
     load: ()->
         scope = this
@@ -158,8 +166,14 @@ class window.Behavior
             endOfBehavior = ()->
                 scope.pause()
                 scope.scrubber.setTime(end)
+                console.log "REPEATING?", scope
+                if scope.data.repeat == "repeat"
+                    console.log "REPEAT"
+                    scope.play(true)
 
-            id = _.delay (()-> scope.pause()), end - t_start
+            id = _.delay endOfBehavior, end - t_start
+            @play_ids.push(id) 
+            
     pause: ()->
         @scrubber.pause()
         _.each @play_ids, (id)->

@@ -17,7 +17,7 @@
   .vert
     %button.design-title.btn-primary.trigger{:type => "trigger"}
       %span SIGNALS
-      %span.command [S]
+      / %span.command [CTRL + S]
 
 
   .track-full.droppable.sortable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
@@ -31,7 +31,7 @@
   .vert
     %button#ts-cutter.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span CUT
-      %span.command [X]
+      %span.command [CTRL + X]
   .track-full.droppable{:data =>{:accept=> 1, :draggable => "enabled", :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "disabled", :gamma_corrective => 0.5}}
     %button.btn.btn-xs.btn-danger.trash
       =glyph "trash"
@@ -45,7 +45,7 @@
   .vert
     %button#ts-adder.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
       %span WELD
-      %span.command [W]
+      %span.command [CTRL + W]
   #add-result.track-unit{:data =>{:accept=> 0, :semantic => "enabled", :timescale => 10000, :tracks => 1, :exportable => "enabled"}}
     %datasignal#result
       %canvas
