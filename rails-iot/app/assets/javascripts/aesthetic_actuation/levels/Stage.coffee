@@ -4,6 +4,12 @@ class window.StageManager
     save: ()->
         return _.map @_data.stages, (id)->
             return Stage.library[id].save()
+    destroy: ()->
+        @dom.remove()
+        _.each @data.stages, (stageID)->
+            console.log 'DESTROYING STAGE', stageID
+            s = Stage.library[stageID]
+            s.destroy()
     constructor: (op)->
         _.extend this, _.omit op, "data"
         @dom = @toDOM()
@@ -24,6 +30,7 @@ class window.StageManager
         this.data.stages.push sid.data.id
         this.data = {trigger: true}
         return sid
+        
     compile: ()->
         cl = _.map @data.stages, (stage)->
             stage = Stage.library[stage]
@@ -72,6 +79,12 @@ class window.Stage
     @count: 0
     @template: "acceptor.actuator.template"
     @library: {}
+    destroy: ()->
+        @dom.remove()
+        _.each @data.tracks, (trackID)->
+            t = Track.library[trackID]
+            t.destroy()
+        delete Stage.library[@data.id]
     save: ()->
         saveData = {}
         if @getActor()
@@ -226,6 +239,9 @@ class window.Track
     @count: 0
     @library: {}
     @template: "acceptor.datasignals.template"
+    destroy: ()->
+        @dom.remove()
+        delete Track.library[@data.id]
     constructor: (op)->
         _.extend this, _.omit op, "data"
         @_data = {}

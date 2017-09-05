@@ -23,6 +23,7 @@ $lines: 9pt;
   background: darken($sexy_green, 30%);
 }
 behaviornode{
+
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
      -khtml-user-select: none; /* Konqueror HTML */
@@ -46,35 +47,56 @@ behaviornode{
   flex-flow: column nowrap;
   justify-content: center;
   align-items: space-between;
+  .close{
+      // color: $error;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      color: white;
+      font-size: 7pt;
+    }
   p{
     display: block;
     width: 100%;
     margin: 0;
-    span.name{
-      font-weight: bold;
-      word-wrap: break-word;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    &.info, &.repeat{
-      font-size: 0.7 * $lines;
-      line-height: 0.9 * $lines;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      text-transform: uppercase;
-    }
-    &.time{
-      margin: 5px 0 2px 0 ;
-    }
-    &.info{
-      color: rgba(255, 255, 255, 0.5);
-    }
-    &.repeat{
-      font-style: italic;
-      color: rgba(255, 255, 255, 0.5);
-    }
   }
+  .bottom .vert{
+    width: 70%;
+  }
+  .play-container{
+    width: 30%;
+    margin-right: 5px;
+    button{
+      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+      padding: 1px 1px !important;
+    }
+    
+  }
+  span.name{
+    font-weight: bold;
+    word-wrap: break-word;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .info, .repeat{
+    font-size: 0.7 * $lines;
+    line-height: 0.9 * $lines;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+  }
+  .time{
+    margin: 5px 0 2px 0 ;
+  }
+  .info{
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .repeat{
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
   &:hover{
     background: darken($sexy_green, 35%);
   }

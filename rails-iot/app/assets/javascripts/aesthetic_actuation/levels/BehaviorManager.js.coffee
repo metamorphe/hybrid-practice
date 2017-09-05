@@ -31,19 +31,30 @@ class window.Behavior
         _.extend this, _.pick op, "data"    
         @container.append(@dom).addClass('accepted')
         Behavior.library[this.data.id] = this
-        @dom.click (e)->
-            $('behavior').hide()
-            window.current_behavior = scope
-            scope.data.manager.dom.show()
-            $("behaviornode.selected").not($(this)).removeClass('selected')
-            $(this).addClass('selected')
+        @bindEvents()
         @scrubber = new Scrubber
             behavior: this
             dom: @data.manager.dom.find('#scrubber')
     
         if _.has op, "_load"
             @load()
-        
+    bindEvents: ()->
+        scope = this
+        @dom.click (e)->
+            $('behavior').hide()
+            window.current_behavior = scope
+            scope.data.manager.dom.show()
+            $("behaviornode.selected").not($(this)).removeClass('selected')
+            $(this).addClass('selected')
+        @dom.find(".close").click (e)->
+            e.preventDefault()
+            e.stopPropagation()
+            bid = $(this).parents('behaviornode').data().id
+            b = Behavior.library[bid]
+            b.data.manager.destroy()
+            b.dom.remove() 
+            delete Behavior.library[bid]
+
     load: ()->
         scope = this
         console.log "LOAD", @_load
