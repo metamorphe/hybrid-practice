@@ -35,9 +35,11 @@ class window.Behavior
             $('behavior').hide()
             window.current_behavior = scope
             scope.data.manager.dom.show()
+
+        # console.log "FOUND SCRUBBER", @data.manager.dom.find('#scrubber')
         @scrubber = new Scrubber
             behavior: this
-            dom: @dom.find('#scrubber')
+            dom: @data.manager.dom.find('#scrubber')
     
         if _.has op, "_load"
             @load()
@@ -518,61 +520,7 @@ class window.Track
 
                 if @parent.data
                     @parent.data = {update: true}
-class window.Scrubber
-    constructor: (op)->
-        _.extend this, op
-        @scrub_ids = []
-        @dom.draggable
-            containment: "parent"
-            axis: "x"
-            grid: [ 5, 200 ]
-            scroll: false
-    getPosition: (t)-> #convert to pixel location
-        tt = $('behavior:not(.template)').find('#timetrack')
-        timescale = @behavior.data.timescale
-        w = tt.width()
-        p = t/timescale * w
-        return p
-    toTime: (x)->
-        tt = $('behavior:not(.template)').find('#timetrack')
-        timescale = @behavior.data.timescale
-        w = tt.width()
-        t = timescale * x / w
-        return t
-    getTime: ()->
-        tt = $('behavior:not(.template)').find('#timetrack')
-        timescale = @behavior.data.timescale
-        w = tt.width()
-        t = timescale * @dom.position().left / w
-        return t
-    setTime: (t)->
-        x = @getPosition(t)
-        @setPosition(x)
-    reset: ()->
-        @setPosition(0)
-    play: (start, end)-> # milliseconds
-        scope = this
-        duration = parseInt (end - start)
-        startPos = Math.round @getPosition(start)
-        endPos = Math.round @getPosition(end)
-        @setPosition startPos
-        scrubPlay = ()->
-            scope.dom.css
-                transition: 'left '+ duration+'ms linear'
-                left: Math.round endPos
-        _.delay scrubPlay, 10
-        # id = _.delay (()-> scope.pause()), duration
-        # @scrub_ids.push id
-    setPosition: (x)->
-        @dom.css
-            transition : 'left 0s linear'
-            left: x
-    pause: ()->
-        @dom.css
-            transition : 'left 0s linear'
-            left: @dom.position().left
-        # _.each @scrub_ids, (id)-> clearTimeout(id)
-    
+
 
 class window.BehaviorManager
     constructor: (@op) ->
