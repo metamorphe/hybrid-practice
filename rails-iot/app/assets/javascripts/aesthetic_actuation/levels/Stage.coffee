@@ -333,6 +333,8 @@ class window.Track
             # b = ts.dom.offset() 
             # pos = {top: b.top - a.top, left: b.left - a.left}
             pos = ts.dom.position()
+            if pos.left < 0
+                pos.left = 0
             offset = (pos.left / width) * timescale
             # offset -= 81.3 * (i)
             commands = ts.command_list_data(ts.p_signal, {offset: offset})
