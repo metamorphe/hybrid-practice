@@ -67,7 +67,6 @@ class window.Behavior
 
     load: ()->
         scope = this
-        console.log "LOAD", @_load
         stagesN = @_load.length
         manager = @data.manager
 
@@ -82,12 +81,10 @@ class window.Behavior
                 return [t.data.channel, t]
             tracks = _.object tracks
             _.each stageData.tracks, (signalData, channel)->
-                # console.log channel, "ADD", signalData
                 _.each signalData, (entry)->
                     ts = tsm.getTimeSignal(entry.signal)
                     signal = tracks[channel].addSignal(ts, clear=false)
                     signal.dom.css('left', scope.scrubber.getPosition(entry.offset))
-        # console.log @_load
     save: ()->
         x =  
             data: _.pick @data, "id", "name", "timescale", "repeat"
@@ -95,9 +92,7 @@ class window.Behavior
         return x
     clearStage: ()->
         if @data.manager
-            console.log "DATA", @data.manager.data
             _.each @data.manager.data.stages, (stage)->
-                console.log "STAGE"
                 stage = Stage.library[stage]
                 _.each stage.data.tracks, (track)->
                     track = Track.library[track]
@@ -118,13 +113,18 @@ class window.Behavior
                 if @_data.manager
                     @_data.stages = @_data.manager.data.stages
                     @_data.period = @_data.manager.data.period
+                    @_data.numActuators = @_data.manager.data.numActuators
 
                 # BLANKET UPDATES
                 _.each @_data, (v, k)->
                     domupdate = scope.dom.find("." + k)
                     if domupdate.length > 0 then domupdate.html(v)
                     domupdate = scope.dom.find("." + k + "-length")
+
                     if domupdate.length > 0 then domupdate.html(v.length)
+                    if k == "stages"
+                        abbv = if v.length == 1 then "stage" else "stages"
+                        scope.dom.find(".abbv").html(abbv)
 
                 # MANUAL UPDATES
                 scope.dom.find(".period").html(TimeSignal.pretty_time(@_data.period))
@@ -171,9 +171,7 @@ class window.Behavior
             endOfBehavior = ()->
                 scope.pause()
                 scope.scrubber.setTime(end)
-                console.log "REPEATING?", scope
                 if scope.data.repeat == "repeat"
-                    console.log "REPEAT"
                     scope.play(true)
 
             id = _.delay endOfBehavior, end - t_start

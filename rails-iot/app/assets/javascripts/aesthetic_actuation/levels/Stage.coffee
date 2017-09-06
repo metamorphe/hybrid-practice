@@ -67,9 +67,13 @@ class window.StageManager
                     if domupdate.length > 0 then domupdate.html(v)
                     
                 # MANUAL UPDATES
+                numActuators = 0
                 times = _.map @_data.stages, (id)->
-                    return Stage.library[id].data.period
+                    stage =  Stage.library[id]
+                    numActuators += stage.data.numActuators
+                    return stage.data.period
                 @_data.period = _.max(times)
+                @_data.numActuators = numActuators
                 # PROPAGATION UPDATES
                 # console.log "PARENT", @parent.data
                 if @parent.data
@@ -108,6 +112,7 @@ class window.Stage
             id: Stage.count++
             name: "Stage"
             tracks: []
+            numActuators: 0
 
         _.extend this, op   
         @container.append(@dom)
@@ -120,16 +125,14 @@ class window.Stage
     clearActor: ()->
         return
     setStage: (actor)->   
-        console.log "SETTING STAGE", actor     
         scope = this
         @trackdom.find("acceptor.datasignals").remove()
         scope.data.tracks = []
-        scope.data = {trigger: true}
+        scope.data = {trigger: true, numActuators: actor.form.hardware_ids.length}        
         scope.parent.data = {trigger: true}
-
         channels = actor.physical_channels()
+
         n = Object.size(channels)
-        console.log "CHANNELS", channels
         tracks = _.each channels, (v, channel)->
             t = new Track
                 parent: scope
