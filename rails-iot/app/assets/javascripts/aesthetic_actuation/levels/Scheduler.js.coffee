@@ -63,12 +63,12 @@ class window.Scheduler
 			$('.popover.actuator .popover-content').html("[L] to Simulate")
 		if sc and actuatorsLive()
 			sc.sendMessage(command.api, {live: actuatorsLive()}) 
-			# actuator.perform(command.channel, command, false)
-			# actuator.channels[command.channel].param = command.param
-			# am.updateChannels(actuator)
+			actuator.perform(command, false)
+			actuator.channels[command.channel].param = command.param
+			am.updateChannels(actuator)
 		else
 			window.paper = ch.paper
-			actuator.perform(command.channel, command, false)
+			actuator.perform(command, false)
 			# UPDATE SCENE GRAPH
 			window.paper = ch.paper
 			e = CanvasUtil.queryID(command.cid)

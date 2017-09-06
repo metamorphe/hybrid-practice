@@ -104,8 +104,8 @@ class window.Actuator
         scope.now = Date.now()
       scope.form = {saved: false}
       param = parseFloat($(this).val())  
-      command = {t: 0, param: param}
-      commands = scope.perform(channel, command)
+      command = {t: 0, param: param, channel: channel}
+      commands = scope.perform(command)
       commands =_.flatten(commands)
       Scheduler.schedule(commands)
     return
