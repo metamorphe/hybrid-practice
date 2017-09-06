@@ -62,6 +62,7 @@ class window.Behavior
             b = Behavior.library[bid]
             b.dom.click()
             b.play()
+            $(this).blur()
 
 
     load: ()->
@@ -152,7 +153,7 @@ class window.Behavior
 
             #RESTART/START_FROM_SCRUBBER
             t_start = if fromStart then 0 else @scrubber.getTime()
-            commands = _.filter raw_commands, (command)-> command.t > t_start
+            commands = _.filter raw_commands, (command)-> command.t >= t_start
             if _.isEmpty commands 
                 t_start = 0
                 @scrubber.reset()
