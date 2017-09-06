@@ -103,6 +103,7 @@ class window.Saver extends ActuatorWidget
     
     @track = "actuator_group_library"
     @stage = "behavior_stage"
+    @a_library = "a_library"
     @ts_library = "ts_library"
     @behaviors = "behaviors"
 
@@ -117,8 +118,8 @@ class window.Saver extends ActuatorWidget
 
   saveActuation: (e)->
     scope = this
-    track_actuators = _.map @op.track.find('actuator'), (actor)-> return am.resolve(actor)
-    @saveActors(scope.track, track_actuators)
+    # track_actuators = _.map @op.track.find('actuator'), (actor)-> return am.resolve(actor)
+    # @saveActors(scope.track, track_actuators)
 
     # stage_actuators = bm.getActors()
     # scope.saveActors(scope.stage, stage_actuators)
@@ -126,6 +127,7 @@ class window.Saver extends ActuatorWidget
     # signal_tracks = _.map signal_tracks, (track)->
       # signals = TimeWidget.resolveTrack(track, '.easing, .default')
       # track_id = $(track).parent('event').attr('id')
+    @saveActors(scope.a_library, am.actuators)
     @saveActors(scope.ts_library, tsm.timesignals)
     @saveBehaviors()
 
@@ -150,9 +152,11 @@ class window.Saver extends ActuatorWidget
   
     behaviors = if _.isNull(rtn) then [] else JSON.parse(rtn)
     behaviors = _.map behaviors, (behaviorData, behaviorID)->
+      console.log behaviorData
       new Behavior
         container: $('#behavior-library .track-full')
-        _load: behaviorData
+        _load: behaviorData.manager
+        data: behaviorData.data
     window.current_behavior = behaviors[0]
     # window.current_behavior = new Behavior
     #   container: $('#behavior-library .track-full')
@@ -200,10 +204,11 @@ class window.Saver extends ActuatorWidget
       signal = new TimeSignal dom, signal
   trackLoad: ()->
     scope = this
-    @loadActors @track, (actuator)->
+    @loadActors @a_library, (actuator)->
+      console.log "ACTUATOR LOADIGN", actuator
       ops = 
         clear: false
-        target: scope.op.track
+        target: $("#actuator-library .track-full")
       ops = _.extend(ops, actuator)
       ActuatorManager.create ops
   generateKey: (name)->

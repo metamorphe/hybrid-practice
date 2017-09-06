@@ -46,6 +46,7 @@ class window.Behavior
             scope.data.manager.dom.show()
             $("behaviornode.selected").not($(this)).removeClass('selected')
             $(this).addClass('selected')
+            $('#behavior_name').val(current_behavior.data.name)
         @dom.find(".close").click (e)->
             e.preventDefault()
             e.stopPropagation()
@@ -87,7 +88,10 @@ class window.Behavior
                     signal.dom.css('left', scope.scrubber.getPosition(entry.offset))
         # console.log @_load
     save: ()->
-        return @data.manager.save()
+        x =  
+            data: _.pick @data, "id", "name", "timescale", "repeat"
+            manager: @data.manager.save()
+        return x
     clearStage: ()->
         if @data.manager
             console.log "DATA", @data.manager.data
