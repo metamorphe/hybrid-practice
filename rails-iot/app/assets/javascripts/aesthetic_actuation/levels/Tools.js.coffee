@@ -81,18 +81,23 @@ makeChoreographyTool= ()->
         strokeColor: "#EEEEEE"
         strokeWidth: 2
         shadowColor: "#000000"
-        shadowBlur: 0
+        shadowBlur: 5
         position: e.point
-        onMouseEnter: (e)->
+
+
+      removeAffordance = ()->
+        scope.ink_blot.onMouseEnter = (e)->
           this.fillColor = "#d9534f"
-        onMouseLeave: (e)->
+        scope.ink_blot.onMouseLeave = (e)->
           this.fillColor =  ChoreographyWidget.ARROW_COLOR
+      _.delay removeAffordance, 1000
 
     onMouseDrag: (e)->
       if this.arrow
         this.arrow_path.addSegment e.point
     
     onMouseUp: (e)->
+      scope = this
       if this.arrow
         this.arrow_path.addSegment e.point  
         lastPoint = this.arrow_path.getPointAt(this.arrow_path.length)
@@ -123,9 +128,33 @@ makeChoreographyTool= ()->
           position: lastPoint
         arrow_head.rotation = v.angle + 90
 
+        
+
+
         if this.arrow_path.length < 5
           this.arrow.remove()
           return 
+
+        # add_ticks
+        major_tick = 25
+        major_tick_length = 8
+        major_tick_width = 2
+        major_tick_color = ChoreographyWidget.ARROW_COLOR.clone()
+        major_tick_color.brightness -= 0.2
+        ticks = _.range(major_tick, this.arrow_path.length - major_tick, major_tick)
+        _.each ticks, (tick)->
+          pt = scope.arrow_path.getPointAt(tick)
+          nm = scope.arrow_path.getNormalAt(tick)
+          nm.length = major_tick_length
+          tick = new paper.Path.Line
+            parent: scope.arrow
+            from: pt.clone().subtract(nm)
+            to: pt.clone().add(nm)
+            strokeColor: major_tick_color
+            strokeWidth: major_tick_width
+            shadowColor: "#000000"
+            shadowBlur: 0
+            strokeWidth: 3
   #     s = Choreography.selected()
   #     if s and cT.getSession
   #       s.form = {ids: cT.getSession()}
