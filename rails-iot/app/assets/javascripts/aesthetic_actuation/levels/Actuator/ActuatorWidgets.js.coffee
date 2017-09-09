@@ -205,7 +205,7 @@ class window.Saver extends ActuatorWidget
   trackLoad: ()->
     scope = this
     @loadActors @a_library, (actuator)->
-      console.log "ACTUATOR LOADIGN", actuator
+      # console.log "ACTUATOR LOADIGN", actuator
       ops = 
         clear: false
         target: $("#actuator-library .track-full")

@@ -156,24 +156,24 @@ class window.TimeSignalManager
   activateDrop: ()->
     scope = this  
 
-    # behavior = 
-    #   accept: "datasignal.exportable", 
-    #   classes: { "droppable-active": "droppable-default"},
-    #   drop: (event, ui) ->
-    #     num_to_accept = $(this).data().accept
-    #     ts = scope.resolve(ui.draggable).form
+    behavior = 
+      accept: "datasignal.exportable", 
+      classes: { "droppable-active": "droppable-default"},
+      drop: (event, ui) ->
+        num_to_accept = $(this).data().accept
+        ts = scope.resolve(ui.draggable).form
         
-    #     dom = TimeSignal.create
-    #       clear: num_to_accept == 1
-    #       target: $(this)
-    #     signal = new TimeSignal(dom)
-    #     signal.form = {signal: ts.signal, period: ts.period}
-    #     signal.dom.click()
-    #     $(this).addClass('accepted')
+        dom = TimeSignal.create
+          clear: num_to_accept == 1
+          target: $(this)
+        signal = new TimeSignal(dom)
+        signal.form = {signal: ts.signal, period: ts.period}
+        signal.dom.click()
+        $(this).addClass('accepted')
 
 
-    # $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
-    # $('acceptor.datasignals').droppable(behavior)
+    $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
+    $('acceptor.datasignals').droppable(behavior)
   @EasingFunctions =
     off: (t) ->
       return 0

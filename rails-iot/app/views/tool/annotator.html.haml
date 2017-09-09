@@ -1,7 +1,8 @@
 :coffeescript
   app = 
     name: "Annotator App"
-    file: "/actuation/devices/chevrons.svg"
+    # file: "/actuation/devices/chevrons.svg"
+    file: "/actuation/aquarium_pumps.svg"
     filename: ()-> 
       x = @file.split('.')
       x = x[0].split('/')
@@ -32,6 +33,10 @@
           $(goto).show().addClass('active')
           $('#tabs button.selected').removeClass('selected')
           $(this).addClass('selected')
+        $('#zoom-in').click ()->
+          paper.view.zoom += 0.1
+        $('#zoom-out').click ()->
+          paper.view.zoom -= 0.1
 
     onDocumentReady: ()->
       window.ws = new WebStorage()
@@ -44,17 +49,35 @@
       $('.dragpanel').draggable
         containment: "parent"
         handle: ".draghandle"
+      .resizable
+        handles: "n, e, s, w"
     paperLoad: ()->
       paper = window.Utility.paperSetup("annotator")
       paper.settings.handleSize = 8
+
+      scope = this
+      
+      onsvgload = (svg)->
+        console.log "IMPORTING", svg
+        scope.svg = svg
+        paper.view.update()
+        tree = scope.extract_tree(svg, $("<ul>"))
+        $('#svg-tree').append(tree)
+        scope.validate(svg)
+        svg.set
+          position: paper.view.centerr
+        svg.fitBounds(paper.view.bounds)
+        svg.position = paper.view.center
+        paper.tool = createSelectionTool()
       
       if ws.includes(@filename())
-        console.log "CACHE IMPORTED"
+        console.log "Loading imported..."
         cache = ws.get(@filename())
         svg = paper.project.importJSON JSON.parse cache
-        @onsvgload(svg[0].children[0])
-      else  
-        paper.project.importSVG @file, @onsvgload
+        onsvgload(svg[0].children[0])
+      else 
+        console.log "Loading svg..."
+        paper.project.importSVG @file, onsvgload
     
     validate: (svg)->
       $('#system-message').removeClass('error').removeClass("success")
@@ -83,18 +106,6 @@
           if svg.dom then svg.dom.addClass("error")
       if svg.children
         _.each svg.children, (child)-> scope.validate(child)
-
-    onsvgload: (svg)->
-      @svg = svg
-      paper.view.update()
-      tree = @extract_tree(svg, $("<ul>"))
-      $('#svg-tree').append(tree)
-      @validate(svg)
-      
-      svg.set
-        position: paper.view.centerr
-      svg.fitBounds(paper.view.bounds)
-      paper.tool = createSelectionTool()
 
     onJSONClick: (e)->
       if window.editor
@@ -195,14 +206,14 @@
       $("#savemetadata").click (e)->
         json = editor.get()
 
-        # quick annotation
-        attributes = _.map $('.tab-content.active .attr-variable.active'), (attrVar)->
-          return [$(attrVar).attr('name'), $(attrVar).parents('.input-group').find('input').val()]
-        classes = _.map $('.tab-content.active .class-variable.active'), (classVar)->
-          return $(classVar).attr('name')
-        json = _.extend json, 
-          class: classes.join(" ")
-        json = _.extend json, _.object attributes
+        # # quick annotation
+        # attributes = _.map $('.tab-content.active .attr-variable.active'), (attrVar)->
+        #   return [$(attrVar).attr('name'), $(attrVar).parents('.input-group').find('input').val()]
+        # classes = _.map $('.tab-content.active .class-variable.active'), (classVar)->
+        #   return $(classVar).attr('name')
+        # json = _.extend json, 
+        #   class: classes.join(" ")
+        # json = _.extend json, _.object attributes
 
 
         $('.active').children('.json').html(JSON.stringify(json))
@@ -333,10 +344,17 @@
   .footer
     %button.btn.btn-success.btn-block#savemetadata
       %span.glyphicon.glyphicon-floppy-disk
-      SAVE METADATA TO SVG ELEMENT
+      SAVE METADATA
+
+.canvas-container
+  %canvas#annotator
+  .btn-group-vertical#zoom
+    %button#zoom-in.btn.btn-xs.btn-info
+      = glyph "plus"
+    %button#zoom-out.btn.btn-xs.btn-info
+      = glyph "minus"
 
 
-%canvas#annotator
 #annotation-panel.dragpanel
   .heading.draghandle
     %ul#tabs
@@ -422,11 +440,16 @@
     padding: 15px;
     display: none;
   }
+  #zoom{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
   button.note{
     outline: none;
     &:active{
       outline: none !important;
-    }
+    } 
     &:focus{
       background: white !important;
       outline: none !important;
@@ -452,11 +475,14 @@
   }
   #tabs{
     padding-left: 5px;
-    li{ display: inline;}
+    li{ 
+      display: inline;
+      z-index: 9;
+    }
     button{
       position: relative;
       background: darken($panelBackground, 10%);
-
+      z-index: 9;
       &.selected{
         &:focus{
           outline: none;
@@ -547,6 +573,7 @@
       padding: 10px 10px;
       height: 55px;
       position: absolute;
+      z-index: 9;
       bottom: 0;
       left: 0;
       width: 100%;
@@ -659,8 +686,14 @@
       }
     }
   }
-  canvas{
+  .canvas-container{
+    top: 0;
     width: 70%;
+    height: 100%;
+    position: relative;
+  }
+  canvas{
+    width: 100%;
     height: 100%;
     background: $eggshell;
     border: 15px solid darken($eggshell, 2%);

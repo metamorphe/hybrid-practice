@@ -1,6 +1,6 @@
 class window.Choreography
 	@COUNTER: 0
-	@CHOREOGRAPHIES: []
+	@library: []
 	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
 	@ACTUATORS = ()-> Artwork.ACTUATORS()
 	@selected: ()->
@@ -14,7 +14,6 @@ class window.Choreography
 	# OBJECT METHODS
 	constructor: (op)->
 		_.extend this, op
-
 		@id = Choreography.COUNTER++
 		
 		# DEFAULTS
@@ -22,18 +21,16 @@ class window.Choreography
 		@async_period = 500
 		@saved = false
 		
-		Choreography.CHOREOGRAPHIES.push(this)
+		Choreography.library.push(this)
 		@resolve()
 
 	view_order: (actuators)->
-		console.log "view_order", actuators
 		window.paper = ch.paper
 		order = @resolve(actuators)
 		_.each order, (p, k)->			
 			e = CanvasUtil.query(paper.project, {lid: k})
 			if _.isNaN p
 				throw new Error "INVALID"
-			console.log "COLORING"
 			style = {color: Choreography.temperatureColor(p)}
 			CanvasUtil.setStyle e, style
 			
@@ -41,6 +38,7 @@ class window.Choreography
 		window.paper = ch.paper
 		actuators = actuators or Choreography.ACTUATORS()
 		arrows = CanvasUtil.getIDs(@ids)
+
 		dist = _.map actuators, (actuator)->
 			if arrows.length != 0
 				closest_arrow = _.min arrows, (arrow)->
@@ -60,7 +58,7 @@ class window.Choreography
 					hid: actuator.lid
 					distance: 0
 			return rtn
-
+		# Spatial Index Array
 		@sia = Choreography.normalize(dist)
 		return @sia
 
@@ -75,6 +73,7 @@ class window.Choreography
 	    dist = _.map dist, (d)-> [d.hid, d.distance]
 	    dist = _.object(dist)
 	    return dist
+
 	@temperatureColor: (p)->
 	    if p < 0 or p > 1 then console.warn "OUT OF RANGE - TEMP TIME", v
 	    if p > 1 then p = 1
@@ -107,9 +106,7 @@ class window.Choreography
         scope = this
         if _.isEmpty(obj) then return        
         prev = @form
-
         _.extend(this, obj)
-      
         @actuator.form = {async_period: parseInt(@async_period)}
         
   

@@ -82,10 +82,13 @@ class window.Scheduler
 					when "PUMP"
 						bubbles = actuator.channels.bubbles.value
 						bubble_make = ()->
-							scale = 3
+							scale = 0.5
+							bubbleSize = Math.random() * 4
 							c = new paper.Path.Circle
-								radius: Math.random() * (15/3) + 2
+								parent: e.parent
+								radius: bubbleSize + 1
 								fillColor: "white"
+								opacity: 0.8
 								position: e.bounds.topCenter.clone()
 								start:  e.bounds.topCenter.clone()
 							ch.ps.add
@@ -93,10 +96,10 @@ class window.Scheduler
 									scale = 3
 									height = -800 / scale
 									width = 200 / scale
-									bubble_vx = 30 / scale
+									bubble_vx = 50 / scale
 
 									y = c.start.y + height * event.parameter
-									x = c.position.x + (bubble_vx * Math.random() - bubble_vx/2) #left of right movement
+									x = c.position.x + (bubble_vx * Math.random() - bubble_vx/2) #left or right movement
 									if x > c.start.x + width/2
 										x = c.start.x + width/2
 									if x < c.start.x - width/2
@@ -108,7 +111,7 @@ class window.Scheduler
 									if c then c.remove()
 								duration: 1000
 						_.times parseInt(bubbles), (i)->
-							stagger = 100 
+							stagger = 10 
 							_.delay bubble_make, stagger * i
 					when "HEATER"
 						red = new (paper.Color)('red')

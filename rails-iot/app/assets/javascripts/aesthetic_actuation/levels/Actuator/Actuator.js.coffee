@@ -39,7 +39,8 @@ class window.Actuator
 
     @dom.find('channel').click ->
       $(this).addClass('selected').siblings().removeClass('selected')
-      
+    @dom.find('.save-status').click ->
+      console.log 'TRIGGER CHOREO'
 
     # DEFAULTS
     @actuator_type = "Actuator"

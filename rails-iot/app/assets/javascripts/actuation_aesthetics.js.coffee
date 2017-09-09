@@ -36,6 +36,7 @@
 //= require aesthetic_actuation/levels/Choreography
 //= require aesthetic_actuation/levels/Scheduler
 //= require aesthetic_actuation/levels/Scrubber
+//= require aesthetic_actuation/levels/Tools
 # COMPOSITIOn
 //= require aesthetic_actuation/levels/Actuator/Keyframe
 
@@ -44,6 +45,7 @@ class window.AestheticActuation
 		console.info "AestheticActuation PROJECT"
 		$('button').click ()->
 			$(this).blur()
+		window.main_paper = artwork_paper
 		window.ch = new ChoreographyWidget
 			paper: artwork_paper
 			dom: $('#projectviewer')
@@ -57,6 +59,7 @@ class window.AestheticActuation
 			collection: ()-> $('datasignal').not('.template').find('canvas').not('.skip')
 		tsm.init()
 		
+		window.initTools(main_paper)
 		# COMPOSER
 		window.cmp = new Composer
 			signal_button: $('#apply-signal')

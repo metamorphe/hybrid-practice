@@ -129,7 +129,7 @@ actuators:
       bubbles: 
         range:
           min: 0
-          max: 10
+          max: 100
         resolution: 1
         modality: 'derived'
         
