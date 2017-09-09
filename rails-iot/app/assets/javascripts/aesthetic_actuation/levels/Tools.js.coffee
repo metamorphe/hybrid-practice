@@ -136,12 +136,12 @@ makeChoreographyTool= ()->
           return 
 
         # add_ticks
-        major_tick = 25
+        major_tick = this.arrow_path.length / 5.0
         major_tick_length = 8
         major_tick_width = 2
         major_tick_color = ChoreographyWidget.ARROW_COLOR.clone()
         major_tick_color.brightness -= 0.2
-        ticks = _.range(major_tick, this.arrow_path.length - major_tick, major_tick)
+        ticks = _.range(major_tick, this.arrow_path.length - 1, major_tick)
         _.each ticks, (tick)->
           pt = scope.arrow_path.getPointAt(tick)
           nm = scope.arrow_path.getNormalAt(tick)
