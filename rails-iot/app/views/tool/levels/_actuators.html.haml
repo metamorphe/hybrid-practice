@@ -8,12 +8,10 @@
       drop: (event, ui) ->
           empty = $(this).html() == ""
           actor = am.resolve(ui.draggable)
-          choreo = Choreography.default()
           num_to_accept = $(this).data().accept
           ops = _.extend actor.form,
               clear: num_to_accept == 1
               target: $(this)
-              choreo: choreo
           ActuatorManager.create ops
 
 :scss

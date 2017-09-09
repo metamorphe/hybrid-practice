@@ -21,8 +21,6 @@
     ActuatorSimulator = eval('Actuator' + ActuatorType)
     props = _.clone(eval(ActuatorType))
     set = dom.data()
-    if op.choreo
-      set.choreo = op.choreo
     actuator = new ActuatorSimulator(dom, set, props)
     dom.click()
     return dom

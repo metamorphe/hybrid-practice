@@ -112,18 +112,18 @@ class window.ChoreographyWidget extends Widget
       el.flag = false
        
   select: (ids)->
-    scope = this
-    window.paper = @paper
-    elements = CanvasUtil.getIDs(ids)
-    flagged = CanvasUtil.query(paper.project, {flag: true})
+    # scope = this
+    # window.paper = @paper
+    # elements = CanvasUtil.getIDs(ids)
+    # flagged = CanvasUtil.query(paper.project, {flag: true})
 
-    @deselect_all()
-    _.each elements, (el)->
-      if not el.flag
-        style = ChoreographyWidget.STYLE_PARAMS(el)
-        scope.buffer[el.id] = style
-        ChoreographyWidget.NORMAL_SELECT(el)
-        el.flag = true
+    # @deselect_all()
+    # _.each elements, (el)->
+    #   if not el.flag
+    #     style = ChoreographyWidget.STYLE_PARAMS(el)
+    #     scope.buffer[el.id] = style
+    #     ChoreographyWidget.NORMAL_SELECT(el)
+    #     el.flag = true
   setBGColor: (bg)->
     @canvas.css('background', bg)
   toggleLights: ()->   

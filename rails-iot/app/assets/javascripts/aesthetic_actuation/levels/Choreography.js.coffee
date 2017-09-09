@@ -13,14 +13,17 @@ class window.Choreography
 
 	# OBJECT METHODS
 	constructor: (op)->
+		if not op.actuator
+			console.error op.actuator, "ATTEMPT TO CREATE CHOREO WITHOUT ACT GROUP"
+		
 		_.extend this, op
-		@id = Choreography.COUNTER++
-		
-		# DEFAULTS
-		@ids = []
-		@async_period = 500
-		@saved = false
-		
+		@_form = 
+			id: Choreography.COUNTER++		
+			async_period: 500
+			saved: false
+			paperPaths: []
+
+		@form = op
 		Choreography.library.push(this)
 		@resolve()
 
@@ -37,7 +40,7 @@ class window.Choreography
 	resolve: (actuators)->
 		window.paper = ch.paper
 		actuators = actuators or Choreography.ACTUATORS()
-		arrows = CanvasUtil.getIDs(@ids)
+		arrows = CanvasUtil.getIDs(@paperPaths)
 
 		dist = _.map actuators, (actuator)->
 			if arrows.length != 0
@@ -59,8 +62,8 @@ class window.Choreography
 					distance: 0
 			return rtn
 		# Spatial Index Array
-		@sia = Choreography.normalize(dist)
-		return @sia
+		@_form.sia = Choreography.normalize(dist)
+		return @_form.sia
 
 	@normalize: (dist)->
 	    min = (_.min dist, (d)-> d.distance).distance
@@ -69,7 +72,6 @@ class window.Choreography
 	    if range != 0
 		    dist = _.each dist, (d)-> 
 		      d.distance = (d.distance - min)/range
-
 	    dist = _.map dist, (d)-> [d.hid, d.distance]
 	    dist = _.object(dist)
 	    return dist
@@ -99,15 +101,11 @@ class window.Choreography
 	Object.defineProperties @prototype,
     form: 
       get: ->
-        ids: @ids
-        async_period:  @async_period
-        saved: @saved
+        return @_form
       set:(obj)->
-        scope = this
         if _.isEmpty(obj) then return        
-        prev = @form
-        _.extend(this, obj)
-        @actuator.form = {async_period: parseInt(@async_period)}
+        _.extend(@_form, obj)
+        # @actuator.form = {async_period: parseInt(@async_period)}
         
   
 	update:()->

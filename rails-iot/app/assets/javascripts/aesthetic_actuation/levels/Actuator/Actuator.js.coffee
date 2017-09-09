@@ -12,14 +12,18 @@ class window.Actuator
     tag = @dom.prop('tagName')
     $(tag).removeClass 'selected'
     @dom.addClass 'selected'
-    ch.select(@form.canvas_ids)
-    @choreo.update()
-    ch.update()
+    selectionTool.selection = @form.canvas_ids
+    selectionTool.update()
+    # ch.select()
+    # @choreo.update()
+    # ch.update()
 
   constructor: (@dom, set, @op) ->
     scope = this
     set = set or {}
     @id = Actuator.COUNTER++
+    @choreo = new Choreography
+      actuator: this
     @dom.data('id', @id)
    
     @canvas = @dom.find('canvas')
@@ -39,9 +43,13 @@ class window.Actuator
 
     @dom.find('channel').click ->
       $(this).addClass('selected').siblings().removeClass('selected')
-    @dom.find('.save-status').click ->
-      console.log 'TRIGGER CHOREO'
-
+    
+    @dom.find('.save-status').click (e)->
+      window.active_choreo = scope.choreo
+      $('#choreo-tool').click()
+      console.log 'ACTIVE CHOREO', scope.choreo.form.id
+      e.preventDefault()
+      e.stopPropagation()
     # DEFAULTS
     @actuator_type = "Actuator"
     @hardware_ids = []
@@ -51,8 +59,6 @@ class window.Actuator
     @async_period = Actuator.DEFAULT_ASYNC
     @constants = {}
     @paper = Utility.paperSetup @canvas, {}
-    @choreo = new Choreography
-      actuator: this
     @visuals = []
     if Actuator.SIMULATE then @_visuals()
     @channels = _.mapObject @op.channels, (actuator) ->
@@ -133,13 +139,13 @@ class window.Actuator
         @dom.data @form
         if @title != prev.title then @setTitle(@title, @saved)
         if @saved != prev.saved then @setTitle(@title, @saved)
-        @async_period = @choreo.async_period
+        @async_period = @choreo.form.async_period
         @setAsync(@async_period)
         
         # POPULATE CANVAS IDs MANUALLY
         window.paper = ch.paper
         if @hardware_ids != prev.hardware_ids
-          @sia = @choreo.sia
+          @sia = @choreo.form.sia
           @canvas_ids = _.map @hardware_ids, (hid)->
             match = CanvasUtil.query paper.project, {lid: hid}
             if _.isEmpty match then return null
