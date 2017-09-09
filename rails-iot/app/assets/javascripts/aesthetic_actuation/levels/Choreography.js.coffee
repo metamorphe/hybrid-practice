@@ -38,9 +38,15 @@ class window.Choreography
 			CanvasUtil.setStyle e, style
 			
 	resolve: (actuators)->
+		affordances = paper.project.getItems
+			affordance: true
+		CanvasUtil.call affordances, "remove"
+
+
+		scope = this
 		window.paper = ch.paper
 		actuators = actuators or Choreography.ACTUATORS()
-		arrows = CanvasUtil.getIDs(@paperPaths)
+		arrows = CanvasUtil.getIDs(@form.paperPaths)
 
 		dist = _.map actuators, (actuator)->
 			if arrows.length != 0
@@ -49,31 +55,60 @@ class window.Choreography
 					npt = arrow.getNearestPoint(actuator.position)
 					return npt.getDistance(actuator.position)
 				
+
 				closest_arrow = closest_arrow.pathway
 				npt = closest_arrow.getNearestPoint(actuator.position)
 				offset = closest_arrow.getOffsetOf(npt)
 				distance =  offset / closest_arrow.length
+
+
+				c = new paper.Path.Line
+					parent: closest_arrow
+					from: actuator.position
+					to: npt
+					strokeWidth: 2
+					affordance: true
+				d = new paper.Path.Circle
+					radius: 5
+					parent: closest_arrow
+					position: actuator.position
+					affordance: true
+
+				
 				rtn = 
 					hid: actuator.lid
 					distance: distance
+					affordanceLine: c
+					affordanceDot: d
 			else 
 				rtn = 
 					hid: actuator.lid
 					distance: 0
+					affordanceLine: null
+					affordanceDot: null
 			return rtn
 		# Spatial Index Array
-		@_form.sia = Choreography.normalize(dist)
+		sia = Choreography.normalize(dist)
+		_.each sia, (node)->
+			if node.affordanceLine
+				node.affordanceLine.strokeColor = Choreography.temperatureColor(node.distance)
+			if node.affordanceDot
+				node.affordanceDot.fillColor = Choreography.temperatureColor(node.distance)
+		
+		sia = _.map sia, (d)-> [d.hid, d.distance]
+		sia = _.object(sia)
+		@_form.sia = sia
+
 		return @_form.sia
 
 	@normalize: (dist)->
 	    min = (_.min dist, (d)-> d.distance).distance
+	    min = 0
 	    max = (_.max dist, (d)-> d.distance).distance
 	    range = max - min
 	    if range != 0
 		    dist = _.each dist, (d)-> 
-		      d.distance = (d.distance - min)/range
-	    dist = _.map dist, (d)-> [d.hid, d.distance]
-	    dist = _.object(dist)
+		    	d.distance = (d.distance - min)/range
 	    return dist
 
 	@temperatureColor: (p)->

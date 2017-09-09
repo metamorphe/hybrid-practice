@@ -52,8 +52,8 @@ makeChoreographyTool= ()->
         _.each hitBlot, (hit)->
           active_choreo.form.paperPaths = _.without(active_choreo.form.paperPaths, hit.parent.id)
           hit.parent.remove()
-        console.log "REMOVE", hitBlot
         this.arrow = null
+        active_choreo.resolve()
         return
 
       this.arrow = new paper.Group
@@ -76,9 +76,9 @@ makeChoreographyTool= ()->
       this.ink_blot = new paper.Path.Circle
         ink_blot: true
         parent: this.arrow
-        fillColor: ChoreographyWidget.ARROW_COLOR
+        fillColor: "#EEEEEE"
         radius: 10
-        strokeColor: "#EEEEEE"
+        strokeColor: ChoreographyWidget.ARROW_COLOR
         strokeWidth: 2
         shadowColor: "#000000"
         shadowBlur: 5
@@ -109,7 +109,7 @@ makeChoreographyTool= ()->
           parent: arrow_head
           sides: 3
           radius: 10
-          fillColor: ChoreographyWidget.ARROW_COLOR
+          fillColor: Choreography.temperatureColor(1)
           shadowColor: "#000000"
           shadowBlur: 0
           strokeWidth: 3
@@ -134,27 +134,44 @@ makeChoreographyTool= ()->
         if this.arrow_path.length < 5
           this.arrow.remove()
           return 
+        #10 radius
+        #5 stroke radius
 
         # add_ticks
-        major_tick = this.arrow_path.length / 5.0
-        major_tick_length = 8
-        major_tick_width = 2
-        major_tick_color = ChoreographyWidget.ARROW_COLOR.clone()
-        major_tick_color.brightness -= 0.2
-        ticks = _.range(major_tick, this.arrow_path.length - 1, major_tick)
-        _.each ticks, (tick)->
+        # major_tick = this.arrow_path.length / 5.0
+        # major_tick_length = 8
+        # major_tick_width = 2
+        # major_tick_color = ChoreographyWidget.ARROW_COLOR.clone()
+        # major_tick_color.brightness -= 0.2
+        # ticks = _.range(major_tick, this.arrow_path.length - 1, major_tick)
+        # _.each ticks, (tick)->
+        #   pt = scope.arrow_path.getPointAt(tick)
+        #   nm = scope.arrow_path.getNormalAt(tick)
+        #   nm.length = major_tick_length
+        #   tick = new paper.Path.Line
+        #     parent: scope.arrow
+        #     from: pt.clone().subtract(nm)
+        #     to: pt.clone().add(nm)
+        #     strokeColor: major_tick_color
+        #     strokeWidth: major_tick_width
+        #     shadowColor: "#000000"
+        #     shadowBlur: 0
+        #     strokeWidth: 3
+        n = this.arrow_path.length
+        tempTicks = _.range(0, n , 2)
+        _.each tempTicks, (tick)->
           pt = scope.arrow_path.getPointAt(tick)
-          nm = scope.arrow_path.getNormalAt(tick)
-          nm.length = major_tick_length
-          tick = new paper.Path.Line
+          tick = new paper.Path.Circle
+            radius: 5/2
             parent: scope.arrow
-            from: pt.clone().subtract(nm)
-            to: pt.clone().add(nm)
-            strokeColor: major_tick_color
-            strokeWidth: major_tick_width
-            shadowColor: "#000000"
-            shadowBlur: 0
-            strokeWidth: 3
+            position: pt.clone()
+            fillColor: Choreography.temperatureColor(tick/n)
+
+
+        this.ink_blot.bringToFront()
+
+
+        active_choreo.resolve()
   #     s = Choreography.selected()
   #     if s and cT.getSession
   #       s.form = {ids: cT.getSession()}
