@@ -168,15 +168,15 @@ class window.Behavior
             @scrubber.play(t_start, end)
             @playing = true
 
-            endOfBehavior = ()->
-                console.log "SHUTDOWN"
-                scope.pause()
-                scope.scrubber.setTime(end)
-                if scope.data.repeat == "repeat"
-                    scope.play(true)
-            async_end = end + _.last(commands).async_offset + 200
-            id = _.delay endOfBehavior, async_end - t_start
-            @play_ids.push(id) 
+            # endOfBehavior = ()->
+            #     console.log "SHUTDOWN"
+            #     scope.pause()
+            #     scope.scrubber.setTime(end)
+            #     if scope.data.repeat == "repeat"
+            #         scope.play(true)
+            # async_end = end + _.last(commands).async_offset + 200
+            # id = _.delay endOfBehavior, async_end - t_start
+            # @play_ids.push(id) 
             
     pause: ()->
         @scrubber.pause()

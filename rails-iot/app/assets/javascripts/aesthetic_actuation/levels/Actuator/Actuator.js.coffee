@@ -209,14 +209,15 @@ class window.Actuator
     @expression = query
     
     if not generate_command then return
-    return _.map @hardware_ids, (hid, i)->
-      command = scope.async hid, channel, command, scope.canvas_ids[i]
-      return command 
-  async: (hid, channel, command, cid)->
+    window.paper = ch.paper
     actuators = CanvasUtil.getIDs(@canvas_ids)
-    @sia = @choreo.resolve(actuators)
+    sia = @choreo.resolve(actuators)
+    return _.map @hardware_ids, (hid, i)->
+      command = scope.async hid, channel, command, scope.canvas_ids[i], sia
+      return command 
+  async: (hid, channel, command, cid, sia)->
     @async_period = @choreo.form.async_period
-    i = if _.isUndefined @sia[hid] then 0 else @sia[hid]
+    i = if _.isUndefined sia[hid] then 0 else sia[hid]
     command = _.clone(command)
     return _.extend command, 
       actuator: this

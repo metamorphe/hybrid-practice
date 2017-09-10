@@ -38,9 +38,11 @@ class window.Scheduler
 		_.each stats, (v, k)->
 			$('#stats').find("." + k).html(v)
 
-		$('.dynamicsparkline').sparkline _.flatten([10, stats.breakdown]), 
+		$('.dynamicsparkline').sparkline stats.breakdown, 
 			height: 40 
 			width: 250
+			chartRangeMin: 0
+			chartRangeMax: 10
 
 	@quanta_update: (commands)->
 		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)

@@ -125,6 +125,9 @@ class window.Stage
     clearActor: ()->
         return
     setStage: (actor)->   
+        if not actor
+            console.error "ACTOR NOT FOUND"
+            return
         scope = this
         @trackdom.find("acceptor.datasignals").remove()
         scope.data.tracks = []
@@ -182,6 +185,9 @@ class window.Stage
                     scope.addActor(stage, am.resolve(ui.draggable))
         return dom
     addActor: (stage, actor)->
+        if not actor
+            console.error "ACTOR NOT FOUND"
+            return
         empty = stage.dom.html() == ""
         console.log "STAGE LOAD", stage.dom
         # stageLogic 

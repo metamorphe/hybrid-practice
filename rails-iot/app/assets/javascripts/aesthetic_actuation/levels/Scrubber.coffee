@@ -8,19 +8,19 @@ class window.Scrubber
             grid: [ 5, 200 ]
             scroll: false
     getPosition: (t)-> #convert to pixel location
-        tt = $('behavior:not(.template)').find('#timetrack')
+        tt = @dom.parent()
         timescale = @behavior.data.timescale
         w = tt.width()
         p = t/timescale * w
         return p
     toTime: (x)->
-        tt = $('behavior:not(.template)').find('#timetrack')
+        tt = @dom.parent()
         timescale = @behavior.data.timescale
         w = tt.width()
         t = timescale * x / w
         return t
     getTime: ()->
-        tt = $('behavior:not(.template)').find('#timetrack')
+        tt = @dom.parent()
         timescale = @behavior.data.timescale
         w = tt.width()
         t = timescale * @dom.position().left / w
