@@ -64,34 +64,34 @@ actuators:
         resolution: 0.01
         modality: 'light'
         alpha: 1.1
-  STEPPER:
-    name: 'STEPPER'
+  SERVO:
+    name: 'SERVO'
     dimension: 'angle'
     channels: 
       speed: 
         range:
           min: 0
-          max: 400
+          max: 180
         resolution: 1
-        modality: 'motion'
+        modality: 'derived'
         alpha: 1
       angle:
         range:
           min: 0
           max: 180
         resolution: 1
-        modality: 'derived'
+        modality: 'orientation'
         alpha: 1
-  STEPPER360:
-    name: 'STEPPER360'
+  STEPPER:
+    name: 'STEPPER'
     dimension: 'angle'
     channels: 
       angle:
         range:
           min: 0
-          max: 180
+          max: 360
         resolution: 1
-        modality: 'derived'
+        modality: 'orientation'
         alpha: 1
   HEATER:
     name: 'HEATER'
@@ -127,6 +127,22 @@ actuators:
         resolution: 1
         modality: 'electricity'
       bubbles: 
+        range:
+          min: 0
+          max: 100
+        resolution: 1
+        modality: 'derived'
+  MOTOR:
+    name: 'MOTOR'
+    dimension: "voltage"
+    channels:
+      voltage:
+        range:
+          min: 0
+          max: 255
+        resolution: 1
+        modality: 'electricity'
+      rpm: 
         range:
           min: 0
           max: 100

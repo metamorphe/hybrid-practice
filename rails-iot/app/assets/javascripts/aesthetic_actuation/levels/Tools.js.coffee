@@ -467,6 +467,30 @@ makeSelectionTool = ()->
             hardware_ids: hids
             title: hids.join(',')
             constants: {}
+        when "STEPPER"
+          ops =
+            clear: true
+            target: $("#group-result")
+            actuator_type: "STEPPER"
+            hardware_ids: hids
+            title: hids.join(',')
+            constants: {}
+        when "SERVO"
+          ops =
+            clear: true
+            target: $("#group-result")
+            actuator_type: "SERVO"
+            hardware_ids: hids
+            title: hids.join(',')
+            constants: {}
+        when "MOTOR"
+          ops =
+            clear: true
+            target: $("#group-result")
+            actuator_type: "SERVO"
+            hardware_ids: hids
+            title: hids.join(',')
+            constants: {}
               
       dom = ActuatorManager.create ops   
       dom.click()

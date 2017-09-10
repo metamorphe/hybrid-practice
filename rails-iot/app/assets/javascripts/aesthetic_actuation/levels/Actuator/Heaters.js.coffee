@@ -76,3 +76,4 @@ class window.ActuatorPUMP extends ActuatorHEATER
   toAPI: (hid)->
     d = hid.split(":")
     {flag: "C", args: [d[0], d[1], parseInt(@expression)]}
+class window.ActuatorMOTOR extends ActuatorPUMP

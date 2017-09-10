@@ -2,8 +2,8 @@ class window.Artwork
     @ACTUATORS: ()-> 
         CanvasUtil.query paper.project, 
             saveable: true
-            prefix: ["NLED", "HEATER", "PUMP", "STEPPER", "STEPPER360"]
-    @ACTUATORS_IN: (device)-> CanvasUtil.query device, {prefix: ["NLED", "HEATER", "PUMP", "STEPPER", "STEPPER360"]}
+            prefix: ["NLED", "HEATER", "PUMP", "STEPPER", "SERVO", "MOTOR"]
+    @ACTUATORS_IN: (device)-> CanvasUtil.query device, {prefix: ["NLED", "HEATER", "PUMP", "STEPPER", "SERVO", "MOTOR"]}
     @getElements = ()->
         art: CanvasUtil.queryPrefix('ART'),
         diff: CanvasUtil.queryPrefix('DIF'),

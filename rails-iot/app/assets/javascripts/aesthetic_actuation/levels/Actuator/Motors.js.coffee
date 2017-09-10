@@ -1,4 +1,4 @@
-class window.ActuatorSTEPPER extends Actuator1D
+class window.ActuatorSERVO extends Actuator1D
   onCreate: ->
     @expression = 128;
     return
@@ -49,4 +49,4 @@ class window.ActuatorSTEPPER extends Actuator1D
     @visuals.push decor
     @visuals.push base
     @visuals.push arm
-class window.ActuatorSTEPPER360 extends ActuatorSTEPPER
+class window.ActuatorSTEPPER extends ActuatorSERVO

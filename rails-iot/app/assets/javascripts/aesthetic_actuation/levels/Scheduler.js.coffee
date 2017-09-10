@@ -78,6 +78,18 @@ class window.Scheduler
 			e = CanvasUtil.queryID(command.cid)
 			if e
 				switch actuator.actuator_type
+					when "STEPPER"
+						console.log "STEPPER CANVAS UPDATE"
+						arms = CanvasUtil.query(e, {prefix: ["ARM"]})
+						pivot = CanvasUtil.query(e, {prefix: ["PIVOT"]})[0]
+						
+						_.each arms, (arm)->
+							arm.pivot = pivot.position.clone()
+							arm.rotation = command.expression
+					when "MOTOR"
+						console.log "MOTOR CANVAS UPDATE"
+					when "SERVO"
+						console.log "SERVO CANVAS UPDATE"
 					when "HSBLED"
 						e.fillColor = command.expression
 						# CanvasUtil.setStyle [e], fillColor: command.expression
