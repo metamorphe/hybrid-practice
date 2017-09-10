@@ -1,6 +1,12 @@
 class window.Scheduler 
 	@quanta: 50
+	@baudrate: 19200
 	@pretty_print_flag: false
+	@bytes_per_second : Scheduler.baudrate/8
+	@bytes_per_quanta : ()->
+		Scheduler.bytes_per_second / Scheduler.quanta
+	@bytes_per_command : ()->
+		Scheduler.bytes_per_command / Scheduler.quanta
 	@pretty_print: (commands, info, full=false)->
 		if Scheduler.pretty_print_flag 
 			_.each commands, (command)->
@@ -17,31 +23,63 @@ class window.Scheduler
 					console.log ["\t\t" + c.api.flag, "@" + c.t.toFixed(0) + "+" + c.async_offset.toFixed(0), "#" + c.hid + "->" + c.channel[0]+":"+c.param.toFixed(2)].join(' ')
 		total_quanta = info.idle + info.non_idle
 		utilization = info.non_idle / total_quanta * 100
-		utilization = utilization.toFixed(1) +  "% util"
-		results = "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)
-		console.log results
-		$('#monitor-results').html(results)
+		utilization = utilization.toFixed(1)
+
+		stats = 
+			time: TimeSignal.pretty_time(info.time)
+			utilization: utilization
+			period: TimeSignal.pretty_time(Scheduler.quanta)
+			quanta: total_quanta.toFixed(0)
+			commands: info.n.toFixed(0)
+			breakdown: info.breakdown
+
+
+		# results = "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)+ "\n" + info.breakdown.join(",")
+		_.each stats, (v, k)->
+			$('#stats').find("." + k).html(v)
+
+		$('.dynamicsparkline').sparkline _.flatten([10, stats.breakdown]), 
+			height: 40 
+			width: 250
+
 	@quanta_update: (commands)->
 		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
 		commands_by_quanta = _.mapObject commands_by_quanta, (commands, q)->
+			metacommands = _.groupBy commands, (c)->
+				return c.hid
+			commands = _.map metacommands, (command_array, meta)->
+				if command_array.length == 1 then return command_array[0]
+				else return command_array[0].actuator.performMultiple(command_array)
 			update_command = _.clone(_.last(commands))
 			update_command.api = 
 				flag: "U"
 				args: []
 			commands.push(update_command)
 			return commands
+
 		non_idle = _.keys(commands_by_quanta).length
-		commands_by_quanta = _.values(commands_by_quanta)
-		commands = _.flatten(commands_by_quanta)
+
+		commands = _.values(commands_by_quanta)
+		commands = _.flatten(commands)
+
 		l = _.last(commands)
-		total_time = l.t + l.async_offset
+		total_time = l.t + l.async_offset + l.duration
+
+		breakdown = _.range(0, total_time/Scheduler.quanta)
+		console.log 'breakdown', breakdown
+		console.log 'commands_by_quanta', commands_by_quanta
+		breakdown = _.map breakdown, (q)->
+			return if commands_by_quanta[q] then commands_by_quanta[q].length else 0
+
+
 		commands: commands
 		stats: 
 			non_idle: non_idle
 			quanta: Scheduler.quanta
-			idle: (total_time / Scheduler.quanta) - non_idle
+			idle: parseInt(total_time / Scheduler.quanta) - non_idle
 			n: commands.length
 			time: total_time
+			breakdown: breakdown
 
 
 	@schedule: (commands, simulation = true, final_print=false)->

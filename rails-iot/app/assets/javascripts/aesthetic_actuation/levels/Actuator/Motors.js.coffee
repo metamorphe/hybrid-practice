@@ -3,7 +3,8 @@ class window.ActuatorSERVO extends Actuator1D
     @expression = 128;
     return
   toAPI: (hid)->
-    {flag: "A", args: [hid, @expression]}
+    d = hid.split(":")
+    {flag: "A", args: [d[0], d[1], parseInt(@expression)]}
   _updateVisuals: (p)->
     window.paper = @paper
     arm = CanvasUtil.queryPrefix('ARM')[0]

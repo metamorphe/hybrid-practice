@@ -2,6 +2,7 @@ class window.USBControl
   @constructor: ()->
     
 class window.SocketControl
+  @debug: true
   @DISCONNECTED: 0
   @ERROR : 1
   @CONNECTED: 1
@@ -82,11 +83,6 @@ class window.SocketControl
 
     @ws.onopen = ->
       scope.state = SocketControl.CONNECTED
-      # Alerter.warn
-      #     strong: "WE ARE CONNECTED!"
-      #     msg: "Look at the device. Things won't update on the screen anymore."
-      #     delay: 4000
-      #     color: 'alert-success'
       alertify.notify "<b>Look at the device.</b> Things won't update on the screen anymore.", 'success', 4
       scope.update()
       return
@@ -98,13 +94,7 @@ class window.SocketControl
 
     @ws.onerror = ->
       scope.state = SocketControl.ERROR
-      # Alerter.warn
-      #   strong: "HOLD ON!"
-      #   msg: "It looks like the server can't connect. Try restarting it."
-      #   delay: 2000
-      #   color: 'alert-danger'
       alertify.notify "<b> HOLD ON! </b>It looks like the server can't connect. Try restarting it.", 'error', 4
-          
       scope.update()
       return
 
@@ -143,13 +133,7 @@ class window.SocketControl
 
       if op.live
         if not scope.ws 
-          # Alerter.warn
-          #   strong: "HEADS UP"
-          #   msg: "NOT CONNECTED TO A WEBSOCKET"
-          #   delay: 2000
           alertify.notify "<b> HEADS UP! </b> You are not connected to a device.", 'error', 4
-      
-
           return
         else 
           scope.ws.send msgString
@@ -196,18 +180,27 @@ class window.SocketControl
       return false
     return true
   stringToCommand: (str)->
-    str = str.replace("\n", "").trim();
-    parse = str.split(":")
-    if parse.length != 2 
-      return null        
+    if SocketControl.debug
+      str = str.replace("\n", "").trim();
+      parse = str.split(":")
+      if parse.length != 2 
+        return null        
+      else
+        flag = parse[0].toUpperCase().trim()
+        args = parse[1].trim().split(" ")
+        args = _.map args, (arg)->
+          if _.isString(arg) then return arg.toUpperCase()
+          else if _.isNumber(arg) then return parseInt(arg)            
+        return {flag: flag, args: args}
     else
-      flag = parse[0].toUpperCase().trim()
-      args = parse[1].trim().split(" ")
-      args = _.map args, (arg)->
-        if _.isString(arg) then return arg.toUpperCase()
-        else if _.isNumber(arg) then return parseInt(arg)            
-      return {flag: flag, args: args}
+      console.log "TODO: hex read strings"
       
   commandToString: (command) ->
-    c = [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"
-    return c
+    if SocketControl.debug
+      c = [command.flag.toLowerCase().trim(), command.args.join(' ')].join(" ") + "\n"
+      return c
+    else
+      hex = _.flatten([command.flag.toLowerCase().trim().charCodeAt, command.args, "\n".charCodeAt(0)])
+      byteArray = new Uint8Array(hex.length)
+      return byteArray.buffer
+    

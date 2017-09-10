@@ -39,6 +39,7 @@
 //= require aesthetic_actuation/levels/Tools
 # COMPOSITIOn
 //= require aesthetic_actuation/levels/Actuator/Keyframe
+//= require jquery.sparkline.min
 
 class window.AestheticActuation
 	@enable: (artwork_paper)->

@@ -152,8 +152,37 @@
             %label.truncate
               ALL OFF
       #monitor.tab-content
-        .flex-wrapper
-          %p#monitor-results @975~>50 ms|97.4% util|q=20|n=204
+        .flex-wrapper#monitor-results
+          %p
+            SYSTEM LOAD
+          %p
+            %span.dynamicsparkline Loading ...
+          %table.table.table-striped.table-condensed#stats
+            %tbody
+              %tr
+                %th # of Commands
+                %td
+                  %span.commands -
+              %tr
+                %th Utilization
+                %td
+                  %span.utilization -
+                  %span %
+              %tr
+                %th
+                  %span # of Quanta
+                  %span (@T=
+                  %span.period
+                  %span)
+                %td
+                  %span.quanta -
+              %tr
+                %th Runtime
+                %td.time -
+              
+
+
+
 
 
       
@@ -255,6 +284,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
   .flex-wrapper{
       display: flex;
       width: 100%;
@@ -298,6 +328,9 @@
           text-overflow: ellipsis;
         }
       }
+  }
+  #monitor-results{
+    align-items: flex-start;
   }
   .dragpanel{
     cursor: pointer;

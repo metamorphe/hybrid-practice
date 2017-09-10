@@ -183,8 +183,23 @@ class window.Actuator
       @dom.find(".save-status").addClass('saved')
     else
       @dom.find(".save-status").removeClass('saved')
-  
+  performMultiple: (commands, generate_command=true)->
+    scope = this
+    if commands.length == 1 then @perform(commands[0], generate_command)
+    metaQuery = 
+      parameterized: true
+      viz_update: true
+    channels = _.map commands, (command)->
+      metaQuery[command.channel] = command.param
+      return command.channel
+    @expression = metaQuery
+    command = _.clone(commands[0])
+    command.channel = channels.join(" ")
+    command.metaCommand = true
+    return command
+   
   perform: (command, generate_command=true)->
+    scope = this
     # window.paper = @op.paper
     channel = command.channel
     query = 
@@ -192,7 +207,7 @@ class window.Actuator
       viz_update: true
     query[channel] = command.param
     @expression = query
-    scope = this
+    
     if not generate_command then return
     return _.map @hardware_ids, (hid, i)->
       command = scope.async hid, channel, command, scope.canvas_ids[i]
