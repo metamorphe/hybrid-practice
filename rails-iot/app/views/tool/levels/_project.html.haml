@@ -118,13 +118,13 @@
         %li
           %button.btn-default.btn.btn-sm{goto: "#midi.tab-content"}
             MIDI
+        %li
+          %button.btn-default.btn.btn-sm{goto: "#monitor.tab-content"}
+            MONITOR
     .body
       #sensors.tab-content
         .flex-wrapper
           = render :partial => "tool/levels/sensor_panel"
-          
-
-
       #midi.tab-content
         .flex-wrapper
           .btn-midi
@@ -135,6 +135,10 @@
             %button#all-off.btn  
             %label.truncate
               ALL OFF
+      #monitor.tab-content
+        .flex-wrapper
+          %p#monitor-results @975~>50 ms|97.4% util|q=20|n=204
+
 
       
         

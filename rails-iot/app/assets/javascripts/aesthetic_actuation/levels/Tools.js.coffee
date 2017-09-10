@@ -190,6 +190,7 @@ makeChoreographyTool= ()->
       this.slider.scrubber = scrubber
       this.slider.position.y -= 20
       behavior_sim.bringToFront()
+      this.slider.scrubber.bringToFront()
     deactivate: ()->
       items = paper.project.getItems 
         choreography: true

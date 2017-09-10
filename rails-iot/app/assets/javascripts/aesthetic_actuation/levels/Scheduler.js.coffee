@@ -18,7 +18,9 @@ class window.Scheduler
 		total_quanta = info.idle + info.non_idle
 		utilization = info.non_idle / total_quanta * 100
 		utilization = utilization.toFixed(1) +  "% util"
-		console.log "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)
+		results = "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)
+		console.log results
+		$('#monitor-results').html(results)
 	@quanta_update: (commands)->
 		commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
 		commands_by_quanta = _.mapObject commands_by_quanta, (commands, q)->
