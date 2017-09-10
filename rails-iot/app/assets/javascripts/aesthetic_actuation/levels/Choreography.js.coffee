@@ -62,10 +62,11 @@ class window.Choreography
 				offset = closest_arrow.getOffsetOf(npt)
 				distance =  offset / closest_arrow.length
 
+				anchor = actuator.bounds.topCenter.add(new paper.Point(0, -5))
 
 				c = new paper.Path.Line
 					parent: closest_arrow
-					from: actuator.position
+					from: anchor.clone()
 					to: npt
 					strokeWidth: 2
 					affordance: true
@@ -73,7 +74,7 @@ class window.Choreography
 				d = new paper.Path.Circle
 					radius: 5
 					parent: closest_arrow
-					position: actuator.position
+					position: anchor.clone()
 					affordance: true
 					choreography: true
 

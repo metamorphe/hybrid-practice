@@ -33,6 +33,17 @@
       $('#tabs button.selected').removeClass('selected')
       $(this).addClass('selected')
   bindEvents = ()->
+    $('#choreo-visibility').click ()->
+      $(this).toggleClass('active').children("span").toggleClass("glyphicon-eye-open").toggleClass("glyphicon-eye-close")
+      elements = ch.paper.project.getItems
+        choreography: true
+      if $(this).hasClass('active')
+        CanvasUtil.set elements, 
+          opacity: 0
+      else
+        CanvasUtil.set elements, 
+          opacity: 1
+
     tabs()
     # Fullscreen buttons
     fsButton = $('#fullscreen').click fullscreenMode
@@ -105,8 +116,13 @@
           %button#choreo-tool.tool.btn.btn-xs.btn-primary
             = glyph "random"
             (C)
+      
+        %button#choreo-visibility.tool.btn.btn-xs.btn-default
+          = glyph "eye-open"
         %button#project-view-settings.btn.btn-ghost
           = glyph "cog"
+
+
 
 
   #project-panel.dragpanel
@@ -417,6 +433,7 @@
               top: 0px;
               z-index: 100;
           }
+
           .side-btn{
               position: absolute;
               right: -40px;
@@ -424,6 +441,14 @@
               z-index: -1;
               padding-left: 23px; 
 
+          }
+          #choreo-visibility{
+            position: absolute;
+            right: -24px;
+            top: 69px;
+            z-index: -1;
+            padding-left: 23px; 
+            
           }
       }
 

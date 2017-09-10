@@ -217,7 +217,8 @@ makeChoreographyTool= ()->
           active_choreo.form.paperPaths = _.without(active_choreo.form.paperPaths, hit.parent.id)
           hit.parent.remove()
         this.arrow = null
-        active_choreo.resolve()
+        actuators = CanvasUtil.getIDs(active_choreo.actuator.canvas_ids)
+        active_choreo.resolve(actuators)
         return
 
       this.arrow = new paper.Group
@@ -334,8 +335,8 @@ makeChoreographyTool= ()->
 
         this.ink_blot.bringToFront()
 
-
-        active_choreo.resolve()
+        actuators = CanvasUtil.getIDs(active_choreo.actuator.canvas_ids)
+        active_choreo.resolve(actuators)
   #     s = Choreography.selected()
   #     if s and cT.getSession
   #       s.form = {ids: cT.getSession()}

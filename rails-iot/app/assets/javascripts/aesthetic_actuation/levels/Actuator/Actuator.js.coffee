@@ -198,7 +198,8 @@ class window.Actuator
       command = scope.async hid, channel, command, scope.canvas_ids[i]
       return command 
   async: (hid, channel, command, cid)->
-    @sia = @choreo.resolve()
+    actuators = CanvasUtil.getIDs(@canvas_ids)
+    @sia = @choreo.resolve(actuators)
     @async_period = @choreo.form.async_period
     i = if _.isUndefined @sia[hid] then 0 else @sia[hid]
     command = _.clone(command)
