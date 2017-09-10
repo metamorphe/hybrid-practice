@@ -1,5 +1,6 @@
 class window.Choreography
 	@COUNTER: 0
+	@SCALE: 5000
 	@library: []
 	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
 	@ACTUATORS = ()-> Artwork.ACTUATORS()
@@ -68,11 +69,13 @@ class window.Choreography
 					to: npt
 					strokeWidth: 2
 					affordance: true
+					choreography: true
 				d = new paper.Path.Circle
 					radius: 5
 					parent: closest_arrow
 					position: actuator.position
 					affordance: true
+					choreography: true
 
 				
 				rtn = 
@@ -107,7 +110,7 @@ class window.Choreography
 	    max = (_.max dist, (d)-> d.distance).distance
 	    range = max - min
 	    if range != 0
-		    dist = _.each dist, (d)-> 
+		    dist = _.each dist, (d)->  
 		    	d.distance = (d.distance - min)/range
 	    return dist
 

@@ -194,7 +194,6 @@ class window.Stage
         else
             console.log "Not a stage..."
 
-        choreo = Choreography.default()
 
         # sync = $(this).parents('#async').length == 0
         # compose = $(this).parents(".composition-design").length != 0
@@ -210,7 +209,6 @@ class window.Stage
         ops = _.extend actor.form,
             clear: num_to_accept == 1
             target: stage.dom
-            choreo: choreo
         ActuatorManager.create ops
             
         

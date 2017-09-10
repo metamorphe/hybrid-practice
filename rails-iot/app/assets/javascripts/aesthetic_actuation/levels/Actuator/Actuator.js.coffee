@@ -196,10 +196,10 @@ class window.Actuator
     if not generate_command then return
     return _.map @hardware_ids, (hid, i)->
       command = scope.async hid, channel, command, scope.canvas_ids[i]
-      return command
+      return command 
   async: (hid, channel, command, cid)->
-    @sia = @choreo.sia
-    @async_period = @choreo.async_period
+    @sia = @choreo.resolve()
+    @async_period = @choreo.form.async_period
     i = if _.isUndefined @sia[hid] then 0 else @sia[hid]
     command = _.clone(command)
     return _.extend command, 

@@ -1,6 +1,6 @@
 class window.Scheduler 
 	@quanta: 50
-	@pretty_print_flag = false
+	@pretty_print_flag: false
 	@pretty_print: (commands, info, full=false)->
 		if Scheduler.pretty_print_flag 
 			_.each commands, (command)->
@@ -8,13 +8,13 @@ class window.Scheduler
 				if args != ""
 					args = args.split(':').join(',')
 				console.log command.api.flag+ "(" + args + ");"
-			# console.log "------- RAW_COMMANDS ---------"
-			# console.log "t", "offset", "hid", "channel", "value"
-			# commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
-			# _.each commands_by_quanta, (command_set, q, i)->
-			# 	console.log "\tQUANTA", q
-			# 	_.each command_set, (c)->
-			# 		console.log ["\t\t" + c.api.flag, "@" + c.t.toFixed(0) + "+" + c.async_offset.toFixed(0), "#" + c.hid + "->" + c.channel[0]+":"+c.param.toFixed(2)].join(' ')
+			console.log "------- RAW_COMMANDS ---------"
+			console.log "t", "offset", "hid", "channel", "value"
+			commands_by_quanta = _.groupBy commands, (c)-> parseInt((c.t + c.async_offset) / Scheduler.quanta)
+			_.each commands_by_quanta, (command_set, q, i)->
+				console.log "\tQUANTA", q
+				_.each command_set, (c)->
+					console.log ["\t\t" + c.api.flag, "@" + c.t.toFixed(0) + "+" + c.async_offset.toFixed(0), "#" + c.hid + "->" + c.channel[0]+":"+c.param.toFixed(2)].join(' ')
 		total_quanta = info.idle + info.non_idle
 		utilization = info.non_idle / total_quanta * 100
 		utilization = utilization.toFixed(1) +  "% util"
@@ -45,10 +45,11 @@ class window.Scheduler
 	@schedule: (commands, simulation = true, final_print=false)->
 		info = Scheduler.quanta_update(commands)
 		commands = info.commands
+		    
 		Scheduler.pretty_print(commands, info.stats, final_print)
 		
 		return play_ids = _.map commands, (command) ->
-			id = _.delay(Scheduler.sendCommandTo, command.t + command.async_offset, command, simulation)
+			id = _.delay(Scheduler.sendCommandTo, parseInt(command.t + command.async_offset), command, simulation)
 			return id
 
 	@sendCommandTo: (command, simulation=true)->
@@ -61,6 +62,7 @@ class window.Scheduler
 		    return 
 		if actuatorsLive()
 			$('.popover.actuator .popover-content').html("[L] to Simulate")
+		sc.sendMessage(command.api, true)
 		if sc and actuatorsLive()
 			sc.sendMessage(command.api, {live: actuatorsLive()}) 
 			actuator.perform(command, false)
@@ -73,10 +75,8 @@ class window.Scheduler
 			window.paper = ch.paper
 			e = CanvasUtil.queryID(command.cid)
 			if e
-				# console.log actuator.actuator_type
 				switch actuator.actuator_type
 					when "HSBLED"
-						# console.log command.expression.toCSS()
 						e.fillColor = command.expression
 						# CanvasUtil.setStyle [e], fillColor: command.expression
 					when "PUMP"

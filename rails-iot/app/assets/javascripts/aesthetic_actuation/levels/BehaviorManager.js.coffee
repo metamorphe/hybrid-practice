@@ -149,6 +149,7 @@ class window.Behavior
             return
         else
             raw_commands = @data.manager.compile()
+            console.log "RAW_COMMANDS", raw_commands.length, raw_commands
             if _.isEmpty raw_commands then return
 
             #RESTART/START_FROM_SCRUBBER
@@ -164,17 +165,19 @@ class window.Behavior
             commands = _.each commands, (command)-> command.t = command.t - t_start
 
             # # SCHEDULE FOR PLAY
+            console.log "PROCESSED_COMMANDS", commands.length, commands
             scope.play_ids = Scheduler.schedule(commands, true)
             @scrubber.play(t_start, end)
             @playing = true
 
             endOfBehavior = ()->
+                console.log "SHUTDOWN"
                 scope.pause()
                 scope.scrubber.setTime(end)
                 if scope.data.repeat == "repeat"
                     scope.play(true)
-
-            id = _.delay endOfBehavior, end - t_start
+            async_end = end + _.last(commands).async_offset + 200
+            id = _.delay endOfBehavior, async_end - t_start
             @play_ids.push(id) 
             
     pause: ()->

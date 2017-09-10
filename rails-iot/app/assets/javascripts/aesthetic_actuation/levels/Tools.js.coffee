@@ -1,3 +1,4 @@
+
 window.initTools = (paper)->
   window.paper = paper
   window.selectionTool = makeSelectionTool()
@@ -32,14 +33,176 @@ makeChoreographyTool= ()->
       items = CanvasUtil.getIDs(window.active_choreo.form.paperPaths)
       _.each items, (item)->
         item.visible = true
+      this.createSlider()
+    makeArrowRef: (line_base, offset)->
+      scope = this
+      CanvasUtil.call CanvasUtil.queryPrefix("ARROW_REF"), "remove"
+      
+      ref = new paper.Group
+        name: "ARROW_REF: ref"
+        choreography: true
+        parent: this.slider
+
+      if offset < 10
+        return
+      arrow_ref = new paper.Path.Line
+        parent: ref
+        from: line_base.getPointAt(0)
+        to: line_base.getPointAt(offset - 10)
+
+      n = arrow_ref.length
+      tempTicks = _.range(0, n , 2)
+      _.each tempTicks, (tick)->
+        pt = arrow_ref.getPointAt(tick)
+        tick = new paper.Path.Circle
+          radius: 5/2
+          parent: ref
+          position: pt.clone()
+          fillColor: Choreography.temperatureColor(tick/n)
+      if offset < 20
+        return
+      lastPoint = arrow_ref.getPointAt(n - 14)
+      prevPoint = arrow_ref.getPointAt(n - 18)
+      v = lastPoint.subtract(prevPoint)
+      arrow_triangle = new paper.Path.RegularPolygon
+          parent: ref
+          sides: 3
+          radius: 10
+          fillColor: Choreography.temperatureColor(1)
+          shadowColor: "#000000"
+          shadowBlur: 0
+          strokeWidth: 3
+      arrow_triangle.set
+          pivot: arrow_triangle.bounds.bottomCenter.clone()
+          position: lastPoint
+      arrow_triangle.rotation = v.angle + 90
+
+    createSlider: ()->
+      scope = this
+
+      this.slider = new paper.Group
+        choreography: true
+      
+      c = ChoreographyWidget.ARROW_COLOR.clone()
+      c.brightness -= 0.3
+
+      line_base = new paper.Path.Line
+        parent: this.slider
+        from: paper.view.bounds.bottomLeft.clone().add(20, 0)
+        to: paper.view.bounds.bottomRight.clone().subtract(20, 0)
+        strokeColor: c
+        radius: 5
+
+      offset = active_choreo.form.async_period / Choreography.SCALE * line_base.length
+
+      scope.makeArrowRef(line_base, offset)
+      
+      textColor = if ch.dark then "white" else "black"
+      this.slider.text = new PointText
+        parent: this.slider
+        content: TimeSignal.pretty_time(active_choreo.form.async_period)
+        fillColor: textColor
+        fontFamily: "Avenir"
+        fontWeight: 'bold'
+        fontSize: 12
+        justification: "right"
+      
+      this.slider.text.set
+        pivot: this.slider.text.bounds.bottomRight.clone()
+        position: line_base.bounds.topRight.clone().add(paper.Point(-10, 0))
+        
+
+      behavior_sim = new paper.Path.Circle
+        parent: this.slider
+        radius: 10
+        position: line_base.getPointAt(0).clone()
+        fillColor: "#5cb85c"
+        onMouseDown: ()->
+          scope = this
+          n = line_base.length
+          _.map CanvasUtil.getIDs(active_choreo.form.paperPaths), (arrow)->
+            arrow = arrow.pathway
+      
+            msg = new paper.Path.Circle
+              parent: scope.slider
+              radius: 10
+              position: arrow.getPointAt(0).clone()
+              fillColor: "#5cb85c"
+
+            ch.ps.add
+              name: "Message"
+              start: 0
+              duration: active_choreo.form.async_period
+              onRun: (e)->
+                offset = arrow.length * e.parameter
+                msg.bringToFront()
+                msg.position = arrow.getPointAt(offset)
+              onDone: (e)->
+                msg.remove()
+              onKill: (e)->
+                msg.remove()
+
+
+          ch.ps.add
+            name: "Choreography Tester"
+            start: 0
+            duration: active_choreo.form.async_period
+            onRun: (e)->
+              offsetPt = line_base.getNearestPoint(scope.parent.scrubber.position)
+              offset = line_base.getOffsetOf(offsetPt)
+              scope.bringToFront()
+              scope.position = line_base.getPointAt(offset * e.parameter).clone()
+            onDone: (e)->
+              scope.position = line_base.getPointAt(0).clone()
+            onKill: (e)->
+              scope.position = line_base.getPointAt(0).clone()
+
+      
+
+      scrubber = new paper.Path.Circle
+        parent: this.slider
+        radius: 10
+        position: line_base.getPointAt(offset)
+        fillColor: ChoreographyWidget.ARROW_COLOR
+        scope: scope
+        onMouseEnter: (e)->
+          c = ChoreographyWidget.ARROW_COLOR.clone()
+          c.brightness -= 0.2
+          this.fillColor = c
+        onMouseLeave: (e)->
+          this.fillColor = ChoreographyWidget.ARROW_COLOR
+        onMouseDown: (e)->
+          this.position = line_base.getNearestPoint(e.point)
+        onMouseDrag: (e)->
+          this.position = line_base.getNearestPoint(e.point)
+          offset = line_base.getOffsetOf(this.position)
+          t = offset / line_base.length
+          t *= Choreography.SCALE
+          this.scope.makeArrowRef(line_base, offset)
+          this.parent.text.content = TimeSignal.pretty_time(t)
+        onMouseUp: (e)->
+          this.position = line_base.getNearestPoint(e.point)
+          offset = line_base.getOffsetOf(this.position)
+          t = offset / line_base.length
+          t *= Choreography.SCALE
+          this.scope.makeArrowRef(line_base, offset)
+          active_choreo.form.async_period = t
+      this.slider.scrubber = scrubber
+      this.slider.position.y -= 20
+      behavior_sim.bringToFront()
     deactivate: ()->
       items = paper.project.getItems 
         choreography: true
       _.each items, (item)->
         item.visible = false
+      this.slider.remove()
+      this.slider = null
       console.log "Deactivating Choreo Tool"
     onMouseDown: (e)->
       scope = this
+      if this.slider.scrubber.contains(e.point)
+        this.arrow = null
+        return
 
       inkblots = paper.project.getItems
         ink_blot: true
