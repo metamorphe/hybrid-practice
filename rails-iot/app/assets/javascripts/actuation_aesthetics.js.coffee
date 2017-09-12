@@ -43,24 +43,30 @@
 
 class window.AestheticActuation
 	@enable: (artwork_paper)->
-		console.info "AestheticActuation PROJECT"
+		console.info '✓ Paper'
 		$('button').click ()->
 			$(this).blur()
 		window.main_paper = artwork_paper
+
 		window.ch = new ChoreographyWidget
 			paper: artwork_paper
 			dom: $('#projectviewer')
+		console.info '✓ Choreography'
 		# window.bm = new BehaviorManager
 		# 	scrubber: $('#scrubber')
 		# ACTUATIOR MANAGER
 		window.am = new ActuatorManager
 		am.init()
+		console.info '✓ Actuation'
 		# TIME SIGNAL MANAGER
 		window.tsm = new TimeSignalManager
 			collection: ()-> $('datasignal').not('.template').find('canvas').not('.skip')
 		tsm.init()
-		
+		console.info '✓ TimeSignals'
+
 		window.initTools(main_paper)
+		console.info '✓ Paper Tools'
+
 		# COMPOSER
 		window.cmp = new Composer
 			signal_button: $('#apply-signal')

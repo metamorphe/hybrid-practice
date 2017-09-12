@@ -65,7 +65,6 @@ class window.TimeSignalManager
 
   initTimeSignals: ->
     collection = $('datasignal')
-    console.log("SIGNALS",collection.length )
     _.map collection, (datasignalDOM, i) ->
       dom = $(datasignalDOM)
       dom = TimeSignal.popover(dom)

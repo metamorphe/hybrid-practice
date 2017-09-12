@@ -21,7 +21,8 @@ class window.Actuator
   constructor: (@dom, set, @op) ->
     scope = this
     set = set or {}
-    @id = Actuator.COUNTER++
+    @id = @op.id or guid()
+    Actuator.COUNTER++
     @choreo = new Choreography
       actuator: this
     @dom.data('id', @id)
@@ -122,6 +123,7 @@ class window.Actuator
   Object.defineProperties @prototype,
     form: 
       get: ->
+        id: @id
         actuator_type: @actuator_type
         hardware_ids: @hardware_ids
         canvas_ids:  @canvas_ids

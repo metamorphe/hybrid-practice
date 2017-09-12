@@ -8,7 +8,7 @@ class window.SocketControl
   @CONNECTED: 1
   @LOG: true
   constructor: (@op) ->
-    console.info 'ENABLING SOCKET COMMUNICATION'
+    console.info '✓ Socket Control '
     @subscribers = {
       input: {}, 
       output: {}

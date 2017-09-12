@@ -102,7 +102,8 @@ class window.Artwork
 
     orderActuators: ->
         devices = CanvasUtil.queryPrefix('DEVICE')
-        console.log "DEVICES", devices.length
+        console.info '✓ Manifest'
+        console.info '✓ Devices:', devices.length
         if devices.length == 0 then console.warn "NO DEVICES!"
         _.each devices, (device, i)->
             device_id = CanvasUtil.getName(device)

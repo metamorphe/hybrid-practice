@@ -72,19 +72,25 @@ class window.Behavior
 
         @dom.click()
         _.each @_load, (stageData, stageID)->
+            if _.isEmpty(stageData) then return
             stage = manager.addStage()
             stage.data = {id: stageID}
             actor = am.getActuator(stageData.actuator)
-            stage.addActor(stage, actor)
-            tracks = _.map stage.data.tracks, (track)->
-                t = Track.library[track]
-                return [t.data.channel, t]
-            tracks = _.object tracks
-            _.each stageData.tracks, (signalData, channel)->
-                _.each signalData, (entry)->
-                    ts = tsm.getTimeSignal(entry.signal)
-                    signal = tracks[channel].addSignal(ts, clear=false)
-                    signal.dom.css('left', scope.scrubber.getPosition(entry.offset))
+            console.log 'STAGE ACTUATOR', stageID, stageData.actuator, actor
+
+            if not actor
+                console.error "ACTOR not found."
+            else
+                stage.addActor(stage, actor)
+                tracks = _.map stage.data.tracks, (track)->
+                    t = Track.library[track]
+                    return [t.data.channel, t]
+                tracks = _.object tracks
+                _.each stageData.tracks, (signalData, channel)->
+                    _.each signalData, (entry)->
+                        ts = tsm.getTimeSignal(entry.signal)
+                        signal = tracks[channel].addSignal(ts, clear=false)
+                        signal.dom.css('left', scope.scrubber.getPosition(entry.offset))
     save: ()->
         x =  
             data: _.pick @data, "id", "name", "timescale", "repeat"

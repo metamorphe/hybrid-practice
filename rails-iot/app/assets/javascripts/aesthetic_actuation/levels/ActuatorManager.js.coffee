@@ -6,6 +6,7 @@
       .clone().removeClass('template')
     
     data = 
+      id: op.id
       actuator_type: op.actuator_type
       constants: op.constants
       hardware_ids: op.hardware_ids
@@ -15,14 +16,17 @@
       async_period: op.async_period
 
     dom.data data
+
     op.target.append(dom)
     op.target.addClass("accepted")
     ActuatorType = op.actuator_type
     ActuatorSimulator = eval('Actuator' + ActuatorType)
     props = _.clone(eval(ActuatorType))
     set = dom.data()
+    props.id = op.id
     actuator = new ActuatorSimulator(dom, set, props)
-    dom.click()
+    if op.focus
+      dom.click()
     return dom
 
   @extract: ()->
@@ -40,9 +44,21 @@
         constants: 
           color: rgb2hex(new paper.Color(data.colorID).toCSS())
    
-    
+  gatherActuators: ()->
+    scope = this
+    return _.map $('actuator:not(.template)'), (dom)->
+      scope.resolve(dom)
+  resolve: (dom)->
+    id = $(dom).data('id')
+    @getActuator(id)
+  getActuator: (id)->
+    @actuators[id]
+  getActiveActuator: ()->
+    id = $('actuator.selected').data('id')
+    @getActuator(id)
+
   constructor: (@op) ->
-    @actuators = []
+    @actuators = {}
   init:()->
     @initActuators() #PRELOAD
     # ActuatorManager.extract() #DYNAMIC
@@ -51,13 +67,13 @@
   initActuators: () ->
     scope = this;
     collection = $('.composition-design actuator[name]:not(.template)')
-    console.info 'Initializing actuators', collection.length
     _.each collection, (act, i) ->
       scope.initActuator.apply(scope, [act])
 
 
   add: (actuator)->
-    @actuators.push(actuator)
+    # @actuators.push(actuator)
+    @actuators[actuator.id] = actuator
     @updateChannels(actuator)
     $(".remove").click ()->
       $(this).parents('acceptor').removeClass("accepted")   
@@ -120,14 +136,7 @@
       value = actuator.getChannelParam(channel)
       cmp.op.slider.val value
       return
-  resolve: (dom)->
-    id = $(dom).data('id')
-    @getActuator(id)
-  getActuator: (id)->
-    @actuators[id]
-  getActiveActuator: ()->
-    id = $('actuator.selected').data('id')
-    @getActuator(id)
+  
   getChannels:(actuator)->
     channels = $(actuator.dom).find('channel')
     _.map(channels, (channel)-> $(channel).attr('type'))

@@ -1,7 +1,7 @@
 window.SPECIAL_KEYS = [32]
 $ ->
   $(document).keypress (event) ->
-    console.log event
+    # console.log event
     # console.log event.which, Widget.bindings     
 
     if Widget.bindings_on
@@ -52,7 +52,8 @@ class window.Widget
 
 class window.ActuatorWidgets 
   constructor: ()->
-    console.log "ENABLING WIDGETS"
+    console.info '✓ Actuation Widgets'
+
     @group = new Grouper
       track: $("#actuator-group")
       result: $("#group-result") 
@@ -96,8 +97,9 @@ class window.AsynchMorph extends ActuatorWidget
 
 
 class window.Saver extends ActuatorWidget
+  # ↑ ↓ 
   constructor: (@op)->
-    console.log "Saver"
+    console.info '\t✓ Save/Load'
     scope = this
     Widget.bindKeypress @op.bindKey, (()-> scope.saveActuation()), true
     
@@ -109,11 +111,14 @@ class window.Saver extends ActuatorWidget
 
     
     # SAVE BEHAVIORS
-    @op.trigger.click (event)-> scope.saveActuation()
+    @op.trigger.click (event)-> 
+      console.info "SAVING..."
+      scope.saveActuation()
 
   saveBehaviors: ()->
     behaviors = _.map Behavior.library, (behavior, id)->
       behavior.save()
+    console.info '↓', behaviors.length, "behaviors"
     @save @behaviors, behaviors
 
   saveActuation: (e)->
@@ -127,8 +132,15 @@ class window.Saver extends ActuatorWidget
     # signal_tracks = _.map signal_tracks, (track)->
       # signals = TimeWidget.resolveTrack(track, '.easing, .default')
       # track_id = $(track).parent('event').attr('id')
-    @saveActors(scope.a_library, am.actuators)
-    @saveActors(scope.ts_library, tsm.timesignals)
+    actuators = am.gatherActuators()
+    timesignals = tsm.timesignals
+    
+    @saveActors(scope.a_library, actuators)
+    console.info '↓', actuators.length, "actuators"
+
+    @saveActors(scope.ts_library, timesignals)
+    console.info '↓', timesignals.length, "signals"
+
     @saveBehaviors()
 
     alertify.notify "<b>SAVED!</b> We won't forget a thing!", 'success', 4
@@ -138,7 +150,7 @@ class window.Saver extends ActuatorWidget
     if ws then ws.set(key, JSON.stringify(data))
   load:()->
     scope = this
-    @trackLoad()
+    @actuatorLoad()
     @signalLoad()
     @behaviorLoad()
 
@@ -157,6 +169,8 @@ class window.Saver extends ActuatorWidget
         container: $('#behavior-library .track-full')
         _load: behaviorData.manager
         data: behaviorData.data
+    console.info '↑', behaviors.length, "behaviors"
+
     window.current_behavior = behaviors[0]
     # window.current_behavior = new Behavior
     #   container: $('#behavior-library .track-full')
@@ -190,10 +204,12 @@ class window.Saver extends ActuatorWidget
     scope = this
     key = @generateKey(name)
     rtn = ws.get(key)
-    actuators = if _.isNull(rtn) then [] else JSON.parse(rtn)
-    _.each actuators, (actuator)->
-      loadFN(actuator)
-    return actuators
+    actors = if _.isNull(rtn) then [] else JSON.parse(rtn)
+    _.each actors, (actor)->
+      loadFN(actor)
+
+    console.info '↑', actors.length, name
+    return actors
   
   signalLoad: ()->
     scope = this
@@ -202,10 +218,10 @@ class window.Saver extends ActuatorWidget
         clear: false
         target: $("#library.signal-design .track-full")
       signal = new TimeSignal dom, signal
-  trackLoad: ()->
+
+  actuatorLoad: ()->
     scope = this
     @loadActors @a_library, (actuator)->
-      # console.log "ACTUATOR LOADIGN", actuator
       ops = 
         clear: false
         target: $("#actuator-library .track-full")
