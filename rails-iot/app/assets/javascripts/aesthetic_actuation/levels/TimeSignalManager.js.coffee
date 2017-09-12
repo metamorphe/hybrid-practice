@@ -3,7 +3,7 @@ class window.TimeSignalManager
   @log: ()-> return#console.log.bind(console)
   constructor: (@op) ->
     TimeSignalManager.log 'TSM'
-    @timesignals = []
+    @timesignals = {}
   init:()->
     @activateTrackButtons()
     @initTimeSignals()
@@ -23,6 +23,10 @@ class window.TimeSignalManager
     #     if _.isUndefined(ts) then return 
     #     ts.form =  {view: n_view}
     #     dom.parents('event').find('[class^=track]').data('view', n_view)
+   gatherSignals: ()->
+    scope = this
+    return _.map $('datasignal:not(.template):not(.meta'), (dom)->
+      scope.resolve(dom)
   initEasings: ->
     # console.log "EASING"
     easings = TimeSignalManager.EasingFunctions
@@ -76,7 +80,8 @@ class window.TimeSignalManager
   getActiveTimeSignal: ()->
     @resolve($('datasignal.selected'))
   add: (ts)->
-    @timesignals.push(ts)
+    # @timesignals.push(ts)
+    @timesignals[ts.id] = ts
     @activateDragAndDrop()
   activateDragAndDrop: ()->
     @activateDrag()

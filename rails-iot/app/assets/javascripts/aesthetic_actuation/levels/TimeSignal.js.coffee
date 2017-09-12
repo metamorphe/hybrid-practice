@@ -16,7 +16,9 @@ class window.TimeSignal
   constructor: (@dom, set)->
     set = set or {}
     _.extend this, TimeSignal.DEFAULT_STYLE
-    @id = TimeSignal.COUNTER++
+    # @id = 
+    TimeSignal.COUNTER++
+    @id = set.id or guid()
     @dom.data('id', @id)
     @canvas = @dom.find('canvas')
 
@@ -84,6 +86,7 @@ class window.TimeSignal
   Object.defineProperties @prototype,
     form:
       get: -> 
+        id: @id
         view: @view
         signal: @signal
         period: @period

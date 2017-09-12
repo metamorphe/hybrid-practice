@@ -68,8 +68,8 @@ class window.Scheduler
 		total_time = l.t + l.async_offset + l.duration
 
 		breakdown = _.range(0, total_time/Scheduler.quanta)
-		console.log 'breakdown', breakdown
-		console.log 'commands_by_quanta', commands_by_quanta
+		# console.log 'breakdown', breakdown
+		# console.log 'commands_by_quanta', commands_by_quanta
 		breakdown = _.map breakdown, (q)->
 			return if commands_by_quanta[q] then commands_by_quanta[q].length else 0
 

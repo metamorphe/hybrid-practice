@@ -2,8 +2,10 @@ class window.StageManager
     @count: 0
     @template: "behavior.template"
     save: ()->
-        return _.map @_data.stages, (id)->
-            return Stage.library[id].save()
+        data = {}
+        _.each @_data.stages, (id)->
+            data[id] = Stage.library[id].save()
+        return data
     destroy: ()->
         @dom.remove()
         _.each @data.stages, (stageID)->
@@ -14,8 +16,9 @@ class window.StageManager
         _.extend this, _.omit op, "data"
         @dom = @toDOM()
         @_data = {}
+        StageManager.count++
         @data = 
-            id: StageManager.count++
+            id: guid()
             name: "StageManager"
             stages: []
         _.extend this, _.pick op, "data"    
@@ -109,10 +112,11 @@ class window.Stage
 
         @_data = {}
         @data = 
-            id: Stage.count++
+            id: guid()
             name: "Stage"
             tracks: []
             numActuators: 0
+        Stage.count++
 
         _.extend this, op   
         @container.append(@dom)
@@ -189,7 +193,6 @@ class window.Stage
             console.error "ACTOR NOT FOUND"
             return
         empty = stage.dom.html() == ""
-        console.log "STAGE LOAD", stage.dom
         # stageLogic 
         d = stage.dom.data()
         num_to_accept = stage.dom.data().accept
@@ -199,19 +202,7 @@ class window.Stage
             stage.setStage(actor)
         else
             console.log "Not a stage..."
-
-
-        # sync = $(this).parents('#async').length == 0
-        # compose = $(this).parents(".composition-design").length != 0
-        # if compose 
-        #   idx = $('#stage acceptor').index(this) - 1
-        #   choreos = $("#choreography-binders choreography")
-        #   console.log "ALMOST", idx, choreos.length
-        #   if idx < choreos.length
-        #     potential = Choreography.get($(choreos[idx]))
-        #     if potential
-        #       choreo = potential
-
+        
         ops = _.extend actor.form,
             clear: num_to_accept == 1
             target: stage.dom
@@ -226,6 +217,12 @@ class window.Stage
                 if _.isEmpty(obj) then return
                 
                 scope = this
+                if obj.id and @parent.data.stages.length > 0
+                    if obj.id != @_data.id
+                        delete Stage.library[@_data.id]
+                        Stage.library[obj.id] = this
+                        idx = @parent.data.stages.indexOf(@_data.id)
+                        @parent.data.stages[idx] = obj.id
                 # BLANKET INTERNAL UPDATES
                 @_data = _.extend(@_data, obj)
                 @dom.data @_data
@@ -253,8 +250,9 @@ class window.Track
         _.extend this, _.omit op, "data"
         @_data = {}
         @dom = @toDOM()
+        Track.count++
         @data = 
-            id: Track.count++
+            id: guid()
             name: "Track"
             period: 0
             num_to_accept: 100

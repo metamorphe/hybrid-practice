@@ -46,7 +46,7 @@
    
   gatherActuators: ()->
     scope = this
-    return _.map $('actuator:not(.template)'), (dom)->
+    return _.map $('actuator:not(.template):not(.meta'), (dom)->
       scope.resolve(dom)
   resolve: (dom)->
     id = $(dom).data('id')

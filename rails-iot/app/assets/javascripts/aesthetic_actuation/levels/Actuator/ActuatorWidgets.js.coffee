@@ -133,7 +133,8 @@ class window.Saver extends ActuatorWidget
       # signals = TimeWidget.resolveTrack(track, '.easing, .default')
       # track_id = $(track).parent('event').attr('id')
     actuators = am.gatherActuators()
-    timesignals = tsm.timesignals
+    timesignals = tsm.gatherSignals()
+    timesignals = _.reject timesignals, (ts)-> ts.easing
     
     @saveActors(scope.a_library, actuators)
     console.info '↓', actuators.length, "actuators"
@@ -191,8 +192,10 @@ class window.Saver extends ActuatorWidget
     data = _.map actors, (actor)-> 
       actor.form = {saved: true}
       if actor.easing then return null
+      lib = actor.dom.parents("#actuator-library").length == 1 or actor.dom.parents("#library.signal-design").length == 1
       rtn =  _.extend actor.form,
         file: fs.getName()
+        library: lib
         # parent: actor.dom.parent().data().id
         test: ""
       return rtn
@@ -217,7 +220,9 @@ class window.Saver extends ActuatorWidget
       dom = TimeSignal.create
         clear: false
         target: $("#library.signal-design .track-full")
-      signal = new TimeSignal dom, signal
+      ts = new TimeSignal dom, signal
+      if not signal.library
+        ts.dom.addClass('meta').hide()
 
   actuatorLoad: ()->
     scope = this
@@ -226,7 +231,9 @@ class window.Saver extends ActuatorWidget
         clear: false
         target: $("#actuator-library .track-full")
       ops = _.extend(ops, actuator)
-      ActuatorManager.create ops
+      dom = ActuatorManager.create ops
+      if not actuator.library
+        dom.addClass('meta').hide()
   generateKey: (name)->
     return [fs.getName(), name].join(':')
     

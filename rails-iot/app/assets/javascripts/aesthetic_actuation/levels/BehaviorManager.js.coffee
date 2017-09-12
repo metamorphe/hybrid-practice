@@ -1,4 +1,3 @@
-            
 class window.Behavior
     @template: "behaviornode.template"
     @count: 0
@@ -72,12 +71,12 @@ class window.Behavior
 
         @dom.click()
         _.each @_load, (stageData, stageID)->
+            console.log "STAGE LOAD", stageData, stageID
             if _.isEmpty(stageData) then return
             stage = manager.addStage()
             stage.data = {id: stageID}
             actor = am.getActuator(stageData.actuator)
-            console.log 'STAGE ACTUATOR', stageID, stageData.actuator, actor
-
+            
             if not actor
                 console.error "ACTOR not found."
             else
