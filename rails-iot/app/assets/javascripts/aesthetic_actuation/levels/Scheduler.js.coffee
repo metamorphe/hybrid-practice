@@ -25,6 +25,10 @@ class window.Scheduler
 		utilization = info.non_idle / total_quanta * 100
 		utilization = utilization.toFixed(1)
 
+		quanta_budget = Scheduler.bytes_per_second/18
+		budget = _.reduce info.breakdown, ((memo, val)->
+				return memo + (val / quanta_budget)), 0
+		budget /= info.breakdown.length
 		stats = 
 			time: TimeSignal.pretty_time(info.time)
 			utilization: utilization
@@ -32,6 +36,7 @@ class window.Scheduler
 			quanta: total_quanta.toFixed(0)
 			commands: info.n.toFixed(0)
 			breakdown: info.breakdown
+			budget: budget.toFixed(1)
 
 
 		# results = "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)+ "\n" + info.breakdown.join(",")
