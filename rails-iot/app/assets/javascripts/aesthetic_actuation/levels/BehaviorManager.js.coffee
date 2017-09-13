@@ -46,6 +46,10 @@ class window.Behavior
             $("behaviornode.selected").not($(this)).removeClass('selected')
             $(this).addClass('selected')
             $('#behavior_name').val(current_behavior.data.name)
+            if scope.data.repeat == "repeat"
+                $('#repeat').addClass('active')
+            else
+                $('#repeat').removeClass('active')
         @dom.find(".close").click (e)->
             e.preventDefault()
             e.stopPropagation()
