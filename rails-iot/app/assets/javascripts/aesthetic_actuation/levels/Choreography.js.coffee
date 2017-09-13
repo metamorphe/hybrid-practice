@@ -71,12 +71,14 @@ class window.Choreography
 					strokeWidth: 2
 					affordance: true
 					choreography: true
+					visible: not $("#choreo-visibility").hasClass('active')
 				d = new paper.Path.Circle
 					radius: 5
 					parent: closest_arrow
 					position: anchor.clone()
 					affordance: true
 					choreography: true
+					visible: not $("#choreo-visibility").hasClass('active')
 
 				
 				rtn = 
