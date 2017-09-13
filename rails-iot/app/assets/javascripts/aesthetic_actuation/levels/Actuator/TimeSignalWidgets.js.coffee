@@ -3,16 +3,16 @@ class window.TimeWidgets
     @cutter = new Cutter
       track: $('#timecut .track-full')
       trigger: $('#ts-cutter')
-      bindKey: 'x'
+      bindKey: 24 #ctrl+x
     @stitcher = new Stitcher
       track: $('event#adder .track-full')
       target: $('event#adder .track-unit')
       trigger: $('#ts-adder')
-      bindKey: "w"
+      bindKey: 23 #ctrl+w
     @timemorph = new TimeMorph
       track: $('#time-morph-track')
       slider: $('input#time-morph')
-      bindKey: 't'
+      bindKey: 20 #ctrl+t
     
     @recorder= new HueWidget
       track: $('event#hues .track-full')
@@ -25,9 +25,9 @@ class window.TimeWidget extends Widget
     scope = this
     _.extend this, op
     if @bindKey
-      Widget.bindKeypress @bindKey, ()-> 
+      Widget.bindKeypress @bindKey, (()-> 
         if scope.trigger
-          scope.trigger.click()
+          scope.trigger.click()), true
   @resolveTrack: (track, exclude)->
     exclude = exclude or ""
     _.map $(track).find('datasignal').not(exclude), (d)-> return tsm.resolve(d)
