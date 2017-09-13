@@ -7,6 +7,9 @@
   PROJECT = CANVAS_COLOR: 'rgb(245, 244, 240)'
   window.am = null;
   window.vm = null;
+  $('#shade').hide()
+  $('body').loading
+    theme: 'dark'
   $ ->
     $('#main-alert').hide()
     window.ws = new WebStorage
@@ -27,7 +30,7 @@
       trigger: $('#port-connect')
       selector: $('#port-selector')
       status: $('#port-status')
-    $('#shade').fadeOut 0
+    $('body').loading 'stop'
     
     sc.subscribe 'input', (command)->
       sensorProcess(command)

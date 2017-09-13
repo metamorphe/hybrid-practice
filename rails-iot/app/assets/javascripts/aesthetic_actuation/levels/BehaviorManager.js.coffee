@@ -157,6 +157,9 @@ class window.Behavior
             @pause()
             return
         else
+            current_behavior.dom.loading
+                theme: "dark"
+                message: "..."
             raw_commands = @data.manager.compile()
             if _.isEmpty raw_commands then return
 
@@ -174,6 +177,7 @@ class window.Behavior
 
             # # SCHEDULE FOR PLAY
             scope.play_ids = Scheduler.schedule(commands, true)
+            current_behavior.dom.loading 'stop'
             @scrubber.play(t_start, end)
             @playing = true
 
