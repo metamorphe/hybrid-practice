@@ -60,7 +60,7 @@
       scope = this
       $('.active input#background-color').on 'change', (e)->
         ch.setBGColor $(this).val()
-      
+
       $('.close').click (e)->
         $("#project-view-settings").popover('hide')
     $("#project-view-settings").on 'hidden.bs.popover', (e)->
@@ -394,16 +394,17 @@
   #project-panel{
     width: calc(50% - 50px);
     height: 100%;
-    margin: 0 30px;
+    margin: 48px 0 0 60px;
   }
   #project{
     background: $C1; 
     .project-container{
-        margin-right: 10px;
-        width: 50%;
-        padding: 10px;
+        # margin-right: 10px;
+        # width: 50%;
+        width: 100%;
         height: 100% !important;
-
+        padding: 10px 0px;
+          
         #projectviewer{
           position: relative;
           width: 400px !important;

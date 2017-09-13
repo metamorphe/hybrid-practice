@@ -318,6 +318,7 @@ class window.Track
             scope.data = {view: orState}
 
         $(dom).droppable(dropBehavior)
+
         $(dom).find('.view-toggle').click viewToggle
         $(dom).find('.trash').click ()-> scope.clearTrack()
         return dom
@@ -364,8 +365,9 @@ class window.Track
                 
                     
                 # VIEW UPDATES
-                signals = _.map @_data.signals, (signal)-> tsm.getTimeSignal(signal)
-                _.each signals, (s)-> s.form =  {view: scope._data.view}
+                signals = _.map @getSignals(), (signal)-> tsm.getTimeSignal(signal)
+                _.each signals, (s)-> 
+                    s.form =  {view: scope._data.view}
                 @_data.period = scope.getTime()
 
                 if @_data.tracks == 1
