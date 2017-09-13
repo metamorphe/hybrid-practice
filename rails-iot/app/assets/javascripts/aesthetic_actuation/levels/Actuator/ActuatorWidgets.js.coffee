@@ -103,6 +103,7 @@ class window.Saver extends ActuatorWidget
     scope = this
     Widget.bindKeypress @op.bindKey, (()-> scope.saveActuation()), true
     
+    @project_background = "project_background"
     @track = "actuator_group_library"
     @stage = "behavior_stage"
     @a_library = "a_library"
@@ -114,6 +115,11 @@ class window.Saver extends ActuatorWidget
     @op.trigger.click (event)-> 
       console.info "SAVING..."
       scope.saveActuation()
+  
+  saveBackground: ()->
+    console.info '↓', 
+      background: ch.getBGColor()  
+    @save @project_background, ch.getBGColor()  
 
   saveBehaviors: ()->
     behaviors = _.map Behavior.library, (behavior, id)->
@@ -123,6 +129,7 @@ class window.Saver extends ActuatorWidget
 
   saveActuation: (e)->
     scope = this
+    scope.saveBackground()
     # track_actuators = _.map @op.track.find('actuator'), (actor)-> return am.resolve(actor)
     # @saveActors(scope.track, track_actuators)
 
@@ -151,10 +158,17 @@ class window.Saver extends ActuatorWidget
     if ws then ws.set(key, JSON.stringify(data))
   load:()->
     scope = this
+    @backgroundLoad()
     @actuatorLoad()
     @signalLoad()
     @behaviorLoad()
 
+  backgroundLoad: ()->
+    key = @generateKey(@project_background)
+    rtn = ws.get(key)
+    console.log '↑', rtn
+    if rtn
+      ch.setBGColor(rtn)  
     
          
 

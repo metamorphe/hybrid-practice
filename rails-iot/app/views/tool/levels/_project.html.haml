@@ -60,6 +60,7 @@
       scope = this
       $('.active input#background-color').on 'change', (e)->
         ch.setBGColor $(this).val()
+      
       $('.close').click (e)->
         $("#project-view-settings").popover('hide')
     $("#project-view-settings").on 'hidden.bs.popover', (e)->

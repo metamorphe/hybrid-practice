@@ -125,7 +125,9 @@ class window.ChoreographyWidget extends Widget
     #     ChoreographyWidget.NORMAL_SELECT(el)
     #     el.flag = true
   setBGColor: (bg)->
-    @canvas.css('background', bg)
+    @canvas.css('background-color', bg)
+  getBGColor: ()->
+    return @canvas.css('background-color')
   toggleLights: ()->   
     @dark = not @dark
     if @dark
