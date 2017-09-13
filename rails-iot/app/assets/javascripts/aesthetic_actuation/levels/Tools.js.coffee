@@ -390,6 +390,9 @@ makeSelectionTool = ()->
     detectHits: ()->
       scope = this
       actuators = Artwork.ACTUATORS()
+      # OPTIMIZATION
+      actuators = _.omit actuators, (actuator)->
+        return _.contains scope.selection, actuator.id
       ixts = CanvasUtil.getIntersectionsBounds(this.selectionPath, actuators)
       hits = _.map ixts, (ixt)-> 
         scope.selection.push ixt.path.id
