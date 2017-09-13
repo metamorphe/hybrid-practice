@@ -198,7 +198,10 @@ class window.Saver extends ActuatorWidget
     Widget.bindKeypress 32, playBehavior, true        
 
     $('#add-stage').click ()->
-      window.current_behavior.data.manager.addStage()
+      if window.current_behavior
+        window.current_behavior.data.manager.addStage()
+      else
+        $('#add-behavior').click()
     # $('#add-stage').click()
 
 
