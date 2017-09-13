@@ -117,7 +117,7 @@ class window.Behavior
                 #MANUAL INTERNAL UPDATES
                 if @_data.manager
                     @_data.stages = @_data.manager.data.stages
-                    @_data.period = @_data.manager.data.period
+                    @_data.period = _.max [0, @_data.manager.data.period]
                     @_data.numActuators = @_data.manager.data.numActuators
 
                 # BLANKET UPDATES
