@@ -26,3 +26,12 @@ ActuationParam.prototype = {
 		this._value = x;
 	}
 }
+
+@resolution_fix: (p, r, range)->
+    v = p * range
+    off = v % r
+    r = parseFloat(r)
+    if off / r > 0.5
+      return v - off + r
+    else
+      return v - off

@@ -7,7 +7,7 @@ class window.TimeSignal
   @MAX: 10000, 
   @RESOLUTION: 1/256
   @MIN: 100,
-  @PERSISTENCE_OF_VISION: 1 / 60 * 1000
+  @PERSISTENCE_OF_VISION: 1 / 30 * 1000
   @DEFAULT_STYLE: 
     signal_fill: {fillColor: '#FF9912'}
     signal_stroke: {strokeWidth: 3, strokeColor: '#333'}
@@ -255,22 +255,32 @@ class window.TimeSignal
     cm = TimeSignal.compile(cl)
     # console.log("COMPILATION SAVING", (cl.length - cm.length) / cl.length * 100, "%")
     cm
+
   update_view: ()->
     switch @view
       when "intensity"
         @_fill.opacity = 1
         @_signal.opacity = 1
         @_hue.opacity = 0
+        @_physical.opacity = 0
       when "hue"
         @_fill.opacity = 0
         @_signal.opacity = 0
         @_hue.opacity = 1
+        @_physical.opacity = 0
+      when "physical"
+        @_fill.opacity = 0
+        @_signal.opacity = 1
+        @_hue.opacity = 0
+        @_physical.opacity = 1
+
   _visuals:()->
     window.paper = @paper
     sig = CanvasUtil.queryPrefix("TIMESIGNAL")
     sh = CanvasUtil.queryPrefix("SIGNAL_HUE")
+    ph = CanvasUtil.queryPrefix("SIGNAL_PHYSICAL")
     te = CanvasUtil.queryPrefix("TIMEENCODE")
-    CanvasUtil.call _.flatten([sig, te, sh]), 'remove'
+    CanvasUtil.call _.flatten([sig, te, ph, sh]), 'remove'
 
     if @canvas.height() < 30
       @signal_stroke.strokeWidth = 1.5
@@ -279,12 +289,13 @@ class window.TimeSignal
     @_signal = @stroke(@signal_stroke)
     @_hue = @signal_hue()
     @_axes = @draw_axes(@axes)
+    @_physical = @fillPhysical(@signal_fill)
 
     @update_view()   
     @visuals = new paper.Group
       name: "TIMESIGNAL:" + @id,
       time_signal_id: @id,  
-      children: _.flatten [@_fill, @_signal, @_axes]
+      children: _.flatten [@_fill, @_signal, @_axes, @_physical]
     @_time = @_time_encoder(@visuals)
     @_play = @_play_button(@visuals)
     @_remove = @_remove_button(@visuals)
@@ -301,6 +312,17 @@ class window.TimeSignal
       segments: time_signal
       closed: true
       fillColor: TimeSignal.temperatureColor(@period)
+    p = new paper.Path op
+    return @fitPath(p)
+  fillPhysical: (op) ->
+    visual = @to_visual()
+    time_signal = _.flatten visual, true 
+    time_signal = _.flatten([[[0, 0]], time_signal, [[@data.length, 0]]], true)
+    op = _.extend op,
+      name: "SIGNAL_PHYSICAL: Physical Signal Fill"
+      segments: time_signal
+      closed: true
+      fillColor: "red"
     p = new paper.Path op
     return @fitPath(p)
   stroke: (op) ->
@@ -525,7 +547,7 @@ class window.TimeSignal
         compiled.push(command)
         prev = command
     return compiled
-   gamma_correction: (data, gamma)->
+  gamma_correction: (data, gamma)->
     data = _.map data, (P)->
       return Math.pow(P, 1 / gamma)
   resolution_correction: (data)->

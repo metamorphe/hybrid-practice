@@ -123,7 +123,7 @@ actuators:
       voltage:
         range:
           min: 0
-          max: 255
+          max: 1
         resolution: 1
         modality: 'electricity'
       bubbles: 
