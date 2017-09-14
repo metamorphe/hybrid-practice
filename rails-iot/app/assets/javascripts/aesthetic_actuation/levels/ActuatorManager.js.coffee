@@ -6,7 +6,6 @@
       .clone().removeClass('template')
     
     data = 
-      id: op.id
       actuator_type: op.actuator_type
       constants: op.constants
       hardware_ids: op.hardware_ids
@@ -14,7 +13,8 @@
       title: op.title or op.actuator_type
       saved: op.saved
       async_period: op.async_period
-
+    if op.override
+      data.id = op.id
     dom.data data
 
     op.target.append(dom)
@@ -23,7 +23,8 @@
     ActuatorSimulator = eval('Actuator' + ActuatorType)
     props = _.clone(eval(ActuatorType))
     set = dom.data()
-    props.id = op.id
+    if op.override
+      props.id = op.id
     actuator = new ActuatorSimulator(dom, set, props)
     if op.focus
       dom.click()
@@ -46,8 +47,10 @@
    
   gatherActuators: ()->
     scope = this
-    return _.map $('actuator:not(.template):not(.meta'), (dom)->
-      scope.resolve(dom)
+    actuators = _.map $('actuator:not(.template):not(.meta'), (dom)->
+      if $(dom).parents('#group-result').length == 0
+        scope.resolve(dom)
+    return _.compact actuators
   resolve: (dom)->
     id = $(dom).data('id')
     @getActuator(id)

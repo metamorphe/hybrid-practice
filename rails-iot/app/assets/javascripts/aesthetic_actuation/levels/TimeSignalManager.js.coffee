@@ -23,10 +23,11 @@ class window.TimeSignalManager
         if _.isUndefined(ts) then return 
         ts.form =  {view: n_view}
         dom.parents('event').find('[class^=track]').data('view', n_view)
-   gatherSignals: ()->
+  gatherSignals: ()->
     scope = this
-    return _.map $('datasignal:not(.template):not(.meta'), (dom)->
+    signals = _.map $("behavior datasignal:not(.template)"), (dom)->
       scope.resolve(dom)
+    return _.reject signals, (s)-> s.easing
   initEasings: ->
     # console.log "EASING"
     easings = TimeSignalManager.EasingFunctions

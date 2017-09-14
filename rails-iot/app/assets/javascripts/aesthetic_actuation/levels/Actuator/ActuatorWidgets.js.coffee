@@ -143,7 +143,6 @@ class window.Saver extends ActuatorWidget
       # track_id = $(track).parent('event').attr('id')
     actuators = am.gatherActuators()
     timesignals = tsm.gatherSignals()
-    timesignals = _.reject timesignals, (ts)-> ts.easing
     
     @saveActors(scope.a_library, actuators)
     console.info '↓', actuators.length, "actuators"
@@ -250,7 +249,9 @@ class window.Saver extends ActuatorWidget
         clear: false
         target: $("#actuator-library .track-full")
       ops = _.extend(ops, actuator)
+      ops.override = true
       dom = ActuatorManager.create ops
+      # console.log "LOAD", actuator
       if not actuator.library
         dom.addClass('meta').hide()
   generateKey: (name)->
