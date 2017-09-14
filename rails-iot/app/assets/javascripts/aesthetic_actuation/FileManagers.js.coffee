@@ -27,7 +27,10 @@ class FileManager
     $(@op.selector).on('change', ->
       file = $(this).val()
       scope.open_file = file
-      scope.load scope.op.onLoad
+      if ws then ws.set scope.key, scope.open_file
+      $('body').loading()
+      location.reload()
+      # scope.load scope.op.onLoad
       return
     ).val @open_file
     return
@@ -37,7 +40,6 @@ class SVGFileManager extends FileManager
   load: (onLoad)->
     window.paper = @op.paper;
     loadingFn = onLoad
-    if ws then ws.set @key, @open_file
     
     paper.project.clear()
     paper.view.zoom = 1

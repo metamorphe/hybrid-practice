@@ -55,9 +55,20 @@ class window.Behavior
             e.stopPropagation()
             bid = $(this).parents('behaviornode').data().id
             b = Behavior.library[bid]
-            b.data.manager.destroy()
-            b.dom.remove() 
-            delete Behavior.library[bid]
+            alertify.confirm 'Behavior Delete', 'Are you sure you want to delete '+b.data.name+"?", (
+                    () -> 
+                        alertify.notify b.data.name + " deleted.", 'info', 2
+                        b.data.manager.destroy()
+                        b.dom.remove() 
+                        delete Behavior.library[bid]
+                ), 
+                (
+                    ()-> 
+                        # alertify.error('Cancel')
+                )
+
+
+            
         @dom.find('.play').click (e)->
             e.preventDefault()
             e.stopPropagation()
@@ -157,9 +168,11 @@ class window.Behavior
             @pause()
             return
         else
-            current_behavior.dom.loading
+            @data.manager.dom.loading
                 theme: "dark"
                 message: "..."
+            if $('#stats').is(":visible")
+                $('#stats').loading()
             raw_commands = @data.manager.compile()
             if _.isEmpty raw_commands then return
 
@@ -177,7 +190,8 @@ class window.Behavior
 
             # # SCHEDULE FOR PLAY
             scope.play_ids = Scheduler.schedule(commands, true)
-            current_behavior.dom.loading 'stop'
+            @data.manager.dom.loading 'stop'
+            $('#stats').loading('stop')
             @scrubber.play(t_start, end)
             @playing = true
 

@@ -1,5 +1,16 @@
 :coffeescript
   $ ->
+
+    $("#behavior_name").on "focus", (e)->
+      console.log "BINDINGS DISABLED"
+      Widget.bindings_on = false
+    $("#behavior_name").on "blur", (e)->
+      console.log "BINDINGS ENABLED"
+      Widget.bindings_on = true
+    
+    $("input").on "keyup", (e)->
+      if e.keyCode == 13 #enter key
+        $(this).blur()
     $("#behavior_name").on "change input", (e)->
       name = $(this).val().trim()
       if name == "" then name = "CURRENT_BEHAVIOR"

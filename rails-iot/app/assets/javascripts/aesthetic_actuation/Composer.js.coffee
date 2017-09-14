@@ -57,7 +57,8 @@ class window.Composer
         if on_b 
           commands = on_b.command_list.apply(on_b)
           commands = _.map commands, (command) -> 
-            cl = actor.perform(channel, command)
+            command.channel = channel
+            cl = actor.perform(command)
           commands =_.flatten(commands)
         Scheduler.schedule(commands)
       else
@@ -76,7 +77,8 @@ class window.Composer
         if off_b 
           commands = off_b.command_list.apply(off_b)
           commands = _.map commands, (command) -> 
-            cl = actor.perform(channel, command)
+            command.channel = channel
+            cl = actor.perform(command)
           commands =_.flatten(commands)
           Scheduler.schedule(commands)
       else

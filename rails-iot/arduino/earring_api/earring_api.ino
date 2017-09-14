@@ -6,14 +6,14 @@
 #define DEBUG 0
  
 #include <Adafruit_NeoPixel.h>
-#define BAUD 19200
+#define BAUD 38400
 
 #define NUM_DEVICES 2
 
 // SENSORS AND ACTUATOR PINS
 #define NUMPIXELS 12 // Number of LEDs in strip
-#define NEOPIXEL_PIN_ZERO 6
-#define NEOPIXEL_PIN_ONE 7
+#define NEOPIXEL_PIN_ZERO 9
+#define NEOPIXEL_PIN_ONE 8
 
 
 Adafruit_NeoPixel earrings[NUM_DEVICES] = {

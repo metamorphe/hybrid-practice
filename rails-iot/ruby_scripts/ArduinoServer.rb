@@ -5,12 +5,12 @@ require 'serialport'
 EventMachine.run do
   @channel = EM::Channel.new
   @port = 3015
-  baud_fast = 9600 * 12
+  baud_fast = 9600 * 4
   baud_normal = 9600 * 2
   baud_slow = 9600
-  @baud = baud_normal
-  # @usb = Dir.glob("/dev/tty.usb*")
-  @usb = Dir.glob("/dev/tty.AestheticAquarium-DevB")
+  @baud = baud_fast
+  @usb = Dir.glob("/dev/tty.usb*")
+  # @usb = Dir.glob("/dev/tty.AestheticAquarium-DevB")
   if @usb.length == 0 
     puts "NO PORTS DETECTED"
     return
@@ -24,6 +24,7 @@ EventMachine.run do
   @sid = nil
   EM::defer do
     loop do
+      # puts @sp.readlines()
       puts data = @sp.readline("\n")
       next if !data or data.to_s.size < 1
       @channel.push data
@@ -50,6 +51,7 @@ EventMachine.run do
         print "SERVER SAYS:" + msg + "\n"
         @sp.write(msg);
     end
+
   end
 
   puts "SERVER STARTED"

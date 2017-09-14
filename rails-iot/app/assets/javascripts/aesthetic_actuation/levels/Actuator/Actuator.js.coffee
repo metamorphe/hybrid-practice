@@ -39,8 +39,13 @@ class window.Actuator
       if scope.dom.parents('event').attr('id') == "library" then scope.dom.popover({placement: 'right'})
       scope.select_behavior()
       $('.popover.actuator').not(this).popover('hide')
+      
+      # scope.dom.popover('hide')
+
+    @dom.find('channels').click (e)->
       scope.dom.popover('show')
       scope.bind_popover_behavior()
+      e.stopPropagation()
 
     @dom.find('channel').click ->
       $(this).addClass('selected').siblings().removeClass('selected')
@@ -89,6 +94,11 @@ class window.Actuator
       placement: 'left'
       template: '<div class="actuator popover" role="tooltip"><div class="arrow"></div><a class="dismiss btn pull-left"><span class="glyphicon glyphicon-remove"></span></a><div class="popover-content"></div>'+channels+'</div>'
     @dom.popover('hide')
+    @dom.on 'hidden.bs.popover', (e)->
+      $(e.target).data("bs.popover").inState = 
+        click: false
+        hover: false
+        focus: false
 
       
 
@@ -112,7 +122,8 @@ class window.Actuator
         scope.now = Date.now()
       scope.form = {saved: false}
       param = parseFloat($(this).val())  
-      command = {t: 0, param: param, channel: channel}
+      command = {t: 0, param: param, channel: channel, duration: 100}
+      # debugger;
       commands = scope.perform(command)
       commands =_.flatten(commands)
       Scheduler.schedule(commands)

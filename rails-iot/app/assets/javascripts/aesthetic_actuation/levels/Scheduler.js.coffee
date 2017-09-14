@@ -5,8 +5,8 @@ class window.Scheduler
     @bytes_per_second : Scheduler.baudrate/8
     @bytes_per_quanta : ()->
         Scheduler.bytes_per_second / Scheduler.quanta
-    @bytes_per_command : ()->
-        Scheduler.bytes_per_command / Scheduler.quanta
+    @commands_per_quanta : ()->
+        Scheduler.bytes_per_quanta()/ 18
     @pretty_print: (commands, info, full=false)->
         if Scheduler.pretty_print_flag 
             _.each commands, (command)->
@@ -25,10 +25,14 @@ class window.Scheduler
         utilization = info.non_idle / total_quanta * 100
         utilization = utilization.toFixed(1)
 
-        quanta_budget = Scheduler.bytes_per_second/18
+        quanta_budget = Scheduler.commands_per_quanta()
         budget = _.reduce info.breakdown, ((memo, val)->
-                return memo + (val / quanta_budget)), 0
-        budget /= info.breakdown.length
+            return memo + val), 0
+
+        
+        budget_util = budget/(quanta_budget * info.non_idle)
+        budget_util *= 100
+        console.log "B", budget, quanta_budget * info.non_idle 
         stats = 
             time: TimeSignal.pretty_time(info.time)
             utilization: utilization
@@ -36,8 +40,8 @@ class window.Scheduler
             quanta: total_quanta.toFixed(0)
             commands: info.n.toFixed(0)
             breakdown: info.breakdown
-            budget: budget.toFixed(1)
-
+            budget: budget_util.toFixed(1)
+        console.log "STATS", stats, info.non_idle
 
         # results = "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)+ "\n" + info.breakdown.join(",")
         _.each stats, (v, k)->
@@ -100,7 +104,7 @@ class window.Scheduler
             return id
 
         last = _.last(commands)
-        async_end = parseInt(last.t + last.async_offset + 100)
+        async_end = parseInt(last.t + last.async_offset)
         
         endOfBehavior = ()->
             # console.log "SHUTDOWN"
@@ -126,8 +130,8 @@ class window.Scheduler
         if sc and actuatorsLive()
             sc.sendMessage(command.api, {live: actuatorsLive()}) 
             actuator.perform(command, false)
-            actuator.channels[command.channel].param = command.param
-            am.updateChannels(actuator)
+            # actuator.channels[command.channel].param = command.param
+            # am.updateChannels(actuator)
         else
             window.paper = ch.paper
             actuator.perform(command, false)
