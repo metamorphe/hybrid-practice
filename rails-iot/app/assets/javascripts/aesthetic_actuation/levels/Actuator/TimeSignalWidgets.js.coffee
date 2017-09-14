@@ -13,6 +13,12 @@ class window.TimeWidgets
       track: $('#time-morph-track')
       slider: $('input#time-morph')
       bindKey: 20 #ctrl+t
+
+    @reflector = new Reflector
+      track: $('event#reflect .track-full')
+      target: $('event#reflect .track-full')
+      trigger: $('#ts-reflector')
+      bindKey: 18 #ctrl+t
     
     @recorder= new HueWidget
       track: $('event#hues .track-full')
@@ -78,6 +84,29 @@ class HueWidget extends TimeWidget
         signal: [i, i, i]
         period: scope.period
       signal = new TimeSignal(dom, setter)
+
+class Reflector extends TimeWidget
+  constructor: (op)->
+    scope = this
+    super(op)
+    @trigger.click ->
+      scope.reflect()
+  reflect: ()->
+    scope = this
+    signals = @resolveTrack()
+    if _.isEmpty signals then return
+    scope.target.find(".trash").click()
+    _.each signals, (base_signal)->
+      dom = TimeSignal.create
+        target: scope.target
+
+      base_signal = new TimeSignal dom, 
+        signal: base_signal.form.signal.reverse()
+        period: base_signal.form.period
+      # signals = signals.slice(1)
+      # data = _.map signals, (subsignal)->
+        # base_signal.inject(subsignal.command_list(), subsignal.form.period)
+    
 
 
 class Cutter extends TimeWidget

@@ -78,7 +78,7 @@ class window.AestheticActuation
 		aw.saver.load()
 		# $('event.signal-design button.toggle').click()
 		window.tw = new TimeWidgets()
-
+		
 
 		return
 	

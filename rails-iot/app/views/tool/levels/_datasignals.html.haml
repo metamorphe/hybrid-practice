@@ -37,6 +37,18 @@
       =glyph "trash"
     %button.btn.btn-xs.btn-primary.view-toggle
       =glyph "eye-open"
+%event#reflect.signal-design
+  %button.btn.btn-xs.btn-info.toggle
+    =glyph "collapse-up"
+  .vert
+    %button#ts-reflector.vert-centered.design-title.btn-primary.trigger{:type => "trigger"}
+      %span REFLECT
+      %span.command [CTRL + R]
+  .track-full.droppable{:data =>{:accept=> 100, :semantic => "enabled", :timescale => 10000, :tracks => 1, :gamma_corrective => 0.5, :exportable=> "enabled"}}
+    %button.btn.btn-xs.btn-danger.trash
+      =glyph "trash"
+    %button.btn.btn-xs.btn-primary.view-toggle
+      =glyph "eye-open"
 
 
 %event#adder.signal-design
