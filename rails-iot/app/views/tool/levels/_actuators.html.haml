@@ -65,6 +65,9 @@
     padding: 0;
     overflow: hidden;
   }
+  #levels{
+    top: 440px;
+  }
 
 %event#library.actuation-design.column.vert-centered-sink-top
   %ul.nav.nav-tabs{:role => "tablist"}
@@ -80,19 +83,19 @@
       .track-full.droppable
     = render :partial => "tool/levels/behavior_library"
  
-%event#group.actuation-design.shrink
-  %button.btn.btn-xs.btn-info.toggle
-    =glyph "collapse-up"
-  .vert
-    %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
-      %span GROUP
-      %span.command [G]
-    .full-hoz.sexy-input-group
+/ %event#group.actuation-design.shrink
+/   %button.btn.btn-xs.btn-info.toggle
+/     =glyph "collapse-up"
+/   .vert
+/     %button#group-button.design-title.btn-primary.trigger{:type => "trigger"}
+/       %span GROUP
+/       %span.command [G]
+/     .full-hoz.sexy-input-group
       
-  %acceptor#group-result.actuator{:data => {:accept=> 1}}  
-  #actuator-group.track-full.droppable
-    %button.btn.btn-xs.btn-danger.trash
-      =glyph "trash"
+/   %acceptor#group-result.actuator{:data => {:accept=> 1}}  
+/   #actuator-group.track-full.droppable
+/     %button.btn.btn-xs.btn-danger.trash
+/       =glyph "trash"
    
 %event#actuators.actuation-design.template
   %button.btn.btn-xs.btn-info.toggle

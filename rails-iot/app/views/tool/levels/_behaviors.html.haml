@@ -16,8 +16,19 @@
       if name == "" then name = "CURRENT_BEHAVIOR"
       current_behavior.data = 
         name: name
-    $('#clear-behavior').click ()->
-      current_behavior.clearStage()
+    $('#clear-behavior').click (e)->
+      e.preventDefault()
+      e.stopPropagation()
+      b = current_behavior
+      alertify.confirm 'Clear tracks', 'Are you sure you want to clear <b>'+b.data.name+"</b> tracks?", (
+              () -> 
+                  alertify.notify b.data.name + " cleared.", 'info', 2
+                  b.clearStage()
+          ), 
+          (
+              ()-> 
+                  # alertify.error('Cancel')
+          )
 
     $('#repeat').click ()->
       $(this).toggleClass('active')
@@ -41,7 +52,7 @@
       %button.btn.btn-xs.btn-ghost#clear-behavior
         =glyph "trash"
         CLEAR
-      %button.btn.btn-xs.btn-ghost
+      %button.btn.btn-xs.btn-ghost#save-behaviors
         =glyph "floppy-disk"
         SAVE
   .content.full-hoz  

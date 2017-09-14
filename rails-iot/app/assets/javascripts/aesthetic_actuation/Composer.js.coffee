@@ -112,6 +112,7 @@ class window.Composer
         commands = _.map commands, (command) -> 
           cl = actor.perform(command)
         commands =_.flatten(commands)
+      # debugger;
       Scheduler.schedule(commands)
   bindChoreographyButton:()->
     dom = $('choreography')

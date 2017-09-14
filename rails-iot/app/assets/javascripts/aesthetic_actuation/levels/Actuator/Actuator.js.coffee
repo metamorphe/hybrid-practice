@@ -46,6 +46,12 @@ class window.Actuator
       scope.dom.popover('show')
       scope.bind_popover_behavior()
       e.stopPropagation()
+      $('actuator.selected:not(.template)').removeClass('selected')
+      $(this).parents('actuator').addClass('selected')
+      selectionTool.selection = scope.form.canvas_ids
+      selectionTool.update()
+
+
 
     @dom.find('channel').click ->
       $(this).addClass('selected').siblings().removeClass('selected')

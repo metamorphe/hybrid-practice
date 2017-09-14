@@ -1,6 +1,7 @@
 :coffeescript
   $ ->
     bindEvents()
+    $('.home').click()
 
   fullscreenMode = (e)->
       $(this).children('span')
@@ -130,7 +131,7 @@
     .heading.draghandle
       %ul#tabs
         %li
-          %button.btn-default.btn.btn-sm.selected{goto: "#sensors.tab-content"}
+          %button.btn-default.btn.btn-sm.selected.home{goto: "#sensors.tab-content"}
             SENSORS
         %li
           %button.btn-default.btn.btn-sm{goto: "#midi.tab-content"}

@@ -55,7 +55,7 @@ class window.Behavior
             e.stopPropagation()
             bid = $(this).parents('behaviornode').data().id
             b = Behavior.library[bid]
-            alertify.confirm 'Behavior Delete', 'Are you sure you want to delete '+b.data.name+"?", (
+            alertify.confirm 'Behavior Delete', 'Are you sure you want to delete <b>'+b.data.name+"</b>?", (
                     () -> 
                         alertify.notify b.data.name + " deleted.", 'info', 2
                         b.data.manager.destroy()
@@ -116,6 +116,7 @@ class window.Behavior
                 stage = Stage.library[stage]
                 _.each stage.data.tracks, (track)->
                     track = Track.library[track]
+                    console.log "TRACK", track
                     track.clearTrack()
                 stage.clearActor()
     Object.defineProperties @prototype,
@@ -168,9 +169,9 @@ class window.Behavior
             @pause()
             return
         else
-            @data.manager.dom.loading
-                theme: "dark"
-                message: "..."
+            # @data.manager.dom.loading
+            #     theme: "dark"
+            #     message: "..."
             if $('#stats').is(":visible")
                 $('#stats').loading()
             raw_commands = @data.manager.compile()
@@ -190,7 +191,7 @@ class window.Behavior
 
             # # SCHEDULE FOR PLAY
             scope.play_ids = Scheduler.schedule(commands, true)
-            @data.manager.dom.loading 'stop'
+            # @data.manager.dom.loading 'stop'
             $('#stats').loading('stop')
             @scrubber.play(t_start, end)
             @playing = true

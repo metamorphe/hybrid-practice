@@ -55,6 +55,7 @@ class window.ActuatorWidgets
     console.info '✓ Actuation Widgets'
 
     @group = new Grouper
+      dom: $("#group")
       track: $("#actuator-group")
       result: $("#group-result") 
       trigger: $("#group-button.trigger")
@@ -102,7 +103,8 @@ class window.Saver extends ActuatorWidget
     console.info '\t✓ Save/Load'
     scope = this
     Widget.bindKeypress @op.bindKey, (()-> scope.saveActuation()), true
-    
+    $("#save-behaviors").click ()->
+      scope.saveActuation()
     @project_background = "project_background"
     @track = "actuator_group_library"
     @stage = "behavior_stage"
@@ -186,7 +188,7 @@ class window.Saver extends ActuatorWidget
         data: behaviorData.data
     console.info '↑', behaviors.length, "behaviors"
 
-    window.current_behavior = behaviors[0]
+    # window.current_behavior = behaviors[0]
     # window.current_behavior = new Behavior
     #   container: $('#behavior-library .track-full')
     #   data:
@@ -259,6 +261,7 @@ class window.Grouper extends ActuatorWidget
     scope = this
     # console.log "GroupMaker"
     Widget.bindKeypress @op.bindKey, (()-> scope.op.trigger.click()), true
+    @op.dom.hide()
     @op.trigger.click (event)->
       acts = scope.op.track.find('actuator')
       ids = _.chain acts
