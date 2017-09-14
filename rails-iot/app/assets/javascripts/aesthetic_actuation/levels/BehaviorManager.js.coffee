@@ -167,6 +167,7 @@ class window.Behavior
         scope = this
         if @playing 
             @pause()
+            # @scrubber.pause()
             return
         else
             # @data.manager.dom.loading
@@ -185,16 +186,30 @@ class window.Behavior
                 @scrubber.reset()
                 commands = raw_commands
                             
-            start = _.first(commands).t
-            end = _.last(commands).t + _.last(commands).duration + 100
+            start = parseInt(_.first(commands).t)
+            end = parseInt(_.last(commands).t + _.last(commands).duration)
+            console.log "start", t_start, "end", end
             commands = _.each commands, (command)-> command.t = command.t - t_start
 
+            
+
             # # SCHEDULE FOR PLAY
-            scope.play_ids = Scheduler.schedule(commands, true)
+            schedule = Scheduler.schedule(commands, true)
+            scope.play_ids = schedule.play_ids
+
+            @scrubber.play(t_start, t_start + schedule.end)
+
             # @data.manager.dom.loading 'stop'
             $('#stats').loading('stop')
-            @scrubber.play(t_start, end)
             @playing = true
+            endOfBehavior = ()->
+                # console.log "SHUTDOWN"
+                scope.pause()
+                scope.scrubber.setTime(0)
+                if scope.data.repeat == "repeat"
+                    scope.play(true)
+            id = _.delay endOfBehavior, schedule.end
+            scope.play_ids.push(id) 
 
             # endOfBehavior = ()->
             #     console.log "SHUTDOWN"

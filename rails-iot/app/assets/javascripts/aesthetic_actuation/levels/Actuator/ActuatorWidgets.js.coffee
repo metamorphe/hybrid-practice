@@ -11,6 +11,7 @@ $ ->
         _.each Widget.bindings, (func, key)->
           if event.which == parseInt(key)
             func(event)
+            
 class window.Widget 
   @bindings = {}
   @bindings_on = true
@@ -30,9 +31,9 @@ class window.Widget
     fullscreenToggle = (dom)->
       $(dom).toggleClass('fullscreen')
       # if $(dom).hasClass('fullscreen')
-        # $(dom).detach().appendTo('body')
+      #   $(dom).detach().appendTo('body')
       # else
-        # $(dom).detach().appendTo('#levels')
+      #   $(dom).detach().appendTo('#levels')
 
     Widget.bindKeypress 1, (()-> $('event button.toggle').click()), true
     Widget.bindKeypress 2, (()-> fullscreenToggle($('event#behaviors'))), true

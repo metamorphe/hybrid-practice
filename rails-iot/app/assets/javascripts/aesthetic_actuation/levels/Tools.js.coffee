@@ -1,12 +1,11 @@
 
 window.initTools = (paper)->
-  window.paper = paper
   window.selectionTool = makeSelectionTool()
   selectionTool.init()
   window.choreographyTool = makeChoreographyTool()
-  # console.log "MAKING TOOLS", selectionTool, choreographyTool
-  # $('#projectviewer canvas').click ()->
-  #   window.paper = paper
+  console.log "MAKING TOOLS", selectionTool, choreographyTool
+  
+
   $('#choreo-tool').click (e)->
     selectionTool.deactivate()
     choreographyTool.activate()
@@ -196,8 +195,9 @@ makeChoreographyTool= ()->
         choreography: true
       _.each items, (item)->
         item.visible = false
-      this.slider.remove()
-      this.slider = null
+      if this.slider
+        this.slider.remove()
+        this.slider = null
       console.log "Deactivating Choreo Tool"
     onMouseDown: (e)->
       scope = this

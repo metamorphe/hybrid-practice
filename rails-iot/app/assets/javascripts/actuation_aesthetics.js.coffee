@@ -52,6 +52,10 @@ class window.AestheticActuation
 		window.ch = new ChoreographyWidget
 			paper: artwork_paper
 			dom: $('#projectviewer')
+
+		window.initTools(main_paper)
+		console.info '✓ Paper Tools'
+
 		console.info '✓ Choreography'
 		# window.bm = new BehaviorManager
 		# 	scrubber: $('#scrubber')
@@ -65,9 +69,7 @@ class window.AestheticActuation
 		tsm.init()
 		console.info '✓ TimeSignals'
 
-		window.initTools(main_paper)
-		console.info '✓ Paper Tools'
-
+		
 		# COMPOSER
 		window.cmp = new Composer
 			signal_button: $('#apply-signal')
@@ -78,7 +80,7 @@ class window.AestheticActuation
 		aw.saver.load()
 		# $('event.signal-design button.toggle').click()
 		window.tw = new TimeWidgets()
-		
+
 
 		return
 	

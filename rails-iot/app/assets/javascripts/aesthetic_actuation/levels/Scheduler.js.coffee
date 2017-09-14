@@ -104,17 +104,22 @@ class window.Scheduler
             return id
 
         last = _.last(commands)
-        async_end = parseInt(last.t + last.async_offset)
+        async_end = parseInt(last.t + last.duration + last.async_offset)
         
-        endOfBehavior = ()->
-            # console.log "SHUTDOWN"
-            current_behavior.pause()
-            current_behavior.scrubber.setTime(0)
-            if current_behavior.data.repeat == "repeat"
-                current_behavior.play(true)
-        id = _.delay endOfBehavior, async_end
-        play_ids.push(id) 
-        return play_ids
+        console.log "END", async_end
+        # endOfBehavior = ()->
+        #     # console.log "SHUTDOWN"
+        #     current_behavior.pause()
+        #     current_behavior.scrubber.setTime(0)
+        #     if current_behavior.data.repeat == "repeat"
+        #         current_behavior.play(true)
+        # id = _.delay endOfBehavior, async_end
+        # play_ids.push(id) 
+        rtn = 
+            play_ids: play_ids
+            start: _.first(commands).t
+            end: async_end
+        return rtn
 
     @sendCommandTo: (command, simulation=true)->
         actuator = command.actuator

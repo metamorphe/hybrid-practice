@@ -7,20 +7,20 @@
       $(this).children('span')
         .toggleClass('glyphicon-resize-full')
         .toggleClass('glyphicon-resize-small')
-      p = $(this).parent()
+      p = $(this).parents("#projectviewer")
         .toggleClass('fullscreen')
 
       aspect = $('.project-container').height()/ $('.project-container').width()
 
       if p.hasClass('fullscreen')
-        p.detach().appendTo('body')
+        p.detach().prependTo('body').css('background', ch.getBGColor())
         paper.view.viewSize.width = $('body').width()
-        paper.view.viewSize.height = $('body').width() * aspect
+        paper.view.viewSize.height = $('body').height() * aspect
         paper.project.activeLayer.fitBounds(paper.view.bounds)
       else
         p.detach().appendTo('.project-container')
         paper.view.viewSize.width = $('.project-container').width()
-        paper.view.viewSize.height = $('.project-container').width() * aspect
+        paper.view.viewSize.height = $('.project-container').height()
         paper.project.activeLayer.fitBounds(paper.view.bounds)
       
       e.preventDefault()
@@ -449,17 +449,15 @@
           &.live::after{
             content: 'LIVE';
           } 
+          &.dark::after{
+            color: black;
+          } 
+          &.light::after{
+            color: white;
+          } 
           
 
-          &.fullscreen{
-              position: absolute;
-              top: 0px;
-              left: 0px;
-              z-index: 10000000;
-              height: 100% !important;
-              width: 100% !important;
-          }
-
+          
           canvas{
               width: 100% !important;
               height: 100% !important;
@@ -495,5 +493,40 @@
 
 
 
+    }
+  }
+  #projectviewer{
+    &.fullscreen{
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      z-index: 10000000;
+      height: 100% !important;
+      width: 100% !important;
+      margin: 0px;
+      padding: 0px;
+      #project-view-settings{
+          position: absolute;
+          right: 15px;
+          top: 15px;
+          z-index: 100;
+      }
+
+      .side-btn{
+          position: absolute;
+          right: 15px;
+          top: 45px;
+          z-index: 1000;
+          padding-left: 23px; 
+      }
+      #choreo-visibility{
+        position: absolute;
+        right: 15px;
+        top: 114px;
+        z-index: 10000;
+        padding-left: 14px; 
+        padding-right: 14px; 
+        
+      }
     }
   }

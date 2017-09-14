@@ -126,6 +126,13 @@ class window.ChoreographyWidget extends Widget
     #     el.flag = true
   setBGColor: (bg)->
     @canvas.css('background-color', bg)
+    c = new paper.Color(bg)
+    if c.brightness < 0.5 #dark bg
+      $('#project-view-settings').addClass('light').removeClass('dark')
+      $('#projectviewer').addClass('light').removeClass('dark')
+    else
+      $('#project-view-settings').removeClass('light').addClass('dark')
+      $('#projectviewer').removeClass('light').addClass('dark')
   getBGColor: ()->
     return @canvas.css('background-color')
   toggleLights: ()->   

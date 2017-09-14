@@ -52,6 +52,21 @@ $C5: #A5A5A5;
 		color: $C5;
 		outline: none;
 	}
+	&.light{
+		color: white;
+		&:hover{
+			color: #DDD;
+			outline: none;
+		}
+		&:active{
+			color: #EEE;
+			outline: none;
+		}
+		&:focus{
+			color: #EEE;
+			outline: none;
+		}
+	}
 
 }
 .noselect {

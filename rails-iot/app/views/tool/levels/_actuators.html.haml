@@ -67,6 +67,7 @@
   }
   #levels{
     top: 440px;
+    padding-bottom: 42px;
   }
 
 %event#library.actuation-design.column.vert-centered-sink-top
@@ -116,7 +117,7 @@
           %label.async 100
         %channels.scroll-list
           %label.title.light CHANNELS
-          - actuator.channels.marshal_dump.each do |cname, channel|
+          - channels = actuator.channels.marshal_dump.map do |cname, channel| 
             %channel.full-hoz{type: cname}
               %label.actuator.selected 
                 %span= cname
