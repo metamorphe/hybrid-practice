@@ -1,147 +1,158 @@
+psycho: 
+  loudness: 0.67
+  vibration95Hz: 0.95
+  vibration60Hz: 0.6
+  brightnessPS: 0.5
+  brightness5deg: 0.33
+  brightnessPSFlash: 1
+  warmthMetal: 1.6
+  warmthIrradiantSmall: 1.3
+  warmthIrradiantLarge: 0.7
+  orientation: 1
+  electricity: 1
 actuators:
   LED:
-    name: 'LED'
-    color: '#FFFFFF'
-    package: 'DIP'
-    dimension: 'brightness'
+    name: LED
+    color: "#FFFFFF"
+    package: DIP
+    dimension: brightness
     channels: 
       brightness:
         range:
           min: 0
           max: 255
         resolution: 1
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
   RGBLED:
-    name: 'RGBLED'
-    package: 'DIP'
+    name: RGBLED
+    package: DIP
     channels:
       red:
         range:
           min: 0
           max: 255
         resolution: 1
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
       green: 
         range:
           min: 0
           max: 255
         resolution: 1
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
       blue: 
         range:
           min: 0
           max: 255
         resolution: 1
-        modality: 'light'
-        alpha: 1.1
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
   HSBLED:
-    name: 'HSBLED'
-    package: 'SMD'
+    name: HSBLED
+    package: SMD
     channels:
       hue: 
         range:
           min: 0
           max: 360
         resolution: 1
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
       saturation: 
         range:
           min: 0
           max: 1
         resolution: 0.01
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
       brightness: 
         range:
           min: 0
           max: 1
         resolution: 0.01
-        modality: 'light'
+        modality: brightnessPS
         alpha: 1.1
   SERVO:
-    name: 'SERVO'
-    dimension: 'angle'
+    name: SERVO
+    dimension: angle
     channels: 
       speed: 
         range:
           min: 0
           max: 180
         resolution: 1
-        modality: 'derived'
+        modality: derived
         alpha: 1
       angle:
         range:
           min: 0
           max: 180
         resolution: 1
-        modality: 'orientation'
+        modality: orientation
         alpha: 1
   STEPPER:
-    name: 'STEPPER'
-    dimension: 'angle'
+    name: STEPPER
+    dimension: angle
     channels: 
       angle:
         range:
           min: 0
           max: 360
         resolution: 1
-        modality: 'orientation'
+        modality: orientation
         alpha: 1
+        max_velocity: 15
   HEATER:
-    name: 'HEATER'
-    dimension: 'voltage'
+    name: HEATER
+    dimension: voltage
     channels: 
       voltage:
         range:
           min: 0
           max: 12
-        resolution: 12/256
+        resolution: 12
       temperatureC: 
         range:
           min: 0
           max: 400
-        resolution: 1
-        modality: 'derived'
+        resolution: 0.1
+        modality: derived
         alpha: 1
       temperatureF:
         range:
           min: 0
           max: 400
         resolution: 1
-        modality: 'derived'
+        modality: derived
         alpha: 1
   PUMP:
-    name: 'PUMP'
-    dimension: "voltage"
+    name: PUMP
+    dimension: voltage
     channels:
       voltage:
         range:
           min: 0
-          max: 1
-        resolution: 1
-        modality: 'electricity'
+          max: 3.3
+        resolution: 3.3
+        modality: electricity
       bubbles: 
         range:
           min: 0
-          max: 100
+          max: 20
         resolution: 1
-        modality: 'derived'
+        modality: derived
   MOTOR:
-    name: 'MOTOR'
-    dimension: "voltage"
+    name: MOTOR
+    dimension: voltage
     channels:
       voltage:
         range:
           min: 0
           max: 255
         resolution: 1
-        modality: 'electricity'
+        modality: electricity
       rpm: 
         range:
           min: 0

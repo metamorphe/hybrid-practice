@@ -216,7 +216,29 @@ class window.Actuator
     command.channel = channels.join(" ")
     command.metaCommand = true
     return command
-   
+  isEquivalent:(a, b, channel)->
+    reference = this.channels[channel]
+    query = 
+      parameterized: true
+    query[channel] = a.param
+    @expression = query
+    a.value = reference.value
+    query[channel] = b.param
+    @expression = query
+    b.value = reference.value
+    return a.value == b.value
+
+  isPossible: (a, b, channel)->
+    if not reference.op.max_velocity then return
+    vMax = reference.op.max_velocity 
+
+    dI = Math.abs(b.param - a.param)
+    sign = b.param - a.param
+
+    if dI > vMax
+      return a.param + (vMax * sign)
+    else
+      return b.param
   perform: (command, generate_command=true)->
     scope = this
     # window.paper = @op.paper

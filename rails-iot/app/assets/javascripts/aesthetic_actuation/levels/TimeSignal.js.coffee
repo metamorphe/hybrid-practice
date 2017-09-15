@@ -240,6 +240,7 @@ class window.TimeSignal
   
   command_list: (op) ->
     @command_list_data(@data, op)
+
   command_list_data: (data, op)->
     t_scale = @period / data.length
     t_elapsed = 0
@@ -547,12 +548,22 @@ class window.TimeSignal
         compiled.push(command)
         prev = command
     return compiled
+  # mechanical_correction: (data)->
+  #   cl = @command_list_data data, {}
+  #   cl = _.map cl, (curr, i)->
+  #     if i == 0 then return curr
+  #     prev = cl[i-1] 
+  #     next = actuator.performCommand(prev, curr, channel)
+  #   impedance = 15/0.100 #actuator.
+
+
   gamma_correction: (data, gamma)->
     data = _.map data, (P)->
       return Math.pow(P, 1 / gamma)
   resolution_correction: (data)->
     # console.log JSON.stringify data
     cl = @command_list_data data, {}
+    
     cl = _.map cl, (curr, i)->
       if i == 0 then return curr
       prev = cl[i-1] 
