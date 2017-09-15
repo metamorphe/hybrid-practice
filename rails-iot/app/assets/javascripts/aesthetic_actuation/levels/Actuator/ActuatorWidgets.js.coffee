@@ -181,7 +181,7 @@ class window.Saver extends ActuatorWidget
   
     behaviors = if _.isNull(rtn) then [] else JSON.parse(rtn)
     behaviors = _.map behaviors, (behaviorData, behaviorID)->
-      console.log behaviorData
+      # console.log behaviorData
       new Behavior
         container: $('#behavior-library .track-full')
         _load: behaviorData.manager

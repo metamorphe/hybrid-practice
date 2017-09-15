@@ -340,7 +340,7 @@ class window.Track
                 pos.left = 0
             offset = (pos.left / width) * timescale
             # offset -= 81.3 * (i)
-            commands = ts.command_list_data(ts.p_signal, {offset: offset})
+            commands = ts.command_list_data(ts.data, {offset: offset})
             return commands
         commands = _.flatten commands
         commands = _.each commands, (command)->

@@ -101,7 +101,7 @@ class Reflector extends TimeWidget
         target: scope.target
 
       base_signal = new TimeSignal dom, 
-        signal: base_signal.form.signal.reverse()
+        signal: _.clone(base_signal.form.signal).reverse()
         period: base_signal.form.period
       # signals = signals.slice(1)
       # data = _.map signals, (subsignal)->
@@ -125,7 +125,7 @@ class Cutter extends TimeWidget
     padding = parseFloat(signal.dom.parent().css('padding-left'))
     cut_location = cut_x + padding - (offset.left)
     cut_p = cut_location / signal.dom.width()
-    console.log cut_p
+    # console.log cut_p
     signal.split
       p: cut_p
       target: @track

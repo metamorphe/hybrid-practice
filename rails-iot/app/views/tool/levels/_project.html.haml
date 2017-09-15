@@ -29,7 +29,7 @@
     $('#tabs button').click (e)->
       goto = $(this).attr('goto')
       panels = $(this).parents('.dragpanel').find('.tab-content').hide().removeClass(".active")
-      console.log panels.length
+      #console.log panels.length
       $(goto).show().addClass('active')
       $('#tabs button.selected').removeClass('selected')
       $(this).addClass('selected')

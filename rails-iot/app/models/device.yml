@@ -8,8 +8,7 @@ psycho:
   warmthMetal: 1.6
   warmthIrradiantSmall: 1.3
   warmthIrradiantLarge: 0.7
-  orientation: 1
-  electricity: 1
+
 actuators:
   LED:
     name: LED
@@ -21,9 +20,11 @@ actuators:
         range:
           min: 0
           max: 255
+        derived: false
         resolution: 1
         modality: brightnessPS
-        alpha: 1.1
+        throttle: 33
+        budget: null
   RGBLED:
     name: RGBLED
     package: DIP
@@ -32,23 +33,29 @@ actuators:
         range:
           min: 0
           max: 255
+        derived: false
         resolution: 1
         modality: brightnessPS
-        alpha: 1.1
+        throttle: 33
+        budget: null
       green: 
         range:
           min: 0
           max: 255
+        derived: false
         resolution: 1
         modality: brightnessPS
-        alpha: 1.1
+        throttle: 33
+        budget: null
       blue: 
         range:
           min: 0
           max: 255
+        derived: false
         resolution: 1
         modality: brightnessPS
-        alpha: 1.1
+        throttle: 33
+        budget: null
   HSBLED:
     name: HSBLED
     package: SMD
@@ -57,23 +64,29 @@ actuators:
         range:
           min: 0
           max: 360
-        resolution: 1
-        modality: brightnessPS
-        alpha: 1.1
+        derived: false
+        resolution: 1.4
+        modality: null
+        throttle: 33
+        budget: null
       saturation: 
         range:
           min: 0
           max: 1
-        resolution: 0.01
-        modality: brightnessPS
-        alpha: 1.1
+        derived: false
+        resolution: 0.00392156862
+        modality: null
+        throttle: 33
+        budget: null
       brightness: 
         range:
           min: 0
           max: 1
-        resolution: 0.01
+        derived: false
+        resolution: 0.00392156862
         modality: brightnessPS
-        alpha: 1.1
+        throttle: 33
+        budget: null
   SERVO:
     name: SERVO
     dimension: angle
@@ -82,16 +95,17 @@ actuators:
         range:
           min: 0
           max: 180
-        resolution: 1
-        modality: derived
-        alpha: 1
+        derived: true
+        resolution: 0.1   
       angle:
         range:
           min: 0
           max: 180
+        derived: false
         resolution: 1
-        modality: orientation
-        alpha: 1
+        modality: null
+        throttle: 33
+        budget: 60/200
   STEPPER:
     name: STEPPER
     dimension: angle
@@ -100,10 +114,11 @@ actuators:
         range:
           min: 0
           max: 360
+        derived: false
         resolution: 1
-        modality: orientation
-        alpha: 1
-        max_velocity: 15
+        modality: null
+        throttle: 33
+        budget: 60/200
   HEATER:
     name: HEATER
     dimension: voltage
@@ -112,21 +127,23 @@ actuators:
         range:
           min: 0
           max: 12
+        derived: false
         resolution: 12
+        modality: null
+        throttle: 333
+        budget: null
       temperatureC: 
         range:
           min: 0
           max: 400
+        derived: true
         resolution: 0.1
-        modality: derived
-        alpha: 1
       temperatureF:
         range:
           min: 0
           max: 400
-        resolution: 1
-        modality: derived
-        alpha: 1
+        derived: true
+        resolution: 0.1
   PUMP:
     name: PUMP
     dimension: voltage
@@ -136,13 +153,17 @@ actuators:
           min: 0
           max: 3.3
         resolution: 3.3
-        modality: electricity
+        derived: false
+        modality: null
+        throttle: 333
+        budget: null
       bubbles: 
         range:
           min: 0
           max: 20
+        derived: true
         resolution: 1
-        modality: derived
+        modality: bubble
   MOTOR:
     name: MOTOR
     dimension: voltage
@@ -151,14 +172,17 @@ actuators:
         range:
           min: 0
           max: 255
+        derived: false
         resolution: 1
-        modality: electricity
+        throttle: 33
+        budget: 60/200
       rpm: 
         range:
           min: 0
           max: 100
+        derived: true
         resolution: 1
-        modality: 'derived'
+        modality: null
         
 devices: 
   -   

@@ -86,7 +86,7 @@ class window.Behavior
 
         @dom.click()
         _.each @_load, (stageData, stageID)->
-            console.log "STAGE LOAD", stageData, stageID
+            # console.log "STAGE LOAD", stageData, stageID
             if _.isEmpty(stageData) then return
             stage = manager.addStage()
             stage.data = {id: stageID}
@@ -173,8 +173,8 @@ class window.Behavior
             # @data.manager.dom.loading
             #     theme: "dark"
             #     message: "..."
-            if $('#stats').is(":visible")
-                $('#stats').loading()
+            # if $('#stats').is(":visible")
+            #     $('#stats').loading()
             raw_commands = @data.manager.compile()
             if _.isEmpty raw_commands then return
 
@@ -188,7 +188,7 @@ class window.Behavior
                             
             start = parseInt(_.first(commands).t)
             end = parseInt(_.last(commands).t + _.last(commands).duration)
-            console.log "start", t_start, "end", end
+            # console.log "start", t_start, "end", end
             commands = _.each commands, (command)-> command.t = command.t - t_start
 
             
@@ -200,7 +200,7 @@ class window.Behavior
             @scrubber.play(t_start, t_start + schedule.end)
 
             # @data.manager.dom.loading 'stop'
-            $('#stats').loading('stop')
+            # $('#stats').loading('stop')
             @playing = true
             endOfBehavior = ()->
                 # console.log "SHUTDOWN"

@@ -26,9 +26,10 @@ ActuationParam.prototype = {
 			console.error("Attempt to set", this.op.name, "to out of range ["+ this.op.min + ", " + this.op.max + "] value:", x);
 			return;
 		}
+		x = this._res_correct(x) 
 		var p = scope._map(x);
 		this._param = p;
 		if(scope.op.render && this.op.onChange) this.op.onChange(p);
-		this._value = this._res_correct(x);
+		this._value = x;
 	}
 }

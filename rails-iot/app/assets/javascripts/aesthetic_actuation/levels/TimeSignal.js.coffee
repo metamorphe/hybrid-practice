@@ -25,15 +25,12 @@ class window.TimeSignal
     # DEFAULTS
     @period = TimeSignal.DEFAULT_PERIOD
     @signal = [0, 0, 0]
-    @gamma = 1
     @track = null
     @tracks = 1
     @semantic = true
-    @perceptual = true
     @composeable = false
     @timescale = 10000
     @view = "intensity"
-    @gamma_corrected = true
     @force_period = 1000
     @force_period_flag = false
     @exportable = true
@@ -58,6 +55,7 @@ class window.TimeSignal
     track_data = @processTrack @dom.parent()
 
     ops = _.extend track_data, @dom.data()
+    ops = _.omit ops, "id"
     ops = _.extend ops, set
     @form = ops
     tsm.add.apply(tsm, [this])
@@ -65,9 +63,9 @@ class window.TimeSignal
   processTrack: (track)->
     if _.isUndefined track then return {}
     t = _.clone(track.data())
+    t = _.omit(t, "id", "forcePeriodFlag", "gammaCorrective")
 
     t.tracks =  t.tracks or @tracks
-    t.perceptual =  t.perceptual == "enabled" 
     t.composeable =  t.composeable == "enabled" 
     t.semantic =  t.semantic == "enabled" 
     t.timescale =  t.timescale or @timescale
@@ -75,12 +73,7 @@ class window.TimeSignal
     t.draggable =  t.draggable == "enabled" 
     t.force_period_flag =  t.forcePeriodFlag == "enabled" 
     t.force_period =  parseInt(t.force_period) or @force_period
-    t.gamma = if _.isUndefined t.gammaCorrective then @gamma else parseFloat(t.gammaCorrective)
     t.exportable =  t.exportable == "enabled" 
-    t.gamma_corrected =  t.gamma != 1
-    # console.log "GAMMA", t.gamma_corrected, t.gamma
-    delete t['forcePeriodFlag']
-    delete t['gammaCorrective']
     return t
 
   Object.defineProperties @prototype,
@@ -101,12 +94,20 @@ class window.TimeSignal
         gamma_corrected: @gamma_corrected 
 
       set: (obj) ->
+        # console.log "OBJ", obj
         scope = this
         if _.isEmpty(obj) then return
         window.paper = @paper
         prev = @form
         _.extend(this, obj)
         if @force_period_flag then @period = parseInt(@force_period)
+
+        if @exportable
+          @dom.addClass('exportable')
+        if @draggable
+          @dom.addClass('draggable')
+        if @composeable
+          @dom.addClass('composeable')
 
         # NEEDS CANVAS REFRESH
         canvas_refresh = ["semantic", "timescale", "tracks"]
@@ -136,17 +137,19 @@ class window.TimeSignal
 
           @paper = Utility.paperSetup(@canvas, t_op)
          
-        if @exportable
-          @dom.addClass('exportable')
-        if @draggable
-          @dom.addClass('draggable')
-        if @composeable
-          @dom.addClass('composeable')
+        
         # NEEDS VISUAL REFRESH
-        @p_signal = @perceptual_correction(@signal)
-        @p_signal = @resolution_correction(@p_signal)
-        @p_signal = if @gamma_corrected then @gamma_correction(@p_signal, @gamma) else @p_signal
-        @data = if @perceptual then @p_signal else @signal
+        @data = @signal
+        @p_signal = @signal
+        if @track
+          track = Track.library[@track]
+          if track
+            channel = track.data.channel
+            actuator = track.parent.getActor()
+            @data = @applyActuator(actuator, channel)
+            @p_signal = @data
+            # console.log "APPLY", @data
+
 
         @_visuals()
         @dom.data @form
@@ -235,7 +238,8 @@ class window.TimeSignal
     b = TimeSignal.resample(command_list, delta_t)
     prev.signal = a.concat(b)
     prev.period += delta_t
-    console.log "INJECT", prev
+    prev = _.omit prev, "id"
+    # console.log "INJECT", prev
     @form = prev
   
   command_list: (op) ->
@@ -537,94 +541,127 @@ class window.TimeSignal
         break
     return time
 
-  @compile: (cl)->
+  @compile: (cl, key="param")->
     prev = cl[0]
     compiled = [prev]
-    _.map cl, (command, i)->
+    _.map cl, (c, i)->
       if i == 0 then return
-      if command.param == prev.param
-        prev.duration += command.duration
+      if c[key] == prev[key]
+        prev.duration += c.duration
       else
-        compiled.push(command)
-        prev = command
+        compiled.push(c)
+        prev = c
     return compiled
-  # mechanical_correction: (data)->
-  #   cl = @command_list_data data, {}
-  #   cl = _.map cl, (curr, i)->
-  #     if i == 0 then return curr
-  #     prev = cl[i-1] 
-  #     next = actuator.performCommand(prev, curr, channel)
-  #   impedance = 15/0.100 #actuator.
 
 
-  gamma_correction: (data, gamma)->
-    data = _.map data, (P)->
-      return Math.pow(P, 1 / gamma)
-  resolution_correction: (data)->
-    # console.log JSON.stringify data
-    cl = @command_list_data data, {}
+  applyActuator: (actuator, channel)->
+    ## NICECITIES
+    actuator = actuator or am.getActiveActuator()
+    channel = channel or am.getActiveChannel()
+    if not channel
+      alertify.notify "<b>WHICH CHANNEL?</b> Select a <em>channel</em> to simulate this signal.", 'error', 3
+    if not actuator
+      alertify.notify "<b>HOLD ON!</b> Select a actuator to simulate this signal.", 'error', 3
+    if not channel or not actuator then return
     
-    cl = _.map cl, (curr, i)->
+    ## Algorithm: 
+    # 0. Gather data
+    # 1. If modality, then gamma correct
+    # 2. Convert to command format and gather value definition
+    # 3. POV correction + Mechanical correction
+
+    ## Gather data
+    channelData = _.pick actuator.channels[channel].op, "derived", "resolution", "modality", "budget", "throttle"
+    channelData.gamma = if channelData.modality then sens.psycho[channelData.modality] else null
+    channelData.budget = if channelData.budget then eval(channelData.budget)
+
+    if channelData.derived
+      alertify.notify "<b>HOLD ON!</b> That's a simualted channel. Choose a physical channel", 'error', 3
+      return
+
+    ## READY FOR ACTION
+    # console.log channelData
+    data = @signal
+    # console.log "SIGNAL", data.length
+    # ## GAMMA CORRECT
+    if channelData.gamma
+      data = _.map data, (P)-> return Math.pow(P, 1 / channelData.gamma)
+      # console.log "GAMMA CORRECTED", data.length
+
+    ## COMMAND_LIST CONVERSION
+    commands = @command_list_data(data)
+    # console.log "COMMANDS", commands.length
+    query = 
+      parameterized: true
+    _.each commands, (command)->
+      query[channel] = command.param
+      actuator.expression = query
+      command.value = actuator.channels[channel].value
+
+    # RESOLUTION CORRECTION
+    commands = TimeSignal.compile(commands, "value")
+    # console.log "COMMANDS", commands.length
+
+    ## POV + MECHANICAL CORRECTION (TIME BASE MEDIA)
+    commands = _.map commands, (curr, i)->
       if i == 0 then return curr
-      prev = cl[i-1] 
-      curr.dI = Math.abs(curr.param - prev.param)
+      prev = commands[i-1] 
       curr.dt = curr.t - prev.t
       return curr
-
-    dI_accum = 0
-    last_accepted_param = cl[0].param
-    cl = _.map cl, (curr, i)->
-      if i == 0 then return curr
-      prev = cl[i-1] 
-      # SUPERFLUOUS COMMAND
-      if curr.param == last_accepted_param
-        dI_accum += curr.dI
-        return null
-      # PERCEPTABLE
-      if curr.dI + dI_accum > TimeSignal.RESOLUTION or i == cl.length - 1
-        last_accepted_param = curr.param
-        dI_accum = 0
-        return curr
-      # PERCEPTUAL SUPERFLUOUS
-      else
-        dI_accum += curr.dI
-        return null
-    cl_u = _.compact(cl)
-    # console.log "resolution_correction removed", cl.length - cl_u.length, "out of", cl.length
-    signal = TimeSignal.resample(cl_u, @period)
-    return signal
-  perceptual_correction: (data)->
-    # console.log JSON.stringify data
-    cl = @command_list_data data, {}
-    cl = _.map cl, (curr, i)->
-      if i == 0 then return curr
-      prev = cl[i-1] 
-      curr.dI = Math.abs(curr.param - prev.param)
-      curr.dt = curr.t - prev.t
-      return curr
-
+    # console.log "dCommands", commands.length
+    
+    #POV
     dt_accum = 0
-    last_accepted_param = cl[0].param
-    cl = _.map cl, (curr, i)->
+    last_accepted_value = commands[0].value
+    lastIdx = commands.length - 1
+
+    commands = _.map commands, (curr, i)->
       if i == 0 then return curr
-      prev = cl[i-1] 
+      prev = commands[i-1]
       # SUPERFLUOUS COMMAND
-      if curr.param == last_accepted_param
+      if curr.value == last_accepted_value
         dt_accum += curr.dt 
-        return null
-      # PERCEPTABLE
-      if curr.dt + dt_accum > TimeSignal.PERSISTENCE_OF_VISION or i == cl.length - 1
-        last_accepted_param = curr.param
+        return null 
+      # PERCEIVABLE
+      if curr.dt + dt_accum > channelData.throttle or i == lastIdx
+        last_accepted_value = curr.value
         dt_accum = 0
         return curr
-      # PERCEPTUAL SUPERFLUOUS
+      # INPERCEIVABLE 
       else
         dt_accum += curr.dt 
         return null
-    cl_u = _.compact(cl)
-    # console.log "perceptual_correction removed", cl.length - cl_u.length, "out of", cl.length
-    signal = TimeSignal.resample(cl_u, @period)
+    commands = _.compact(commands)
+    # console.log "povCommands", commands.length
+    if channelData.budget
+      # console.log "BUDGET", channelData.budget
+      ## MECHANICAL UPDATE  
+      commands = _.map commands, (curr, i)->
+        if i == 0 then return _.pick curr, "param", "duration", "value", "t"
+        prev = commands[i-1]
+        dV = curr.value - prev.value
+        budget = channelData.budget * curr.dt
+        mag = Math.abs(dV)
+        sign = Math.sign(dV)
+        if mag > budget
+          curr.value = prev.value + (budget * sign)
+          query = {}
+          query[channel] = curr.value
+          actuator.expression = query
+          curr.value = actuator.channels[channel].value
+          commands[i].value = curr.value
+          curr.param = actuator.channels[channel].param
+          return _.pick curr, "param", "duration", "value", "t" 
+        else
+          return _.pick curr, "param", "duration", "value", "t" 
+
+      # console.log "mechCommands", commands.length
+    
+    commands = TimeSignal.compile(commands, "value")
+    # console.log "COMMANDS", commands.length
+    signal = TimeSignal.resample(commands, @period)
     return signal
+      
   @temperatureColor: (v)->
     max = TimeSignal.MAX
     min = TimeSignal.MIN

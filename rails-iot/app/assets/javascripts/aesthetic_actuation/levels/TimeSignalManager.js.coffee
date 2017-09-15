@@ -168,13 +168,24 @@ class window.TimeSignalManager
         num_to_accept = $(this).data().accept
         ts = scope.resolve(ui.draggable).form
         
+        console.log "CREATION"
         dom = TimeSignal.create
           clear: num_to_accept == 1
           target: $(this)
         signal = new TimeSignal(dom)
-        signal.form = {signal: ts.signal, period: ts.period}
+
+        newForm = 
+          signal: ts.signal
+          period: ts.period
+          
+        data = $(this).data()
+        if data.name == "Track"
+          newForm.track = data.id
+        signal.form = newForm
+          
         signal.dom.click()
         $(this).addClass('accepted')
+
 
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
