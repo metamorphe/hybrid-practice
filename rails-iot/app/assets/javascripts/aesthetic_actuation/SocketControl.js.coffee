@@ -106,21 +106,14 @@ class window.SocketControl
           if _.isNull command then console.log '↑', evt.data
           else
             # DELAY TRIGGER DETECTED
-            switch command.flag
-              when "T"
-                forceTrigger = {flag: "F", args: command.args[0].toLowerCase()}
-                scope.sendMessageAt(forceTrigger, {delay: args[1]})
-                # if command
-                # fan({flag: flag, args: args})  
-              when "G"
-                command.args = _.map command.args, (arg)-> return parseFloat(arg)
-                fan(command)
-              when "M"
-                command.args = _.map command.args, (arg)-> return parseFloat(arg)
-                fan(command)
-              when "V"
-                command.args = _.map command.args, (arg)-> return parseFloat(arg)
-                fan(command)
+            if _.contains sm.getAPI(), command.flag
+              command.args = _.map command.args, (arg)-> return parseFloat(arg)
+              fan(command)
+            else
+              switch command.flag
+                when "T"
+                  forceTrigger = {flag: "F", args: command.args[0].toLowerCase()}
+                  scope.sendMessageAt(forceTrigger, {delay: args[1]})
         scope.update()
       return
     return

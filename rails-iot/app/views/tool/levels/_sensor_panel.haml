@@ -1,6 +1,6 @@
 :coffeescript
-  window.sensorTriggers = ["T", "F", "N"]
-  window.sensorEvents = ["V", "G", "M"]
+  # window.sensorTriggers = ["T", "F", "N", "S", "B"]
+  # window.sensorEvents = ["V", "G", "M", "A", "R"]
   window.sensorProcess = (command)->
     if _.contains sensorEvents, command.flag
       $('.sensor[name="' + command.flag + '"] .mag').html(command.args[0].toFixed(1))
@@ -64,6 +64,10 @@
         # console.log "STATES", states
         dom
       @parent.append(senDoms)
+    getAPI: ()->
+      sensors = @getSensors()
+      return _.map sensors, (s)->
+        return s.api
     getSensors: ()->
       _.map $(".sensor").not(".template"), (sensor)->
         tip = $($($(sensor).find('.settings').get(0)).data()["bs.popover"].$tip[0])
@@ -141,10 +145,7 @@
         sc.sendMessage({flag: sampleTrigger, args: []}, {delay: 0, live: true})
 
 
-  $ -> 
-    window.sm = new SensorManager
-      load: sens.devices[0].sensors
-      parent: $("#sensors.tab-content .flex-wrapper")
+  
     
     
 #sensor-settings.template.popover.custom-popover{:role => "tooltip"}

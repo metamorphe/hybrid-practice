@@ -231,8 +231,9 @@ makeChoreographyTool= ()->
       this.arrow_path = new paper.Path
         parent: this.arrow
         name: "ARROWPATH"
+        # strokeColor: "black"
         strokeColor: ChoreographyWidget.ARROW_COLOR
-        strokeWidth: 5
+        strokeWidth: 8
         shadowColor: "#000000"
         shadowBlur: 5
         segments: [e.point]
@@ -274,7 +275,7 @@ makeChoreographyTool= ()->
           parent: arrow_head
           sides: 3
           radius: 10
-          fillColor: Choreography.temperatureColor(1)
+          fillColor: ChoreographyWidget.ARROW_COLOR#Choreography.temperatureColor(1)
           shadowColor: "#000000"
           shadowBlur: 0
           strokeWidth: 3
@@ -322,6 +323,7 @@ makeChoreographyTool= ()->
         #     shadowColor: "#000000"
         #     shadowBlur: 0
         #     strokeWidth: 3
+        this.arrow_path.smooth()
         n = this.arrow_path.length
         tempTicks = _.range(0, n , 2)
         _.each tempTicks, (tick)->

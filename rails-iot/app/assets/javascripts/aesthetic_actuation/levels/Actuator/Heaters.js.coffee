@@ -2,20 +2,28 @@ class window.ActuatorHEATER extends Actuator1D
   onCreate: ->
     @expression = 5;
     return
+  updateTemp: ()->
+    base = 72
+    # console.log "TEMP", @channel.param, @channels.temperatureF.value
+    if not @channels.temperatureF.value or @channels.temperatureF.value < 72
+      @channels.temperatureF.value = 72
+
+    if @channel.param == 1 #HEATING
+      @channels.temperatureF.value += 8
+    else #COOLING
+      @channels.temperatureF.value -= 8
+    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
   _num: (val)->
     @channel.value = val
-    @channels.temperatureF.value = 72 + (@channel.param * 40)
-    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+    @updateTemp()
   _obj:(obj)->
     if _.has obj, @op.dimension
       @channel.value = obj[@op.dimension]
-    @channels.temperatureF.value = 72 + (@channel.param * 40)
-    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+    @updateTemp()
   _pobj:(obj)->
     if _.has obj, @op.dimension
       @channel.param = obj[@op.dimension]
-    @channels.temperatureF.value = 72 + (@channel.param * 40)
-    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+    @updateTemp()
   toAPI: (hid)->
     {flag: "H", args: [hid, @expression]}
   _updateVisuals: (p)->
@@ -75,5 +83,5 @@ class window.ActuatorPUMP extends ActuatorHEATER
     @channels.bubbles.param = @channel.param
   toAPI: (hid)->
     d = hid.split(":")
-    {flag: "C", args: [d[0], d[1], parseInt(@expression)]}
+    {flag: "P", args: [d[0], d[1], parseInt(@expression)]}
 class window.ActuatorMOTOR extends ActuatorPUMP

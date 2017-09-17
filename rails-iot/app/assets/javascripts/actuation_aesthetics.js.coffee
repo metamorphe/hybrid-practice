@@ -80,7 +80,14 @@ class window.AestheticActuation
 		aw.saver.load()
 		# $('event.signal-design button.toggle').click()
 		window.tw = new TimeWidgets()
-
-
+		
+		name = fs.getName()
+		if not _.has sens.devices, name
+			console.log "x Sensors", name
+		else
+			console.log "✓ Sensors", name
+			window.sm = new SensorManager
+	      		load: sens.devices[name].sensors
+	      		parent: $("#sensors.tab-content .flex-wrapper")
 		return
 	

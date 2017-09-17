@@ -151,8 +151,8 @@ actuators:
       voltage:
         range:
           min: 0
-          max: 3.3
-        resolution: 3.3
+          max: 12
+        resolution: 12
         derived: false
         modality: null
         throttle: 333
@@ -184,10 +184,137 @@ actuators:
         resolution: 1
         modality: null
         
-devices: 
-  -   
+devices:
+  cake:
+    name: cake
+    sensors:
+      -
+        id: 0
+        name: Encoder
+        type: number
+        unit: deg
+        sample: S
+        api: R
+        sampling-rate: 500
+        throttle: 500
+        states:
+          -
+            name: Q1
+            condition: 
+              lower: 0
+              upper: 90
+          - name: Q2
+            condition: 
+              lower: 90
+              upper: 180
+          - name: Q3
+            condition: 
+              lower: 180
+              upper: 270
+          - name: Q4
+            condition:
+              lower: 270
+              upper: 360
+      -
+        id: 1
+        name: Button
+        type: boolean
+        unit: ""
+        sample: B
+        api: A
+        sampling-rate: 500
+        throttle: 500
+        states:
+          -
+            name: BUTTON_DOWN
+            condition: 
+              lower: 0
+              upper: 1
+          - name: BUTTON_UP
+            condition: 
+              lower: 1
+              upper: 2
+  thermobuddha: 
+    name: thermobuddha
+    sensors:
+      -
+        id: 0
+        name: BASETOUCH
+        type: number
+        unit: "" 
+        sample: J
+        api: K
+        sampling-rate: 500
+        throttle: 500
+        states: 
+          -
+            name: NO TOUCH
+            condition:
+              lower: 0
+              upper: 1
+          -
+            name: TOUCH
+            condition: 
+              lower: 1
+              upper: 2
+  disco_aquarium:   
     name: aquarium
-    sensors: 
+    sensors:
+      -
+        id: 1
+        name: "UNPLAYED"
+        type: number
+        unit: ""
+        sample: D
+        sampling-rate: 500
+        throttle: 500
+        api: F
+        states: 
+          -
+            name: "NO MESSAGES"
+            condition: 
+              lower: 0
+              upper: 1
+          -
+            name: "1 MSG"
+            condition: 
+              lower: 1
+              upper: 2
+          -
+            name: "2-4 MSG"
+            condition: 
+              lower: 2
+              upper: 4
+          -
+            name: "4-6 MSG"
+            condition: 
+              lower: 4
+              upper: 6 
+      -
+        id: 2
+        name: "MAGNITUDE"
+        type: number
+        unit: ""
+        sample: I
+        sampling-rate: 500
+        throttle: 500
+        api: J
+        states: 
+          -
+            name: "SMALL"
+            condition: 
+              lower: 0
+              upper: 4
+          -
+            name: "MED"
+            condition: 
+              lower: 4
+              upper: 6
+          -
+            name: "LARGE"
+            condition: 
+              lower: 7
+              upper: 9 
       -
         id: 0
         name: "Temperature"

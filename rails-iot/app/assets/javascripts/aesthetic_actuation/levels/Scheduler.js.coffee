@@ -6,7 +6,7 @@ class window.Scheduler
     @bytes_per_quanta : ()->
         Scheduler.bytes_per_second / Scheduler.quanta
     @commands_per_quanta : ()->
-        Scheduler.bytes_per_quanta()/ 18
+        Scheduler.bytes_per_quanta()/ 9
     @pretty_print: (commands, info, full=false)->
         if Scheduler.pretty_print_flag 
             _.each commands, (command)->
@@ -41,7 +41,7 @@ class window.Scheduler
             commands: info.n.toFixed(0)
             breakdown: info.breakdown
             budget: budget_util.toFixed(1)
-        console.log "STATS", stats, info.non_idle
+        # console.log "STATS", stats, info.non_idle
 
         # results = "@" + info.time.toFixed(0)+ "~>" + TimeSignal.pretty_time(info.quanta)+ "|" + utilization +  "|" +  "q="+ total_quanta.toFixed(0)+"|" + "n=" + info.n.toFixed(0)+ "\n" + info.breakdown.join(",")
         _.each stats, (v, k)->
@@ -106,7 +106,7 @@ class window.Scheduler
         last = _.last(commands)
         async_end = parseInt(last.t + last.duration + last.async_offset)
         
-        console.log "END", async_end
+        # console.log "END", async_end
         # endOfBehavior = ()->
         #     # console.log "SHUTDOWN"
         #     current_behavior.pause()
@@ -146,13 +146,13 @@ class window.Scheduler
             if e
                 switch actuator.actuator_type
                     when "STEPPER"
-                        console.log "STEPPER CANVAS UPDATE"
                         arms = CanvasUtil.query(e, {prefix: ["ARM"]})
                         pivot = CanvasUtil.query(e, {prefix: ["PIVOT"]})[0]
                         
                         _.each arms, (arm)->
                             arm.pivot = pivot.position.clone()
-                            arm.rotation = command.expression
+                            console.log -1 * command.expression
+                            arm.rotation = -1 * command.expression
                     when "MOTOR"
                         console.log "MOTOR CANVAS UPDATE"
                     when "SERVO"
@@ -197,18 +197,20 @@ class window.Scheduler
                     when "HEATER"
                         red = new (paper.Color)('red')
                         blue = new (paper.Color)('#00A8E1')
-                        p = actuator.channel.param
+                        p = (actuator.channels.temperatureF.value - 72) / (110 - 72)
                         c = red.multiply(p).add(blue.multiply(1-p))
-                        CanvasUtil.setStyle [e], color: c
+                        # debugger;
                         chromic = CanvasUtil.query(e, {prefix: ["CHROME"]})
+                        joule = CanvasUtil.query(e, {prefix: ["JOULE"]})
+                        CanvasUtil.setStyle joule, color: c
                         temp = actuator.channels.temperatureF.value 
                         if temp > 94
-                            CanvasUtil.setStyle chromic, {opacity: 0, fillColor: "black"}
+                            CanvasUtil.setStyle chromic, {opacity: 1}
                         else if temp > 92 and temp <= 94 #cooling state
                             op = (temp - 92)/ 2
-                            CanvasUtil.setStyle chromic, {opacity: 1 - op, fillColor: "black"}
+                            CanvasUtil.setStyle chromic, {opacity: op}
                         else
-                            CanvasUtil.setStyle chromic, {opacity: 1, fillColor: "black"}
+                            CanvasUtil.setStyle chromic, {opacity: 0}
             
 
             # UPDATE WIDGETS

@@ -271,7 +271,7 @@ class window.Actuator
 
   physical_channels: ()->
     _.pick @channels, (val)->
-      return val.op.modality != "derived"
+      return not val.op.derived
 
   
   onCreate: ->

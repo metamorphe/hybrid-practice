@@ -5,6 +5,7 @@ class window.Artwork
             prefix: ["NLED", "HEATER", "PUMP", "STEPPER", "SERVO", "MOTOR"]
     @ACTUATORS_IN: (device)-> CanvasUtil.query device, {prefix: ["NLED", "HEATER", "PUMP", "STEPPER", "SERVO", "MOTOR"]}
     @getElements = ()->
+        decor: CanvasUtil.queryPrefix('DECOR'),
         art: CanvasUtil.queryPrefix('ART'),
         diff: CanvasUtil.queryPrefix('DIF'),
         leds: CanvasUtil.queryPrefix('NLED'),
@@ -27,6 +28,9 @@ class window.Artwork
         scope = this
         paper.project.importSVG @file, (item) ->
             scope.svg = item
+            scope.svg.position = paper.view.center
+
+            scope.svg.fitBounds(paper.view.bounds)
             scope.svg.position = paper.view.center
             scope.process()
             loadFN scope.svg
@@ -73,7 +77,7 @@ class window.Artwork
     AE_style_process: ->
         e = Artwork.getElements()
         show = [e.art, e.diff, e.leds, e.dds, e.base]
-        hide = [e.rays, e.cp, e.mc, e.bo, e.bi, e.nuts, e.wires]
+        hide = [e.rays, e.cp, e.mc, e.bo, e.bi, e.nuts, e.wires, e.decor]
 
         _.each e.leds, (led)->
             style =  

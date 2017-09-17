@@ -20,6 +20,10 @@
 // Temperature Sensor with a 4.7 ohm resistor between PWR and SIGNAL
 
 #include <OneWire.h>
+#include <HSBColor.h>
+#include <Adafruit_NeoPixel.h>
+#include <SPI.h>  
+
 #define DEBUG 0
 #define NUM_DEVICES 5
 #define BAUD 19200
@@ -29,6 +33,10 @@
 #define SUNKEN_SHIP 7
 #define RELAY_CYCLES_S 2
 
+#define DISCO_PIXELS 24 // Number of LEDs in strip
+#define DISCO_PIN 11
+
+Adafruit_NeoPixel disco = Adafruit_NeoPixel(DISCO_PIXELS, DISCO_PIN, NEO_GRB + NEO_KHZ800);
 OneWire  ds(TEMP_SENS_PIN);
 
 int pumps[NUM_DEVICES] = {
@@ -182,15 +190,34 @@ void findCommandEnd(){
     } 
   }
 }
-void update(){}
-
+void update(){
+  disco.show();
+}
+int ddevID = 0;
+int did = 0;
+int dr = 0;
+int dg = 0;
+int db = 0;
+void color_change(){
+  ddevID = Serial.parseInt();
+  did = Serial.parseInt();
+  dr = Serial.parseInt();
+  dg = Serial.parseInt();
+  db = Serial.parseInt();
+ 
+  disco.setPixelColor(did, dr, dg, db);
+}
 void api_call(char prefix){
    switch (prefix) {
     case 'u': 
       update(); // no update logic here; placeholder
       findCommandEnd();
       break;
-    case 'c':
+    case 'c': 
+      color_change();
+      findCommandEnd();
+      break;
+    case 'p':
       pumpControl();
       findCommandEnd(); 
       break;
@@ -233,10 +260,13 @@ void setup(void) {
   Serial.println(" baud.");
   Serial.print(NUM_DEVICES);
   Serial.println(" pumps enabled.");
+  Serial.println("Disco enabled.");
 
   registerActuators();
   registerSensors();
   allOff();
+  disco.begin();
+  disco.show();
 }
 
 void enable_api(){
