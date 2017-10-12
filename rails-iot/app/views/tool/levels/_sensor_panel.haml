@@ -2,9 +2,8 @@
   # window.sensorTriggers = ["T", "F", "N", "S", "B"]
   # window.sensorEvents = ["V", "G", "M", "A", "R"]
   window.sensorProcess = (command)->
-    if _.contains sensorEvents, command.flag
-      $('.sensor[name="' + command.flag + '"] .mag').html(command.args[0].toFixed(1))
-      sm.processState(command)
+    $('.sensor[name="' + command.flag + '"] .mag').html(command.args[0].toFixed(1))
+    sm.processState(command)
       # switch command.flag
       #   when 'M'
       #     if command.args[0] > 400
@@ -30,6 +29,11 @@
       _.extend(this, op)
       @loadSensors()
       @bindEvents()
+      $('.sensor li').click ()->
+        console.log "SETTING", current_behavior.data.id
+        span = $('<span>').addClass('linked').html("•"+current_behavior.data.name).attr('name', current_behavior.data.id)
+        $(this).find('.linked').remove()
+        $(this).append span
     processState: (command)->
       value = command.args[0]
       sensor = _.find @load, (sensor)-> sensor.api == command.flag
@@ -38,12 +42,18 @@
         states = _.pluck(states , "name")
         if states
           $('.sensor[name="' + command.flag + '"] .state').html(states.join(','))
-          $('.sensor[name="' + command.flag + '"] li').removeClass('active')
+          $('.sensor[name="' + command.flag + '"] li').removeClass('active');
+          
           _.each states, (state)->
             $('.sensor[name="' + command.flag + '"] li[name="'+state+'"]').addClass('active')
-          
+            
         if @stateManager[sensor.id] and @stateManager[sensor.id] != states.join(',')
+          linked_behavior = $('.sensor[name="' + command.flag + '"] li.active').find('.linked').attr('name')
           console.log "STATE CHANGE", @stateManager[sensor.id], states.join(',')
+          # console.log "ACTIVATING BEHAVIOR!", linked_behavior
+          if linked_behavior
+            Behavior.library[linked_behavior].play()
+
         @stateManager[sensor.id] = states.join(',')
 
 

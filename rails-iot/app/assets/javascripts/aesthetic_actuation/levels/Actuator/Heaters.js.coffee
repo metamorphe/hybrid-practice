@@ -4,15 +4,16 @@ class window.ActuatorHEATER extends Actuator1D
     return
   updateTemp: ()->
     base = 72
+    @channels.tempF.value = base
     # console.log "TEMP", @channel.param, @channels.temperatureF.value
-    if not @channels.temperatureF.value or @channels.temperatureF.value < 72
-      @channels.temperatureF.value = 72
+    # if not @channels.temperatureF.value or @channels.temperatureF.value < 72
+    #   @channels.temperatureF.value = 72
 
-    if @channel.param == 1 #HEATING
-      @channels.temperatureF.value += 8
-    else #COOLING
-      @channels.temperatureF.value -= 8
-    @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
+    # if @channel.param == 1 #HEATING
+    #   @channels.temperatureF.value += 8
+    # else #COOLING
+    #   @channels.temperatureF.value -= 8
+    # @channels.temperatureC.value = (@channels.temperatureF.value - 32) * (5/9)
   _num: (val)->
     @channel.value = val
     @updateTemp()
@@ -25,7 +26,8 @@ class window.ActuatorHEATER extends Actuator1D
       @channel.param = obj[@op.dimension]
     @updateTemp()
   toAPI: (hid)->
-    {flag: "H", args: [hid, @expression]}
+    d = hid.split(":")
+    {flag: "P", args: [d[0], d[1], parseInt(@expression)]}
   _updateVisuals: (p)->
     scope = this
     param = @channel.param

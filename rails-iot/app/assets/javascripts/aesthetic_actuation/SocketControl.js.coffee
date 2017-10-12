@@ -106,6 +106,7 @@ class window.SocketControl
           if _.isNull command then console.log '↑', evt.data
           else
             # DELAY TRIGGER DETECTED
+            # console.log evt.data,"SENSED!"
             if _.contains sm.getAPI(), command.flag
               command.args = _.map command.args, (arg)-> return parseFloat(arg)
               fan(command)

@@ -36,6 +36,28 @@ acceptor.datasignal.mini.ui-droppable-hover{
   background:  darken($signal_base, 10%) !important;
 }
 
+acceptor.datasignal.mini-2{
+  height: 45px;
+  border: none;
+  border-bottom: 1px solid black !important;
+}
+acceptor.datasignal.mini-2.jump{
+  border-bottom: 3px solid black !important;
+}
+acceptor.datasignal.mini-2.ui-droppable{
+  background:  darken($signal_base, 5%) !important;
+}
+acceptor.datasignal.mini-2.ui-droppable-hover{
+  background:  darken($signal_base, 10%) !important;
+}
+acceptor.datasignal.mini-2.ui-droppable.derived{
+  background: desaturate(darken($signal_base, 20%), 10%) !important;
+  &::after{
+    content: 'SIMULATION';
+    color: lighten($signal_base, 40%);
+  }
+}
+
 acceptor.datasignal{
   @extend .hoz-left;
   flex-flow: row nowrap;

@@ -189,7 +189,7 @@ class window.TimeSignalManager
 
 
     $('.signal-design').find('.droppable[class^="track-"]').droppable(behavior)
-    $('acceptor.datasignals').droppable(behavior)
+    $('acceptor.datasignals:not(.derived)').droppable(behavior)
   @EasingFunctions =
     off: (t) ->
       return 0

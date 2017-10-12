@@ -113,7 +113,7 @@ actuators:
       angle:
         range:
           min: 0
-          max: 360
+          max: 46 
         derived: false
         resolution: 1
         modality: null
@@ -132,13 +132,7 @@ actuators:
         modality: null
         throttle: 333
         budget: null
-      temperatureC: 
-        range:
-          min: 0
-          max: 400
-        derived: true
-        resolution: 0.1
-      temperatureF:
+      tempF:
         range:
           min: 0
           max: 400
@@ -260,61 +254,6 @@ devices:
   disco_aquarium:   
     name: aquarium
     sensors:
-      -
-        id: 1
-        name: "UNPLAYED"
-        type: number
-        unit: ""
-        sample: D
-        sampling-rate: 500
-        throttle: 500
-        api: F
-        states: 
-          -
-            name: "NO MESSAGES"
-            condition: 
-              lower: 0
-              upper: 1
-          -
-            name: "1 MSG"
-            condition: 
-              lower: 1
-              upper: 2
-          -
-            name: "2-4 MSG"
-            condition: 
-              lower: 2
-              upper: 4
-          -
-            name: "4-6 MSG"
-            condition: 
-              lower: 4
-              upper: 6 
-      -
-        id: 2
-        name: "MAGNITUDE"
-        type: number
-        unit: ""
-        sample: I
-        sampling-rate: 500
-        throttle: 500
-        api: J
-        states: 
-          -
-            name: "SMALL"
-            condition: 
-              lower: 0
-              upper: 4
-          -
-            name: "MED"
-            condition: 
-              lower: 4
-              upper: 6
-          -
-            name: "LARGE"
-            condition: 
-              lower: 7
-              upper: 9 
       -
         id: 0
         name: "Temperature"

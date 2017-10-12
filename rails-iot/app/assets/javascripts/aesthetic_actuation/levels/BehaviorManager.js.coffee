@@ -20,7 +20,7 @@ class window.Behavior
             period: 0
             stages: []
             actuators: []
-            timescale: 10000
+            timescale: Choreography.SCALE
             repeat: "no-repeat"
         @data = 
             manager: new StageManager

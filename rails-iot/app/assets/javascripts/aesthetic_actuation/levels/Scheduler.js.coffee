@@ -195,22 +195,26 @@ class window.Scheduler
                             stagger = 10 
                             _.delay bubble_make, stagger * i
                     when "HEATER"
+                        # tempCurve  = actuator.getSimulation().signal
                         red = new (paper.Color)('red')
                         blue = new (paper.Color)('#00A8E1')
-                        p = (actuator.channels.temperatureF.value - 72) / (110 - 72)
+                        # p = (actuator.channels.temperatureF.value - 72) / (110 - 72)
+                        p = command.param
                         c = red.multiply(p).add(blue.multiply(1-p))
                         # debugger;
                         chromic = CanvasUtil.query(e, {prefix: ["CHROME"]})
-                        joule = CanvasUtil.query(e, {prefix: ["JOULE"]})
-                        CanvasUtil.setStyle joule, color: c
-                        temp = actuator.channels.temperatureF.value 
-                        if temp > 94
-                            CanvasUtil.setStyle chromic, {opacity: 1}
-                        else if temp > 92 and temp <= 94 #cooling state
-                            op = (temp - 92)/ 2
-                            CanvasUtil.setStyle chromic, {opacity: op}
-                        else
-                            CanvasUtil.setStyle chromic, {opacity: 0}
+                        # joule = CanvasUtil.query(e, {prefix: ["JOULE"]})
+                        # CanvasUtil.setStyle joule, color: c
+                        CanvasUtil.setStyle chromic, color: c
+                        # temp = actuator.channels.temperatureF.value 
+                        # temp = 94
+                        # if temp > 94
+                            # CanvasUtil.setStyle chromic, {opacity: 1}
+                        # else if temp > 92 and temp <= 94 #cooling state
+                        #     op = (temp - 92)/ 2
+                        #     CanvasUtil.setStyle chromic, {opacity: op}
+                        # else
+                        #     CanvasUtil.setStyle chromic, {opacity: 0}
             
 
             # UPDATE WIDGETS

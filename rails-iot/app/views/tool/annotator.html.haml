@@ -1,8 +1,9 @@
 :coffeescript
   app = 
     name: "Annotator App"
+    file: "/userstudy/examples/hungry_hippo_visualmanifest.svg"
     # file: "/actuation/devices/chevrons.svg"
-    file: "/actuation/aquarium_pumps.svg"
+    # file: "/actuation/aquarium_pumps.svg"
     filename: ()-> 
       x = @file.split('.')
       x = x[0].split('/')
@@ -206,14 +207,14 @@
       $("#savemetadata").click (e)->
         json = editor.get()
 
-        # # quick annotation
-        # attributes = _.map $('.tab-content.active .attr-variable.active'), (attrVar)->
-        #   return [$(attrVar).attr('name'), $(attrVar).parents('.input-group').find('input').val()]
-        # classes = _.map $('.tab-content.active .class-variable.active'), (classVar)->
-        #   return $(classVar).attr('name')
-        # json = _.extend json, 
-        #   class: classes.join(" ")
-        # json = _.extend json, _.object attributes
+        # quick annotation
+        attributes = _.map $('.tab-content.active .attr-variable.active'), (attrVar)->
+          return [$(attrVar).attr('name'), $(attrVar).parents('.input-group').find('input').val()]
+        classes = _.map $('.tab-content.active .class-variable.active'), (classVar)->
+          return $(classVar).attr('name')
+        json = _.extend json, 
+          class: classes.join(" ")
+        json = _.extend json, _.object attributes
 
 
         $('.active').children('.json').html(JSON.stringify(json))
@@ -289,7 +290,8 @@
 
         _.each items, (item)-> 
           item.activeStyle.visible = item.active
-
+      onMouseDrag: (e)->
+        paper.project.activeLayer.position = paper.project.activeLayer.position.add(e.delta);
       onMouseDown: (e)->
         selected = paper.project.selectedItems
         
@@ -335,12 +337,12 @@
           JSON Editor
       %li
         %button.btn-default.btn.btn-sm{goto: "#thermopainting.tab-content"}
-          Thermopainting
+          Actuation
   .body
     #json-editor.tab-content
       #jsoneditor
     #thermopainting.tab-content
-      = render "thermopainting"      
+      = render "actuation_annotator"      
   .footer
     %button.btn.btn-success.btn-block#savemetadata
       %span.glyphicon.glyphicon-floppy-disk

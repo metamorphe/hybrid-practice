@@ -115,6 +115,7 @@ class window.Stage
             id: guid()
             name: "Stage"
             tracks: []
+            dtracks: []
             numActuators: 0
         Stage.count++
 
@@ -137,9 +138,11 @@ class window.Stage
         scope.data.tracks = []
         scope.data = {trigger: true, numActuators: actor.form.hardware_ids.length}        
         scope.parent.data = {trigger: true}
-        channels = actor.physical_channels()
 
-        n = Object.size(channels)
+        channels = actor.physical_channels()
+        derived = actor.derived_channels()
+
+        n = Object.size(channels) + Object.size(derived)
         tracks = _.each channels, (v, channel)->
             t = new Track
                 parent: scope
@@ -147,12 +150,27 @@ class window.Stage
                 data: 
                     channel: channel
                     tracks: n
+                    derived: false
             
             scope.data.tracks.push t.data.id
             scope.data = {trigger: true}
             scope.parent.data = {trigger: true}
             return [channel, t]
+        
+        dtracks = _.each derived, (v, channel)->
+            t = new Track
+                parent: scope
+                container: scope.trackdom
+                data: 
+                    channel: channel
+                    tracks: n
+                    derived: true
+            scope.data.dtracks.push t.data.id
+            scope.data = {trigger: true}
+            scope.parent.data = {trigger: true}
+
         tracks = _.object(tracks)
+
 
         return tracks
     getActor: ()->
@@ -200,6 +218,7 @@ class window.Stage
         if d.name == "Stage"
             stage = Stage.library[d.id]
             stage.setStage(actor)
+            actor.stage = @data.id
         else
             console.log "Not a stage..."
         
@@ -249,7 +268,7 @@ class window.Track
     constructor: (op)->
         _.extend this, _.omit op, "data"
         @_data = {}
-        @dom = @toDOM()
+        @dom = @toDOM(op.data.derived)
         Track.count++
         @data = 
             id: guid()
@@ -258,7 +277,7 @@ class window.Track
             num_to_accept: 100
             view: "intensity"
             semantic: "disabled"
-            timescale: 10000
+            timescale: Choreography.SCALE
             exportable: "disabled"
             composeable: "enabled"
             channel: ""
@@ -300,27 +319,30 @@ class window.Track
         @dom.removeClass("accepted")
     removeSignal: (signalID)->
         tsm.getTimeSignal(signalID).dom.remove()
-    toDOM: ()->
+    toDOM: (derived)->
         scope = this
         dom = $(Track.template).clone().removeClass('template')
-        
-        dropBehavior = 
-            accept: "datasignal.exportable", 
-            classes: { "droppable-active": "droppable-default"},
-            drop: (event, ui) ->
-                num_to_accept = $(this).data().accept
-                ts = tsm.resolve(ui.draggable)
-                scope.addSignal(ts, num_to_accept)
+        if derived
+            dom.find('.trash').remove()
+            dom.find('.view-toggle').remove()
+        else
+            dropBehavior = 
+                accept: "datasignal.exportable", 
+                classes: { "droppable-active": "droppable-default"},
+                drop: (event, ui) ->
+                    num_to_accept = $(this).data().accept
+                    ts = tsm.resolve(ui.draggable)
+                    scope.addSignal(ts, num_to_accept)
 
-        viewToggle = (e)->
-            state =  scope.data.view
-            orState = if state == "hue" then "intensity" else "hue"
-            scope.data = {view: orState}
+            viewToggle = (e)->
+                state =  scope.data.view
+                orState = if state == "hue" then "intensity" else "hue"
+                scope.data = {view: orState}
 
-        $(dom).droppable(dropBehavior)
+            $(dom).droppable(dropBehavior)
 
-        $(dom).find('.view-toggle').click viewToggle
-        $(dom).find('.trash').click ()-> scope.clearTrack()
+            $(dom).find('.view-toggle').click viewToggle
+            $(dom).find('.trash').click ()-> scope.clearTrack()
         return dom
     toCommands: ()->
 
@@ -363,17 +385,24 @@ class window.Track
                 @_data = _.extend(@_data, obj)
                 @dom.data @_data
                 
-                    
+                console.log "TRACK", obj.derived
+                if obj.derived
+                    @dom.addClass("derived")    
                 # VIEW UPDATES
                 signals = _.map @getSignals(), (signal)-> tsm.getTimeSignal(signal)
                 _.each signals, (s)-> 
                     s.form =  {view: scope._data.view}
                 @_data.period = scope.getTime()
 
-                if @_data.tracks == 1
-                    @dom.removeClass("mini")
-                else
-                    @dom.addClass("mini")
+                switch @_data.tracks
+                    when 1
+                        @dom.removeClass("mini")
+                    when 2
+                        @dom.removeClass("mini")
+                        @dom.addClass("mini-2")
+                    when 3
+                        @dom.addClass("mini")
+                        
 
                 # MANUAL UPDATES
 

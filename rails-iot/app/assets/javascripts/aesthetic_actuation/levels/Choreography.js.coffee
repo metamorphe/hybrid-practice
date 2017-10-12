@@ -1,6 +1,6 @@
 class window.Choreography
 	@COUNTER: 0
-	@SCALE: 5000
+	@SCALE: 10000
 	@library: []
 	@default: (dom)-> return Choreography.CHOREOGRAPHIES[$("choreography.default").data().id]
 	@ACTUATORS = ()-> Artwork.ACTUATORS()

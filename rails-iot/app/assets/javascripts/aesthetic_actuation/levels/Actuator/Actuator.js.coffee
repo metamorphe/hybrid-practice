@@ -42,7 +42,7 @@ class window.Actuator
       
       # scope.dom.popover('hide')
 
-    @dom.find('channels').click (e)->
+    @dom.find('channel:not(.derived)').click (e)->
       scope.dom.popover('show')
       scope.bind_popover_behavior()
       e.stopPropagation()
@@ -51,10 +51,26 @@ class window.Actuator
       selectionTool.selection = scope.form.canvas_ids
       selectionTool.update()
 
-
-
-    @dom.find('channel').click ->
+    @dom.find('channel:not(.derived)').click ->
       $(this).addClass('selected').siblings().removeClass('selected')
+    
+    @dom.find('channel[type="tempF"]').click (e)->
+      sim = scope.getSimulation()
+      range_min = 72
+      range_max = 98
+
+      signal = _.map sim.signal, (s)->
+        return (s - range_min) / (range_max - range_min)
+      dom = TimeSignal.create
+        clear: true
+        target: sim.tempTrack.dom
+      setter = 
+        signal: signal
+        period: sim.period
+        view: "simulation"
+      signal = new TimeSignal(dom, setter)  
+       
+
     
     @dom.find('.save-status').click (e)->
       window.active_choreo = scope.choreo
@@ -62,6 +78,7 @@ class window.Actuator
       console.log 'ACTIVE CHOREO', scope.choreo.form.id
       e.preventDefault()
       e.stopPropagation()
+
     # DEFAULTS
     @actuator_type = "Actuator"
     @hardware_ids = []
@@ -193,6 +210,53 @@ class window.Actuator
           # elements = CanvasUtil.queryIDs @canvas_ids
           # CanvasUtil.set elements, "fillColor", @expression
           # window.paper = @paper
+  getSimulation: ()->
+    actuator = this;
+    parent = actuator.dom.parents('acceptor.actuator')
+    if parent.length > 0 and parent.data().name == "Stage"
+      stage = Stage.library[parent.data().id];
+      tracks = _.map stage.data.tracks, (tid)-> return Track.library[tid]
+      voltageTrack = _.find tracks, (t)->
+        return t.data.channel == "voltage"
+      period = voltageTrack.getTime()
+      commands = voltageTrack.toCommands()
+      signal = TimeSignal.resample(commands, period)
+
+      dtracks = _.map stage.data.dtracks, (tid)-> return Track.library[tid]
+      tempTrack = _.find dtracks, (t)->
+        return t.data.channel == "tempF"
+
+      Ta = 72
+      kH = 90 / 16 #Stable temperature
+      
+      dt = period / signal.length / 1000
+      cooling_factor = 0.02 / 16
+        
+      _.each signal, (s, i)->
+        if i == 0  
+          signal[i] = 72
+          return
+        state = if signal[i] >= 1 then "heat" else "cool"
+        console.log signal[i], state
+        
+        if state == "heat"
+          heat = kH * dt 
+          signal[i] =  signal[i - 1] + heat
+
+          cool = (signal[i - 1] - Ta) * cooling_factor
+          signal[i] -= cool
+      
+        if state == "cool"
+          signal[i] = signal[i-1]
+          cool = (signal[i - 1] - Ta) * cooling_factor
+          signal[i] -= cool
+        if signal[i] < Ta
+          signal[i] = Ta
+      max = _.max signal
+      console.log "MAX", max
+      
+      return {signal: signal, period: period, tempTrack: tempTrack}
+
   setAsync: (t)->
     text = TimeSignal.pretty_time(t)
     @dom.find('label.async').html(text)
@@ -272,6 +336,10 @@ class window.Actuator
   physical_channels: ()->
     _.pick @channels, (val)->
       return not val.op.derived
+  derived_channels: ()->
+    _.pick @channels, (val)->
+      return val.op.derived
+  
 
   
   onCreate: ->

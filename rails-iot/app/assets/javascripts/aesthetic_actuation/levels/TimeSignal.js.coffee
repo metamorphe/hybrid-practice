@@ -1,4 +1,5 @@
 class window.TimeSignal
+  @OPTIMIZED: false # + 4 for BORDER ==> 88
   @DEFAULT_HEIGHT: 74 # + 4 for BORDER ==> 88
   @DEFAULT_WIDTH: 100 # + 4 for BORDER ==> 88
   @COUNTER: 0
@@ -34,7 +35,7 @@ class window.TimeSignal
     @force_period = 1000
     @force_period_flag = false
     @exportable = true
-   
+
     # SETUP CONTAINER
     w = @dom.parent().width()
     h = @dom.parent().height()
@@ -108,6 +109,7 @@ class window.TimeSignal
           @dom.addClass('draggable')
         if @composeable
           @dom.addClass('composeable')
+
 
         # NEEDS CANVAS REFRESH
         canvas_refresh = ["semantic", "timescale", "tracks"]
@@ -278,6 +280,12 @@ class window.TimeSignal
         @_signal.opacity = 1
         @_hue.opacity = 0
         @_physical.opacity = 1
+      when "simulation"
+        @_fill.opacity = 1
+        @_signal.opacity = 1
+        @_hue.opacity = 0
+        @_physical.opacity = 0
+        @_fill.fillColor = "red"
 
   _visuals:()->
     window.paper = @paper
@@ -301,13 +309,21 @@ class window.TimeSignal
       name: "TIMESIGNAL:" + @id,
       time_signal_id: @id,  
       children: _.flatten [@_fill, @_signal, @_axes, @_physical]
-    @_time = @_time_encoder(@visuals)
-    @_play = @_play_button(@visuals)
-    @_remove = @_remove_button(@visuals)
-    @timeencode = new paper.Group
-      name: "TIMEENCODE:" + @id,
-      time_signal_id: @id,  
-      children: _.flatten [@_play, @_time, @_remove]
+    if this.form.view == "simulation"
+      @_time = @_time_encoder(@visuals)
+      @timeencode = new paper.Group
+        name: "TIMEENCODE:" + @id,
+        time_signal_id: @id,  
+        children: @_time
+    else
+      @_time = @_time_encoder(@visuals)
+      @_play = @_play_button(@visuals)
+      @_remove = @_remove_button(@visuals)
+
+      @timeencode = new paper.Group
+        name: "TIMEENCODE:" + @id,
+        time_signal_id: @id,  
+        children: _.flatten [@_play, @_time, @_remove]
   fill: (op) ->
     visual = @to_visual()
     time_signal = _.flatten visual, true 
@@ -591,74 +607,76 @@ class window.TimeSignal
     ## COMMAND_LIST CONVERSION
     commands = @command_list_data(data)
     # console.log "COMMANDS", commands.length
-    query = 
-      parameterized: true
-    _.each commands, (command)->
-      query[channel] = command.param
-      actuator.expression = query
-      command.value = actuator.channels[channel].value
-
-    # RESOLUTION CORRECTION
-    commands = TimeSignal.compile(commands, "value")
-    # console.log "COMMANDS", commands.length
-
-    ## POV + MECHANICAL CORRECTION (TIME BASE MEDIA)
-    commands = _.map commands, (curr, i)->
-      if i == 0 then return curr
-      prev = commands[i-1] 
-      curr.dt = curr.t - prev.t
-      return curr
-    # console.log "dCommands", commands.length
     
-    #POV
-    dt_accum = 0
-    last_accepted_value = commands[0].value
-    lastIdx = commands.length - 1
+    if TimeSignal.OPTIMIZED
+      query = 
+        parameterized: true
+      _.each commands, (command)->
+        query[channel] = command.param
+        actuator.expression = query
+        command.value = actuator.channels[channel].value
 
-    commands = _.map commands, (curr, i)->
-      if i == 0 then return curr
-      prev = commands[i-1]
-      # SUPERFLUOUS COMMAND
-      if curr.value == last_accepted_value
-        dt_accum += curr.dt 
-        return null 
-      # PERCEIVABLE
-      if curr.dt + dt_accum > channelData.throttle or i == lastIdx
-        last_accepted_value = curr.value
-        dt_accum = 0
-        return curr
-      # INPERCEIVABLE 
-      else
-        dt_accum += curr.dt 
-        return null
-    commands = _.compact(commands)
-    # console.log "povCommands", commands.length
-    if channelData.budget
-      # console.log "BUDGET", channelData.budget
-      ## MECHANICAL UPDATE  
+      # RESOLUTION CORRECTION
+      commands = TimeSignal.compile(commands, "value")
+      # console.log "COMMANDS", commands.length
+
+      # POV + MECHANICAL CORRECTION (TIME BASE MEDIA)
       commands = _.map commands, (curr, i)->
-        if i == 0 then return _.pick curr, "param", "duration", "value", "t"
-        prev = commands[i-1]
-        dV = curr.value - prev.value
-        budget = channelData.budget * curr.dt
-        mag = Math.abs(dV)
-        sign = Math.sign(dV)
-        if mag > budget
-          curr.value = prev.value + (budget * sign)
-          query = {}
-          query[channel] = curr.value
-          actuator.expression = query
-          curr.value = actuator.channels[channel].value
-          commands[i].value = curr.value
-          curr.param = actuator.channels[channel].param
-          return _.pick curr, "param", "duration", "value", "t" 
-        else
-          return _.pick curr, "param", "duration", "value", "t" 
+        if i == 0 then return curr
+        prev = commands[i-1] 
+        curr.dt = curr.t - prev.t
+        return curr
+      # console.log "dCommands", commands.length
+      
+      #POV
+      dt_accum = 0
+      last_accepted_value = commands[0].value
+      lastIdx = commands.length - 1
 
-      # console.log "mechCommands", commands.length
-    
-    commands = TimeSignal.compile(commands, "value")
-    # console.log "COMMANDS", commands.length
+      commands = _.map commands, (curr, i)->
+        if i == 0 then return curr
+        prev = commands[i-1]
+        # SUPERFLUOUS COMMAND
+        if curr.value == last_accepted_value
+          dt_accum += curr.dt 
+          return null 
+        # PERCEIVABLE
+        if curr.dt + dt_accum > channelData.throttle or i == lastIdx
+          last_accepted_value = curr.value
+          dt_accum = 0
+          return curr
+        # INPERCEIVABLE 
+        else
+          dt_accum += curr.dt 
+          return null
+      commands = _.compact(commands)
+      # console.log "povCommands", commands.length
+      if channelData.budget
+        # console.log "BUDGET", channelData.budget
+        ## MECHANICAL UPDATE  
+        commands = _.map commands, (curr, i)->
+          if i == 0 then return _.pick curr, "param", "duration", "value", "t"
+          prev = commands[i-1]
+          dV = curr.value - prev.value
+          budget = channelData.budget * curr.dt
+          mag = Math.abs(dV)
+          sign = Math.sign(dV)
+          if mag > budget
+            curr.value = prev.value + (budget * sign)
+            query = {}
+            query[channel] = curr.value
+            actuator.expression = query
+            curr.value = actuator.channels[channel].value
+            commands[i].value = curr.value
+            curr.param = actuator.channels[channel].param
+            return _.pick curr, "param", "duration", "value", "t" 
+          else
+            return _.pick curr, "param", "duration", "value", "t" 
+
+        console.log "mechCommands", commands.length
+      
+      commands = TimeSignal.compile(commands, "value")
+      console.log "COMMANDS", commands.length
     signal = TimeSignal.resample(commands, @period)
     return signal
       

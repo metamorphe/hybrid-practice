@@ -1,3 +1,10 @@
+channel.derived label{
+    background: $base !important;
+    text-align: center !important;
+    margin: 2px;
+    
+}
+
 #actuator-library .track-full{
     background: darken($actuator_base, 10%);
 }
