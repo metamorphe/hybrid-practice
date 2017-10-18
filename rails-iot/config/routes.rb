@@ -7,10 +7,12 @@ Rails.application.routes.draw do
       get 'selectors'
     end
   end
-
-  get 'heat/sketch'
-  get 'heat/field'
-  get 'heat/generator'
+  namespace :heat do
+    get 'sketch'
+    get 'field'
+    get 'generator'
+    get 'vision'
+  end
 
   namespace :tool do
     post 'visual_block'

@@ -1,0 +1,61 @@
+.form-group
+  .input-group
+    .input-group-btn
+      %button.btn.btn-default.note.attr-variable{:name => "id", :type => "button"} ID
+    %input.form-control.id-value{"aria-label" => "...", :type => "number", :placeholder => "ID"}
+.form-group
+  .input-group
+    .input-group-btn
+      %button.btn.btn-default.note.attr-variable{:name => "name", :type => "button"} NAME
+    %input.form-control.name-value{"aria-label" => "...", :type => "text", :placeholder => "NAME"}
+.form-group
+  .input-group
+    .input-group-btn
+      %button.btn.btn-default.note.attr-variable{:name => "actuator", :type => "button"} ACTUATOR
+      %button.btn.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+        %span.caret
+        %span.sr-only Toggle Dropdown
+      %ul.dropdown-menu
+        %li
+          %a{:href => "#"} MOTOR
+        %li
+          %a{:href => "#"} HEATER
+        %li
+          %a{:href => "#"} STEPPER
+        %li
+          %a{:href => "#"} RGBLED
+        %li
+          %a{:href => "#"} AIRPUMP
+
+
+
+    %input.form-control.attr-variable.power-value{"aria-label" => "...", :type => "text", :placeholder => "ACTUATOR"}
+.form-group
+  .btn-group.btn-block
+    %button.btn.btn-default.note.class-variable{:name => "pivot", :type => "button"} PIVOT
+    %button.btn.btn-default.note.class-variable{:name => "arm", :type => "button"} ARM
+    %button.btn.btn-default.note.class-variable{:name => "base", :type => "button"} BASE
+
+.form-group
+  .input-group
+    .input-group-btn
+      %button.btn.btn-default.note.attr-variable{:name => "pin", :type => "button"} PIN
+    %input.form-control.pin-value{"aria-label" => "...", :type => "number", :placeholder => "GPIO"}
+
+
+.form-group
+  .input-group
+    .input-group-btn
+      %button.btn.btn-default.note.attr-variable{:name => "power", :type => "button"} POWER
+      %button.btn.btn-default.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+        %span.caret
+        %span.sr-only Toggle Dropdown
+      %ul.dropdown-menu
+        %li
+          %a{:href => "#"} 5V
+        %li
+          %a{:href => "#"} 3.3V
+        %li
+          %a{:href => "#"} 12V
+
+    %input.form-control.attr-variable.power-value{"aria-label" => "...", :type => "text", :placeholder => "VOLTAGE"}

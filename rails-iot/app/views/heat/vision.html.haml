@@ -1,0 +1,388 @@
+:coffeescript
+  window.app = 
+    name: "Heat Vision Replay App"
+    file: "/LaunchControl.svg"
+    filename: ()-> 
+      x = @file.split('.')
+      x = x[0].split('/')
+      return x[x.length-1]
+    process_ui: (svg)->
+      if svg and svg.className == "Path" and not svg.fillColor then svg.fillColor = @defaultFillColor()
+      if svg and svg.className == "Shape" then svg = svg.replaceWith(svg.toPath())
+      if svg and svg.className == "Raster" 
+        svg.remove()
+        return
+      console.log JSON.parse(@processName(svg))
+      svg.set
+        data: JSON.parse(@processName(svg))
+        # active: false
+      # _.extend svg, svg.name
+    process_tree: (svg, process)->
+      scope = this
+      if svg
+        process(svg)
+        if svg.className == "Group" or svg.className == "Layer" 
+          if svg.children and svg.children.length >= 0 
+              _.map svg.children, (child)->
+                scope.process_tree(child, process)
+    defaultFillColor: ()->
+      c = new paper.Color(245, 244, 240)
+      c.brightness = 0.7
+      c.alpha = 0.5
+      return c
+    toggleSlider: (i, val)->
+      sliders = app.query
+        class:"slider"
+        id: i
+      slider = sliders[0]
+      scrubber = @queryH slider, 
+        class:"scrubber"
+      scrubber = scrubber[0]
+      range = @queryH slider, 
+        class:"range"
+      range = range[0]
+      n = range.length
+      scrubber.set
+        position: range.getPointAt(val * n)
+      
+    toggleSlot: (vid, i, val)->
+      slots = app.query
+        class:"slots"
+        id: i
+      slots = slots[0]
+      idx = parseInt(val * 5)
+      @switchSource(vid, idx)
+      _.each slots.children, (slot, i)->
+        if i == idx
+          slot.fillColor = "white"
+          slot.fillColor.alpha = 1.0
+        else
+          slot.fillColor = "white"
+          slot.fillColor.alpha = 0.3
+          slot.strokeColor = "white"
+          slot.strokeWidth = 1
+    switchSource: (vid, i)->
+      sources = $(vid).children("source")
+      if vid.src != sources[i].src
+        $(vid).attr 'src', sources[i].src
+    togglePad: (i)->
+      pad = @query({class: "pad"})[i]
+      if pad.active
+        pad.active = not pad.active
+      else 
+        pad.active = true
+      bg = pad.children[0]
+      bg.fillColor = if pad.active then "red" else "white"
+      bg.fillColor.alpha = 0.5
+    initialize: ()->
+      console.log "Initializing", @name
+      @bindEvents()
+      window.video = $('video').get(0)
+      _.each $('video'), (vid)->
+        vid.controls = true
+      @initLaunchControl()
+
+    initLaunchControl: ()->
+      scope = this
+      $('#shade').hide()
+      
+      window.ctrl = new LaunchControl()
+      ctrl.open().then ->
+        ctrl.led 'all', 'amber'
+        return
+      
+      
+      
+      ctrl.on 'message', (e) ->
+        console.log 'dataType: ' + e.dataType
+        console.log 'track   : ' + e.track
+        console.log 'value   : ' + e.value
+        console.log 'channel : ' + e.channel
+        console.log 'direction : ' + e.direction
+        clr = new paper.Color('red')
+        if not _.isUndefined(e.track)
+          vid = $('video[data-id="'+ e.track+'"]').get(0)
+        switch e.dataType
+          when "knob1"
+            p = e.value / 128
+            scope.toggleSlider(e.track, p)
+            if vid and vid.readyState > 0
+              pos = p * vid.duration
+
+              if pos >= vid.seekable.start(0) and pos <= vid.seekable.end(0)
+                vid.currentTime = pos
+              else
+                console.log "BUFFERING"
+          when "knob2"
+            p = e.value / 128
+            scope.toggleSlot(vid, e.track, p)
+          when "pad"
+            if e.value > 0
+              scope.togglePad(e.track)  
+              if vid
+                if vid.paused
+                  vid.play()
+                else
+                  vid.pause()
+            else
+              scope.active = vid
+                  
+            ctrl.led(e.track, "amber")
+            turnoff = ()->
+              ctrl.led(e.track, "off")
+            _.delay turnoff, 500
+          when "cursor"
+            vid = scope.active
+            if vid
+              switch e.direction
+                when "up"
+                  v = $(vid).detach()
+                  $('td[data-id="0"]').html(v)
+                when "down"
+                  v = $(vid).detach()
+                  $('td[data-id="1"]').html(v)
+                when "left"
+                  v = $(vid).detach()
+                  $('td[data-id="2"]').html(v)
+                 when "right"
+                  v = $(vid).detach()
+                  $('td[data-id="3"]').html(v)
+    bindEvents: ()->
+      scope = this
+      $ -> 
+        scope.onDocumentReady()
+        $('#shade').fadeOut()
+    
+    onDocumentReady: ()->
+      window.ws = new WebStorage()
+      @paperLoad()
+    queryH: (svg, criteria)->
+      return svg.getItems
+        data: criteria
+    query:(criteria)->
+      return @svg.getItems
+        data: criteria
+    paperLoad: ()->
+      paper = window.Utility.paperSetup("vision")
+      paper.settings.handleSize = 8
+
+      scope = this
+      
+      onsvgload = (svg)->
+        console.log "IMPORTING", svg
+        scope.svg = svg
+        paper.view.update()
+        tree = scope.process_tree svg, (svg)->
+          scope.process_ui(svg)
+        $('#svg-tree').append(tree)
+        scope.validate(svg)
+        svg.set
+          position: paper.view.center
+        svg.fitBounds(paper.view.bounds)
+        svg.position = paper.view.center
+        # UI SPECIFIC
+        pads = scope.query
+          class: "pad"
+        slot_template = scope.query
+          class: "slots"
+        slot_template = slot_template[0]
+        slot_template.data = _.extend slot_template.data, 
+          id: 0
+        slot_distance = slot_template.position.getDistance(pads[0].bounds.topCenter)
+        slider_template = scope.query
+          class: "slider"
+        slider_template = slider_template[0]
+        slider_template.data = _.extend slider_template.data, 
+          id: 0
+        slider_distance = slider_template.position.getDistance(pads[0].bounds.topCenter)
+
+        # slot_template.selected = true
+        _.each pads.slice(1), (pad, i)->
+          slot = slot_template.clone()
+          slot.set
+            data: _.extend slot.data, 
+              id: i + 1
+            position: pad.bounds.topCenter.clone().add(new paper.Point(0, -1 * slot_distance))
+          slider = slider_template.clone() 
+          slider.set
+            data: _.extend slider.data, 
+              id: i + 1
+            position: pad.bounds.topCenter.clone().add(new paper.Point(0, -1 * slider_distance))
+     
+        paper.view.update()
+      
+      if ws.includes(@filename())
+        console.log "Loading imported..."
+        cache = ws.get(@filename())
+        svg = paper.project.importJSON JSON.parse cache
+        onsvgload(svg[0].children[0])
+      else 
+        console.log "Loading svg..."
+        paper.project.importSVG @file, onsvgload
+    
+    validate: (svg)->
+      @json_validate(svg)
+
+    json_validate: (svg)->
+      scope = this
+      try
+        JSON.parse(svg.name)
+        if svg.dom then svg.dom.removeClass("error")
+      catch error
+        if error instanceof SyntaxError and svg
+          if not svg.errors then svg.errors = []
+          svg.errors.push error
+          if svg.dom then svg.dom.addClass("error")
+      if svg.children
+        _.each svg.children, (child)-> scope.validate(child)
+    processName: (item)->
+      name = item.name
+      if _.isUndefined(name) or _.isNull(name) then return JSON.stringify({})
+      name = name.trim()
+      name = name.replaceAll("_x5F_", "_")
+      name = name.replaceAll("_x23_", "#")
+      name = name.replaceAll("_x27_", "")
+      name = name.replaceAll("_x22_", '"')
+      name = name.replaceAll("_x7B_", '{')
+      name = name.replaceAll("_x7D_", '}')
+      name = name.replaceAll("_x5B_", '[')
+      name = name.replaceAll("_x5D_", ']')
+      name = name.replaceAll("_x2C_", ',')
+      name = name.replaceAll("_", ' ')
+      lastBracketIdx = name.lastIndexOf("}")
+      if lastBracketIdx > -1 then name = name.slice(0, lastBracketIdx + 1)
+
+    
+
+    
+    
+  $ ->    
+    app.initialize()
+
+
+.canvas-container
+  %canvas#vision
+  .btn-group-vertical#zoom
+    %button#zoom-in.btn.btn-xs.btn-info
+      = glyph "plus"
+    %button#zoom-out.btn.btn-xs.btn-info
+      = glyph "minus"    
+
+
+
+
+
+
+%table
+  %tr
+    %td{data: {id: 0}}
+      %video.pause{data: {id: 0}}
+        %source{src: "/videos/tree1_hoz.mp4", type:"video/mp4", controls: true}
+        %source{src: "/videos/teal_spiral.mp4", type:"video/mp4", controls: true} 
+        Your browser does not support the video tag.
+    %td{data: {id: 1}}
+      %video.pause{data: {id: 1}}
+        %source{src: "/videos/tree2_hoz.mp4", type:"video/mp4", controls: true}
+        %source{src: "/videos/teal_square.mp4", type:"video/mp4", controls: true} 
+        Your browser does not support the video tag.
+  %tr
+    %td{data: {id: 2}}
+    %td{data: {id: 3}}
+  
+:scss
+  $borderColor: #D3D3D3;
+  $arrowColor: #7A7A7A;
+  $subtleText: #80858B;
+
+  $activeBackground: #4573B9;
+  $activeText: #FFFFFF;
+  $activeSubtleText: #C5C5C5;
+  $activeArrowColor: #DDDDDD;
+  
+  $error: desaturate(#eb3941, 10%);
+  $errorBorder: darken(#eb3941, 20%);
+  $success: darken(#dff0d8, 30%);
+  $successText: white;
+
+  $formBlue: #3883fa;
+  $panelBackground: #F5F5F5;
+  $hoverText: #ECF1FA;
+  $eggshell: rgb(245, 244, 240);
+
+
+  html, body{
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+    background: url("/station.jpg") no-repeat center #eee;
+    background-size: cover;
+  }
+  
+  table{
+    position: absolute;
+    z-index: 200;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    td{
+      width: 50%;
+      height: 50%;
+      border: 5px solid red;
+    }
+  }
+  #settings{
+    padding: 15px;
+    display: none;
+  }
+  #zoom{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+  button.note{
+    outline: none;
+    &:active{
+      outline: none !important;
+    } 
+    &:focus{
+      background: white !important;
+      outline: none !important;
+    }
+    
+    &.active{
+      background: $formBlue !important;
+      color: white;
+      &:active{
+      background: $formBlue;
+      color: white;
+      }
+      &:hover{
+        background: $formBlue;
+        color: white;
+      }
+      &:focus{
+        outline: none !important;
+        background: $formBlue !important;
+        color: white !important;
+      }
+    }
+  }
+
+  .canvas-container{
+    bottom: 100px;
+    # width: 100%;
+    # height: 100%;
+    width: 100%;
+    height: 300px;
+    position: absolute;
+    z-index: 100;
+  }
+  canvas{
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+  video{
+    height: 100%;
+    width: 100%;
+  }

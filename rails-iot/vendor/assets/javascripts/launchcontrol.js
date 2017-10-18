@@ -56,9 +56,9 @@ function parseMessage(st, d1, d2) {
   var value = Math.max(0, Math.min(d2, 127));
   var channel = Math.max(0, Math.min(st & 0x0f, 15));
   var track = undefined;
-
+  console.log("LC", messageType)
   // note on
-  if (messageType === 0x90 && value !== 0) {
+  if (messageType === 0x90 || messageType === 0x80) {
     track = PAD.indexOf(d1);
     if (track !== -1) {
       return { dataType: "pad", track: track, value: value, channel: channel };

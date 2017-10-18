@@ -22,3 +22,5 @@
 //= require circuitree/animation_handler
 //= require heat/heat_sketch
 //= require heat/joule_heater
+//= require webmidi.min
+//= require launchcontrol

@@ -31,7 +31,7 @@ gem 'cloudinary'
 # gem 'bcrypt', '~> 3.1.7'
 
 # Use unicorn as the app server
-gem 'unicorn'
+# gem 'unicorn'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -40,7 +40,7 @@ gem 'unicorn'
 # gem 'debugger', group: [:development, :test]
 
 # PROJECT GEMS
-# gem 'thin'
+gem 'thin'
 gem 'carrierwave'
 gem 'bootstrap-sass'
   # git: 'https://github.com/twbs/bootstrap-sass', 
