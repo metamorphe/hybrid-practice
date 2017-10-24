@@ -1,0 +1,23 @@
+= form_for @therm_resource, html:{multipart: true} do |f|
+  - if @therm_resource.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@therm_resource.errors.count, "error")} prohibited this therm_resource from being saved:"
+      %ul
+        - @therm_resource.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :user_id
+
+    = select("therm_resource", "user_id", User.all.collect {|p| [ p.name, p.id ] }, {},:class => "form-control")
+  .field
+    = f.label :category
+    = f.text_field :category, :class=>"form-control"
+  .field
+    = f.label :resource
+    = f.file_field :resource,  multiple: false, :class=>"form-control"
+  .field
+    = f.label :tags
+    = f.text_field :tags, :class=>"form-control"
+  .actions
+    = f.submit 'Save', :class=>"btn btn-sm btn-primary"

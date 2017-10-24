@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   get 'aesthetic_development/network'
 
+  resources :therm_resources 
   resources :visual_blocks do 
     collection do 
       get 'selectors'
