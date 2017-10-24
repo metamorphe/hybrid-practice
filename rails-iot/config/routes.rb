@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :videos
   get 'aesthetic_development/network'
 
   resources :visual_blocks do 

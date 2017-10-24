@@ -11,16 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170125003035) do
+ActiveRecord::Schema.define(version: 20171018223037) do
 
-  create_table "authors", force: true do |t|
+  create_table "authors", force: :cascade do |t|
     t.integer  "swatch_id"
     t.integer  "feel_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "designs", force: true do |t|
+  create_table "designs", force: :cascade do |t|
     t.string   "name"
     t.string   "bom"
     t.string   "json"
@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 20170125003035) do
     t.datetime "updated_at"
   end
 
-  create_table "feel_swatches", force: true do |t|
+  create_table "feel_swatches", force: :cascade do |t|
     t.string   "name"
     t.integer  "skin"
     t.integer  "structure"
@@ -38,18 +38,18 @@ ActiveRecord::Schema.define(version: 20170125003035) do
     t.datetime "updated_at"
   end
 
-  create_table "layers", force: true do |t|
+  create_table "layers", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "structure_swatches", force: true do |t|
+  create_table "structure_swatches", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "swatches", force: true do |t|
+  create_table "swatches", force: :cascade do |t|
     t.string   "name"
     t.string   "bump_map"
     t.float    "base_height"
@@ -66,12 +66,12 @@ ActiveRecord::Schema.define(version: 20170125003035) do
     t.boolean  "is_dynamic",   default: false
   end
 
-  create_table "texture_swatches", force: true do |t|
+  create_table "texture_swatches", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "users", force: true do |t|
+  create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
     t.string   "reset_password_token"
@@ -89,7 +89,16 @@ ActiveRecord::Schema.define(version: 20170125003035) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
 
-  create_table "visual_blocks", force: true do |t|
+  create_table "videos", force: :cascade do |t|
+    t.string   "file"
+    t.integer  "user_id"
+    t.integer  "pad"
+    t.integer  "slot"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "visual_blocks", force: :cascade do |t|
     t.string   "name"
     t.string   "image"
     t.text     "data"

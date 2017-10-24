@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b File:
+  = @video.file
+%p
+  %b User:
+  = @video.user_id
+%p
+  %b Pad:
+  = @video.pad
+%p
+  %b Slot:
+  = @video.slot
+
+= link_to 'Edit', edit_video_path(@video)
+\|
+= link_to 'Back', videos_path
