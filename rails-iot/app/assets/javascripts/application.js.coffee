@@ -1,7 +1,17 @@
 //= require jquery
 //= require jquery_ujs
+//= require bootstrap
 //= require underscore
 //= require alertify
+//= require jquery-ui/core
+//= require jquery-ui/widget
+//= require jquery-ui/position
+//= require jquery-ui/widgets/mouse
+//= require jquery-ui/widgets/draggable
+//= require jquery-ui/widgets/droppable
+//= require jquery-ui/widgets/resizable
+//= require jquery-ui/widgets/selectable
+//= require jquery-ui/widgets/sortable
 //= require_self
 
 window.YELLOW = "#FF9912"
