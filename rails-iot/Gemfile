@@ -25,13 +25,14 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 gem 'spring',        group: :development
-gem 'cloudinary'
+
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
 # Use unicorn as the app server
-# gem 'unicorn'
+# gem 'unicorn',  group: :development
+gem "thin"
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -40,8 +41,10 @@ gem 'cloudinary'
 # gem 'debugger', group: [:development, :test]
 
 # PROJECT GEMS
-gem 'thin'
+
 gem 'carrierwave'
+gem 'cloudinary'
+gem 'dotenv-rails'
 gem 'bootstrap-sass'
   # git: 'https://github.com/twbs/bootstrap-sass', 
   # ref: '540ad23430b1bdb2c72591daf61507ec9e38e468'
@@ -58,8 +61,8 @@ gem 'underscore-rails'
 gem 'jquery-ui-rails'
 gem 'htmlbeautifier'
 gem 'chart-js-rails'
-gem "haml-rails", "~> 0.9"
+gem "haml-rails"
 gem 'ace-rails-ap'
 gem 'tzinfo-data'
-
-
+gem 'omniauth'
+gem 'omniauth-google-oauth2'

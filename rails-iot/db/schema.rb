@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171018223037) do
+ActiveRecord::Schema.define(version: 20171024212040) do
 
   create_table "authors", force: :cascade do |t|
     t.integer  "swatch_id"
@@ -71,6 +71,16 @@ ActiveRecord::Schema.define(version: 20171018223037) do
     t.datetime "updated_at"
   end
 
+  create_table "therm_resources", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "category"
+    t.string   "resource"
+    t.string   "tags"
+    t.string   "string"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
@@ -84,6 +94,11 @@ ActiveRecord::Schema.define(version: 20171018223037) do
     t.string   "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "name"
+    t.string   "username"
+    t.integer  "level",                  default: 0
+    t.string   "provider"
+    t.string   "uid"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true

@@ -1,8 +1,11 @@
 Rails.application.routes.draw do
+  devise_for :users, controllers: { confirmations: 'confirmations',  omniauth_callbacks: "omniauth_callbacks"}
+  resources :user, :only => ["show"]
 
   resources :videos
   get 'aesthetic_development/network'
 
+  resources :therm_resources 
   resources :visual_blocks do 
     collection do 
       get 'selectors'
@@ -61,9 +64,7 @@ Rails.application.routes.draw do
   end
 
   get 'jig/interface/:id' => "jig#interface",  :as => "jig_interface"
-  devise_for :users
-  resources :user, :only => ["show"]
-
+  
 
   get 'threejs/height_displacement', :as => "pic2stl"
   get 'threejs/environment', :as => "three_env"

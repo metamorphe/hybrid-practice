@@ -1,0 +1,29 @@
+%h1 Listing therm_resources
+
+%table
+  %thead
+    %tr
+      %th User
+      %th Category
+      %th Resource
+      %th Tags
+      %th String
+      %th
+      %th
+      %th
+
+  %tbody
+    - @therm_resources.each do |therm_resource|
+      %tr
+        %td= therm_resource.user_id
+        %td= therm_resource.category
+        %td= therm_resource.resource
+        %td= therm_resource.tags
+        %td= therm_resource.string
+        %td= link_to 'Show', therm_resource
+        %td= link_to 'Edit', edit_therm_resource_path(therm_resource)
+        %td= link_to 'Destroy', therm_resource, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Therm resource', new_therm_resource_path
