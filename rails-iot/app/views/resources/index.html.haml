@@ -1,0 +1,27 @@
+%h1 Listing resources
+
+%table
+  %thead
+    %tr
+      %th File
+      %th User
+      %th Tags
+      %th File cache
+      %th
+      %th
+      %th
+
+  %tbody
+    - @resources.each do |resource|
+      %tr
+        %td= resource.file
+        %td= resource.user_id
+        %td= resource.tags
+        %td= resource.file_cache
+        %td= link_to 'Show', resource
+        %td= link_to 'Edit', edit_resource_path(resource)
+        %td= link_to 'Destroy', resource, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Resource', new_resource_path

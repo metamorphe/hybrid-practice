@@ -1,7 +1,7 @@
 # ACTUATION AESTHETICS
 //= require ace-rails-ap
 //= require ace/theme-monokai
-//= require ace/mode-javascript
+//= require ace/mode-c_cpp
 //= require finitestatemachine
 //= require jquery.preventMacBackScroll.js
 # //= require aesthetic_actuation/ComponentSelectTool

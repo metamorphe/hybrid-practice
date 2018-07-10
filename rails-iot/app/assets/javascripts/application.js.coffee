@@ -37,6 +37,8 @@ $(()->
     return target.replace(new RegExp(search, 'g'), replacement)
   
 )
+String.prototype.capitalize = ()->
+  return this.charAt(0).toUpperCase() + this.slice(1);
 
 window.rgb2hex = (rgb) ->
   rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i)
@@ -100,10 +102,10 @@ window.Utility = ->
 window.Utility.paperSetup = (id, op) ->
   dom = if typeof id == 'string' then $('#' + id) else id
   # w = dom.parent().height()
-  if op and op.width then dom.parent().width(op.width+1)
-  if op and op.width then dom.width(op.width+1)
-  if op and op.height then dom.parent().height(op.height+1)
-  if op and op.height then dom.height(op.height)
+  # if op and op.width then dom.parent().width(op.width+1)
+  # if op and op.width then dom.width(op.width+1)
+  # if op and op.height then dom.parent().height(op.height+1)
+  # if op and op.height then dom.height(op.height)
   # dom.attr 'height', w
   # dom.attr 'width', '90px'
   paper.install window

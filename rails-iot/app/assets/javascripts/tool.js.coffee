@@ -15,11 +15,12 @@
 //= require eld/ruler
 //= require eld/CanvasUtil
 //= require eld/artwork
-//= require eld/LightControl
-//= require actuation_aesthetics
-//= require actuation_aesthetics
-//= require annotator/jsoneditor.min
 
+//= require annotator/jsoneditor.min
+//= require ace-rails-ap
+
+//= require ace/theme-monokai
+//= require ace/mode-c_cpp
 
 
     

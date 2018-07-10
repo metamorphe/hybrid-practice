@@ -5,6 +5,7 @@ class FileManager
     @setKey()
     @open_file = @op.default
     if ws and ws.includes(@key) then @open_file = ws.get(@key)
+    @name = @open_file
     if @op.selector then @_setupSelector()
     @load @op.onLoad
     return
@@ -16,9 +17,11 @@ class FileManager
     console.info 'Init file selector', @op.files.length, 'files found.'
     scope = this
     # DOM SETUP
+    console.log "FILES", @op.files
     options = _.map(@op.files, (file) ->
       dom = $('<option></options>').html(file.title.toUpperCase()).attr('value', file.path + file.name)
       if @open_file == file.path + file.name then dom.attr 'selected', true
+      scope.name = file.name
       dom
     )
     $(@op.selector).html(options);
@@ -37,6 +40,7 @@ class FileManager
   load: (onLoad) ->
     console.warn "TODO: IMPLEMENT LOAD FOR", @constructor.name
 class SVGFileManager extends FileManager
+
   load: (onLoad)->
     window.paper = @op.paper;
     loadingFn = onLoad

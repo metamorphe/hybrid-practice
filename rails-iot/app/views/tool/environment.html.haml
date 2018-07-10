@@ -1,0 +1,458 @@
+= javascript_include_tag "manifest/opportunistic"
+#metadata-panel.dragpanel
+  .heading.draghandle
+    %ul#tabs
+      %li
+        %button.btn-default.btn.btn-sm.selected{goto: "#json-editor.tab-content"}
+          JSON Editor
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#thermopainting.tab-content"}
+          Actuation
+  .body
+    #json-editor.tab-content
+      #jsoneditor
+    #thermopainting.tab-content
+      = render "actuation_annotator"      
+  .footer
+    %button.btn.btn-success.btn-block#savemetadata
+      %span.glyphicon.glyphicon-floppy-disk
+      SAVE METADATA
+
+.canvas-container
+  %canvas#annotator{:resize => true}
+  .btn-group-vertical#zoom
+    %button#zoom-in.btn.btn-xs.btn-info
+      = glyph "plus"
+    %button#zoom-out.btn.btn-xs.btn-info
+      = glyph "minus"
+
+
+#annotation-panel.dragpanel
+  .heading.draghandle
+    %ul#tabs
+      %li       
+        %button.btn-default.btn.btn-sm.selected{goto: "#svg-viewer.tab-content"}
+          MANIFEST
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#mechanical.tab-content"}
+          MECHANICAL
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#electrical.tab-content"}
+          ELECTRICAL
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#computational.tab-content"}
+          PROGRAM
+      %li
+        %button.btn-default.btn.btn-sm{goto: "#settings.tab-content"}
+          %span.glyphicon.glyphicon-cog
+  .body
+    #mechanical.tab-content
+    #electrical.tab-content
+      %table.table.table-striped
+        %tr
+          %td Total Actuators
+          %td 1
+        %tr 
+          %td Total PWM Pins
+          %td 1
+        %tr
+          %td Power Needed 
+          %td 1.5W (2.5W Max)
+
+    #computational.tab-content
+      #editor
+    #svg-viewer.tab-content
+      
+      .input-group
+        %input.form-control{:placeholder => "Search for...", :type => "text"}/
+        %span.input-group-btn
+          %button.btn.btn-success{:type => "button"}
+            %span.glyphicon.glyphicon-plus
+      %br.clearfix
+      #system-message.success
+        %span.glyphicon.glyphicon-warning-sign.error-alert
+        %span.error-alert
+          %b#error-count 25 
+          %span ERRORS DETECTED
+        %span.success-alert
+          %span DESIGN PASSED VALIDATION
+      #svg-tree
+
+    #settings.tab-content
+      %p 
+        %b LAST UPDATED
+        %span 2017 Aug 17
+      %hr
+      .form-group
+        %b FILENAME
+        %input.form-control{type: "text", placeholder: "chevron.svg"}
+      %hr
+      .form-group
+        %input{type: "checkbox", checked: true}
+        %b AUTOSAVE
+        %p.help-block Information will be cached in webstorage.
+      %hr
+      .form-group
+        %b QUICK ANNOTATION SCHEMAS
+        %br
+        %br
+        .list-group#quick-annotations
+          %button.list-group-item{value: "circuit"} CIRCUIT
+          %button.list-group-item{value: "illumination"} ILLUMINATION
+          %button.list-group-item{value: "actuation"} ACTUATION
+          %button.list-group-item{value: "thermopainting"} THERMOPAINTING
+
+
+
+  .footer
+    .btn-group
+      %button.btn.btn-default#download
+        %span.glyphicon.glyphicon-download
+        DOWNLOAD
+      %button.btn.btn-default#save
+        %span.glyphicon.glyphicon-floppy-disk
+        SAVE
+      %button.btn.btn-danger#clear
+        %span.glyphicon.glyphicon-trash
+        CLEAR
+
+   
+
+:scss
+  $borderColor: #D3D3D3;
+  $arrowColor: #7A7A7A;
+  $subtleText: #80858B;
+
+  $activeBackground: #4573B9;
+  $activeText: #FFFFFF;
+  $activeSubtleText: #C5C5C5;
+  $activeArrowColor: #DDDDDD;
+  
+  $error: desaturate(#eb3941, 10%);
+  $errorBorder: darken(#eb3941, 20%);
+  $success: darken(#dff0d8, 30%);
+  $successText: white;
+
+  $formBlue: #3883fa;
+  $panelBackground: #F5F5F5;
+  $hoverText: #ECF1FA;
+  $eggshell: rgb(245, 244, 240);
+  html, body{
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+  }
+  .computational-content{
+    width: 100%;
+    height: 100%;
+  }
+  #editor { 
+   
+    width: 100%;
+    height: 100%;
+  }
+  #settings{
+    padding: 15px;
+    display: none;
+  }
+  #zoom{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+  button.note{
+    outline: none;
+    &:active{
+      outline: none !important;
+    } 
+    &:focus{
+      background: white !important;
+      outline: none !important;
+    }
+    
+    &.active{
+      background: $formBlue !important;
+      color: white;
+      &:active{
+      background: $formBlue;
+      color: white;
+      }
+      &:hover{
+        background: $formBlue;
+        color: white;
+      }
+      &:focus{
+        outline: none !important;
+        background: $formBlue !important;
+        color: white !important;
+      }
+    }
+  }
+  #tabs{
+    padding-left: 5px;
+    li{ 
+      display: inline;
+      z-index: 9;
+    }
+    button{
+      position: relative;
+      background: darken($panelBackground, 10%);
+      z-index: 9;
+      &.selected{
+        &:focus{
+          outline: none;
+        }
+        z-index: 10000;
+        border-bottom: none;
+        top: -3px;
+        line-height: 144%;
+        padding-bottom: 3px;
+        border-width: 2px;
+        font-weight: bold;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        background: lighten($panelBackground, 10%);
+      }
+    }
+
+  }
+  #system-message{
+    height: 30px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-bottom: 3px;
+    span{
+      margin-right: 5px;
+    }
+    &.error{
+      background: lighten($error, 10%);
+      border: lighten($errorBorder, 10%) 1px solid;
+      text-align: center;
+      color: white;
+    }
+    &.success{
+      background: $success;
+      border: darken($success, 10%) 1px solid;
+      text-align: center;
+      color: $successText;
+    }
+
+  }
+
+  #annotation-panel{
+    width: 30%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: desaturate(darken($eggshell, 50%), 15%);
+    .heading{
+      text-align: left;
+    }
+  }
+  #metadata-panel{
+    width: 345px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 60%;
+    background: desaturate(darken($eggshell, 50%), 15%);
+    #jsoneditor{
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .dragpanel{
+    cursor: pointer;
+    color: #262626;
+    position: relative;
+      
+    .heading{
+        background: $panelBackground;
+        border-top: 1px solid $borderColor;
+        border-left: 1px solid $borderColor;
+        border-right: 1px solid $borderColor;
+        text-align: center;
+        padding: 5px;
+        font-family: Avenir;
+        font-weight: bold;
+        height: 30px;
+        margin-bottom: 0px !important;
+        z-index: 100;
+
+    }
+    .footer{
+      padding: 10px 10px;
+      height: 55px;
+      position: absolute;
+      z-index: 9;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      background: $panelBackground;
+      border: 1px solid $borderColor;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+    }
+    .tab-content{
+      width: 100%;
+      height: 100%;
+    }
+    .body{
+      border-top: 2px solid $borderColor;
+      border-left: 1px solid $borderColor;
+      border-bottom: 1px solid $borderColor;
+      border-right: 1px solid $borderColor;
+      padding: 5px 5px;
+      height: calc(100% - 55px - 30px);
+      width: 100%;
+      overflow-y: scroll;
+      background: white;
+      z-index: 200;
+      position: relative;      
+      ul{
+        padding-left: 0px; 
+        cursor: pointer;
+        padding-left: 5px;
+      }
+      & > ul ul{
+        padding-left: 10px;
+      }
+      & > ul > li li{
+        border-left: 1px solid #00A8E1;
+      }
+      li{
+        display: block;
+        position: relative;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        cursor: pointer;
+        &.mouseover{
+          background: $hoverText;
+        }
+      }
+
+      li.active{
+        background: $activeBackground;
+        color: $activeText;
+        span{
+          color: $activeSubtleText;
+        }
+        &:not(.leaf):before {
+          border-color: transparent $activeArrowColor transparent transparent;
+        }
+      }
+      li b{
+        padding-left: 25px;
+        padding-right: 5px;
+      }
+      li span{
+        color: $subtleText;
+      }
+      li.error{
+        & > b{
+          padding-left: 34px;
+        }
+        &:after{
+          background: $error;
+          border: $errorBorder 1px solid;
+          content: "!";
+          width: 12px;
+          height: 12px;
+          border-radius: 10px;
+          position: absolute;
+          top: 4px;
+          left: 18px;
+          color: white;
+          font-size: 10px;
+          line-height: 10px;
+          text-align: center;
+          font-weight: bold;
+          text-shadow: 1px 1px 3px #666666;
+        }
+      }
+
+      :not(.leaf).uncollapsed:before {
+          content:"\A";
+          border-style: solid;
+          border-width: 4px 8px 4px 0;
+          border-color: transparent $arrowColor transparent transparent;
+          transform: rotate(180deg);
+          position: absolute;
+          top: 5px;
+          left: 5px;
+      }
+      :not(.leaf).collapsed:before {
+          content:"\A";
+          border-style: solid;
+          border-width: 4px 8px 4px 0;
+          border-color: transparent $arrowColor transparent transparent;
+          transform: rotate(-90deg);
+          position: absolute;
+          top: 7px;
+          left: 7px;
+      }
+    }
+  }
+  .canvas-container{
+    top: 0;
+    width: 70%;
+    height: 100%;
+    position: relative;
+  }
+  canvas{
+    width: 100%;
+    height: 100%;
+    background: $eggshell;
+    border: 15px solid darken($eggshell, 2%);
+    cursor: pointer;
+  }
+  canvas[resize]{
+    width: 100%;
+    height: 100%;
+  }
+  .table-editable {
+    position: relative;
+    
+    .glyphicon {
+      font-size: 20px;
+    }
+  }
+
+  .table-remove {
+    color: #700;
+    cursor: pointer;
+    
+    &:hover {
+      color: #f00;
+    }
+  }
+
+  .table-up, .table-down {
+    color: #007;
+    cursor: pointer;
+    
+    &:hover {
+      color: #00f;
+    }
+  }
+
+  .table-add {
+    color: #070;
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
+    right: 0;
+    
+    &:hover {
+      color: #0b0;
+    }
+  }

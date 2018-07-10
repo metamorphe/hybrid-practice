@@ -1,6 +1,6 @@
 :coffeescript
   ports = #{@ports.to_json.html_safe}
-  files = #{@files.to_json.html_safe}
+  window.files = #{@files.to_json.html_safe}
   window.sens = #{@metadata.to_json.html_safe}
   _.extend window, window.sens.actuators
 
@@ -53,6 +53,7 @@
     - render :partial => "tool/levels/sequencer"
     - render :partial => "tool/levels/distributed"
     - render :partial => "tool/levels/statemachine"
+    = render :partial => "tool/levels/code"
            
 :css
   #ui2{

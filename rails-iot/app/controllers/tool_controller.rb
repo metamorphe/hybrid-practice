@@ -12,6 +12,9 @@ class ToolController < ApplicationController
   def annotator
     render :layout => "full_screen"
   end
+  def environment
+    render :layout => "full_screen"
+  end
   def statemachine
     @files = get_displays()
     @ports = get_ports()

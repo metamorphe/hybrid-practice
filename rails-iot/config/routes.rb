@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   end
 
   namespace :tool do
+    get 'environment'
     post 'visual_block'
     get 'index'
     get 'pipeline'

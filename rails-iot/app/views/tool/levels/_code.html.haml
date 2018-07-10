@@ -1,0 +1,342 @@
+:coffeescript
+  libraries = 
+    neopixel: ["Adafruit_NeoPixel"]
+
+  $ ->
+    console.log "✓ CodeGenerator/Editor"
+    
+    window.bp = new CodeEditor
+      dom: $('#boilerplate.editor')
+    bp.require [
+      "neopixel"
+    ]
+    $('#close-code').click ()->
+      $(".side-panel").animate {width: "toggle"}, 400
+      
+    generateDocumentationStub()
+    generateSetupCode()
+    generateContent()
+    bp.generateGlobalsBlock()
+    bp.generateLibBlock()
+  
+  gatherActuators = ()->
+    return [
+      {
+        type: "neopixel"
+        name: "disco"
+        params: [
+          24
+          11
+          "NEO_GRB + NEO_KHZ800"
+        ]
+      }
+    ]
+
+
+  generateDocumentationStub = ()->
+    options = 
+      weekday: 'long'
+      year: 'numeric'
+      month: 'long'
+      day: 'numeric'
+    today  = new Date();
+    today = today.toLocaleDateString("en-US")
+    project_name = fs.getName().capitalize()
+    bp.addComment 
+      content: [
+        'Project Name: ' + project_name
+        'Date: ' + today
+      ]
+      
+  generateAPICode = ()->
+    bp.addComment 
+      content: [
+        "COMMUNICATIONS CODE"
+        "-----------------------------"
+        "Code for enabling realtime communication via Serial."
+        "To enable wireless communication, add a 
+        HC-06 Serial Bluetooth to your Arduino."
+      ]
+    bp.registerGlobal
+      type: "char"
+      value: 0
+      name: "prefix"
+      block: "COMM API"
+    bp.registerGlobal
+      type: "char"
+      value: "''"
+      name: "buffer"
+      block: "COMM API"
+    bp.addFunction
+      return: "void"
+      name: "enable_comm"
+      statement: false
+      guts: [
+        "if (Serial.available() > 0) {"
+        "\tprefix = Serial.read();"
+        "\tapi_call(prefix);"
+        "}"
+      ]
+    bp.addFunction
+      return: "void"
+      name: "findCommandEnd"
+      statement: false
+      guts:[
+        "buffer = ' ';"
+        "while(buffer != '\\n'){"
+        "\tif(Serial.available() > 0){"
+        "\t\tbuffer = Serial.read();"
+        "\t}" 
+        "}"
+      ]
+    bp.addFunction
+      return: "void"
+      name: "api_call"
+      params: "char prefix"
+      guts: [
+        "switch (prefix) {"
+        "\tdefault:"
+        "\t\tSerial.print(prefix);"
+        "\t\tSerial.println(\": API command does not exist\");"
+        "\t\tbreak;"
+        "findCommandEnd();"
+      ]
+
+  generateSetupCode = ()->
+    project_name = fs.getName().capitalize()
+    bp.addFunction
+      return: "void"
+      name: "setup"
+      statement: false
+      guts: [
+        "Serial.begin(9600);"
+        bp.call
+          name: "Serial.println"
+          params: bp.stringify "Loading project: "+ project_name
+        bp.call 
+          name: "Serial.print"
+          params: bp.stringify "Listening at "
+        bp.call 
+          name: "Serial.print"
+          params: "BAUD"
+        bp.call 
+          name: "Serial.println"
+          params: bp.stringify " baud."
+        ""
+        bp.call
+          name: "registerActuators"
+        bp.call
+          name: "registerSensors"
+      ]
+    
+
+  generateContent = ()->
+    scope = this
+    generateAPICode()
+    actuators = gatherActuators()
+    actuators = _.each actuators, (a)->
+      if a.type == "neopixel"
+        bp.require [a.type]
+        bp.registerGlobal
+          block: "ACTUATORS"
+          type: "Adafruit_NeoPixel"
+          name: a.name
+          value: "Adafruit_NeoPixel"+ bp.param a.params.join(', ')
+  
+    bp.addFunction
+      return: "void"
+      statement: false
+      name: "registerActuators"
+      guts: [
+        "// TODO: Add code to setup actuators."
+      ]
+
+    bp.addFunction
+      return: "void"
+      statement: false
+      name: "registerSensors"
+      guts: [
+        "// TODO: Add code to setup sensors."
+      ]
+    bp.addFunction
+      return: "void"
+      name: "loop"
+      guts: [
+        bp.call 
+          name: "enable_comm"
+          comment: "Comment out to disable remote communication."
+      ]
+
+    bc = new CodeEditor
+      dom: $('#behaviors.editor')
+
+  class window.CodeEditor
+    constructor: (@op)->
+      console.log @op
+      @initEditor()
+      @initEditorButton()
+      @globals = {}
+      @libs = []
+      
+    require: (op)->
+      scope = this
+      _.each op, (lib)->
+        scope.libs.push libraries[lib]
+    generateLibBlock: ()->
+      @editor.gotoLine(5, 0)
+      scope = this
+      _.each _.uniq(_.flatten(scope.libs)), (lib)->
+        scope.addLine
+          content: "#include <" + lib+ ".h>"
+      scope.addLineBreak()
+    registerGlobal: (op)->
+      if @globals[op.block]
+        @globals[op.block].push op
+      else
+        @globals[op.block] = [op]
+    generateGlobalsBlock: ()->
+      @editor.gotoLine(5, 0)
+      scope = this
+      _.each @globals, (glob, comment)->
+        scope.addComment
+          content: comment
+        _.each glob, (line)->
+          console.log "LINE", line
+          scope.addLine
+            content: line.type+" "+line.name+"= "+line.value
+            statement: true
+        scope.addLineBreak()
+    initEditor:()->
+      @editor = ace.edit(@op.dom[0])
+      @editor.setTheme 'ace/theme/monokai'
+      # var JavaScriptMode = ace.require("ace/mode/javascript").Mode;
+      # editor.session.setMode(new JavaScriptMode());
+      newSession = ace.createEditSession('', 'ace/mode/c_cpp')
+      @editor.setSession newSession
+      @editor.$blockScrolling = Infinity
+    param: (x)->
+      return "("+x+")"
+    stringify: (x)->
+      return '"' + x+'"'
+    insert: (x)->
+      @editor.insert x
+    addComment: (op)->
+      scope = this
+  
+      if _.isString op.content
+        op.comment = true
+        op.statement = false
+        @addLine op
+      else
+        @addLine 
+          content: "/*"
+          statement: false
+        _.each op.content, (comment)->
+          scope.addLine 
+            content: " *  " + comment
+            statement: false
+        @addLine 
+          content: " */"
+          statement: false
+    call: (op)->
+      def = 
+        params: ""
+      def = _.extend(def, op)
+      end = ";"
+      if def.comment
+        end = end +  "// " + def.comment
+      return def.name + @param(def.params) + end
+    addLineBreak: ()->
+      @addLine
+        content: ""
+        statement: false
+    addLine: (op)->
+      def = 
+        comment: false
+        tabs: 0
+        statement: true
+      console.log def, op
+      def = _.extend def, op
+      tabs = _.range(0, def.tabs)
+      tabs = _.map tabs, (t)-> return "\t"
+      prefix = tabs.join('')
+      suffix = "\n"
+      if def.comment
+        prefix = "// " + prefix
+      if def.statement
+        suffix = ";\n"
+      @editor.insert prefix+def.content+ suffix
+    addFunction: (op)->
+      scope = this
+      def = 
+        return: "void"
+        name: "function1"
+        parameters: []
+        statement: false
+        guts: []
+      op = _.extend def, op
+      @addLine
+        content: op.return + " " + op.name+@param(op.parameters.join(', '))+"{"
+        statement: false
+      _.each op.guts, (gut)->
+        scope.addLine
+          content: gut
+          tabs: 1
+          statement: def.statement
+      @addLine
+        content: "}\n"
+        statement: false
+
+
+
+    initEditorButton:()->
+      # scope = this;
+      # editor = scope.editor
+      # $('button.sexy').click ->
+      #   newSession = ace.createEditSession('', 'ace/mode/javascript')
+      #   editor.setSession newSession
+       
+      #   ts = scope.getActiveTimeSignal()
+      #   commands = ts.command_list.apply(ts)
+      #   editor.insert 'function myBehavior(){\n'
+        
+      #   _.each commands, (command) ->
+      #     txt = scope.sendCommand(scope, command.param)
+      #     editor.insert txt
+      #     editor.insert '\u0009delay(' + command.duration.toFixed(0) + ');\n'
+      #     return
+      #   editor.insert '}\n'
+
+      #   _.each commands, (command) ->
+      #     _.delay(scope.sendCommand, command.t, scope, command.param) 
+      #     return
+
+
+.side-panel
+  .buttons
+    #close-code.btn.btn-xs.btn-danger.pull-right
+      %span.glyphicon.glyphicon-remove
+  .editor#boilerplate
+    Hello World
+  .editor#behaviors
+    Que Quieres
+:scss
+  .side-panel{
+    padding: 15px;
+    position: fixed;
+    background: #111;
+    height: 90%;
+    width: 400px;
+    left: 0;
+    top: 5%;
+    z-index: 10000;
+    .buttons{
+      width: 100%;
+      background: black;
+    }
+    .editor{
+      height: calc(50% - 10px);
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
