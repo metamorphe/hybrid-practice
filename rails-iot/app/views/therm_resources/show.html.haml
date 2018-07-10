@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b User:
+  = @therm_resource.user_id
+%p
+  %b Category:
+  = @therm_resource.category
+%p
+  %b Resource:
+  = image_tag @therm_resource.resource_url
+%p
+  %b Tags:
+  = @therm_resource.tags
+
+= link_to 'Edit', edit_therm_resource_path(@therm_resource)
+\|
+= link_to 'Back', therm_resources_path

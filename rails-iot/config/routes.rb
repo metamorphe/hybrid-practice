@@ -2,8 +2,10 @@ Rails.application.routes.draw do
   devise_for :users, controllers: { confirmations: 'confirmations',  omniauth_callbacks: "omniauth_callbacks"}
   resources :user, :only => ["show"]
 
+  resources :videos
   get 'aesthetic_development/network'
 
+  resources :therm_resources 
   resources :visual_blocks do 
     collection do 
       get 'selectors'
