@@ -1,5 +1,5 @@
 = javascript_include_tag "manifest/opportunistic"
-#metadata-panel.dragpanel
+#metadata-panel.dragpanel{title: "METADATA"}
   .heading.draghandle
     %ul#tabs
       %li
@@ -19,6 +19,9 @@
       SAVE METADATA
 
 .canvas-container
+  .top-menu
+    %button#metadata-panel-opener.btn.btn-primary.btn-sm METADATA
+    %input.form-control{:placeholder => "Project Title", :type => "text"}/
   %canvas#annotator{:resize => true}
   .btn-group-vertical#zoom
     %button#zoom-in.btn.btn-xs.btn-info
@@ -31,14 +34,17 @@
   .heading.draghandle
     %ul#tabs
       %li       
-        %button.btn-default.btn.btn-sm.selected{goto: "#svg-viewer.tab-content"}
+        %button.btn-default.btn.btn-sm.start{goto: "#library.tab-content"}
+          LIB
+      %li       
+        %button.btn-default.btn.btn-sm{goto: "#svg-viewer.tab-content"}
           MANIFEST
       %li
         %button.btn-default.btn.btn-sm{goto: "#mechanical.tab-content"}
-          MECHANICAL
+          HOUSING
       %li
         %button.btn-default.btn.btn-sm{goto: "#electrical.tab-content"}
-          ELECTRICAL
+          PINS
       %li
         %button.btn-default.btn.btn-sm{goto: "#computational.tab-content"}
           PROGRAM
@@ -46,6 +52,27 @@
         %button.btn-default.btn.btn-sm{goto: "#settings.tab-content"}
           %span.glyphicon.glyphicon-cog
   .body
+    #library.tab-content.active 
+      .input-group
+        %input.form-control{:placeholder => "Search for...", :type => "text"}/
+        %span.input-group-btn
+          %button.btn.btn-success{:type => "button"}
+            %span.glyphicon.glyphicon-plus
+      %br.clearfix
+      - @actuators.each do |a|
+        .col-xs-6.actuator{name: "/"+a}
+          = image_tag "/"+a, :width => "100%"
+          %button.btn.btn-danger.btn-sm
+            %span.glyphicon.glyphicon-plus
+    #svg-viewer.tab-content
+      #system-message.success
+        %span.glyphicon.glyphicon-warning-sign.error-alert
+        %span.error-alert
+          %b#error-count 25 
+          %span ERRORS DETECTED
+        %span.success-alert
+          %span DESIGN PASSED VALIDATION
+      #svg-tree
     #mechanical.tab-content
     #electrical.tab-content
       %table.table.table-striped
@@ -61,22 +88,7 @@
 
     #computational.tab-content
       #editor
-    #svg-viewer.tab-content
-      
-      .input-group
-        %input.form-control{:placeholder => "Search for...", :type => "text"}/
-        %span.input-group-btn
-          %button.btn.btn-success{:type => "button"}
-            %span.glyphicon.glyphicon-plus
-      %br.clearfix
-      #system-message.success
-        %span.glyphicon.glyphicon-warning-sign.error-alert
-        %span.error-alert
-          %b#error-count 25 
-          %span ERRORS DETECTED
-        %span.success-alert
-          %span DESIGN PASSED VALIDATION
-      #svg-tree
+    
 
     #settings.tab-content
       %p 
@@ -143,6 +155,14 @@
     overflow: hidden;
     margin: 0;
   }
+  .actuator{
+    button{
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 100;
+    }
+  }
   .computational-content{
     width: 100%;
     height: 100%;
@@ -160,6 +180,7 @@
     position: absolute;
     top: 15px;
     right: 15px;
+    z-index: 200;
   }
   button.note{
     outline: none;
@@ -254,12 +275,25 @@
       text-align: left;
     }
   }
+  .top-menu{
+    position: absolute;
+    z-index: 100;
+    top: 0px;
+    left: 0px;
+    padding: 30px 60px;
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
   #metadata-panel{
     width: 345px;
-    position: absolute;
-    left: 0;
-    top: 0;
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
     height: 60%;
+    padding: 0 !important;
     background: desaturate(darken($eggshell, 50%), 15%);
     #jsoneditor{
       width: 100%;
@@ -288,12 +322,7 @@
     .footer{
       padding: 10px 10px;
       height: 55px;
-      position: absolute;
-      z-index: 9;
-      bottom: 0;
-      left: 0;
       width: 100%;
-      overflow: hidden;
       background: $panelBackground;
       border: 1px solid $borderColor;
       display: flex;

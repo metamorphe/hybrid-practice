@@ -81,7 +81,7 @@ class ProgramSynthesis
     global_libs = _.map paper.project.getItems({data:{actuator: true}}), (act)->
       return eval(act.data.libs)
     obj = paper.project.getItems({})
-  	# name = if (obj[1].data and obj[1].data and obj[1].data.name) then obj[1].data.name else "API"
+    # name = if (obj[1].data and obj[1].data and obj[1].data.name) then obj[1].data.name else "API"
     
     @config =
       name: "API"
@@ -131,8 +131,19 @@ app =
   bindEvents: ()->
     scope = this
     $ -> 
+      $('#metadata-panel').dialog
+        autoOpen: false
+      $('#metadata-panel-opener').click (e)->
+        $('#metadata-panel').dialog("open")
+      $('.actuator button').click (e)->
+        file = $(this).parent('.actuator').attr('name').split(".")[0] + ".svg"
+        paper.project.importSVG file, (svg)->
+          console.log "Loading", svg
+          svg.position = paper.view.center
       scope.onDocumentReady()
-      $("#clear").click (e)-> ws.remove(scope.filename())
+      $("#clear").click (e)-> 
+        ws.remove(scope.filename())
+        paper.project.clear()
       $("#save").click (e)-> scope.save(scope.filename(), "webstorage")
       $("#download").click (e)-> scope.save(scope.filename(), "disk")
       $('#shade').fadeOut()
@@ -140,6 +151,7 @@ app =
         $(this).toggleClass('active')
       $('.note').click (e)->
         $(this).toggleClass('active')
+
       $('#tabs button').click (e)->
         goto = $(this).attr('goto')
         panels = $(this).parents('.dragpanel').find('.tab-content').hide().removeClass(".active")
@@ -147,6 +159,7 @@ app =
         $(goto).show().addClass('active')
         $('#tabs button.selected').removeClass('selected')
         $(this).addClass('selected')
+      $('#tabs button.start').click()
       $('#zoom-in').click ()->
         paper.view.zoom += 0.1
       $('#zoom-out').click ()->

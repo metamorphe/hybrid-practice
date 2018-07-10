@@ -13,6 +13,7 @@ class ToolController < ApplicationController
     render :layout => "full_screen"
   end
   def environment
+    @actuators = get_actuators()
     render :layout => "full_screen"
   end
   def statemachine
@@ -126,7 +127,10 @@ class ToolController < ApplicationController
  end
 
  # HELPER METHODS
- 
+  def get_actuators
+    Dir.glob("public/manifest/*.png").collect!{|c| c.split('/')[1..-1].join('/')}
+  end
+
   def get_ports
     ports = ["/dev/tty.usb*", "/dev/tty.AestheticAquarium-DevB"] #"/dev/tty.HC*", 
     ports.map!{|p| Dir[p]}

@@ -12,6 +12,8 @@
 //= require jquery-ui/widgets/resizable
 //= require jquery-ui/widgets/selectable
 //= require jquery-ui/widgets/sortable
+//= require jquery-ui/widgets/dialog
+
 //= require_self
 
 window.YELLOW = "#FF9912"
