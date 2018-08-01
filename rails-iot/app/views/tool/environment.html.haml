@@ -1,4 +1,7 @@
+= javascript_include_tag "manifest/program"
 = javascript_include_tag "manifest/opportunistic"
+
+
 #metadata-panel.dragpanel{title: "METADATA"}
   .heading.draghandle
     %ul#tabs
@@ -118,15 +121,19 @@
 
   .footer
     .btn-group
-      %button.btn.btn-default#download
+      %button.btn.btn-sm.btn-default#download
         %span.glyphicon.glyphicon-download
         DOWNLOAD
-      %button.btn.btn-default#save
+      %button.btn.btn-sm.btn-default#save
         %span.glyphicon.glyphicon-floppy-disk
         SAVE
-      %button.btn.btn-danger#clear
+      %button.btn.btn-sm.btn-danger#clear
         %span.glyphicon.glyphicon-trash
         CLEAR
+      %button.btn.btn-sm.btn-success#refresh
+        %span.glyphicon.glyphicon-refresh
+        REFRESH
+
 
    
 

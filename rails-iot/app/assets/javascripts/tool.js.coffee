@@ -15,12 +15,8 @@
 //= require eld/ruler
 //= require eld/CanvasUtil
 //= require eld/artwork
-
 //= require annotator/jsoneditor.min
 //= require ace-rails-ap
-
 //= require ace/theme-monokai
 //= require ace/mode-c_cpp
-
-
-    
+//= require yaml.min
